@@ -14,6 +14,7 @@ interface ResultsStore {
   selectTable: (table: "authors" | "files" | "blame") => void;
   clearResults: () => void;
   getCurrentRepository: () => RepositoryResult | null;
+  setResults: (results: AnalysisResult) => void;
 }
 
 export const useResultsStore = create<ResultsStore>((set, get) => ({
@@ -56,5 +57,13 @@ export const useResultsStore = create<ResultsStore>((set, get) => ({
     const { results, selectedRepository } = get();
     if (!results || !selectedRepository) return null;
     return results.repositories.find(repo => repo.name === selectedRepository) || null;
+  },
+
+  setResults: (results) => {
+    set({
+      results,
+      error: null,
+      selectedRepository: results.repositories.length > 0 ? results.repositories[0].name : null
+    });
   },
 }));

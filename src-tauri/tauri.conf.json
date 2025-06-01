@@ -53,13 +53,40 @@
         "icons/128x128@2x.png",
         "icons/icon.icns",
         "icons/icon.ico"
-      ]
+      ],
+      "resources": [],
+      "externalBin": [],
+      "copyright": "Copyright © 2025 GitInspectorGUI. All rights reserved.",
+      "category": "DeveloperTool",
+      "shortDescription": "Modern git repository analysis tool",
+      "longDescription": "GitInspectorGUI is a modern desktop application for comprehensive git repository analysis, providing detailed statistics, blame information, and interactive data visualization.",
+      "deb": {
+        "depends": []
+      },
+      "macOS": {
+        "frameworks": [],
+        "minimumSystemVersion": "10.13",
+        "exceptionDomain": "",
+        "signingIdentity": null,
+        "providerShortName": null,
+        "entitlements": null
+      },
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
+      }
     },
     "security": {
       "csp": null
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": [
+        "https://gitlab.com/api/v4/projects/{{project_id}}/releases/{{current_version}}"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJGN0UzNzQyNzQ2MjY5NzQKUldSWTRKaFRuVGhHWVRoMzJnRjNVVlZHWVRoMzJnRjNVVlZHWVRoMzJnRjNVVlZHWVRoMzJnRjNVVlY="
     },
     "windows": [
       {

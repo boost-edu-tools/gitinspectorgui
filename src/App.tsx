@@ -1,7 +1,7 @@
 import React from "react";
 import { SettingsFormTabs } from "./components/SettingsFormTabs";
 import { ExecuteButton } from "./components/ExecuteButton";
-import { AdvancedResultsTables } from "./components/AdvancedResultsTables";
+import { Phase3ResultsInterface } from "./components/Phase3ResultsInterface";
 import { useResultsStore } from "./stores/resultsStore";
 
 function App() {
@@ -57,7 +57,7 @@ function App() {
         
         <div className="flex-1 overflow-hidden">
           {results ? (
-            <AdvancedResultsTables />
+            <Phase3ResultsInterface />
           ) : (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
