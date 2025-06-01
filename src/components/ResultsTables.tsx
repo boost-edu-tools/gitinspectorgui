@@ -42,7 +42,7 @@ export function ResultsTables() {
                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
             }`}
           >
-            Authors ({currentRepo?.authors.length || 0})
+            🔥 AUTHORS TEST 🔥 ({currentRepo?.authors.length || 0})
           </button>
           <button
             onClick={() => selectTable("files")}
@@ -87,13 +87,14 @@ function AuthorsTable({ authors }: { authors: AuthorStat[] }) {
       <table className="w-full border-collapse border border-border">
         <thead>
           <tr className="bg-muted">
-            <th className="border border-border p-2 text-left">Author</th>
+            <th className="border border-border p-2 text-left" style={{backgroundColor: 'yellow', color: 'black'}}>🚨 AUTHOR TEST 🚨</th>
             <th className="border border-border p-2 text-left">Email</th>
             <th className="border border-border p-2 text-right">Commits</th>
             <th className="border border-border p-2 text-right">Insertions</th>
             <th className="border border-border p-2 text-right">Deletions</th>
             <th className="border border-border p-2 text-right">Files</th>
             <th className="border border-border p-2 text-right">Percentage</th>
+            <th className="border border-border p-2 text-right" style={{backgroundColor: 'red', color: 'white'}}>🎂 AGE TEST</th>
           </tr>
         </thead>
         <tbody>
@@ -106,6 +107,7 @@ function AuthorsTable({ authors }: { authors: AuthorStat[] }) {
               <td className="border border-border p-2 text-right">{formatNumber(author.deletions)}</td>
               <td className="border border-border p-2 text-right">{formatNumber(author.files)}</td>
               <td className="border border-border p-2 text-right">{formatPercentage(author.percentage)}</td>
+              <td className="border border-border p-2 text-right">{author.age}</td>
             </tr>
           ))}
         </tbody>

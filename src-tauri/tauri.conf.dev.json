@@ -58,11 +58,7 @@
         "../python"
       ],
       "externalBin": [
-        {
-          "name": "gitinspector-api-sidecar",
-          "src": "../python/dev_api.py",
-          "main": true
-        }
+        "../python/dev_api.py"
       ],
       "copyright": "Copyright © 2025 GitInspectorGUI. All rights reserved.",
       "category": "DeveloperTool",

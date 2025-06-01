@@ -266,6 +266,7 @@ function InteractiveAuthorsTable({
     { key: "deletions", label: "Deletions", sortable: true, editable: false, type: "number" },
     { key: "files", label: "Files", sortable: true, editable: false, type: "number" },
     { key: "percentage", label: "Percentage", sortable: true, editable: false, type: "number" },
+    { key: "age", label: "Age", sortable: true, editable: false, type: "text" },
   ];
 
   const filteredAndSortedData = useMemo(() => {
@@ -451,9 +452,135 @@ function InteractiveAuthorsTable({
 // Similar implementations for InteractiveFilesTable and InteractiveBlameTable would follow
 // For brevity, I'll implement them as simplified versions that extend the same pattern
 
-function InteractiveFilesTable(_props: InteractiveTableProps & { files: FileStat[] }) {
-  // Implementation similar to InteractiveAuthorsTable but for files
-  return <div>Interactive Files Table - Implementation follows same pattern as Authors</div>;
+function InteractiveFilesTable({
+  files,
+  tableState,
+  onSort,
+  onPageChange,
+  onRowExpand,
+  onCellEdit,
+  onSaveEdit,
+  onCancelEdit,
+  editValue,
+  onEditValueChange
+}: InteractiveTableProps & { files: FileStat[] }) {
+  
+  const columns: ColumnConfig[] = [
+    { key: "name", label: "File", sortable: true, editable: false, type: "text" },
+    { key: "path", label: "Path", sortable: true, editable: false, type: "text" },
+    { key: "lines", label: "Lines", sortable: true, editable: false, type: "number" },
+    { key: "commits", label: "Commits", sortable: true, editable: false, type: "number" },
+    { key: "authors", label: "Authors", sortable: true, editable: false, type: "number" },
+    { key: "percentage", label: "Percentage", sortable: true, editable: false, type: "number" },
+  ];
+
+  const filteredAndSortedData = useMemo(() => {
+    let filtered = [...files]; // Create a copy to sort
+
+    if (tableState.sortField && tableState.sortDirection) {
+      filtered.sort((a, b) => {
+        const aVal = a[tableState.sortField as keyof FileStat];
+        const bVal = b[tableState.sortField as keyof FileStat];
+        
+        if (typeof aVal === "string" && typeof bVal === "string") {
+          return tableState.sortDirection === "asc"
+            ? aVal.localeCompare(bVal)
+            : bVal.localeCompare(aVal);
+        }
+        
+        if (typeof aVal === "number" && typeof bVal === "number") {
+          return tableState.sortDirection === "asc"
+            ? aVal - bVal
+            : bVal - aVal;
+        }
+        
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [files, tableState.sortField, tableState.sortDirection]);
+
+  const paginatedData = useMemo(() => {
+    const startIndex = tableState.currentPage * tableState.pageSize;
+    return filteredAndSortedData.slice(startIndex, startIndex + tableState.pageSize);
+  }, [filteredAndSortedData, tableState.currentPage, tableState.pageSize]);
+
+  const totalPages = Math.ceil(filteredAndSortedData.length / tableState.pageSize);
+
+  return (
+    <div className="interactive-table-container">
+      <div className="table-container">
+        <table className="w-full border-collapse border border-border">
+          <thead>
+            <tr className="bg-muted">
+              {columns.map((column) => (
+                <th
+                  key={column.key}
+                  className={`border border-border p-2 text-left select-none ${
+                    column.sortable ? "cursor-pointer hover:bg-muted/50" : ""
+                  }`}
+                  onClick={() => column.sortable && onSort(column.key)}
+                >
+                  <div className="flex items-center gap-1">
+                    {column.label}
+                    {column.sortable && tableState.sortField === column.key && (
+                      <span className="text-xs">
+                        {tableState.sortDirection === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedData.map((file, index) => (
+              <tr key={index} className="table-row-hover">
+                <td className="border border-border p-2">{file.name}</td>
+                <td className="border border-border p-2">{file.path}</td>
+                <td className="border border-border p-2 text-right">{formatNumber(file.lines)}</td>
+                <td className="border border-border p-2 text-right">{formatNumber(file.commits)}</td>
+                <td className="border border-border p-2 text-right">{formatNumber(file.authors)}</td>
+                <td className="border border-border p-2 text-right">{formatPercentage(file.percentage)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      
+      {totalPages > 1 && (
+        <div className="pagination-controls flex items-center justify-between mt-4 p-4 border-t border-border">
+          <div className="text-sm text-muted-foreground">
+            Showing {tableState.currentPage * tableState.pageSize + 1} to{" "}
+            {Math.min((tableState.currentPage + 1) * tableState.pageSize, filteredAndSortedData.length)} of{" "}
+            {filteredAndSortedData.length} files
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(tableState.currentPage - 1)}
+              disabled={tableState.currentPage === 0}
+            >
+              Previous
+            </Button>
+            <span className="text-sm">
+              Page {tableState.currentPage + 1} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(tableState.currentPage + 1)}
+              disabled={tableState.currentPage >= totalPages - 1}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function InteractiveBlameTable({

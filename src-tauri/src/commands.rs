@@ -138,6 +138,7 @@ pub struct AuthorStat {
     pub deletions: i32,
     pub files: i32,
     pub percentage: f64,
+    pub age: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

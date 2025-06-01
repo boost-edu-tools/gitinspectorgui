@@ -28,8 +28,8 @@ export const useResultsStore = create<ResultsStore>((set, get) => ({
     set({ isAnalyzing: true, error: null, results: null });
     try {
       const results = await executeAnalysis(settings);
-      set({ 
-        results, 
+      set({
+        results,
         isAnalyzing: false,
         selectedRepository: results.repositories.length > 0 ? results.repositories[0].name : null
       });

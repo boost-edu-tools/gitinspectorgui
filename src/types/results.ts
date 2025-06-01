@@ -6,6 +6,7 @@ export interface AuthorStat {
   deletions: number;
   files: number;
   percentage: number;
+  age: string;
 }
 
 export interface FileStat {
