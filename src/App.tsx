@@ -1,7 +1,7 @@
 import React from "react";
-import { SettingsForm } from "./components/SettingsForm";
+import { SettingsFormTabs } from "./components/SettingsFormTabs";
 import { ExecuteButton } from "./components/ExecuteButton";
-import { ResultsTables } from "./components/ResultsTables";
+import { AdvancedResultsTables } from "./components/AdvancedResultsTables";
 import { useResultsStore } from "./stores/resultsStore";
 
 function App() {
@@ -23,7 +23,7 @@ function App() {
         
         {/* Scrollable Settings */}
         <div className="flex-1 p-6 overflow-y-auto">
-          <SettingsForm />
+          <SettingsFormTabs />
         </div>
         
         {/* Fixed Execute Button */}
@@ -57,7 +57,7 @@ function App() {
         
         <div className="flex-1 overflow-hidden">
           {results ? (
-            <ResultsTables />
+            <AdvancedResultsTables />
           ) : (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">

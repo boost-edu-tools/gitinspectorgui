@@ -15,20 +15,55 @@ from typing import Any, Dict, List, Optional
 @dataclass
 class Settings:
     """Settings for git repository analysis."""
+    # Repository and Input Settings
     input_fstrs: List[str]
-    depth: int = 3
-    n_files: int = 100
+    depth: int = 5
+    subfolder: str = ""
+    
+    # File Analysis Settings
+    n_files: int = 5
     include_files: List[str] = None
     ex_files: List[str] = None
+    extensions: List[str] = None
+    
+    # Author and Commit Filtering
     ex_authors: List[str] = None
     ex_emails: List[str] = None
     ex_revisions: List[str] = None
     ex_messages: List[str] = None
-    copy_move: int = 0
+    since: str = ""
+    until: str = ""
+    
+    # Output and Format Settings
+    outfile_base: str = "gitinspect"
+    fix: str = "prefix"
+    file_formats: List[str] = None
+    view: str = "auto"
+    
+    # Analysis Options
+    copy_move: int = 1
     scaled_percentages: bool = False
-    blame_exclusions: bool = False
-    dynamic_blame_history: bool = False
-    dryrun: bool = False
+    blame_exclusions: str = "hide"
+    blame_skip: bool = False
+    show_renames: bool = False
+    
+    # Content Analysis
+    deletions: bool = False
+    whitespace: bool = False
+    empty_lines: bool = False
+    comments: bool = False
+    
+    # Performance Settings
+    multithread: bool = True
+    multicore: bool = False
+    verbosity: int = 0
+    
+    # Development/Testing
+    dryrun: int = 0
+    
+    # GUI-specific
+    gui_settings_full_path: bool = False
+    col_percent: int = 75
 
     def __post_init__(self):
         """Initialize empty lists for None values."""
@@ -36,6 +71,10 @@ class Settings:
             self.include_files = []
         if self.ex_files is None:
             self.ex_files = []
+        if self.extensions is None:
+            self.extensions = ["c", "cc", "cif", "cpp", "glsl", "h", "hh", "hpp", "java", "js", "py", "rb", "sql", "ts"]
+        if self.file_formats is None:
+            self.file_formats = ["html"]
         if self.ex_authors is None:
             self.ex_authors = []
         if self.ex_emails is None:

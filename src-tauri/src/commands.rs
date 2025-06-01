@@ -3,39 +3,112 @@ use tauri::command;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Settings {
+    // Repository and Input Settings
     pub input_fstrs: Vec<String>,
     pub depth: i32,
+    pub subfolder: String,
+    
+    // File Analysis Settings
     pub n_files: i32,
     pub include_files: Vec<String>,
     pub ex_files: Vec<String>,
+    pub extensions: Vec<String>,
+    
+    // Author and Commit Filtering
     pub ex_authors: Vec<String>,
     pub ex_emails: Vec<String>,
     pub ex_revisions: Vec<String>,
     pub ex_messages: Vec<String>,
+    pub since: String,
+    pub until: String,
+    
+    // Output and Format Settings
+    pub outfile_base: String,
+    pub fix: String,
+    pub file_formats: Vec<String>,
+    pub view: String,
+    
+    // Analysis Options
     pub copy_move: i32,
     pub scaled_percentages: bool,
-    pub blame_exclusions: bool,
-    pub dynamic_blame_history: bool,
-    pub dryrun: bool,
+    pub blame_exclusions: String,
+    pub blame_skip: bool,
+    pub show_renames: bool,
+    
+    // Content Analysis
+    pub deletions: bool,
+    pub whitespace: bool,
+    pub empty_lines: bool,
+    pub comments: bool,
+    
+    // Performance Settings
+    pub multithread: bool,
+    pub multicore: bool,
+    pub verbosity: i32,
+    
+    // Development/Testing
+    pub dryrun: i32,
+    
+    // GUI-specific
+    pub gui_settings_full_path: bool,
+    pub col_percent: i32,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Settings {
+            // Repository and Input Settings
             input_fstrs: vec![],
-            depth: 3,
-            n_files: 100,
+            depth: 5,
+            subfolder: String::new(),
+            
+            // File Analysis Settings
+            n_files: 5,
             include_files: vec![],
             ex_files: vec![],
+            extensions: vec!["c".to_string(), "cc".to_string(), "cif".to_string(), "cpp".to_string(),
+                           "glsl".to_string(), "h".to_string(), "hh".to_string(), "hpp".to_string(),
+                           "java".to_string(), "js".to_string(), "py".to_string(), "rb".to_string(),
+                           "sql".to_string(), "ts".to_string()],
+            
+            // Author and Commit Filtering
             ex_authors: vec![],
             ex_emails: vec![],
             ex_revisions: vec![],
             ex_messages: vec![],
-            copy_move: 0,
+            since: String::new(),
+            until: String::new(),
+            
+            // Output and Format Settings
+            outfile_base: "gitinspect".to_string(),
+            fix: "prefix".to_string(),
+            file_formats: vec!["html".to_string()],
+            view: "auto".to_string(),
+            
+            // Analysis Options
+            copy_move: 1,
             scaled_percentages: false,
-            blame_exclusions: false,
-            dynamic_blame_history: false,
-            dryrun: false,
+            blame_exclusions: "hide".to_string(),
+            blame_skip: false,
+            show_renames: false,
+            
+            // Content Analysis
+            deletions: false,
+            whitespace: false,
+            empty_lines: false,
+            comments: false,
+            
+            // Performance Settings
+            multithread: true,
+            multicore: false,
+            verbosity: 0,
+            
+            // Development/Testing
+            dryrun: 0,
+            
+            // GUI-specific
+            gui_settings_full_path: false,
+            col_percent: 75,
         }
     }
 }
