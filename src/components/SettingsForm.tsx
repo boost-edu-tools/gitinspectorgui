@@ -1,7 +1,6 @@
 import React from "react";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 export function SettingsForm() {
   const { settings, updateSettings, isLoading } = useSettingsStore();
@@ -145,8 +144,8 @@ export function SettingsForm() {
           <input
             type="checkbox"
             id="blame_exclusions"
-            checked={settings.blame_exclusions}
-            onChange={handleInputChange("blame_exclusions")}
+            checked={settings.blame_exclusions === "show" || settings.blame_exclusions === "remove"}
+            onChange={(e) => updateSettings({ blame_exclusions: e.target.checked ? "show" : "hide" })}
             disabled={isLoading}
             className="rounded border-input"
           />
@@ -159,8 +158,8 @@ export function SettingsForm() {
           <input
             type="checkbox"
             id="dynamic_blame_history"
-            checked={settings.dynamic_blame_history}
-            onChange={handleInputChange("dynamic_blame_history")}
+            checked={settings.view === "dynamic-blame-history"}
+            onChange={(e) => updateSettings({ view: e.target.checked ? "dynamic-blame-history" : "auto" })}
             disabled={isLoading}
             className="rounded border-input"
           />
@@ -173,8 +172,8 @@ export function SettingsForm() {
           <input
             type="checkbox"
             id="dryrun"
-            checked={settings.dryrun}
-            onChange={handleInputChange("dryrun")}
+            checked={settings.dryrun !== 0}
+            onChange={(e) => updateSettings({ dryrun: e.target.checked ? 1 : 0 })}
             disabled={isLoading}
             className="rounded border-input"
           />

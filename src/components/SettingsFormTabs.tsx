@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 type TabType = "repository" | "files" | "filtering" | "output" | "analysis" | "performance";
 
@@ -115,7 +114,7 @@ function RepositoryTab({ settings, handleInputChange, handleArrayInputChange, ha
   );
 }
 
-function FilesTab({ settings, handleInputChange, handleArrayInputChange, handleNumberInputChange, isLoading }: any) {
+function FilesTab({ settings, handleArrayInputChange, handleNumberInputChange, isLoading }: any) {
   return (
     <div className="space-y-4">
       <div className="space-y-2">

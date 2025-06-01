@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use tauri::command;
+use tauri::{command, api::process::Command};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Settings {
@@ -161,75 +161,68 @@ pub struct BlameEntry {
 }
 
 #[command]
-pub async fn execute_analysis(settings: Settings) -> Result<AnalysisResult, String> {
+pub async fn execute_analysis(_app: tauri::AppHandle, settings: Settings) -> Result<AnalysisResult, String> {
     println!("Executing analysis with settings: {:?}", settings);
     
-    // Call Python backend
+    // Serialize settings to JSON for the sidecar
     let settings_json = serde_json::to_string(&settings)
         .map_err(|e| format!("Failed to serialize settings: {}", e))?;
-    
-    let output = std::process::Command::new("uv")
-        .arg("run")
-        .arg("python")
-        .arg("python/gigui/api.py")
-        .arg("execute_analysis")
-        .arg(&settings_json)
+
+    // Use Tauri sidecar to call the Python executable
+    let output = Command::new_sidecar("gitinspector-api-sidecar")
+        .map_err(|e| format!("Failed to create sidecar command: {}", e))?
+        .args(&["execute_analysis", &settings_json])
         .output()
-        .map_err(|e| format!("Failed to execute Python backend: {}", e))?;
+        .map_err(|e| format!("Failed to execute sidecar: {}", e))?;
     
     if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("Python backend failed: {}", stderr));
+        return Err(format!("Sidecar execution failed: {}", output.stderr));
     }
     
-    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stdout = &output.stdout;
     let result: AnalysisResult = serde_json::from_str(&stdout)
-        .map_err(|e| format!("Failed to parse Python response: {}", e))?;
+        .map_err(|e| format!("Failed to parse sidecar response: {}", e))?;
     
     Ok(result)
 }
 
 #[command]
-pub async fn get_settings() -> Result<Settings, String> {
-    let output = std::process::Command::new("uv")
-        .arg("run")
-        .arg("python")
-        .arg("python/gigui/api.py")
-        .arg("get_settings")
+pub async fn get_settings(_app: tauri::AppHandle) -> Result<Settings, String> {
+    // Use Tauri sidecar to get settings
+    let output = Command::new_sidecar("gitinspector-api-sidecar")
+        .map_err(|e| format!("Failed to create sidecar command: {}", e))?
+        .args(&["get_settings"])
         .output()
-        .map_err(|e| format!("Failed to execute Python backend: {}", e))?;
+        .map_err(|e| format!("Failed to execute sidecar: {}", e))?;
     
     if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("Python backend failed: {}", stderr));
+        return Err(format!("Sidecar execution failed: {}", output.stderr));
     }
     
-    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stdout = &output.stdout;
     let settings: Settings = serde_json::from_str(&stdout)
-        .map_err(|e| format!("Failed to parse Python response: {}", e))?;
+        .map_err(|e| format!("Failed to parse sidecar response: {}", e))?;
     
     Ok(settings)
 }
 
 #[command]
-pub async fn save_settings(settings: Settings) -> Result<(), String> {
+pub async fn save_settings(_app: tauri::AppHandle, settings: Settings) -> Result<(), String> {
     println!("Saving settings: {:?}", settings);
     
+    // Serialize settings to JSON for the sidecar
     let settings_json = serde_json::to_string(&settings)
         .map_err(|e| format!("Failed to serialize settings: {}", e))?;
-    
-    let output = std::process::Command::new("uv")
-        .arg("run")
-        .arg("python")
-        .arg("python/gigui/api.py")
-        .arg("save_settings")
-        .arg(&settings_json)
+
+    // Use Tauri sidecar to save settings
+    let output = Command::new_sidecar("gitinspector-api-sidecar")
+        .map_err(|e| format!("Failed to create sidecar command: {}", e))?
+        .args(&["save_settings", &settings_json])
         .output()
-        .map_err(|e| format!("Failed to execute Python backend: {}", e))?;
+        .map_err(|e| format!("Failed to execute sidecar: {}", e))?;
     
     if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("Python backend failed: {}", stderr));
+        return Err(format!("Sidecar execution failed: {}", output.stderr));
     }
     
     Ok(())

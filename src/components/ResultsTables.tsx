@@ -1,4 +1,3 @@
-import React from "react";
 import { useResultsStore } from "@/stores/resultsStore";
 import { formatNumber, formatPercentage } from "@/lib/utils";
 import type { AuthorStat, FileStat } from "@/types/results";

@@ -1,3 +1,8 @@
+# Allow print statements:
+# Lines 272, 282, 292, 300: Required for JSON output to stdout (API responses)
+# Lines 263, 276, 286: Required for usage messages to stderr
+# Lines 155, 165, 295: Error messages to stderr
+# ruff: noqa: T201
 """
 API module for GitInspectorGUI backend.
 
@@ -7,60 +12,60 @@ with the Python backend for git repository analysis.
 
 import json
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+
 
 
 @dataclass
 class Settings:
     """Settings for git repository analysis."""
     # Repository and Input Settings
-    input_fstrs: List[str]
+    input_fstrs: list[str]
     depth: int = 5
     subfolder: str = ""
-    
+
     # File Analysis Settings
     n_files: int = 5
-    include_files: List[str] = None
-    ex_files: List[str] = None
-    extensions: List[str] = None
-    
+    include_files: list[str] = None
+    ex_files: list[str] = None
+    extensions: list[str] = None
+
     # Author and Commit Filtering
-    ex_authors: List[str] = None
-    ex_emails: List[str] = None
-    ex_revisions: List[str] = None
-    ex_messages: List[str] = None
+    ex_authors: list[str] = None
+    ex_emails: list[str] = None
+    ex_revisions: list[str] = None
+    ex_messages: list[str] = None
     since: str = ""
     until: str = ""
-    
+
     # Output and Format Settings
     outfile_base: str = "gitinspect"
     fix: str = "prefix"
-    file_formats: List[str] = None
+    file_formats: list[str] = None
     view: str = "auto"
-    
+
     # Analysis Options
     copy_move: int = 1
     scaled_percentages: bool = False
     blame_exclusions: str = "hide"
     blame_skip: bool = False
     show_renames: bool = False
-    
+
     # Content Analysis
     deletions: bool = False
     whitespace: bool = False
     empty_lines: bool = False
     comments: bool = False
-    
+
     # Performance Settings
     multithread: bool = True
     multicore: bool = False
     verbosity: int = 0
-    
+
     # Development/Testing
     dryrun: int = 0
-    
+
     # GUI-specific
     gui_settings_full_path: bool = False
     col_percent: int = 75
@@ -124,17 +129,17 @@ class RepositoryResult:
     """Analysis results for a single repository."""
     name: str
     path: str
-    authors: List[AuthorStat]
-    files: List[FileStat]
-    blame_data: List[BlameEntry]
+    authors: list[AuthorStat]
+    files: list[FileStat]
+    blame_data: list[BlameEntry]
 
 
 @dataclass
 class AnalysisResult:
     """Complete analysis results."""
-    repositories: List[RepositoryResult]
+    repositories: list[RepositoryResult]
     success: bool
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class GitInspectorAPI:
@@ -149,20 +154,20 @@ class GitInspectorAPI:
         """Load settings from file or return defaults."""
         if self.settings_file.exists():
             try:
-                with open(self.settings_file, 'r', encoding='utf-8') as f:
+                with self.settings_file.open(encoding="utf-8") as f:
                     data = json.load(f)
                 return Settings(**data)
-            except Exception as e:
+            except (json.JSONDecodeError, OSError, TypeError) as e:
                 print(f"Error loading settings: {e}", file=sys.stderr)
-        
+
         return Settings(input_fstrs=[])
 
     def save_settings(self, settings: Settings) -> None:
         """Save settings to file."""
         try:
-            with open(self.settings_file, 'w', encoding='utf-8') as f:
+            with self.settings_file.open("w", encoding="utf-8") as f:
                 json.dump(asdict(settings), f, indent=2)
-        except Exception as e:
+        except OSError as e:
             print(f"Error saving settings: {e}", file=sys.stderr)
             raise
 
@@ -171,12 +176,12 @@ class GitInspectorAPI:
         try:
             # For now, return mock data for the proof of concept
             # TODO: Integrate with actual git analysis logic from original gigui
-            
+
             mock_repositories = []
-            
+
             for i, repo_path in enumerate(settings.input_fstrs):
                 repo_name = Path(repo_path).name or f"repo-{i+1}"
-                
+
                 # Mock data for demonstration
                 authors = [
                     AuthorStat(
@@ -198,7 +203,7 @@ class GitInspectorAPI:
                         percentage=34.5
                     )
                 ]
-                
+
                 files = [
                     FileStat(
                         name="main.py",
@@ -217,7 +222,7 @@ class GitInspectorAPI:
                         percentage=16.1
                     )
                 ]
-                
+
                 blame_data = [
                     BlameEntry(
                         file="src/main.py",
@@ -236,7 +241,7 @@ class GitInspectorAPI:
                         content="import sys"
                     )
                 ]
-                
+
                 mock_repositories.append(RepositoryResult(
                     name=repo_name,
                     path=repo_path,
@@ -244,17 +249,17 @@ class GitInspectorAPI:
                     files=files,
                     blame_data=blame_data
                 ))
-            
+
             return AnalysisResult(
                 repositories=mock_repositories,
                 success=True
             )
-            
-        except Exception as e:
+
+        except (TypeError, ValueError, AttributeError, KeyError, IndexError) as e:
             return AnalysisResult(
                 repositories=[],
                 success=False,
-                error=str(e)
+                error=f"Analysis error ({type(e).__name__}): {e}"
             )
 
 
@@ -263,41 +268,41 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python api.py <command> [args...]", file=sys.stderr)
         sys.exit(1)
-    
+
     api = GitInspectorAPI()
     command = sys.argv[1]
-    
+
     try:
         if command == "get_settings":
             settings = api.get_settings()
             print(json.dumps(asdict(settings)))
-        
+
         elif command == "save_settings":
             if len(sys.argv) < 3:
                 print("Usage: python api.py save_settings <settings_json>", file=sys.stderr)
                 sys.exit(1)
-            
+
             settings_data = json.loads(sys.argv[2])
             settings = Settings(**settings_data)
             api.save_settings(settings)
             print(json.dumps({"success": True}))
-        
+
         elif command == "execute_analysis":
             if len(sys.argv) < 3:
                 print("Usage: python api.py execute_analysis <settings_json>", file=sys.stderr)
                 sys.exit(1)
-            
+
             settings_data = json.loads(sys.argv[2])
             settings = Settings(**settings_data)
             result = api.execute_analysis(settings)
             print(json.dumps(asdict(result)))
-        
+
         else:
             print(f"Unknown command: {command}", file=sys.stderr)
             sys.exit(1)
-    
-    except Exception as e:
-        error_result = {"success": False, "error": str(e)}
+
+    except (json.JSONDecodeError, TypeError, ValueError, KeyError) as e:
+        error_result = {"success": False, "error": f"Command error ({type(e).__name__}): {e}"}
         print(json.dumps(error_result))
         sys.exit(1)
 

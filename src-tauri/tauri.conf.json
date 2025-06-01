@@ -54,8 +54,12 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": [],
-      "externalBin": [],
+      "resources": [
+        "../python"
+      ],
+      "externalBin": [
+        "bin/gitinspector-api-sidecar"
+      ],
       "copyright": "Copyright © 2025 GitInspectorGUI. All rights reserved.",
       "category": "DeveloperTool",
       "shortDescription": "Modern git repository analysis tool",

@@ -1,4 +1,3 @@
-import React from "react";
 import { SettingsFormTabs } from "./components/SettingsFormTabs";
 import { ExecuteButton } from "./components/ExecuteButton";
 import { Phase3ResultsInterface } from "./components/Phase3ResultsInterface";
