@@ -65,6 +65,12 @@ jspm_packages/
 # Output of 'npm pack'
 *.tgz
 
+# Lock files (should not be committed for most projects)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+uv.lock
+
 # Yarn Integrity file
 .yarn-integrity
 
