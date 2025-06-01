@@ -58,11 +58,7 @@
         "../python"
       ],
       "externalBin": [
-        {
-          "name": "gitinspector-api-sidecar",
-          "src": "../python/dev_api.py",
-          "main": true
-        }
+        "bin/gitinspector-api-sidecar"
       ],
       "copyright": "Copyright © 2025 GitInspectorGUI. All rights reserved.",
       "category": "DeveloperTool",
@@ -100,7 +96,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "GitInspectorGUI (Development Mode)",
+        "title": "GitInspectorGUI",
         "width": 1200,
         "height": 800,
         "minWidth": 800,
