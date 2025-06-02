@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse
 import uvicorn
 import logging
 import uuid
+import time
 from datetime import datetime
 from typing import Dict, Any
 
@@ -76,11 +77,16 @@ async def health_check() -> Dict[str, Any]:
 async def execute_analysis(settings: Settings) -> AnalysisResult:
     """Execute git repository analysis using existing API infrastructure."""
     request_id = str(uuid.uuid4())
+    start_time = time.time()
     logger.info(f"[{request_id}] Starting analysis for {len(settings.input_fstrs)} repositories")
     
     try:
         # Use existing API validation and execution
+        validation_start = time.time()
         is_valid, error_msg = api_instance.validate_settings(settings)
+        validation_time = time.time() - validation_start
+        logger.info(f"[{request_id}] Settings validation took {validation_time:.3f}s")
+        
         if not is_valid:
             raise HTTPException(
                 status_code=400,
@@ -93,22 +99,29 @@ async def execute_analysis(settings: Settings) -> AnalysisResult:
             )
         
         # Execute analysis using existing sophisticated API
+        analysis_start = time.time()
+        logger.info(f"[{request_id}] Starting API analysis execution...")
         result = api_instance.execute_analysis(settings)
+        analysis_time = time.time() - analysis_start
+        total_time = time.time() - start_time
         
-        logger.info(f"[{request_id}] Analysis completed: {len(result.repositories)} repositories")
+        logger.info(f"[{request_id}] Analysis completed: {len(result.repositories)} repositories "
+                   f"(Analysis: {analysis_time:.3f}s, Total: {total_time:.3f}s)")
         return result
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"[{request_id}] Analysis failed: {e}", exc_info=True)
+        total_time = time.time() - start_time
+        logger.error(f"[{request_id}] Analysis failed after {total_time:.3f}s: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail={
                 "error": "Analysis failed",
                 "message": str(e),
                 "timestamp": datetime.utcnow().isoformat(),
-                "request_id": request_id
+                "request_id": request_id,
+                "duration_seconds": total_time
             }
         )
 

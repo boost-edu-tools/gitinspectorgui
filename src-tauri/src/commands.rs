@@ -4,7 +4,7 @@ use reqwest;
 use std::time::Duration;
 
 const API_BASE_URL: &str = "http://127.0.0.1:8080";
-const REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(300); // 5 minutes for analysis operations
 const MAX_RETRIES: u32 = 3;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -245,8 +245,36 @@ where
 
 // Tauri command implementations
 #[command]
-pub async fn execute_analysis(_app: tauri::AppHandle, settings: Settings) -> Result<AnalysisResult, String> {
+pub async fn execute_analysis(_app: tauri::AppHandle, mut settings: Settings) -> Result<AnalysisResult, String> {
     println!("Executing analysis with settings: {:?}", settings);
+    
+    // Convert relative paths to absolute paths to fix the path resolution issue
+    let mut absolute_paths = Vec::new();
+    for path in &settings.input_fstrs {
+        let absolute_path = if std::path::Path::new(path).is_absolute() {
+            path.clone()
+        } else {
+            // Convert relative path to absolute path
+            match std::env::current_dir() {
+                Ok(current_dir) => {
+                    let full_path = current_dir.join(path);
+                    match full_path.canonicalize() {
+                        Ok(canonical_path) => canonical_path.to_string_lossy().to_string(),
+                        Err(_) => {
+                            // If canonicalize fails, just use the joined path
+                            full_path.to_string_lossy().to_string()
+                        }
+                    }
+                }
+                Err(_) => path.clone(), // Fallback to original path if current_dir fails
+            }
+        };
+        absolute_paths.push(absolute_path);
+        println!("Converted path '{}' to absolute path '{}'", path, absolute_paths.last().unwrap());
+    }
+    
+    // Update settings with absolute paths
+    settings.input_fstrs = absolute_paths;
     
     let client = create_http_client().await?;
     

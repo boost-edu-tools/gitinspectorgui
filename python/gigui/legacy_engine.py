@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 
 from gigui.api_types import Settings, AnalysisResult, RepositoryResult, AuthorStat, FileStat, BlameEntry
+from gigui.performance_monitor import profiler
 from gigui.data import IniRepo, Stat, CommitGroup, PersonStat
 from gigui.person_data import Person
 from gigui.repo_data import RepoData
@@ -291,21 +292,6 @@ class ResultConverter:
                 logger.info(f"Converted repository: {repo_data.path.name}")
                 logger.debug(f"  Authors: {len(authors)}, Files: {len(files)}, Blame entries: {len(blame_data)}")
             
-            # Add performance information to blame data
-            if repositories and performance_metrics:
-                performance_entry = BlameEntry(
-                    file="LEGACY_ENGINE_PERFORMANCE",
-                    line_number=1,
-                    author="GitInspectorGUI Legacy Engine",
-                    commit="performance_metrics",
-                    date=time.strftime("%Y-%m-%d"),
-                    content=f"🚀 LEGACY ENGINE: {performance_metrics.duration_seconds:.2f}s, "
-                           f"{performance_metrics.total_commits} commits, "
-                           f"{performance_metrics.total_authors} authors, "
-                           f"{format_bytes(int(performance_metrics.memory_usage_mb * 1024 * 1024))} memory"
-                )
-                repositories[0].blame_data.append(performance_entry)
-            
             return AnalysisResult(
                 repositories=repositories,
                 success=True,
@@ -338,6 +324,12 @@ class ResultConverter:
                 # Get primary email
                 primary_email = list(person.emails)[0] if person.emails else "unknown@example.com"
                 
+                # Get file count for this author from author2fstr2fstat
+                file_count = 0
+                if author in repo_data.author2fstr2fstat:
+                    # Count files (excluding "*" totals)
+                    file_count = len([f for f in repo_data.author2fstr2fstat[author].keys() if f != "*"])
+                
                 # Create AuthorStat
                 author_stat = AuthorStat(
                     name=person.author,
@@ -345,7 +337,7 @@ class ResultConverter:
                     commits=len(stat.shas),
                     insertions=stat.insertions,
                     deletions=stat.deletions,
-                    files=len(pstat.fstrs),
+                    files=file_count,
                     percentage=round(stat.percent_insertions, 1),
                     age=stat.age
                 )
@@ -381,10 +373,10 @@ class ResultConverter:
                 file_stat = FileStat(
                     name=file_path.name,
                     path=str(fstr),
-                    lines=fstat.blame_line_count,
-                    commits=len(fstat.shas),
+                    lines=fstat.stat.blame_line_count,
+                    commits=len(fstat.stat.shas),
                     authors=len(repo_data.fstr2author2fstat.get(fstr, {})),
-                    percentage=round(fstat.percent_lines, 1)
+                    percentage=round(fstat.stat.percent_lines, 1)
                 )
                 
                 files.append(file_stat)
@@ -540,113 +532,125 @@ class LegacyEngineWrapper:
         logger.info("Starting legacy engine analysis")
         self.performance_monitor.start_monitoring()
         
-        try:
-            # Validate input settings
-            if not settings.input_fstrs:
-                return AnalysisResult(
-                    repositories=[],
-                    success=False,
-                    error="No input repositories specified"
-                )
-            
-            # Validate repository paths
-            invalid_paths = []
-            for repo_path in settings.input_fstrs:
-                is_valid, error_msg = validate_file_path(repo_path)
-                if not is_valid:
-                    invalid_paths.append(f"{repo_path}: {error_msg}")
-            
-            if invalid_paths:
-                return AnalysisResult(
-                    repositories=[],
-                    success=False,
-                    error=f"Invalid repository paths: {'; '.join(invalid_paths)}"
-                )
-            
-            # Process each repository
-            repo_data_list = []
-            total_commits = 0
-            total_files = 0
-            total_authors = 0
-            errors = 0
-            
-            for repo_path in settings.input_fstrs:
-                try:
-                    logger.info(f"Processing repository: {repo_path}")
-                    
-                    # Translate settings to legacy format for current repository
-                    current_settings = Settings(**settings.__dict__)
-                    current_settings.input_fstrs = [repo_path]
-                    ini_repo = self.settings_translator.translate_to_legacy_args(current_settings)
-                    
-                    # Create and execute legacy analysis
-                    repo_data = RepoData(ini_repo)
-                    
-                    # Update performance monitoring
-                    self.performance_monitor.update_peak_memory()
-                    
-                    # Collect statistics
-                    repo_commits = sum(len(stat.stat.shas) for stat in repo_data.author2pstat.values() if stat.person.author != "*")
-                    repo_files = len([f for f in repo_data.fstr2fstat.keys() if f != "*"])
-                    repo_authors = len([a for a in repo_data.author2pstat.keys() if a != "*"])
-                    
-                    total_commits += repo_commits
-                    total_files += repo_files
-                    total_authors += repo_authors
-                    
-                    repo_data_list.append(repo_data)
-                    
-                    logger.info(f"Repository processed: {repo_commits} commits, {repo_files} files, {repo_authors} authors")
-                    
-                except Exception as e:
-                    logger.error(f"Failed to process repository {repo_path}: {e}")
-                    errors += 1
-                    
-                    # Continue with other repositories on error
-                    continue
-            
-            # Stop performance monitoring
-            performance_metrics = self.performance_monitor.stop_monitoring(
-                repositories_processed=len(repo_data_list),
-                total_commits=total_commits,
-                total_files=total_files,
-                total_authors=total_authors,
-                errors=errors
-            )
-            
-            # Convert results to GUI format
-            if repo_data_list:
-                result = self.result_converter.convert_repo_data_to_analysis_result(
-                    repo_data_list, settings, performance_metrics
-                )
-                
-                logger.info(f"Legacy engine analysis completed successfully: "
-                           f"{len(repo_data_list)} repositories, "
-                           f"{total_commits} commits, "
-                           f"{performance_metrics.duration_seconds:.2f}s")
-                
-                return result
-            else:
-                return AnalysisResult(
-                    repositories=[],
-                    success=False,
-                    error=f"No repositories could be processed. {errors} errors encountered."
-                )
-        
-        except Exception as e:
-            logger.error(f"Legacy engine analysis failed: {e}")
-            
-            # Stop monitoring on error
+        with profiler.step("legacy_engine_total"):
             try:
-                self.performance_monitor.stop_monitoring(0, 0, 0, 0, 1)
-            except:
-                pass
+                # Validate input settings
+                if not settings.input_fstrs:
+                    return AnalysisResult(
+                        repositories=[],
+                        success=False,
+                        error="No input repositories specified"
+                    )
+                
+                # Validate repository paths
+                invalid_paths = []
+                for repo_path in settings.input_fstrs:
+                    is_valid, error_msg = validate_file_path(repo_path)
+                    if not is_valid:
+                        invalid_paths.append(f"{repo_path}: {error_msg}")
+                
+                if invalid_paths:
+                    return AnalysisResult(
+                        repositories=[],
+                        success=False,
+                        error=f"Invalid repository paths: {'; '.join(invalid_paths)}"
+                    )
+                
+                # Process each repository
+                repo_data_list = []
+                total_commits = 0
+                total_files = 0
+                total_authors = 0
+                errors = 0
+                
+                for repo_path in settings.input_fstrs:
+                    try:
+                        with profiler.step(f"repository_{Path(repo_path).name}"):
+                            logger.info(f"Processing repository: {repo_path}")
+                            
+                            # Translate settings to legacy format for current repository
+                            with profiler.step("settings_translation"):
+                                current_settings = Settings(**settings.__dict__)
+                                current_settings.input_fstrs = [repo_path]
+                                ini_repo = self.settings_translator.translate_to_legacy_args(current_settings)
+                            
+                            # Create and execute legacy analysis - THIS IS THE CRITICAL STEP
+                            with profiler.step("repo_data_creation"):
+                                logger.info(f"Creating RepoData for {repo_path} - this may take time...")
+                                repo_data = RepoData(ini_repo)
+                                logger.info(f"RepoData creation completed for {repo_path}")
+                        
+                        # Update performance monitoring
+                        self.performance_monitor.update_peak_memory()
+                        
+                        # Collect statistics
+                        repo_commits = sum(len(stat.stat.shas) for stat in repo_data.author2pstat.values() if stat.person.author != "*")
+                        repo_files = len([f for f in repo_data.fstr2fstat.keys() if f != "*"])
+                        repo_authors = len([a for a in repo_data.author2pstat.keys() if a != "*"])
+                        
+                        total_commits += repo_commits
+                        total_files += repo_files
+                        total_authors += repo_authors
+                        
+                        repo_data_list.append(repo_data)
+                        
+                        logger.info(f"Repository processed: {repo_commits} commits, {repo_files} files, {repo_authors} authors")
+                        
+                    except Exception as e:
+                        logger.error(f"Failed to process repository {repo_path}: {e}")
+                        errors += 1
+                        
+                        # Continue with other repositories on error
+                        continue
+                
+                # Stop performance monitoring
+                performance_metrics = self.performance_monitor.stop_monitoring(
+                    repositories_processed=len(repo_data_list),
+                    total_commits=total_commits,
+                    total_files=total_files,
+                    total_authors=total_authors,
+                    errors=errors
+                )
+                
+                # Log performance summary
+                profiler.log_summary()
+                
+                # Convert results to GUI format
+                if repo_data_list:
+                    result = self.result_converter.convert_repo_data_to_analysis_result(
+                        repo_data_list, settings, performance_metrics
+                    )
+                    
+                    logger.info(f"Legacy engine analysis completed successfully: "
+                               f"{len(repo_data_list)} repositories, "
+                               f"{total_commits} commits, "
+                               f"{performance_metrics.duration_seconds:.2f}s")
+                    
+                    return result
+                else:
+                    return AnalysisResult(
+                        repositories=[],
+                        success=False,
+                        error=f"No repositories could be processed. {errors} errors encountered."
+                    )
             
-            return AnalysisResult(
-                repositories=[],
-                success=False,
-                error=f"Legacy engine analysis failed: {e}"
-            )
+            except Exception as e:
+                logger.error(f"Legacy engine analysis failed: {e}")
+                
+                # Stop monitoring on error
+                try:
+                    self.performance_monitor.stop_monitoring(0, 0, 0, 0, 1)
+                except:
+                    pass
+                
+                # Log performance summary even on error
+                profiler.log_summary()
+                
+                return AnalysisResult(
+                    repositories=[],
+                    success=False,
+                    error=f"Legacy engine analysis failed: {e}"
+                )
     
     def validate_settings(self, settings: Settings) -> tuple[bool, str]:
         """
