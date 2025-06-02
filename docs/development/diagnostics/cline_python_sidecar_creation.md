@@ -24,8 +24,8 @@ PyInstaller scripts, `.spec` files, or configurations from the `gitinspectorgui-
 
 ### Step 5.3: Cline (AI) - Provide PyInstaller Instructions for New Project
 *   **Action:** Cline will provide:
-    *   Commands to set up a dedicated Python virtual environment (e.g., using `uv`) within `gitinspectorgui/python/`.
-    *   Commands to install `pyinstaller` and dependencies from `gitinspectorgui/python/requirements.txt` (serde, serde_json) into this virtual environment.
+    *   Commands to set up the Python environment using `uv` from the project root.
+    *   Commands to install `pyinstaller` and dependencies from `pyproject.toml` using uv.
     *   An adapted PyInstaller command or a `.spec` file content tailored for packaging `gitinspectorgui/python/gigui/api.py`.
 *   **Target Script:** `gitinspectorgui/python/gigui/api.py`
 *   **Key PyInstaller Options (expected):** `--onefile` (to create a single executable), potentially `--noconsole` (though may not be strictly needed for a backend service on macOS), and ensuring `api.py`'s dependencies are correctly bundled.

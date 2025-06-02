@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Setup script for GitInspectorGUI API Sidecar Python environment
-# This script creates a virtual environment using uv and installs dependencies
+# This script uses the main project's uv environment instead of creating a separate one
 
 set -e  # Exit on any error
 
@@ -14,35 +14,18 @@ if ! command -v uv &> /dev/null; then
     exit 1
 fi
 
-# Navigate to the python directory
-cd "$(dirname "$0")"
+# Navigate to the project root directory
+cd "$(dirname "$0")/.."
 echo "📁 Working directory: $(pwd)"
 
-# Create virtual environment using uv
-echo "🔧 Creating virtual environment with uv..."
-uv venv .venv --python 3.12
-
-# Activate virtual environment
-echo "🔌 Activating virtual environment..."
-source .venv/bin/activate
-
-# Install minimal dependencies for API sidecar
-echo "📦 Installing minimal dependencies for API sidecar..."
-uv pip install \
-    beautifulsoup4>=4.12.3 \
-    colorlog>=6.9 \
-    gitpython>=3.1.43 \
-    jinja2>=3.1.4 \
-    jsonschema>=4.23 \
-    platformdirs>=4.3.6
-
-# Install PyInstaller for building the executable
-echo "🔨 Installing PyInstaller..."
-uv pip install pyinstaller>=6.11.1
+# Use main project's uv environment
+echo "🔌 Using main project's uv environment..."
+echo "📦 Installing dependencies with uv..."
+uv sync
 
 # Verify installation
 echo "✅ Verifying installation..."
-python -c "
+uv run python -c "
 import sys
 print(f'Python version: {sys.version}')
 
@@ -62,7 +45,8 @@ except ImportError as e:
 
 # Test the API module
 echo "🧪 Testing API module..."
-python -c "
+cd python
+uv run python -c "
 import sys
 sys.path.insert(0, '.')
 try:
@@ -79,9 +63,8 @@ echo ""
 echo "🎉 Python environment setup complete!"
 echo ""
 echo "📋 Next steps:"
-echo "   1. Activate the environment: source python/.venv/bin/activate"
-echo "   2. Build the sidecar: pyinstaller python/api-sidecar.spec"
-echo "   3. Test the executable: ./dist/gitinspector-api-sidecar get_settings"
+echo "   1. Build the sidecar: ./python/build-api-sidecar.sh"
+echo "   2. Test the executable: ./python/dist/gitinspector-api-sidecar get_settings"
 echo ""
-echo "💡 The virtual environment is located at: python/.venv"
+echo "💡 The project uses uv for dependency management"
 echo "💡 The PyInstaller spec file is: python/api-sidecar.spec"

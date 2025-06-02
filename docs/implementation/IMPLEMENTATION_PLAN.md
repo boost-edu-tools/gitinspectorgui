@@ -52,7 +52,8 @@ gitinspectorgui/
 │   │   └── ...               # Other core modules
 │   ├── api.py                # JSON API for Tauri communication
 │   ├── cli.py                # CLI interface
-│   └── requirements.txt      # Python dependencies
+│   └── gigui/               # Python package
+├── pyproject.toml            # Python dependencies (uv)
 ├── package.json              # Node.js dependencies
 ├── pyproject.toml            # Python project configuration
 ├── tsconfig.json             # TypeScript configuration
@@ -124,8 +125,21 @@ serde_json = "1.0"
 tokio = { version = "1", features = ["full"] }
 ```
 
-#### Python Dependencies (requirements.txt)
-```
+#### Python Dependencies (pyproject.toml)
+Dependencies are now managed by uv in the `pyproject.toml` file:
+```toml
+dependencies = [
+    "beautifulsoup4 >= 4.12.3",
+    "colorlog >= 6.9",
+    "gitpython>=3.1.43",
+    "jinja2 >= 3.1.4",
+    "jsonschema >= 4.23",
+    "platformdirs >= 4.3.6",
+    "requests >= 2.32.3",
+    "werkzeug >= 3.1.3",
+    "xlsxwriter >= 3.2",
+    "fastapi >= 0.115",
+]
 beautifulsoup4>=4.12.3
 colorlog>=6.9
 gitpython>=3.1.43

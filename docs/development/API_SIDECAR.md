@@ -17,8 +17,7 @@ The API sidecar is a standalone Python executable that provides git repository a
 
 ### Configuration Files
 - [`api-sidecar.spec`](api-sidecar.spec) - PyInstaller specification for building the sidecar
-- [`requirements-api-sidecar.txt`](requirements-api-sidecar.txt) - Minimal dependencies for API-only operation
-- [`requirements.txt`](requirements.txt) - Full dependencies (includes web server, Excel, etc.)
+- [`../pyproject.toml`](../pyproject.toml) - Project dependencies managed by uv
 
 ### Scripts
 - [`setup-api-sidecar.sh`](setup-api-sidecar.sh) - Sets up Python environment using uv
@@ -124,8 +123,8 @@ If you prefer manual setup instead of using the scripts:
 uv venv .venv --python 3.12
 source .venv/bin/activate
 
-# Install minimal dependencies
-uv pip install -r requirements-api-sidecar.txt
+# Install dependencies using uv
+uv sync
 
 # Build executable
 pyinstaller api-sidecar.spec --clean --noconfirm

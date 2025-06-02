@@ -43,11 +43,9 @@ npm install
 
 # Install Python dependencies
 echo "🐍 Installing Python dependencies..."
-if command -v pip3 &> /dev/null; then
-    pip3 install -r python/requirements.txt
-else
-    python3 -m pip install -r python/requirements.txt
-fi
+# Install Python dependencies using uv
+echo "📦 Installing Python dependencies with uv..."
+uv sync
 
 # Install Tauri CLI if not already installed
 echo "🦀 Installing Tauri CLI..."
