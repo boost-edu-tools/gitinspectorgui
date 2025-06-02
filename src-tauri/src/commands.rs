@@ -3,7 +3,7 @@ use tauri::command;
 use reqwest;
 use std::time::Duration;
 
-const API_BASE_URL: &str = "http://127.0.0.1:8081";
+const API_BASE_URL: &str = "http://127.0.0.1:8080";
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(300); // 5 minutes for analysis operations
 const MAX_RETRIES: u32 = 3;
 
