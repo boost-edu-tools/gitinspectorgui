@@ -5,6 +5,22 @@ This package provides the core Python backend for analyzing git repositories,
 extracting statistics, and generating blame analysis data.
 """
 
+from .api import GitInspectorAPI
+from .api_types import Settings, AnalysisResult, RepositoryResult, AuthorStat, FileStat, BlameEntry
+from .http_server import app, start_server
+
 __version__ = "0.1.0"
 __author__ = "Bert van Beek"
 __email__ = "d.a.v.beek@tue.nl"
+
+__all__ = [
+    "GitInspectorAPI",
+    "Settings",
+    "AnalysisResult",
+    "RepositoryResult",
+    "AuthorStat",
+    "FileStat",
+    "BlameEntry",
+    "app",
+    "start_server"
+]

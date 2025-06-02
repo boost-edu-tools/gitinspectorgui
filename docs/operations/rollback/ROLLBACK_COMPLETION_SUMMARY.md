@@ -129,7 +129,7 @@ The Tauri frontend expects pure JSON but receives:
 
 ### ✅ Ready for Phase 1
 The codebase is now ready to begin HTTP architecture implementation:
-- **Target**: [`HTTP_API_IMPLEMENTATION_PLAN.md`](HTTP_API_IMPLEMENTATION_PLAN.md) Phase 1
+- **Target**: [`HTTP_API_IMPLEMENTATION_PLAN.md`](../../architecture/HTTP_API_IMPLEMENTATION_PLAN.md) Phase 1
 - **Approach**: Implement FastAPI HTTP server alongside existing code
 - **Benefit**: Clean separation of data transport from logging/progress output
 

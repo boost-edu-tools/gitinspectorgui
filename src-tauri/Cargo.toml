@@ -10,13 +10,18 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.5", features = [] }
+tauri-build = { version = "2.0", features = [] }
 
 [dependencies]
-tauri = { version = "1.5", features = [ "updater", "path-all", "fs-rename-file", "dialog-open", "fs-remove-dir", "fs-read-file", "fs-read-dir", "fs-exists", "fs-create-dir", "shell-sidecar", "os-all", "dialog-save", "fs-copy-file", "fs-remove-file", "fs-write-file", "shell-open", "shell-execute"] }
+tauri = { version = "2.0", features = [] }
+tauri-plugin-shell = "2.0"
+tauri-plugin-dialog = "2.0"
+tauri-plugin-fs = "2.0"
+tauri-plugin-os = "2.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

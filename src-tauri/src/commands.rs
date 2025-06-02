@@ -1,5 +1,11 @@
 use serde::{Deserialize, Serialize};
-use tauri::{command, api::process::Command};
+use tauri::command;
+use reqwest;
+use std::time::Duration;
+
+const API_BASE_URL: &str = "http://127.0.0.1:8080";
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
+const MAX_RETRIES: u32 = 3;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Settings {
@@ -161,70 +167,163 @@ pub struct BlameEntry {
     pub content: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct EngineInfo {
+    pub version: String,
+    pub capabilities: Vec<String>,
+    pub supported_formats: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PerformanceStats {
+    pub total_requests: u64,
+    pub average_response_time: f64,
+    pub last_analysis_duration: Option<f64>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct HealthStatus {
+    pub status: String,
+    pub version: String,
+    pub timestamp: String,
+    pub api_info: EngineInfo,
+}
+
+// HTTP client helper functions
+async fn create_http_client() -> Result<reqwest::Client, String> {
+    reqwest::Client::builder()
+        .timeout(REQUEST_TIMEOUT)
+        .build()
+        .map_err(|e| format!("Failed to create HTTP client: {}", e))
+}
+
+async fn make_request_with_retry<T, R>(
+    _client: &reqwest::Client,
+    request_builder: impl Fn() -> reqwest::RequestBuilder,
+    operation_name: &str,
+) -> Result<R, String>
+where
+    T: for<'de> Deserialize<'de>,
+    R: From<T>,
+{
+    let mut last_error = String::new();
+    
+    for attempt in 1..=MAX_RETRIES {
+        match request_builder()
+            .send()
+            .await
+        {
+            Ok(response) => {
+                if response.status().is_success() {
+                    match response.json::<T>().await {
+                        Ok(data) => return Ok(R::from(data)),
+                        Err(e) => {
+                            last_error = format!("Failed to parse response: {}", e);
+                            println!("Attempt {}/{} failed for {}: {}", attempt, MAX_RETRIES, operation_name, last_error);
+                        }
+                    }
+                } else {
+                    let status = response.status();
+                    let error_text = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+                    last_error = format!("HTTP {} - {}", status, error_text);
+                    println!("Attempt {}/{} failed for {}: {}", attempt, MAX_RETRIES, operation_name, last_error);
+                }
+            }
+            Err(e) => {
+                last_error = format!("Request failed: {}", e);
+                println!("Attempt {}/{} failed for {}: {}", attempt, MAX_RETRIES, operation_name, last_error);
+            }
+        }
+        
+        if attempt < MAX_RETRIES {
+            tokio::time::sleep(Duration::from_millis(1000 * attempt as u64)).await;
+        }
+    }
+    
+    Err(format!("{} failed after {} attempts. Last error: {}", operation_name, MAX_RETRIES, last_error))
+}
+
+// Tauri command implementations
 #[command]
 pub async fn execute_analysis(_app: tauri::AppHandle, settings: Settings) -> Result<AnalysisResult, String> {
     println!("Executing analysis with settings: {:?}", settings);
     
-    // Serialize settings to JSON for the sidecar
-    let settings_json = serde_json::to_string(&settings)
-        .map_err(|e| format!("Failed to serialize settings: {}", e))?;
-
-    // Use Tauri sidecar to call the Python executable
-    let output = Command::new_sidecar("gitinspector-api-sidecar")
-        .map_err(|e| format!("Failed to create sidecar command: {}", e))?
-        .args(&["execute_analysis", &settings_json])
-        .output()
-        .map_err(|e| format!("Failed to execute sidecar: {}", e))?;
+    let client = create_http_client().await?;
     
-    if !output.status.success() {
-        return Err(format!("Sidecar execution failed: {}", output.stderr));
-    }
-    
-    let stdout = &output.stdout;
-    let result: AnalysisResult = serde_json::from_str(&stdout)
-        .map_err(|e| format!("Failed to parse sidecar response: {}", e))?;
-    
-    Ok(result)
+    make_request_with_retry::<AnalysisResult, AnalysisResult>(
+        &client,
+        || client.post(&format!("{}/api/execute_analysis", API_BASE_URL))
+            .json(&settings),
+        "Analysis execution"
+    ).await
 }
 
 #[command]
 pub async fn get_settings(_app: tauri::AppHandle) -> Result<Settings, String> {
-    // Use Tauri sidecar to get settings
-    let output = Command::new_sidecar("gitinspector-api-sidecar")
-        .map_err(|e| format!("Failed to create sidecar command: {}", e))?
-        .args(&["get_settings"])
-        .output()
-        .map_err(|e| format!("Failed to execute sidecar: {}", e))?;
+    let client = create_http_client().await?;
     
-    if !output.status.success() {
-        return Err(format!("Sidecar execution failed: {}", output.stderr));
-    }
-    
-    let stdout = &output.stdout;
-    let settings: Settings = serde_json::from_str(&stdout)
-        .map_err(|e| format!("Failed to parse sidecar response: {}", e))?;
-    
-    Ok(settings)
+    make_request_with_retry::<Settings, Settings>(
+        &client,
+        || client.get(&format!("{}/api/settings", API_BASE_URL)),
+        "Get settings"
+    ).await
 }
 
 #[command]
 pub async fn save_settings(_app: tauri::AppHandle, settings: Settings) -> Result<(), String> {
     println!("Saving settings: {:?}", settings);
     
-    // Serialize settings to JSON for the sidecar
-    let settings_json = serde_json::to_string(&settings)
-        .map_err(|e| format!("Failed to serialize settings: {}", e))?;
-
-    // Use Tauri sidecar to save settings
-    let output = Command::new_sidecar("gitinspector-api-sidecar")
-        .map_err(|e| format!("Failed to create sidecar command: {}", e))?
-        .args(&["save_settings", &settings_json])
-        .output()
-        .map_err(|e| format!("Failed to execute sidecar: {}", e))?;
+    let client = create_http_client().await?;
     
-    if !output.status.success() {
-        return Err(format!("Sidecar execution failed: {}", output.stderr));
+    #[derive(Deserialize)]
+    struct SaveResponse {
+        success: bool,
+        message: String,
     }
     
-    Ok(())
+    let response: SaveResponse = make_request_with_retry::<SaveResponse, SaveResponse>(
+        &client,
+        || client.post(&format!("{}/api/settings", API_BASE_URL))
+            .json(&settings),
+        "Save settings"
+    ).await?;
+    
+    if response.success {
+        Ok(())
+    } else {
+        Err(format!("Failed to save settings: {}", response.message))
+    }
+}
+
+#[command]
+pub async fn get_engine_info(_app: tauri::AppHandle) -> Result<EngineInfo, String> {
+    let client = create_http_client().await?;
+    
+    make_request_with_retry::<EngineInfo, EngineInfo>(
+        &client,
+        || client.get(&format!("{}/api/engine_info", API_BASE_URL)),
+        "Get engine info"
+    ).await
+}
+
+#[command]
+pub async fn get_performance_stats(_app: tauri::AppHandle) -> Result<PerformanceStats, String> {
+    let client = create_http_client().await?;
+    
+    make_request_with_retry::<PerformanceStats, PerformanceStats>(
+        &client,
+        || client.get(&format!("{}/api/performance_stats", API_BASE_URL)),
+        "Get performance stats"
+    ).await
+}
+
+#[command]
+pub async fn health_check(_app: tauri::AppHandle) -> Result<HealthStatus, String> {
+    let client = create_http_client().await?;
+    
+    make_request_with_retry::<HealthStatus, HealthStatus>(
+        &client,
+        || client.get(&format!("{}/health", API_BASE_URL)),
+        "Health check"
+    ).await
 }

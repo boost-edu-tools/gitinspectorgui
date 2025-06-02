@@ -1,114 +1,119 @@
 # GitInspectorGUI Documentation
 
-This documentation provides comprehensive guidance for the GitInspectorGUI project, organized by functional areas and reading sequences.
+This directory contains comprehensive documentation for GitInspectorGUI's HTTP API architecture.
 
-## 📚 Directory Structure
+## 📚 Documentation Structure
 
-```
-docs/
-├── README.md                                    # This master index
-├── architecture/                                # System design and planning
-│   ├── IPC_ARCHITECTURE_ANALYSIS.md           # Roo: IPC communication analysis
-│   ├── ARCHITECTURE_PLAN_SUMMARY.md           # Roo: Overall architecture summary
-│   ├── HTTP_API_IMPLEMENTATION_PLAN.md        # Roo: HTTP API design plan
-│   ├── ARCHITECTURE_DIAGRAMS.md               # Roo: System diagrams
-│   └── LEGACY_INTEGRATION_PLAN.md             # Roo: Legacy system integration
-├── development/                                 # Development guides and diagnostics
-│   ├── DEVELOPMENT_MODE.md                     # Roo: Development environment setup
-│   ├── ENHANCED_SETTINGS_GUIDE.md             # Roo: Advanced configuration guide
-│   └── diagnostics/                           # Troubleshooting and diagnostics
-│       ├── cline_terminal_diagnostics_macos.md # cline: macOS terminal issues
-│       └── cline_python_sidecar_creation.md   # cline: Python sidecar setup
-├── implementation/                              # Implementation details and summaries
-│   ├── IMPLEMENTATION_PLAN.md                  # Roo: Master implementation plan
-│   ├── PHASE3_COMPLETION_SUMMARY.md           # Roo: Phase 3 completion status
-│   ├── PHASE4_COMPLETION_SUMMARY.md           # Roo: Phase 4 completion status
-│   └── PHASE4_LEGACY_ENGINE_WRAPPER.md        # Roo: Legacy engine wrapper details
-└── operations/                                 # Operational procedures
-    └── rollback/                               # Rollback procedures and documentation
-        ├── ROLLBACK_PLAN.md                    # Roo: Rollback strategy
-        ├── DETAILED_ROLLBACK_SPECIFICATION.md # Roo: Detailed rollback procedures
-        └── ROLLBACK_COMPLETION_SUMMARY.md     # Roo: Rollback completion status
-```
+### 🚀 Getting Started
+- **[Main README](../README.md)** - Project overview and quick start guide
+- **[Development Setup](development/DEVELOPMENT_MODE.md)** - Local development environment setup
 
-## 👥 Authorship Legend
+### 🏗️ Architecture & Implementation
+- **[HTTP API Implementation Summary](implementation/HTTP_API_IMPLEMENTATION_SUMMARY.md)** - Complete technical overview
+- **[Implementation Status Summary](implementation/HTTP_API_STATUS_SUMMARY.md)** - Current status and achievements
+- **[Architecture Diagrams](architecture/ARCHITECTURE_DIAGRAMS.md)** - Visual system architecture
 
-This documentation follows consistent authorship conventions to maintain clarity about document origins:
+### 📖 API Documentation
+- **[HTTP API Reference](api/HTTP_API_REFERENCE.md)** - Comprehensive API documentation with examples
+- **[Enhanced Settings Guide](development/ENHANCED_SETTINGS_GUIDE.md)** - Advanced configuration options
 
-- **Roo (UPPERCASE files)**: Technical architecture, implementation plans, and system design documents
-- **cline (lowercase prefixed files)**: Diagnostic guides, troubleshooting procedures, and development setup
+### 🚀 Deployment & Operations
+- **[Production Deployment Guide](deployment/PRODUCTION_DEPLOYMENT_GUIDE.md)** - Security, monitoring, and maintenance
+- **[Development Mode](development/DEVELOPMENT_MODE.md)** - Local development procedures
 
-## 🎯 Reading Paths
+## 🎯 Quick Navigation
 
-### For New Developers
-1. [`development/DEVELOPMENT_MODE.md`](development/DEVELOPMENT_MODE.md) - Start here for environment setup
-2. [`architecture/ARCHITECTURE_PLAN_SUMMARY.md`](architecture/ARCHITECTURE_PLAN_SUMMARY.md) - Understand the overall system
-3. [`development/ENHANCED_SETTINGS_GUIDE.md`](development/ENHANCED_SETTINGS_GUIDE.md) - Advanced configuration options
+### For Developers
+1. **Start Here**: [Main README](../README.md) for project overview
+2. **Setup Environment**: [Development Mode](development/DEVELOPMENT_MODE.md)
+3. **Understand Architecture**: [Implementation Summary](implementation/HTTP_API_IMPLEMENTATION_SUMMARY.md)
+4. **API Reference**: [HTTP API Reference](api/HTTP_API_REFERENCE.md)
 
-### For System Architects
-1. [`architecture/IPC_ARCHITECTURE_ANALYSIS.md`](architecture/IPC_ARCHITECTURE_ANALYSIS.md) - IPC communication patterns
-2. [`architecture/HTTP_API_IMPLEMENTATION_PLAN.md`](architecture/HTTP_API_IMPLEMENTATION_PLAN.md) - API design strategy
-3. [`architecture/ARCHITECTURE_DIAGRAMS.md`](architecture/ARCHITECTURE_DIAGRAMS.md) - Visual system overview
-4. [`architecture/LEGACY_INTEGRATION_PLAN.md`](architecture/LEGACY_INTEGRATION_PLAN.md) - Legacy system integration
+### For DevOps/Deployment
+1. **Production Setup**: [Deployment Guide](deployment/PRODUCTION_DEPLOYMENT_GUIDE.md)
+2. **Architecture Overview**: [Implementation Summary](implementation/HTTP_API_IMPLEMENTATION_SUMMARY.md)
+3. **Monitoring**: [API Reference - Monitoring Section](api/HTTP_API_REFERENCE.md#monitoring-and-logging)
 
-### For Implementation Teams
-1. [`implementation/IMPLEMENTATION_PLAN.md`](implementation/IMPLEMENTATION_PLAN.md) - Master implementation strategy
-2. [`implementation/PHASE3_COMPLETION_SUMMARY.md`](implementation/PHASE3_COMPLETION_SUMMARY.md) - Phase 3 status
-3. [`implementation/PHASE4_COMPLETION_SUMMARY.md`](implementation/PHASE4_COMPLETION_SUMMARY.md) - Phase 4 status
-4. [`implementation/PHASE4_LEGACY_ENGINE_WRAPPER.md`](implementation/PHASE4_LEGACY_ENGINE_WRAPPER.md) - Legacy wrapper details
+### For Project Managers
+1. **Project Status**: [Status Summary](implementation/HTTP_API_STATUS_SUMMARY.md)
+2. **Architecture Overview**: [Implementation Summary](implementation/HTTP_API_IMPLEMENTATION_SUMMARY.md)
+3. **Future Roadmap**: [Status Summary - Future Enhancements](implementation/HTTP_API_STATUS_SUMMARY.md#-future-enhancements)
 
-### For Operations Teams
-1. [`operations/rollback/ROLLBACK_PLAN.md`](operations/rollback/ROLLBACK_PLAN.md) - Rollback strategy overview
-2. [`operations/rollback/DETAILED_ROLLBACK_SPECIFICATION.md`](operations/rollback/DETAILED_ROLLBACK_SPECIFICATION.md) - Detailed procedures
-3. [`operations/rollback/ROLLBACK_COMPLETION_SUMMARY.md`](operations/rollback/ROLLBACK_COMPLETION_SUMMARY.md) - Completion status
+## 📋 Documentation Status
 
-### For Troubleshooting
-1. [`development/diagnostics/cline_terminal_diagnostics_macos.md`](development/diagnostics/cline_terminal_diagnostics_macos.md) - macOS terminal issues
-2. [`development/diagnostics/cline_python_sidecar_creation.md`](development/diagnostics/cline_python_sidecar_creation.md) - Python sidecar setup
+### ✅ Current Documentation (HTTP API v2.0)
+- **Implementation Summary** - Complete technical overview with architecture diagrams
+- **API Reference** - Comprehensive endpoint documentation with examples
+- **Deployment Guide** - Production deployment, security, and monitoring
+- **Status Summary** - Implementation status and future roadmap
+- **Development Guide** - Local development setup and procedures
 
-## 📋 Quick Reference by Topic
+### 📦 Archived Documentation
+The following documents are preserved for historical reference but are no longer actively maintained:
 
-### Architecture & Design
-- **System Overview**: [`architecture/ARCHITECTURE_PLAN_SUMMARY.md`](architecture/ARCHITECTURE_PLAN_SUMMARY.md)
-- **IPC Communication**: [`architecture/IPC_ARCHITECTURE_ANALYSIS.md`](architecture/IPC_ARCHITECTURE_ANALYSIS.md)
-- **HTTP API Design**: [`architecture/HTTP_API_IMPLEMENTATION_PLAN.md`](architecture/HTTP_API_IMPLEMENTATION_PLAN.md)
-- **System Diagrams**: [`architecture/ARCHITECTURE_DIAGRAMS.md`](architecture/ARCHITECTURE_DIAGRAMS.md)
-- **Legacy Integration**: [`architecture/LEGACY_INTEGRATION_PLAN.md`](architecture/LEGACY_INTEGRATION_PLAN.md)
+#### Legacy Architecture (v1.0 - Sidecar)
+- `development/API_SIDECAR.md` - Legacy sidecar implementation (deprecated)
+- `operations/rollback/` - Rollback procedures for sidecar architecture
 
-### Development & Configuration
-- **Development Setup**: [`development/DEVELOPMENT_MODE.md`](development/DEVELOPMENT_MODE.md)
-- **Advanced Settings**: [`development/ENHANCED_SETTINGS_GUIDE.md`](development/ENHANCED_SETTINGS_GUIDE.md)
-- **macOS Diagnostics**: [`development/diagnostics/cline_terminal_diagnostics_macos.md`](development/diagnostics/cline_terminal_diagnostics_macos.md)
-- **Python Sidecar**: [`development/diagnostics/cline_python_sidecar_creation.md`](development/diagnostics/cline_python_sidecar_creation.md)
+#### Implementation History
+- `architecture/HTTP_API_IMPLEMENTATION_PLAN.md` - Current implementation plan
+- `archive/HTTP_API_IMPLEMENTATION_PLAN_ORIGINAL.md` - Original implementation plan (archived)
+- `implementation/PHASE3_COMPLETION_SUMMARY.md` - Historical phase completion
+- `implementation/PHASE4_COMPLETION_SUMMARY.md` - Historical phase completion
 
-### Implementation Status
-- **Master Plan**: [`implementation/IMPLEMENTATION_PLAN.md`](implementation/IMPLEMENTATION_PLAN.md)
-- **Phase 3 Status**: [`implementation/PHASE3_COMPLETION_SUMMARY.md`](implementation/PHASE3_COMPLETION_SUMMARY.md)
-- **Phase 4 Status**: [`implementation/PHASE4_COMPLETION_SUMMARY.md`](implementation/PHASE4_COMPLETION_SUMMARY.md)
-- **Legacy Wrapper**: [`implementation/PHASE4_LEGACY_ENGINE_WRAPPER.md`](implementation/PHASE4_LEGACY_ENGINE_WRAPPER.md)
+## 🔍 Finding Information
 
-### Operations & Rollback
-- **Rollback Strategy**: [`operations/rollback/ROLLBACK_PLAN.md`](operations/rollback/ROLLBACK_PLAN.md)
-- **Detailed Procedures**: [`operations/rollback/DETAILED_ROLLBACK_SPECIFICATION.md`](operations/rollback/DETAILED_ROLLBACK_SPECIFICATION.md)
-- **Completion Status**: [`operations/rollback/ROLLBACK_COMPLETION_SUMMARY.md`](operations/rollback/ROLLBACK_COMPLETION_SUMMARY.md)
+### Common Questions
 
-## 📊 Document Status
+**Q: How do I start the application?**  
+A: See [Main README - Quick Start](../README.md#-quick-start)
 
-| Category | Documents | Status |
-|----------|-----------|---------|
-| Architecture | 5 | ✅ Complete |
-| Development | 4 | ✅ Complete |
-| Implementation | 4 | ✅ Complete |
-| Operations | 3 | ✅ Complete |
-| **Total** | **16** | **✅ Complete** |
+**Q: How do I deploy to production?**  
+A: See [Production Deployment Guide](deployment/PRODUCTION_DEPLOYMENT_GUIDE.md)
 
-## 🔍 Navigation Tips
+**Q: What are all the API endpoints?**  
+A: See [HTTP API Reference](api/HTTP_API_REFERENCE.md)
 
-- **File naming conventions**: UPPERCASE files are authored by Roo, lowercase prefixed files by cline
-- **Logical grouping**: Documents are organized by functional area for easier discovery
-- **Cross-references**: Related documents are linked within each file
-- **Reading sequences**: Follow the suggested reading paths above for your role
+**Q: How do I configure advanced settings?**  
+A: See [Enhanced Settings Guide](development/ENHANCED_SETTINGS_GUIDE.md)
+
+**Q: What's the current implementation status?**  
+A: See [Implementation Status Summary](implementation/HTTP_API_STATUS_SUMMARY.md)
+
+**Q: How do I troubleshoot issues?**  
+A: See [API Reference - Troubleshooting](api/HTTP_API_REFERENCE.md#troubleshooting) and [Deployment Guide - Troubleshooting](deployment/PRODUCTION_DEPLOYMENT_GUIDE.md#troubleshooting)
+
+### Search Tips
+- Use your editor's search functionality to find specific topics across all documentation
+- Check the table of contents in each document for quick navigation
+- API endpoints are documented with examples in the [API Reference](api/HTTP_API_REFERENCE.md)
+
+## 🔄 Documentation Maintenance
+
+### Update Schedule
+- **Implementation docs**: Updated with each major release
+- **API Reference**: Updated with any API changes
+- **Deployment Guide**: Reviewed quarterly for security updates
+- **Development Guide**: Updated with environment changes
+
+### Contributing to Documentation
+1. **Keep it current**: Update docs when making code changes
+2. **Include examples**: Provide working code examples
+3. **Test procedures**: Verify all documented procedures work
+4. **Clear language**: Write for both technical and non-technical audiences
+
+## 📞 Support
+
+If you can't find what you're looking for in this documentation:
+
+1. **Check the main README**: [../README.md](../README.md)
+2. **Search existing issues**: GitHub Issues for known problems
+3. **Create new issue**: For bugs or missing documentation
+4. **Start discussion**: GitHub Discussions for questions
 
 ---
 
-*This documentation structure maintains authorship identity while providing logical organization and improved discoverability.*
+**Documentation Version**: 2.0.0 (HTTP API Edition)  
+**Last Updated**: June 2025  
+**Status**: ✅ Complete and Current  
+**Architecture**: HTTP API with Tauri Frontend
