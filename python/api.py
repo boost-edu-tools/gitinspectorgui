@@ -13,6 +13,9 @@ if OLD_SRC_PATH.exists() and str(OLD_SRC_PATH) not in sys.path:
     sys.path.insert(0, str(OLD_SRC_PATH))
 # --- End Setup Python Path ---
 
+# Configure logging for legacy module imports
+logging.basicConfig(level=logging.INFO)
+
 try:
     from gigui.args_settings import Args
     from gigui.data import IniRepo
@@ -38,8 +41,8 @@ except ImportError as e:
         print(json.dumps({"error": f"Failed to import gigui modules: {e}. Check PYTHONPATH or script location."}), file=sys.stderr)
         sys.exit(1)
 
-
-logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(name)s - %(message)s')
+# Configure logging for API operations
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def create_args_from_dict(settings_dict: Dict[str, Any]) -> Args:

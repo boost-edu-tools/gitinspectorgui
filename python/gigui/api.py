@@ -26,10 +26,7 @@ from gigui.typedefs import Author, Email, FileStr, SHA, OID
 from gigui.api_types import Settings, AnalysisResult, RepositoryResult, AuthorStat, FileStat, BlameEntry
 
 # Configure logging for API operations
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Constants for time calculations

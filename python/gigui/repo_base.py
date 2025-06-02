@@ -968,13 +968,11 @@ class RepoBase:
 
     def log_dot(self) -> None:
         """Log a dot for progress indication."""
-        if not self.args.multicore and self.args.verbosity == 0:
-            print(".", end="", flush=True)
+        print(".", end="", flush=True)
 
     def log_space(self, i: int) -> None:
         """Log spaces for formatting."""
-        if not self.args.multicore and self.args.verbosity == 0:
-            print(" " * i, end="", flush=True)
+        print(" " * i, end="", flush=True)
 
     def close(self) -> None:
         """Close the git repository to free resources."""
