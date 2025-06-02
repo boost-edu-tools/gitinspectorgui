@@ -586,7 +586,7 @@ class LegacyEngineWrapper:
                     self.performance_monitor.update_peak_memory()
                     
                     # Collect statistics
-                    repo_commits = sum(len(stat.shas) for stat in repo_data.author2pstat.values() if stat.person.author != "*")
+                    repo_commits = sum(len(stat.stat.shas) for stat in repo_data.author2pstat.values() if stat.person.author != "*")
                     repo_files = len([f for f in repo_data.fstr2fstat.keys() if f != "*"])
                     repo_authors = len([a for a in repo_data.author2pstat.keys() if a != "*"])
                     

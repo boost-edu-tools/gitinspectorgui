@@ -90,7 +90,7 @@ class RepoData(RepoBlameHistory):
         """
         Initialize the main analysis orchestrator.
         
-        Sets up all data structures and prepares for comprehensive analysis
+        Sets up all data structures and executes comprehensive analysis
         workflow coordination.
         
         Args:
@@ -123,6 +123,9 @@ class RepoData(RepoBlameHistory):
 
         # SHA to author number mapping
         self.sha2author_nr: dict[SHA, int] = {}
+        
+        # Execute the analysis workflow automatically
+        self.run_analysis()
 
     def run_analysis(self) -> bool:
         """
