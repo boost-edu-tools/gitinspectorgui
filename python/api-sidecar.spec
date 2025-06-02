@@ -40,12 +40,22 @@ a = Analysis(
     binaries=[],
     datas=[],
     hiddenimports=[
+        "git",
         "gitpython",
         "colorlog",
         "jsonschema",
         "platformdirs",
         "beautifulsoup4",
-        "jinja2"
+        "jinja2",
+        "gigui.legacy_engine",
+        "gigui.typedefs",
+        "gigui.person_data",
+        "gigui.data",
+        "gigui.repo_base",
+        "gigui.repo_blame",
+        "gigui.repo_data",
+        "gigui.utils",
+        "gigui.api_types"
     ],
     hookspath=[],
     hooksconfig={},

@@ -22,8 +22,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from math import floor
 
-from .typedefs import Author, Email, FileStr, SHA, OID
-from .api_types import Settings, AnalysisResult, RepositoryResult, AuthorStat, FileStat, BlameEntry
+from gigui.typedefs import Author, Email, FileStr, SHA, OID
+from gigui.api_types import Settings, AnalysisResult, RepositoryResult, AuthorStat, FileStat, BlameEntry
 
 # Configure logging for API operations
 logging.basicConfig(
@@ -41,7 +41,7 @@ DAYS_IN_MONTH = 30.44
 
 
 # Import legacy engine after api_types to avoid circular imports
-from .legacy_engine import legacy_engine
+from gigui.legacy_engine import legacy_engine
 
 
 @dataclass

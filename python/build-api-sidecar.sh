@@ -11,29 +11,24 @@ echo "🔨 Building GitInspectorGUI API Sidecar..."
 cd "$(dirname "$0")"
 echo "📁 Working directory: $(pwd)"
 
-# Check if virtual environment exists
-if [ ! -d ".venv" ]; then
-    echo "❌ Virtual environment not found. Please run setup-api-sidecar.sh first."
-    exit 1
-fi
+# Use main project's uv environment instead of separate .venv
+echo "🔌 Using main project's uv environment..."
+cd ..  # Go to project root where pyproject.toml is
 
-# Activate virtual environment
-echo "🔌 Activating virtual environment..."
-source .venv/bin/activate
-
-# Verify PyInstaller is installed
-if ! command -v pyinstaller &> /dev/null; then
+# Verify PyInstaller is installed in uv environment
+if ! uv run python -c "import PyInstaller" &> /dev/null; then
     echo "❌ PyInstaller not found. Installing..."
-    uv pip install pyinstaller>=6.11.1
+    uv add --dev pyinstaller>=6.11.1
 fi
 
 # Clean previous builds
 echo "🧹 Cleaning previous builds..."
 rm -rf build/ dist/ *.spec.bak
 
-# Build the API sidecar executable
+# Build the API sidecar executable using uv
 echo "🏗️  Building API sidecar with PyInstaller..."
-pyinstaller api-sidecar.spec --clean --noconfirm
+cd python  # Go back to python directory for the spec file
+uv run pyinstaller api-sidecar.spec --clean --noconfirm
 
 # Verify the build
 if [ -f "dist/gitinspector-api-sidecar" ]; then

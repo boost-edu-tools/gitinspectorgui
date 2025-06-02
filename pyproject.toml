@@ -33,7 +33,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "beautifulsoup4 >= 4.12.3",
     "colorlog >= 6.9",
-    "gitpython >= 3.1.43",
+    "gitpython>=3.1.43",
     "jinja2 >= 3.1.4",
     "jsonschema >= 4.23",
     "platformdirs >= 4.3.6",
@@ -44,8 +44,8 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/davbeek/gitinspectorgui"
-repository = "https://github.com/davbeek/gitinspectorgui"
+homepage = "https://gitlab.com/edu-boost/gitinspectorgui"
+repository = "https://gitlab.com/edu-boost/gitinspectorgui"
 
 [project.scripts]
 gigui = "gigui.cli:main"
@@ -54,7 +54,7 @@ gitinspectorgui = "gigui.cli:main"
 [dependency-groups]
 dev = [
     "pre-commit >= 4.0.1",
-    "pyinstaller >= 6.11.1",
+    "pyinstaller>=6.11.1",
     "pytest>=8.3.5",
     "ruff >= 0.9",
 ]
