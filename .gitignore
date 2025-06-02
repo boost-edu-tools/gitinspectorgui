@@ -117,6 +117,7 @@ public
 
 # Tauri build artifacts
 src-tauri/target/
+src-tauri/bin/gitinspector-api-sidecar*
 
 # Python
 __pycache__/
