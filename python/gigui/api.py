@@ -604,6 +604,28 @@ def main():
                 sys.exit(1)
 
             settings_data = json.loads(sys.argv[2])
+            
+            # Ensure all required fields have defaults
+            defaults = {
+                'include_files': [],
+                'ex_files': [],
+                'extensions': ["c", "cc", "cif", "cpp", "glsl", "h", "hh", "hpp", "java", "js", "py", "rb", "sql", "ts"],
+                'ex_authors': [],
+                'ex_emails': [],
+                'ex_revisions': [],
+                'ex_messages': [],
+                'file_formats': ["html"],
+                'ex_author_patterns': [],
+                'ex_email_patterns': [],
+                'ex_message_patterns': [],
+                'ex_file_patterns': [],
+            }
+            
+            # Apply defaults for missing fields
+            for key, default_value in defaults.items():
+                if key not in settings_data or settings_data[key] is None:
+                    settings_data[key] = default_value
+            
             settings = Settings(**settings_data)
             api.save_settings(settings)
             print(json.dumps({"success": True}))
@@ -614,6 +636,28 @@ def main():
                 sys.exit(1)
 
             settings_data = json.loads(sys.argv[2])
+            
+            # Ensure all required fields have defaults
+            defaults = {
+                'include_files': [],
+                'ex_files': [],
+                'extensions': ["c", "cc", "cif", "cpp", "glsl", "h", "hh", "hpp", "java", "js", "py", "rb", "sql", "ts"],
+                'ex_authors': [],
+                'ex_emails': [],
+                'ex_revisions': [],
+                'ex_messages': [],
+                'file_formats': ["html"],
+                'ex_author_patterns': [],
+                'ex_email_patterns': [],
+                'ex_message_patterns': [],
+                'ex_file_patterns': [],
+            }
+            
+            # Apply defaults for missing fields
+            for key, default_value in defaults.items():
+                if key not in settings_data or settings_data[key] is None:
+                    settings_data[key] = default_value
+            
             settings = Settings(**settings_data)
             result = api.execute_analysis(settings)
             print(json.dumps(asdict(result)))
