@@ -1,9 +1,14 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import type { Settings } from "@/types/settings";
 import type { AnalysisResult } from "@/types/results";
 
 export async function executeAnalysis(settings: Settings): Promise<AnalysisResult> {
   try {
+    // Check if we're running in a Tauri context
+    if (!isTauri()) {
+      throw new Error("Not running in Tauri context");
+    }
+    
     const result = await invoke<AnalysisResult>("execute_analysis", { settings });
     return result;
   } catch (error) {

@@ -399,34 +399,26 @@ class ResultConverter:
         blame_data = []
         
         try:
-            # Get blame data from legacy analysis
-            # This is a simplified conversion - in a full implementation,
-            # you would extract actual blame data from repo_data.blame_history
-            
-            # For now, create representative blame entries from the analysis
-            for fstr in list(repo_data.fstr2fstat.keys())[:5]:  # Limit to first 5 files
-                if fstr == "*":
+            # Use real blame data from fstr2blames
+            for fstr, blames in repo_data.fstr2blames.items():
+                if fstr == "*":  # Skip totals row
                     continue
                 
-                # Get authors for this file
-                file_authors = repo_data.fstr2author2fstat.get(fstr, {})
-                
-                for line_num, (author, _) in enumerate(list(file_authors.items())[:3], 1):
-                    if author == "*":
-                        continue
-                    
-                    blame_entry = BlameEntry(
-                        file=str(fstr),
-                        line_number=line_num,
-                        author=author,
-                        commit=f"legacy_commit_{hash(author + str(fstr)) % 1000000:06d}",
-                        date=time.strftime("%Y-%m-%d"),
-                        content=f"# Legacy analysis result for {Path(fstr).name}"
-                    )
-                    
-                    blame_data.append(blame_entry)
+                # Convert each blame entry to GUI format
+                for blame in blames:
+                    for line_data in blame.line_datas:
+                        blame_entry = BlameEntry(
+                            file=str(fstr),
+                            line_number=line_data.line_nr,
+                            author=blame.author,
+                            commit=blame.sha,  # Use real commit SHA
+                            date=blame.date.strftime("%Y-%m-%d"),  # Use real commit date
+                            content=line_data.line.strip()  # Use real line content
+                        )
+                        
+                        blame_data.append(blame_entry)
             
-            logger.debug(f"Converted {len(blame_data)} blame entries from legacy format")
+            logger.debug(f"Converted {len(blame_data)} real blame entries from legacy format")
             
         except Exception as e:
             logger.warning(f"Blame data conversion failed: {e}")

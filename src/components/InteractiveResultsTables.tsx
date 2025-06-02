@@ -41,6 +41,7 @@ export function InteractiveResultsTables() {
   });
 
   const [editValue, setEditValue] = useState("");
+  const [jumpToPage, setJumpToPage] = useState("");
 
   const currentRepo = getCurrentRepository();
 
@@ -85,6 +86,24 @@ export function InteractiveResultsTables() {
   const toggleComments = useCallback(() => {
     setTableState(prev => ({ ...prev, showComments: !prev.showComments }));
   }, []);
+
+  const handleJumpToPage = useCallback(() => {
+    const pageNum = parseInt(jumpToPage);
+    const currentRepo = getCurrentRepository();
+    if (!currentRepo) return;
+    
+    let totalItems = 0;
+    if (selectedTable === "authors") totalItems = currentRepo.authors.length;
+    else if (selectedTable === "files") totalItems = currentRepo.files.length;
+    else if (selectedTable === "blame") totalItems = currentRepo.blame_data.length;
+    
+    const maxPage = Math.ceil(totalItems / tableState.pageSize);
+    
+    if (pageNum >= 1 && pageNum <= maxPage) {
+      setTableState(prev => ({ ...prev, currentPage: pageNum - 1 }));
+      setJumpToPage("");
+    }
+  }, [jumpToPage, selectedTable, tableState.pageSize, getCurrentRepository]);
 
 
   if (!results) return null;
@@ -173,7 +192,9 @@ export function InteractiveResultsTables() {
               <option value={25}>25 rows</option>
               <option value={50}>50 rows</option>
               <option value={100}>100 rows</option>
+              <option value={250}>250 rows</option>
               <option value={500}>500 rows</option>
+              <option value={1000}>1000 rows</option>
             </select>
           </div>
         </div>
@@ -223,6 +244,9 @@ export function InteractiveResultsTables() {
                 tableState={tableState}
                 onSort={handleSort}
                 onPageChange={(page: number) => setTableState(prev => ({ ...prev, currentPage: page }))}
+                jumpToPage={jumpToPage}
+                setJumpToPage={setJumpToPage}
+                onJumpToPage={handleJumpToPage}
               />
             )}
           </>
@@ -587,12 +611,18 @@ function InteractiveBlameTable({
   blameData,
   tableState,
   onSort,
-  onPageChange
+  onPageChange,
+  jumpToPage,
+  setJumpToPage,
+  onJumpToPage
 }: {
   blameData: BlameEntry[];
   tableState: TableState;
   onSort: (field: string) => void;
   onPageChange: (page: number) => void;
+  jumpToPage: string;
+  setJumpToPage: (value: string) => void;
+  onJumpToPage: () => void;
 }) {
   
   const blameColumns: ColumnConfig[] = [
@@ -644,10 +674,10 @@ function InteractiveBlameTable({
 
 
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col">
       {/* Table */}
-      <div className="border border-border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="flex-1 border border-border rounded-lg overflow-hidden flex flex-col">
+        <div className="flex-1 overflow-auto">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
@@ -707,36 +737,76 @@ function InteractiveBlameTable({
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Showing {tableState.currentPage * tableState.pageSize + 1} to{' '}
-            {Math.min((tableState.currentPage + 1) * tableState.pageSize, filteredAndSortedData.length)} of{' '}
-            {filteredAndSortedData.length} entries
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(tableState.currentPage - 1)}
-              disabled={tableState.currentPage === 0}
-            >
-              Previous
-            </Button>
-            <span className="flex items-center px-3 text-sm">
-              Page {tableState.currentPage + 1} of {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(tableState.currentPage + 1)}
-              disabled={tableState.currentPage >= totalPages - 1}
-            >
-              Next
-            </Button>
-          </div>
+      <div className="p-4 border-t border-border flex items-center justify-between bg-background">
+        <div className="text-sm text-muted-foreground">
+          Showing {tableState.currentPage * tableState.pageSize + 1} to{' '}
+          {Math.min((tableState.currentPage + 1) * tableState.pageSize, filteredAndSortedData.length)} of{' '}
+          {filteredAndSortedData.length} entries
+          {filteredAndSortedData.length !== blameData.length && (
+            <span className="ml-2">• Filtered from {blameData.length} total</span>
+          )}
         </div>
-      )}
+        <div className="flex gap-2 items-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(0)}
+            disabled={tableState.currentPage === 0}
+          >
+            ⏮ First
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(tableState.currentPage - 1)}
+            disabled={tableState.currentPage === 0}
+          >
+            ← Previous
+          </Button>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-sm">Page</span>
+            <Input
+              type="number"
+              value={jumpToPage}
+              onChange={(e) => setJumpToPage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") onJumpToPage();
+              }}
+              placeholder={String(tableState.currentPage + 1)}
+              className="w-16 h-8 text-center text-sm"
+              min="1"
+              max={totalPages}
+            />
+            <span className="text-sm">of {totalPages}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onJumpToPage}
+              disabled={!jumpToPage}
+            >
+              Go
+            </Button>
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(tableState.currentPage + 1)}
+            disabled={tableState.currentPage >= totalPages - 1}
+          >
+            Next →
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(totalPages - 1)}
+            disabled={tableState.currentPage >= totalPages - 1}
+          >
+            Last ⏭
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
