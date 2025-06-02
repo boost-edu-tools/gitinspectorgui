@@ -60,6 +60,30 @@ graph TB
     M --> C
 ```
 
+## Dependency Management Architecture
+
+### uv + pyproject.toml Approach
+
+This integration will use **uv** with **pyproject.toml** for dependency management, maintaining consistency with the existing `gitinspectorgui-old` workflow:
+
+#### Key Benefits
+- **Performance**: uv is significantly faster than pip for dependency resolution
+- **Modern tooling**: Future-proof Python package management
+- **Consistency**: Matches existing gitinspectorgui-old project structure
+- **Better resolution**: Superior dependency conflict resolution compared to pip
+
+#### Commands Used
+- `uv add <package>` - Add new dependencies
+- `uv sync` - Install/sync all dependencies from pyproject.toml
+- `uv run <command>` - Execute scripts in the uv environment
+- `uv remove <package>` - Remove dependencies
+
+#### AI Guidance Protocol
+- All dependency-related tasks will explicitly use uv commands
+- Human oversight for any dependency changes
+- Clear separation between uv and pip to avoid command mixing
+- Legacy integration will maintain pyproject.toml structure from gitinspectorgui-old
+
 ## Integration Strategy
 
 ### Phase 1: Core Data Structures Migration
@@ -172,6 +196,30 @@ gitinspectorgui/python/gigui/
 └── cli.py               # CLI interface (existing)
 ```
 
+### Dependency Management
+
+The integration will maintain the modern uv + pyproject.toml approach:
+
+```toml
+# pyproject.toml structure (enhanced from gitinspectorgui-old)
+[project]
+name = "gitinspectorgui"
+dependencies = [
+    # Core dependencies from legacy codebase
+    # Additional dependencies as needed
+]
+
+[tool.uv]
+dev-dependencies = [
+    # Development and testing dependencies
+]
+```
+
+**Migration Commands**:
+- `uv sync` - Install all dependencies after integration
+- `uv add <package>` - Add any missing legacy dependencies
+- `uv run python -m gigui.api` - Execute analysis engine
+
 ### Data Flow Architecture
 
 ```mermaid
@@ -274,7 +322,7 @@ def convert_results(repo_data: RepoData) -> RepositoryResult:
 
 ### High Risk
 - **Complexity**: Legacy codebase is sophisticated and interdependent
-- **Dependencies**: May require additional Python packages
+- **Dependencies**: May require additional Python packages (managed via uv + pyproject.toml)
 - **Performance**: Initial integration may be slower than current implementation
 
 ### Medium Risk
