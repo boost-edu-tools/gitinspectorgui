@@ -23,6 +23,9 @@ fi
 if ! command -v uv &> /dev/null; then
     echo "🟡 uv not found. Attempting to install with standalone installer..."
     curl -LsSf https://astral.sh/uv/install.sh | sh
+    # The installer places uv in ~/.local/bin, which may not be in the PATH.
+    # Source the environment file to update the PATH for the current session.
+    source "$HOME/.local/bin/env"
     if ! command -v uv &> /dev/null; then
         echo "❌ Error: Failed to install uv."
         echo "   Please install uv manually: https://docs.astral.sh/uv/getting-started/installation/"
