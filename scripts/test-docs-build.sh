@@ -19,6 +19,13 @@ if [ ! -f "pyproject.toml" ]; then
     exit 1
 fi
 
+# Check if uv is available
+if ! command -v uv &> /dev/null; then
+    echo "❌ Error: uv is not installed or not in PATH"
+    echo "   Please install uv: https://docs.astral.sh/uv/getting-started/installation/"
+    exit 1
+fi
+
 # Check if .venv exists, create if not
 if [ ! -d ".venv" ]; then
     echo "🟡 .venv directory not found. Creating it now with 'uv venv'..."
@@ -34,13 +41,6 @@ fi
 
 echo "✅ Found mkdocs.yml"
 echo "✅ Found pyproject.toml"
-
-# Check if uv is available
-if ! command -v uv &> /dev/null; then
-    echo "❌ Error: uv is not installed or not in PATH"
-    echo "   Please install uv: https://docs.astral.sh/uv/getting-started/installation/"
-    exit 1
-fi
 
 echo "✅ uv is available: $(uv --version)"
 
