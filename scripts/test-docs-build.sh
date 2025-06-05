@@ -19,16 +19,21 @@ if [ ! -f "pyproject.toml" ]; then
     exit 1
 fi
 
-# Check if .venv exists
+# Check if .venv exists, create if not
 if [ ! -d ".venv" ]; then
-    echo "❌ Error: .venv directory not found."
-    echo "   Please run 'uv sync' first to set up the virtual environment."
-    exit 1
+    echo "🟡 .venv directory not found. Creating it now with 'uv venv'..."
+    uv venv
+    if [ $? -ne 0 ]; then
+        echo "❌ Error: Failed to create virtual environment with 'uv venv'."
+        exit 1
+    fi
+    echo "✅ Virtual environment created successfully."
+else
+    echo "✅ Found existing .venv directory."
 fi
 
 echo "✅ Found mkdocs.yml"
 echo "✅ Found pyproject.toml"
-echo "✅ Found .venv directory"
 
 # Check if uv is available
 if ! command -v uv &> /dev/null; then
