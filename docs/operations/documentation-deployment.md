@@ -78,10 +78,18 @@ git push origin main
 
 ### 3.4 Monitor Deployment
 
-1. Go to **CI/CD** → **Pipelines** in your GitLab project
-2. Watch the `pages` job in the pipeline
-3. Once successful, your documentation will be available at:
-   **https://edu-boost.gitlab.io/gitinspectorgui**
+1.  Go to **CI/CD** → **Pipelines** in your GitLab project.
+2.  Watch the `pages` job in the pipeline.
+3.  Once successful, your documentation will be available at:
+    **https://edu-boost.gitlab.io/gitinspectorgui**
+
+#### Manually Rerunning a Pipeline
+
+If you need to rerun a pipeline without making a new commit (for example, to test a fix), you can do so from the GitLab UI:
+
+1.  Navigate to the **CI/CD** → **Pipelines** page.
+2.  Find the pipeline you want to rerun (it will likely be the most recent one with a "failed" status).
+3.  On the right side of the pipeline's entry, click the **"Retry"** (circular arrows) button. This will trigger a new run of the entire pipeline using the same commit.
 
 ## 🔧 Troubleshooting
 
