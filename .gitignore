@@ -137,7 +137,6 @@ dist/
 build/
 
 # IDEs
-.vscode/
 .idea/
 *.swp
 *.swo
