@@ -42,43 +42,37 @@ Verify that:
 -   Search functionality works
 -   Mobile responsiveness is good
 
-## 🚀 Step 3: Enable GitLab Pages (When Ready)
+## 🚀 Step 3: Deploy to GitLab Pages
 
-Once you're satisfied with the local test:
+Deployment to GitLab Pages is handled by a CI/CD pipeline. The configuration is managed by the `scripts/switch-ci.sh` script, which generates the `.gitlab-ci.yml` file.
 
-### 3.1 Enable CI/CD Pipeline
+### 3.1 How It Works
 
-The CI/CD configuration is managed by the `scripts/switch-ci.sh` script. It assembles the final `.gitlab-ci.yml` from partial files located in the `.ci/` directory. This file is not committed to Git.
+The `switch-ci.sh` script assembles the final `.gitlab-ci.yml` from partial files located in the `.ci/` directory. This allows for flexible pipeline configurations.
 
-Use the following commands to manage the CI/CD pipeline:
+-   `.ci/base.yml`: Contains the basic stage definitions.
+-   `.ci/docs.yml`: Contains the specific job for building and deploying the MkDocs site to GitLab Pages.
+-   `.ci/app.yml`: Contains jobs for building the main application (used for full releases).
+
+### 3.2 Enabling the Documentation Pipeline
+
+To deploy the documentation, you must first generate the correct CI/CD configuration file.
 
 ```bash
-# Enable docs-only pipeline (recommended for documentation changes)
+# Enable the documentation-only pipeline
 ./scripts/switch-ci.sh docs
-
-# Enable full app build pipeline (for releases)
-./scripts/switch-ci.sh apps
-
-# Disable all CI/CD
-./scripts/switch-ci.sh off
-
-# Check current configuration
-./scripts/switch-ci.sh status
 ```
 
-### 3.2 Configure GitLab Project
+This command creates a `.gitlab-ci.yml` file configured to only build and deploy the documentation.
 
-1. Go to your GitLab project: `https://gitlab.com/edu-boost/gitinspectorgui`
-2. Navigate to **Settings** → **Pages**
-3. Ensure Pages is enabled for your project
-4. Set visibility to **Public** or **Private** as needed
+### 3.3 Pushing Changes to Deploy
 
-### 3.3 Push Changes
+Once the pipeline is enabled, any push to the default branch (`main`) will automatically trigger the `pages` job.
 
 ```bash
-# Commit and push to trigger the pipeline
+# Add your changes and the generated CI file
 git add .
-git commit -m "Enable GitLab Pages for documentation"
+git commit -m "Update documentation and enable Pages deployment"
 git push origin main
 ```
 
@@ -159,7 +153,7 @@ project/
 ## 🔄 Workflow
 
 1. **Develop**: Edit documentation in `docs/` directory
-2. **Test**: Run `mkdocs serve` for live preview
+2. **Test**: Run `python -m mkdocs serve` for live preview
 3. **Validate**: Run `./test-docs-build.sh` before committing
 4. **Deploy**: Push to `main` branch (if CI/CD is enabled)
 

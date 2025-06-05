@@ -1,27 +1,21 @@
-# GitLab CI/CD Pipeline for Documentation (GitLab Pages)
-
-pages:
-    stage: docs
-    image: python:3.12
-    before_script:
-        - pip install uv
-        - uv sync --group dev
-    script:
-        - uv run mkdocs build --site-dir public
-    artifacts:
-        paths:
-            - public
-        expire_in: 1 week
-    only:
-        - main
-        - tags
+# The Docker image that will be used to build your app
+image: node:lts
+create-pages:
+    pages:
+        # The folder that contains the files to be exposed at the Page URL
+        publish: public
     rules:
-        # Only run when documentation files change
-        - changes:
+        # This rule ensures the job runs only when:
+        # 1. It's a push to the default branch.
+        # 2. Files in the documentation directory or key config files have changed.
+        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+          changes:
               - docs/**/*
               - mkdocs.yml
               - pyproject.toml
               - .ci/docs.yml
-        # Or when manually triggered
-        - when: manual
-          allow_failure: false
+    # Functions that should be executed before the build script is run
+    before_script:
+        - npm ci
+    script:
+        - ./scripts/test-docs-build.sh
