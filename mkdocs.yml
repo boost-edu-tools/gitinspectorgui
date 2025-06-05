@@ -1,0 +1,110 @@
+site_name: GitInspectorGUI Developer Documentation
+site_description: Developer documentation for GitInspectorGUI desktop application
+site_url: https://edu-boost.gitlab.io/gitinspectorgui
+# Note: Update URLs above when forking/moving this project
+
+theme:
+    name: material
+    palette:
+        - scheme: default
+          primary: blue
+          accent: blue
+          toggle:
+              icon: material/brightness-7
+              name: Switch to dark mode
+        - scheme: slate
+          primary: blue
+          accent: blue
+          toggle:
+              icon: material/brightness-4
+              name: Switch to light mode
+    features:
+        - navigation.tabs
+        - navigation.sections
+        - navigation.expand
+        - search.highlight
+        - search.share
+        - content.code.copy
+        - content.action.edit
+        - content.tabs.link
+
+plugins:
+    - search:
+          lang: en
+    - mermaid2
+
+# Exclude problematic files with broken links
+exclude_docs: |
+    api/HTTP_API_REFERENCE.md
+    architecture/ARCHITECTURE_DIAGRAMS.md
+    architecture/ARCHITECTURE_PLAN_SUMMARY.md
+    architecture/HTTP_API_IMPLEMENTATION_PLAN.md
+    architecture/IPC_ARCHITECTURE_ANALYSIS.md
+    architecture/LEGACY_INTEGRATION_PLAN.md
+    architecture/MKDOCS_CONVERSION_PLAN.md
+    archive/
+    deployment/PRODUCTION_DEPLOYMENT_GUIDE.md
+    development/API_SIDECAR.md
+    development/DEVELOPMENT_MODE.md
+    development/ENHANCED_SETTINGS_GUIDE.md
+    development/diagnostics/
+    implementation/
+    operations/rollback/
+
+markdown_extensions:
+    - pymdownx.highlight:
+          anchor_linenums: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.superfences:
+          custom_fences:
+              - name: mermaid
+                class: mermaid
+                format: !!python/name:pymdownx.superfences.fence_code_format
+    - pymdownx.tabbed:
+          alternate_style: true
+    - admonition
+    - pymdownx.details
+    - pymdownx.mark
+    - pymdownx.caret
+    - pymdownx.keys
+    - pymdownx.tilde
+    - attr_list
+    - md_in_html
+
+nav:
+    - Home: index.md
+    - Getting Started:
+          - Quick Start: getting-started/quick-start.md
+          - Installation: getting-started/installation.md
+          - First Analysis: getting-started/first-analysis.md
+    - Development:
+          - Environment Setup: development/environment-setup.md
+          - Development Mode: development/development-mode.md
+          - Enhanced Settings: development/enhanced-settings.md
+          - Blame Tabs Implementation: development/blame-tabs-implementation.md
+          - Troubleshooting: development/troubleshooting.md
+    - API Reference:
+          - HTTP API Reference: api/reference.md
+          - Examples: api/examples.md
+          - Error Handling: api/error-handling.md
+    - Architecture:
+          - System Overview: architecture/overview.md
+          - HTTP API Design: architecture/http-api-design.md
+          - Legacy Integration: architecture/legacy-integration.md
+          - Design Decisions: architecture/design-decisions.md
+          - Development with Docs: architecture/development_with_docs_architecture.md
+          - Technology Exploration: architecture/redesign.md
+    - Operations:
+          - Release & Distribution: operations/deployment.md
+          - Documentation Deployment: operations/documentation-deployment.md
+          - Monitoring: operations/monitoring.md
+          - Maintenance: operations/maintenance.md
+
+repo_url: https://gitlab.com/edu-boost/gitinspectorgui
+edit_uri: -/edit/main/docs/
+
+extra:
+    social:
+        - icon: fontawesome/brands/gitlab
+          link: https://gitlab.com/your-username/gitinspectorgui

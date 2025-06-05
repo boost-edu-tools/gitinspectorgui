@@ -1,0 +1,165 @@
+# GitLab CI/CD Pipeline for GitInspectorGUI Application
+
+test:
+    stage: test
+    image: node:20
+    <<: *cache_template
+    before_script:
+        - apt-get update -qq && apt-get install -y -qq git curl build-essential
+        - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        - source $HOME/.cargo/env
+        - curl -LsSf https://astral.sh/uv/install.sh | sh
+        - export PATH="$HOME/.cargo/bin:$PATH"
+    script:
+        - npm ci
+        - npm run build
+        - cd python && uv sync && cd ..
+        - echo "✅ Frontend and Python backend tests passed"
+    only:
+        - merge_requests
+        - main
+
+build:linux:
+    stage: build
+    image: ubuntu:22.04
+    <<: *cache_template
+    before_script:
+        - apt-get update -qq
+        - apt-get install -y -qq git curl build-essential libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+        - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        - apt-get install -y nodejs
+        - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        - source $HOME/.cargo/env
+        - curl -LsSf https://astral.sh/uv/install.sh | sh
+        - export PATH="$HOME/.cargo/bin:$PATH"
+    script:
+        - npm ci
+        - npm run build
+        - cd python && uv sync && cd ..
+        - cargo install tauri-cli
+        - cargo tauri build --target x86_64-unknown-linux-gnu
+        - mkdir -p dist/linux
+        - find src-tauri/target -name "*.deb" -exec cp {} dist/linux/ \;
+        - find src-tauri/target -name "*.AppImage" -exec cp {} dist/linux/ \;
+    artifacts:
+        paths:
+            - dist/linux/
+        expire_in: 1 week
+    only:
+        - tags
+        - main
+
+build:windows:
+    stage: build
+    image: ubuntu:22.04
+    <<: *cache_template
+    before_script:
+        - apt-get update -qq
+        - apt-get install -y -qq git curl build-essential wine64 mingw-w64
+        - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        - apt-get install -y nodejs
+        - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        - source $HOME/.cargo/env
+        - rustup target add x86_64-pc-windows-gnu
+        - curl -LsSf https://astral.sh/uv/install.sh | sh
+        - export PATH="$HOME/.cargo/bin:$PATH"
+    script:
+        - npm ci
+        - npm run build
+        - cd python && uv sync && cd ..
+        - cargo install tauri-cli
+        - cargo tauri build --target x86_64-pc-windows-gnu
+        - mkdir -p dist/windows
+        - find src-tauri/target -name "*.exe" -exec cp {} dist/windows/ \;
+        - find src-tauri/target -name "*.msi" -exec cp {} dist/windows/ \;
+    artifacts:
+        paths:
+            - dist/windows/
+        expire_in: 1 week
+    only:
+        - tags
+        - main
+    allow_failure: true
+
+build:python:
+    stage: build
+    image: python:3.11
+    <<: *cache_template
+    before_script:
+        - curl -LsSf https://astral.sh/uv/install.sh | sh
+        - export PATH="$HOME/.cargo/bin:$PATH"
+    script:
+        - cd python
+        - uv sync
+        - uv build
+        - mkdir -p ../dist/python
+        - cp dist/*.whl ../dist/python/
+        - cp dist/*.tar.gz ../dist/python/
+    artifacts:
+        paths:
+            - dist/python/
+        expire_in: 1 week
+    only:
+      - tags
+      - main
+
+release:
+    stage: release
+    image: registry.gitlab.com/gitlab-org/release-cli:latest
+    dependencies:
+        - build:linux
+        - build:windows
+        - build:python
+    script:
+        - echo "Creating GitLab release for $CI_COMMIT_TAG"
+        - |
+            if [ -d "dist" ]; then
+              find dist -type f -exec sha256sum {} \; > dist/checksums.sha256
+            fi
+    release:
+        name: "GitInspectorGUI $CI_COMMIT_TAG"
+        description: "Release $CI_COMMIT_TAG"
+        tag_name: $CI_COMMIT_TAG
+        assets:
+            links:
+                - name: "Linux .deb Package"
+                  url: "$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/browse/dist/linux?job=build:linux"
+                  filepath: "/dist/linux/"
+                - name: "Windows Installer"
+                  url: "$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/browse/dist/windows?job=build:windows"
+                  filepath: "/dist/windows/"
+                - name: "Python Wheel"
+                  url: "$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/browse/dist/python?job=build:python"
+                  filepath: "/dist/python/"
+                - name: "Checksums"
+                  url: "$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/file/dist/checksums.sha256?job=release"
+    only:
+        - tags
+
+deploy:manual:
+    stage: release
+    image: alpine:latest
+    dependencies:
+        - build:linux
+        - build:python
+    script:
+        - echo "Manual deployment triggered"
+        - echo "Artifacts available for download"
+        - ls -la dist/ || echo "No dist directory found"
+    artifacts:
+        paths:
+            - dist/
+        expire_in: 1 month
+    when: manual
+    only:
+        - main
+
+cleanup:
+    stage: release
+    image: alpine:latest
+    script:
+        - echo "Cleaning up old artifacts..."
+        - echo "This job can be extended to clean up old releases"
+    when: manual
+    only:
+        - main

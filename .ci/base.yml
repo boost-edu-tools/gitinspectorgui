@@ -1,0 +1,21 @@
+# Base GitLab CI/CD configuration
+# Contains common stages and variables
+
+stages:
+    - test
+    - build
+    - docs
+    - release
+
+variables:
+    CARGO_HOME: $CI_PROJECT_DIR/.cargo
+    CARGO_TARGET_DIR: $CI_PROJECT_DIR/target
+
+.cache_template: &cache_template
+    cache:
+        key: ${CI_COMMIT_REF_SLUG}
+        paths:
+            - .cargo/
+            - target/
+            - node_modules/
+            - python/.venv/

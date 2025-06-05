@@ -1,0 +1,27 @@
+# GitLab CI/CD Pipeline for Documentation (GitLab Pages)
+
+pages:
+    stage: docs
+    image: python:3.12
+    before_script:
+        - pip install uv
+        - uv sync --group dev
+    script:
+        - uv run mkdocs build --site-dir public
+    artifacts:
+        paths:
+            - public
+        expire_in: 1 week
+    only:
+        - main
+        - tags
+    rules:
+        # Only run when documentation files change
+        - changes:
+              - docs/**/*
+              - mkdocs.yml
+              - pyproject.toml
+              - .ci/docs.yml
+        # Or when manually triggered
+        - when: manual
+          allow_failure: false
