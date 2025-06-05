@@ -19,11 +19,16 @@ if [ ! -f "pyproject.toml" ]; then
     exit 1
 fi
 
-# Check if uv is available
+# Check if uv is available, try to install it if not
 if ! command -v uv &> /dev/null; then
-    echo "❌ Error: uv is not installed or not in PATH"
-    echo "   Please install uv: https://docs.astral.sh/uv/getting-started/installation/"
-    exit 1
+    echo "🟡 uv not found. Attempting to install with standalone installer..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    if ! command -v uv &> /dev/null; then
+        echo "❌ Error: Failed to install uv."
+        echo "   Please install uv manually: https://docs.astral.sh/uv/getting-started/installation/"
+        exit 1
+    fi
+    echo "✅ uv installed successfully."
 fi
 
 # Check if .venv exists, create if not
