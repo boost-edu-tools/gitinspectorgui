@@ -65,8 +65,7 @@ jspm_packages/
 # Output of 'npm pack'
 *.tgz
 
-# Lock files (should not be committed for most projects)
-package-lock.json
+# Lock files (uv.lock is often project-specific)
 yarn.lock
 pnpm-lock.yaml
 uv.lock
