@@ -107,4 +107,4 @@ edit_uri: -/edit/main/docs/
 extra:
     social:
         - icon: fontawesome/brands/gitlab
-          link: https://gitlab.com/your-username/gitinspectorgui
+          link: https://gitlab.com/edu-boost/gitinspectorgui

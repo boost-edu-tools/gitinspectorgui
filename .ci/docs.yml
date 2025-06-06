@@ -1,9 +1,16 @@
 # The Docker image that will be used to build your app
 image: node:lts
-create-pages:
-    pages:
-        # The folder that contains the files to be exposed at the Page URL
-        publish: public
+
+pages:
+    stage: docs
+    # Functions that should be executed before the build script is run
+    before_script:
+        - npm ci
+    script:
+        - ./scripts/test-docs-build.sh
+    artifacts:
+        paths:
+            - public
     rules:
         # This rule ensures the job runs only when:
         # 1. It's a push to the default branch.
@@ -14,8 +21,3 @@ create-pages:
               - mkdocs.yml
               - pyproject.toml
               - .ci/docs.yml
-    # Functions that should be executed before the build script is run
-    before_script:
-        - npm ci
-    script:
-        - ./scripts/test-docs-build.sh
