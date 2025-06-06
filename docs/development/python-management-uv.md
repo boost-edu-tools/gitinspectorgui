@@ -1,8 +1,8 @@
-# pip to uv Migration Guide
+# Python Package Management with uv
 
 ## Overview
 
-This guide helps team members migrate from `pip` to `uv` for Python package management in the GitInspectorGUI project. The project uses `uv` as the modern Python package manager for better performance, dependency resolution, and development experience.
+GitInspectorGUI uses `uv` as the modern Python package manager for superior performance, dependency resolution, and development experience.
 
 ## Why uv?
 
@@ -24,9 +24,9 @@ This guide helps team members migrate from `pip` to `uv` for Python package mana
 - **Tool integration** - works seamlessly with pyproject.toml
 - **Version management** - can install and manage Python versions
 
-## Quick Migration Steps
+## Installation and Setup
 
-### 1. Install uv
+### Install uv
 
 **macOS/Linux:**
 ```bash
@@ -43,14 +43,14 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 pip install uv
 ```
 
-### 2. Verify Installation
+### Verify Installation
 
 ```bash
 uv --version
 # Should show: uv 0.4.x or later
 ```
 
-### 3. Project Setup
+### Project Setup
 
 ```bash
 # Navigate to project directory
@@ -68,20 +68,18 @@ source .venv/bin/activate  # Linux/macOS
 .venv\Scripts\activate     # Windows
 ```
 
-## Command Comparison
+## Common Commands
 
-| pip command | uv equivalent | Notes |
-|-------------|---------------|-------|
-| `pip install package` | `uv add package` | Adds to pyproject.toml |
-| `pip install -r requirements.txt` | `uv sync` | Uses pyproject.toml |
-| `pip install -e .` | `uv sync` | Installs project in dev mode |
-| `pip install --upgrade package` | `uv add package --upgrade` | Updates specific package |
-| `pip list` | `uv pip list` | Lists installed packages |
-| `pip show package` | `uv pip show package` | Shows package info |
-| `pip freeze` | `uv pip freeze` | Exports installed packages |
-| `pip uninstall package` | `uv remove package` | Removes from pyproject.toml |
-| `python -m venv .venv` | `uv venv` | Creates virtual environment |
-| `pip install --dev` | `uv add --group dev` | Adds to dev dependencies |
+| Command | Purpose | Notes |
+|---------|---------|-------|
+| `uv add package` | Add dependency | Adds to pyproject.toml |
+| `uv sync` | Install all dependencies | Uses pyproject.toml |
+| `uv add package --upgrade` | Update specific package | Updates to latest version |
+| `uv pip list` | List installed packages | Shows current environment |
+| `uv pip show package` | Show package info | Detailed package information |
+| `uv remove package` | Remove dependency | Removes from pyproject.toml |
+| `uv venv` | Create virtual environment | Creates .venv directory |
+| `uv add --group dev package` | Add dev dependency | Adds to dev dependencies |
 
 ## Development Workflow
 
@@ -256,33 +254,32 @@ uv pip check
    - Add → Existing Environment
    - Select `.venv/bin/python`
 
-## Migration Checklist
+## Setup Checklist
 
 - [ ] Install uv globally
 - [ ] Verify uv installation with `uv --version`
 - [ ] Navigate to project directory
 - [ ] Run `uv sync` to install dependencies
 - [ ] Test project functionality with `uv run gigui --help`
-- [ ] Update IDE to use uv-created virtual environment
-- [ ] Update development workflow to use `uv` commands
-- [ ] Remove old pip-based workflows and scripts
+- [ ] Configure IDE to use uv-created virtual environment
+- [ ] Verify all development workflows function correctly
 
 ## FAQ
 
-**Q: Can I still use pip alongside uv?**
-A: Yes, but it's recommended to use uv consistently for better dependency management.
+**Q: Why does the project use uv?**
+A: uv provides superior performance, better dependency management, and a modern development experience compared to traditional pip workflows.
 
-**Q: What happens to my existing virtual environment?**
-A: uv will create a new `.venv` directory. You can remove old environments after confirming uv works.
-
-**Q: Does uv work with existing pyproject.toml?**
-A: Yes, uv fully supports pyproject.toml and is the recommended way to manage dependencies.
+**Q: How does uv handle virtual environments?**
+A: uv automatically creates and manages virtual environments in the `.venv` directory, eliminating manual activation/deactivation.
 
 **Q: How do I share my environment with team members?**
-A: The `pyproject.toml` and `uv.lock` files ensure everyone gets the same environment with `uv sync`.
+A: The `pyproject.toml` and `uv.lock` files ensure everyone gets identical environments with `uv sync`.
 
 **Q: Can uv install different Python versions?**
 A: Yes, uv can install and manage Python versions: `uv python install 3.12`
+
+**Q: What if I encounter issues?**
+A: Check the troubleshooting section above, or refer to the uv documentation for detailed guidance.
 
 ## Additional Resources
 
@@ -293,6 +290,4 @@ A: Yes, uv can install and manage Python versions: `uv python install 3.12`
 
 ---
 
-**Migration completed!** You're now using modern Python package management with uv. 🚀
-
-For questions or issues, refer to the troubleshooting section above or consult the team.
+The project uses modern Python package management with uv for optimal performance and developer experience. 🚀

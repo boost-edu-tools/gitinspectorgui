@@ -1,14 +1,14 @@
-# npm to pnpm Migration Guide
+# Package Management with pnpm
 
-This guide helps team members transition from npm to pnpm for the GitInspectorGUI project.
+This guide covers the current package management setup for GitInspectorGUI using pnpm.
 
-## What Changed
+## Current Setup
 
-We've migrated from npm to pnpm for better performance, disk space efficiency, and dependency management.
+GitInspectorGUI uses pnpm for package management, providing better performance, disk space efficiency, and dependency management.
 
-## Quick Migration Steps
+## Installation and Setup
 
-### 1. Install pnpm
+### Install pnpm
 
 ```bash
 # Enable pnpm (recommended)
@@ -18,27 +18,24 @@ corepack enable
 npm install -g pnpm
 ```
 
-### 2. Remove Old Dependencies
+### Project Setup
 
 ```bash
-# Remove npm lock file and node_modules
-rm -rf node_modules package-lock.json
-
-# Install with pnpm
+# Install project dependencies
 pnpm install
 ```
 
-### 3. Update Your Commands
+### Common Commands
 
-| Old npm Command | New pnpm Command |
-|----------------|------------------|
-| `npm install` | `pnpm install` |
-| `npm run tauri:dev` | `pnpm run tauri:dev` |
-| `npm run tauri:build` | `pnpm run tauri:build` |
-| `npm run dev` | `pnpm run dev` |
-| `npm test` | `pnpm test` |
-| `npm update` | `pnpm update` |
-| `npm audit` | `pnpm audit` |
+| Command | Purpose |
+|---------|---------|
+| `pnpm install` | Install all dependencies |
+| `pnpm run tauri:dev` | Start development server |
+| `pnpm run tauri:build` | Build for production |
+| `pnpm run dev` | Start frontend development |
+| `pnpm test` | Run tests |
+| `pnpm update` | Update dependencies |
+| `pnpm audit` | Security audit |
 
 ## Key Benefits
 
@@ -134,26 +131,25 @@ The CI/CD pipeline has been updated to use pnpm:
 - **Project Issues**: Use GitLab issues for project-specific problems
 - **Team Chat**: Ask in team channels for quick help
 
-## Migration Checklist
+## Setup Checklist
 
 - [ ] Install pnpm (`corepack enable`)
-- [ ] Remove old dependencies (`rm -rf node_modules package-lock.json`)
-- [ ] Install with pnpm (`pnpm install`)
-- [ ] Update IDE configurations
+- [ ] Install project dependencies (`pnpm install`)
+- [ ] Configure IDE for pnpm usage
 - [ ] Test development workflow (`pnpm run tauri:dev`)
 - [ ] Test build process (`pnpm run tauri:build`)
-- [ ] Update any personal scripts or aliases
+- [ ] Verify all scripts work correctly
 
 ## FAQ
 
-**Q: Can I still use npm?**
-A: While npm might still work, we recommend using pnpm for consistency and to take advantage of the performance benefits.
+**Q: Why does the project use pnpm?**
+A: pnpm provides better performance, disk space efficiency, and more reliable dependency management compared to npm.
 
 **Q: What about the lock file?**
-A: We now use `pnpm-lock.yaml` instead of `package-lock.json`. Don't commit both - only commit `pnpm-lock.yaml`.
+A: The project uses `pnpm-lock.yaml` for dependency locking. This file should be committed to version control.
 
-**Q: Are there any breaking changes?**
-A: No breaking changes to the application itself. Only the package manager commands have changed.
+**Q: Can I use npm instead?**
+A: While npm might work, pnpm is the recommended and supported package manager for this project.
 
 **Q: What if I encounter issues?**
 A: Check the troubleshooting section above, or create an issue in the project repository with details about your problem.

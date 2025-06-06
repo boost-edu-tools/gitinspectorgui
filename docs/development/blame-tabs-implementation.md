@@ -1,32 +1,38 @@
-# Blame File Tabs Implementation Plan
+# Blame File Tabs Implementation
 
 ## Overview
-Implement a vertical sidebar approach for file-based blame tables, replacing the current combined blame view with individual file-focused tables.
+The blame file tabs feature provides a vertical sidebar approach for file-based blame tables, allowing users to focus on individual files while maintaining an efficient navigation experience.
 
-## Design Decisions
-- **Vertical Sidebar**: Left sidebar (200-250px) with file list
+## Current Implementation
+
+### Design Features
+- **Vertical Sidebar**: Left sidebar (200-250px) with file list for efficient navigation
 - **Smart File Names**: Truncated names with tooltips, sorted by relevance
 - **Collapsible Sidebar**: Can be collapsed for maximum table space
-- **Future Extensibility**: Design to support two-level navigation (directories/files) later
+- **File-Focused View**: Individual file-focused tables for concentrated analysis
 
-## Implementation Strategy
+### Core Functionality
+The current implementation includes:
 
-### Phase 1: Core File-Based Blame System
-1. **Data Transformation**: Group blame entries by file
-2. **Sidebar Component**: Create file selection sidebar
-3. **Individual File Tables**: Show blame data for selected file only
-4. **State Management**: Track selected file and sidebar state
+1. **Data Transformation**: Blame entries grouped by file for organized display
+2. **Sidebar Component**: File selection sidebar with intuitive navigation
+3. **Individual File Tables**: Dedicated blame data display for selected file
+4. **State Management**: Tracks selected file and sidebar state
 
-### Phase 2: Enhanced UX Features
-1. **Smart File Sorting**: By commits, lines, or alphabetical
-2. **File Statistics**: Show line count, commit count in sidebar
-3. **Search/Filter**: Filter files by name
-4. **Collapsible Sidebar**: Toggle sidebar visibility
+### Enhanced UX Features
+Current user experience enhancements:
 
-### Phase 3: Future Extensibility (Planned)
+1. **Smart File Sorting**: Sort by commits, lines, or alphabetical order
+2. **File Statistics**: Display line count and commit count in sidebar
+3. **Search/Filter**: Filter files by name for quick navigation
+4. **Collapsible Sidebar**: Toggle sidebar visibility for space optimization
+
+### Future Extensibility (Planned)
+Designed for future enhancements:
+
 1. **Layout Toggle Icon**: Switch between flat and hierarchical views
 2. **Two-Level Navigation**: Directory structure with nested files
-3. **File Grouping**: Group by directory, file type, or activity
+3. **File Grouping**: Group by directory, file type, or activity level
 
 ## Component Architecture
 
@@ -65,25 +71,57 @@ interface BlameTabsState {
 }
 ```
 
-## Implementation Steps
+## Current Architecture
 
-1. Create `BlameFileTabsInterface` component
-2. Add file grouping logic to process blame data
-3. Create `FileSelectionSidebar` with file list
-4. Create `FileBlameTable` for individual file display
-5. Add sidebar collapse/expand functionality
-6. Implement file search and sorting
-7. Add file statistics display
-8. Test with repositories having many files
+The implementation follows a clean component structure:
 
-## Benefits
-- **Space Efficient**: Maximum horizontal space for code content
-- **Scalable**: Handles many files and long file names well
+```
+BlameFileTabsInterface
+├── FileSelectionSidebar
+│   ├── SidebarHeader (with collapse toggle)
+│   ├── FileSearchInput
+│   ├── FileSortControls
+│   └── FileList
+│       └── FileListItem (with stats, tooltip)
+└── FileBlameTable
+    ├── FileHeader (selected file info)
+    └── BlameTable (existing table logic)
+```
+
+## Data Structures
+
+The current implementation uses these data structures:
+
+```typescript
+interface BlameFileData {
+  fileName: string;
+  filePath: string;
+  blameEntries: BlameEntry[];
+  stats: {
+    totalLines: number;
+    totalCommits: number;
+    authors: string[];
+  };
+}
+
+interface BlameTabsState {
+  selectedFile: string | null;
+  sidebarCollapsed: boolean;
+  fileSort: 'name' | 'lines' | 'commits';
+  searchFilter: string;
+}
+```
+
+## Current Benefits
+- **Space Efficient**: Maximizes horizontal space for code content
+- **Scalable**: Handles many files and long file names effectively
 - **Focused**: Users can concentrate on one file at a time
-- **Extensible**: Easy to add directory navigation later
-- **Performance**: Only renders selected file's data
+- **Extensible**: Architecture supports future directory navigation
+- **Performance**: Only renders selected file's data for optimal performance
 
-## Future Enhancement Hook
-- Add layout toggle icon in sidebar header
-- Implement directory tree structure
-- Support both flat and hierarchical file views
+## Future Enhancement Capabilities
+The current architecture provides hooks for future enhancements:
+- Layout toggle icon in sidebar header for view switching
+- Directory tree structure implementation
+- Support for both flat and hierarchical file views
+- Advanced file grouping and organization features
