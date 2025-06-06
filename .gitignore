@@ -67,7 +67,6 @@ jspm_packages/
 
 # Lock files (uv.lock is often project-specific)
 yarn.lock
-pnpm-lock.yaml
 uv.lock
 
 # Yarn Integrity file
