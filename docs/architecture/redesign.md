@@ -27,108 +27,107 @@ Recommend tools and technologies to develop a full-stack desktop app with the fo
 
 Based on your detailed requirements, here's a technology and tooling stack that best matches your preferences for developing a robust, AI-supportable, full-stack desktop app:
 
-------
+---
 
 ## 🔧 **Core Technologies**
 
 ### 🖥️ **Frontend (GUI)**
 
-- **Framework**: [Tauri](https://tauri.app/)
-  - Lightweight, secure, native-feel apps.
-  - Uses system webview (no embedded Chromium).
-  - Perfect for desktop-only, single-user apps.
-  - Easily supports auto-updates via [`tauri-updater`](https://tauri.app/v1/guides/distribution/updater/).
-- **Language**: TypeScript
-  - Matches your preference.
-- **UI Framework**:
-  - **React** (with JSX): Intuitive for you.
-  - **Tailwind CSS**: Used by Flowbite and shadcn/ui.
-  - **shadcn/ui**: Great design system with Tailwind support.
-  - **Flowbite React** (optional): For rapid prototyping, mapped from Flowbite Figma kit.
-- **State Management**: Zustand
-  - Minimal, easy to use, great for managing UI settings and backend status.
-- **Tables**:
-  - **TanStack Table (React Table)**: Advanced filtering, virtual scrolling, expandable rows.
-  - **react-virtualized-auto-sizer**: For automatic row sizing on hover.
+-   **Framework**: [Tauri](https://tauri.app/)
+    -   Lightweight, secure, native-feel apps.
+    -   Uses system webview (no embedded Chromium).
+    -   Perfect for desktop-only, single-user apps.
+    -   Easily supports auto-updates via [`tauri-updater`](https://tauri.app/v1/guides/distribution/updater/).
+-   **Language**: TypeScript
+    -   Matches your preference.
+-   **UI Framework**:
+    -   **React** (with JSX): Intuitive for you.
+    -   **Tailwind CSS**: Used by Flowbite and shadcn/ui.
+    -   **shadcn/ui**: Great design system with Tailwind support.
+    -   **Flowbite React** (optional): For rapid prototyping, mapped from Flowbite Figma kit.
+-   **State Management**: Zustand
+    -   Minimal, easy to use, great for managing UI settings and backend status.
+-   **Tables**:
+    -   **TanStack Table (React Table)**: Advanced filtering, virtual scrolling, expandable rows.
+    -   **react-virtualized-auto-sizer**: For automatic row sizing on hover.
 
-------
+---
 
 ### 🐍 **Backend (Python)**
 
-- **Language**: Python 3.11+
-  - Native support for `concurrent.futures`, `asyncio`, `multiprocessing`, and `threading`.
-- **CLI**:
-  - Use `argparse` (already your choice).
-  - Maintain full parity with GUI using shared JSON config schema.
-- **GUI Integration**:
-  - Use `tauri-plugin-shell` for short-lived Python calls.
-  - Use `tauri-plugin-process` or `child_process` via Rust for long-running Python daemons.
-  - Consider a lightweight JSON-RPC protocol over stdio or pipes for long-running interactions.
-- **Shared JSON Settings**:
-  - Use `jsonschema` for validation.
-  - Synchronize between CLI and GUI.
-- **Output Format**:
-  - Use structured JSON output from Python backend.
-  - React frontend reads and displays JSON in tables.
+-   **Language**: Python 3.11+
+    -   Native support for `concurrent.futures`, `asyncio`, `multiprocessing`, and `threading`.
+-   **CLI**:
+    -   Use `argparse` (already your choice).
+    -   Maintain full parity with GUI using shared JSON config schema.
+-   **GUI Integration**:
+    -   Use `tauri-plugin-shell` for short-lived Python calls.
+    -   Use `tauri-plugin-process` or `child_process` via Rust for long-running Python daemons.
+    -   Consider a lightweight JSON-RPC protocol over stdio or pipes for long-running interactions.
+-   **Shared JSON Settings**:
+    -   Use `jsonschema` for validation.
+    -   Synchronize between CLI and GUI.
+-   **Output Format**:
+    -   Use structured JSON output from Python backend.
+    -   React frontend reads and displays JSON in tables.
 
-------
+---
 
 ## 🧱 **App Architecture & Communication**
 
-- **Frontend ↔ Backend Communication**:
-  - **Short-lived**: Call Python scripts using `Command` API from Tauri or `tauri-plugin-shell`.
-  - **Persistent**: Keep Python subprocess alive, communicate via stdio or named pipes. Use a lightweight protocol like JSON-RPC or custom newline-delimited JSON.
-- **Shared Logic**:
-  - Store settings in a versioned JSON file.
-  - CLI parses it and overrides via `argparse`.
-  - GUI loads and modifies it via Zustand UI bindings.
+-   **Frontend ↔ Backend Communication**:
+    -   **Short-lived**: Call Python scripts using `Command` API from Tauri or `tauri-plugin-shell`.
+    -   **Persistent**: Keep Python subprocess alive, communicate via stdio or named pipes. Use a lightweight protocol like JSON-RPC or custom newline-delimited JSON.
+-   **Shared Logic**:
+    -   Store settings in a versioned JSON file.
+    -   CLI parses it and overrides via `argparse`.
+    -   GUI loads and modifies it via Zustand UI bindings.
 
-------
+---
 
 ## 🚀 **Distribution & Updates**
 
-- **Desktop Packaging**:
-  - **Tauri**: Produces single-file apps for Windows/macOS (Arm+Intel) and Linux.
-- **Automatic Updates**:
-  - Use [Tauri Updater](https://tauri.app/v1/guides/distribution/updater/) with GitHub Releases or a custom update server.
-- **CLI Distribution**:
-  - Bundle Python core with CLI via PyInstaller or Nuitka for single-file binaries.
-  - Also publish to PyPI via `uv` and `pyproject.toml`.
-- **Shared Binary**:
-  - Package both GUI and CLI in one binary or via CLI wrapper that invokes GUI subprocess.
+-   **Desktop Packaging**:
+    -   **Tauri**: Produces single-file apps for Windows/macOS (Arm+Intel) and Linux.
+-   **Automatic Updates**:
+    -   Use [Tauri Updater](https://tauri.app/v1/guides/distribution/updater/) with GitHub Releases or a custom update server.
+-   **CLI Distribution**:
+    -   Bundle Python core with CLI via PyInstaller or Nuitka for single-file binaries.
+    -   Also publish to PyPI via `uv` and `pyproject.toml`.
+-   **Shared Binary**:
+    -   Package both GUI and CLI in one binary or via CLI wrapper that invokes GUI subprocess.
 
-------
+---
 
 ## 🎨 **Design & Prototyping**
 
-- **Figma UI Kit**:
-  - Flowbite Figma Kit (Free).
-  - Manually implement designs using shadcn/ui or Flowbite React components.
-- **Rapid Prototyping**:
-  - Use Tailwind Play or Vite + React + Tailwind dev setup.
+-   **Figma UI Kit**:
+    -   Flowbite Figma Kit (Free).
+    -   Manually implement designs using shadcn/ui or Flowbite React components.
+-   **Rapid Prototyping**:
+    -   Use Tailwind Play or Vite + React + Tailwind dev setup.
 
-------
+---
 
 ## 🤖 **AI-Friendly Development**
 
-- **Best Practices**:
-  - Use clearly structured and documented components and schemas.
-  - Modular backend: CLI, settings, computation separated.
-  - Use templates (Tauri + React + shadcn/ui boilerplates).
-- **AI Codegen Optimization**:
-  - Use `jsonschema` to generate forms.
-  - Predictable settings schema supports AI-friendly generation of CLI + GUI.
-  - Tauri’s config-based build system simplifies environment setup for AI agents.
+-   **Best Practices**:
+    -   Use clearly structured and documented components and schemas.
+    -   Modular backend: CLI, settings, computation separated.
+    -   Use templates (Tauri + React + shadcn/ui boilerplates).
+-   **AI Codegen Optimization**:
+    -   Use `jsonschema` to generate forms.
+    -   Predictable settings schema supports AI-friendly generation of CLI + GUI.
+    -   Tauri’s config-based build system simplifies environment setup for AI agents.
 
-------
+---
 
 ## 📦 **Useful Templates / Starters**
 
-- Tauri + React + TypeScript + Tailwind boilerplates (several exist on GitHub).
-- shadcn/ui with Vite + React + Zustand template.
-- PyInstaller / Nuitka starter for bundling Python CLI and daemon.
+-   Tauri + React + TypeScript + Tailwind boilerplates (several exist on GitHub).
+-   shadcn/ui with Vite + React + Zustand template.
+-   PyInstaller / Nuitka starter for bundling Python CLI and daemon.
 
-------
+---
 
 Let me know if you'd like a complete file structure or specific toolchain templates suited to AI-driven generation or minimal-code workflow.
-
