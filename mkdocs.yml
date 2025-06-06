@@ -38,18 +38,14 @@ exclude_docs: |
     api/HTTP_API_REFERENCE.md
     architecture/ARCHITECTURE_DIAGRAMS.md
     architecture/ARCHITECTURE_PLAN_SUMMARY.md
-    architecture/HTTP_API_IMPLEMENTATION_PLAN.md
-    architecture/IPC_ARCHITECTURE_ANALYSIS.md
-    architecture/LEGACY_INTEGRATION_PLAN.md
-    architecture/MKDOCS_CONVERSION_PLAN.md
     archive/
     deployment/PRODUCTION_DEPLOYMENT_GUIDE.md
     development/API_SIDECAR.md
     development/DEVELOPMENT_MODE.md
     development/ENHANCED_SETTINGS_GUIDE.md
-    development/diagnostics/
     implementation/
     operations/rollback/
+    DOCUMENTATION_CLEANUP_PLAN.md
 
 markdown_extensions:
     - pymdownx.highlight:
@@ -81,8 +77,8 @@ nav:
     - Development:
           - Environment Setup: development/environment-setup.md
           - Development Mode: development/development-mode.md
-          - pip to uv Migration: development/pip-to-uv-migration.md
-          - npm to pnpm Migration: development/npm-to-pnpm-migration.md
+          - Python Management (uv): development/python-management-uv.md
+          - Package Management (pnpm): development/package-management-pnpm.md
           - Enhanced Settings: development/enhanced-settings.md
           - Blame Tabs Implementation: development/blame-tabs-implementation.md
           - Troubleshooting: development/troubleshooting.md
@@ -92,7 +88,6 @@ nav:
           - Error Handling: api/error-handling.md
     - Architecture:
           - System Overview: architecture/overview.md
-          - HTTP API Design: architecture/http-api-design.md
           - Legacy Integration: architecture/legacy-integration.md
           - Design Decisions: architecture/design-decisions.md
           - Development with Docs: architecture/development_with_docs_architecture.md

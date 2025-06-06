@@ -35,7 +35,6 @@ Complete API documentation for integration:
 Understanding the system design:
 
 -   **[System Overview](architecture/overview.md)** - High-level architecture
--   **[HTTP API Design](architecture/http-api-design.md)** - API design principles
 -   **[Legacy Integration](architecture/legacy-integration.md)** - Legacy system compatibility
 -   **[Design Decisions](architecture/design-decisions.md)** - Architectural rationale
 -   **[Development with Docs](architecture/development_with_docs_architecture.md)** - Documentation workflow
