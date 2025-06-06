@@ -81,6 +81,8 @@ nav:
     - Development:
           - Environment Setup: development/environment-setup.md
           - Development Mode: development/development-mode.md
+          - pip to uv Migration: development/pip-to-uv-migration.md
+          - npm to pnpm Migration: development/npm-to-pnpm-migration.md
           - Enhanced Settings: development/enhanced-settings.md
           - Blame Tabs Implementation: development/blame-tabs-implementation.md
           - Troubleshooting: development/troubleshooting.md
