@@ -34,7 +34,7 @@ Ensure both components are running:
 python -m gigui.start_server
 
 # Terminal 2: Start Tauri app
-npm run tauri dev
+pnpm run tauri dev
 ```
 
 ### 3. Configure Analysis Settings

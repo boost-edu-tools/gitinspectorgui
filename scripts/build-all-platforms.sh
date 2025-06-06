@@ -41,8 +41,8 @@ fi
 # Check dependencies
 print_status "Checking dependencies..."
 
-if ! command -v npm &> /dev/null; then
-    print_error "npm is not installed"
+if ! command -v pnpm &> /dev/null; then
+    print_error "pnpm is not installed"
     exit 1
 fi
 
@@ -57,17 +57,17 @@ fi
 
 # Install frontend dependencies
 print_status "Installing frontend dependencies..."
-npm install
+pnpm install
 
 # Install Tauri CLI if not present
 if ! command -v tauri &> /dev/null; then
     print_status "Installing Tauri CLI..."
-    npm install -g @tauri-apps/cli
+    pnpm add -g @tauri-apps/cli
 fi
 
 # Build frontend
 print_status "Building frontend..."
-npm run build
+pnpm run build
 
 # Create output directory
 mkdir -p dist/releases

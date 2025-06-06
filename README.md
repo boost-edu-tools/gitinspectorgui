@@ -7,7 +7,7 @@ A modern desktop application for git repository analysis with a Tauri + React + 
 ### Prerequisites
 
 -   **Python 3.8+** with pip
--   **Node.js 16+** with npm
+-   **Node.js 16+** with pnpm
 -   **Rust 1.70+** with Cargo
 -   **Git 2.20+**
 
@@ -27,8 +27,8 @@ A modern desktop application for git repository analysis with a Tauri + React + 
 
     ```bash
     # In a new terminal
-    npm install
-    npm run tauri dev
+    pnpm install
+    pnpm run tauri dev
     ```
 
 3. **Verify Integration**:
@@ -43,7 +43,7 @@ A modern desktop application for git repository analysis with a Tauri + React + 
 python -m pip install -e .
 
 # Build the Tauri application
-npm run tauri build
+pnpm run tauri build
 ```
 
 ## 🏗️ Architecture
@@ -286,7 +286,7 @@ python -m gigui.start_server &
 curl http://127.0.0.1:8080/health
 
 # Test Tauri integration
-npm run tauri dev
+pnpm run tauri dev
 ```
 
 ### Automated Testing
@@ -296,10 +296,10 @@ npm run tauri dev
 python -m pytest python/tests/
 
 # Frontend tests
-npm test
+pnpm test
 
 # Integration tests
-npm run test:integration
+pnpm run test:integration
 ```
 
 ## 📊 Performance

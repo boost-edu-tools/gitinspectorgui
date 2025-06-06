@@ -25,11 +25,11 @@ uv pip audit
 
 ```bash
 # Update Node.js packages
-npm update
+pnpm update
 
 # Check for security issues
-npm audit
-npm audit fix
+pnpm audit
+pnpm audit fix
 ```
 
 #### Rust Dependencies
@@ -70,11 +70,11 @@ python -m gigui.start_server
 
 ```bash
 # Check for build issues
-npm run tauri dev
+pnpm run tauri dev
 
 # Clear cache if needed
 rm -rf node_modules
-npm install
+pnpm install
 ```
 
 ### Performance Issues
@@ -96,7 +96,7 @@ npm install
 
 -   **API Logs**: Console output when running `python -m gigui.start_server`
 -   **Frontend Logs**: Browser DevTools Console (in development)
--   **Tauri Logs**: Terminal output when running `npm run tauri dev`
+-   **Tauri Logs**: Terminal output when running `pnpm run tauri dev`
 
 ### Basic Log Analysis
 

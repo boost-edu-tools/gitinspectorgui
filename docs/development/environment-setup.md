@@ -16,7 +16,7 @@ GitInspectorGUI uses a modern development stack with hot reloading and debugging
 Ensure you have the required tools installed:
 
 -   **Python 3.12+** with pip or uv
--   **Node.js 16+** with npm
+-   **Node.js 16+** with pnpm
 -   **Rust 1.70+** with Cargo
 -   **Git 2.20+**
 
@@ -38,7 +38,7 @@ uv sync
 uv sync
 
 # Install Node.js dependencies
-npm install
+pnpm install
 ```
 
 ### 2. Environment Configuration
@@ -112,10 +112,10 @@ The Tauri frontend supports hot reloading and debugging:
 
 ```bash
 # Start development server
-npm run tauri dev
+pnpm run tauri dev
 
 # Or with specific configuration
-npm run tauri dev -- --config src-tauri/tauri.conf.dev.json
+pnpm run tauri dev -- --config src-tauri/tauri.conf.dev.json
 ```
 
 **Features:**
@@ -182,13 +182,13 @@ python -m pytest -v
 
 ```bash
 # Run React tests
-npm test
+pnpm test
 
 # Run with coverage
-npm run test:coverage
+pnpm run test:coverage
 
 # Run in watch mode
-npm run test:watch
+pnpm run test:watch
 ```
 
 ## Development Tools
@@ -219,20 +219,20 @@ python -m gigui.cli --help
 
 ```bash
 # Frontend only (for UI development)
-npm run dev
+pnpm run dev
 
 # Backend only (for API development)
 python -m gigui.start_server --reload
 
 # Full development environment
-npm run tauri dev
+pnpm run tauri dev
 ```
 
 #### Production Builds
 
 ```bash
 # Build Tauri application
-npm run tauri build
+pnpm run tauri build
 
 # Build Python package
 python -m build
@@ -258,7 +258,7 @@ Monitor memory usage during development:
 python -m memory_profiler python/gigui/api.py
 
 # Node.js memory monitoring
-npm run dev -- --inspect
+pnpm run dev -- --inspect
 ```
 
 ## Troubleshooting
@@ -289,9 +289,9 @@ python -c "import sys; print(sys.path)"
 
 ```bash
 # Clear cache and reinstall
-rm -rf node_modules package-lock.json
-npm cache clean --force
-npm install
+rm -rf node_modules pnpm-lock.yaml
+pnpm store prune
+pnpm install
 ```
 
 **Rust compilation errors**

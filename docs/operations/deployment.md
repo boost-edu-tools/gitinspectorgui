@@ -20,7 +20,7 @@ GitInspectorGUI is a Tauri-based desktop application that gets distributed as pl
 
 ### Prerequisites
 
--   **Node.js** 18+ with npm
+-   **Node.js** 18+ with pnpm
 -   **Rust** 1.70+ with Cargo
 -   **uv** for Python package management
 -   **Platform-specific tools**:
@@ -44,14 +44,14 @@ ls dist/releases/
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 uv sync
 
 # Build frontend
-npm run build
+pnpm run build
 
 # Build Tauri app
-npm run tauri build
+pnpm run tauri build
 
 # Build Python CLI (optional)
 cd python && uv build
@@ -238,10 +238,10 @@ jobs:
               uses: dtolnay/rust-toolchain@stable
 
             - name: Install dependencies
-              run: npm install
+              run: pnpm install
 
             - name: Build app
-              run: npm run tauri build
+              run: pnpm run tauri build
 
             - name: Upload artifacts
               uses: actions/upload-artifact@v4

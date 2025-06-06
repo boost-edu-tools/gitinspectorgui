@@ -16,9 +16,10 @@ if ! command -v node &> /dev/null; then
     exit 1
 fi
 
-# Check npm
-if ! command -v npm &> /dev/null; then
-    echo "❌ npm is not installed. Please install npm and try again."
+# Check pnpm
+if ! command -v pnpm &> /dev/null; then
+    echo "❌ pnpm is not installed. Please install pnpm and try again."
+    echo "   Run: corepack enable"
     exit 1
 fi
 
@@ -39,7 +40,7 @@ echo "✅ All prerequisites found!"
 
 # Install Node.js dependencies
 echo "📦 Installing Node.js dependencies..."
-npm install
+pnpm install
 
 # Install Python dependencies
 echo "🐍 Installing Python dependencies..."
@@ -56,13 +57,13 @@ fi
 echo "🎉 Development environment setup complete!"
 echo ""
 echo "📚 Next steps:"
-echo "   1. Run 'npm run tauri:dev' to start the development server"
+echo "   1. Run 'pnpm run tauri:dev' to start the development server"
 echo "   2. The application will open automatically"
 echo "   3. Try configuring some settings and running an analysis"
 echo ""
 echo "🔧 Available commands:"
-echo "   npm run tauri:dev    - Start development server"
-echo "   npm run tauri:build  - Build production app"
-echo "   npm run dev          - Start frontend only"
+echo "   pnpm run tauri:dev    - Start development server"
+echo "   pnpm run tauri:build  - Build production app"
+echo "   pnpm run dev          - Start frontend only"
 echo ""
 echo "📖 For more information, see README.md and IMPLEMENTATION_PLAN.md"

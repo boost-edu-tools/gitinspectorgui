@@ -53,7 +53,7 @@ When running in development mode, logs are displayed in the console:
 python -m gigui.start_server --log-level DEBUG
 
 # Start Tauri with logging
-npm run tauri dev
+pnpm run tauri dev
 ```
 
 ### Log Locations

@@ -62,7 +62,10 @@ Complete installation instructions for GitInspectorGUI development and productio
     sudo apt update
 
     # Install dependencies
-    sudo apt install python3 python3-pip nodejs npm git curl
+    sudo apt install python3 python3-pip nodejs git curl
+    
+    # Enable pnpm
+    corepack enable
 
     # Install Rust
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -95,13 +98,13 @@ pip install -e .
 ### 4. Install Node.js Dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 5. Install Tauri CLI
 
 ```bash
-npm install -g @tauri-apps/cli
+pnpm add -g @tauri-apps/cli
 ```
 
 ## Verification
@@ -130,7 +133,7 @@ Expected response:
 
 ```bash
 # Start development server
-npm run tauri dev
+pnpm run tauri dev
 ```
 
 The Tauri application window should open and connect to the HTTP server automatically.
@@ -165,7 +168,7 @@ GIGUI_API_PORT=8080
 
 ```bash
 # Build the Tauri application
-npm run tauri build
+pnpm run tauri build
 ```
 
 ### Distribution
@@ -197,8 +200,8 @@ rustup update
 **Node.js permission errors**
 
 ```bash
-# Fix npm permissions (macOS/Linux)
-sudo chown -R $(whoami) ~/.npm
+# Fix pnpm permissions (macOS/Linux)
+sudo chown -R $(whoami) ~/.local/share/pnpm
 ```
 
 **Port 8080 already in use**

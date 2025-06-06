@@ -15,7 +15,7 @@ python -c "import gigui; print('GitInspectorGUI installed successfully')"
 
 # Check Node.js installation
 node --version
-npm --version
+pnpm --version
 
 # Check Rust installation
 rustc --version
@@ -76,9 +76,9 @@ npm ERR! Cannot resolve dependency
 
 ```bash
 # Clear cache and reinstall
-rm -rf node_modules package-lock.json
-npm cache clean --force
-npm install
+rm -rf node_modules pnpm-lock.yaml
+pnpm store prune
+pnpm install
 
 # Update Node.js if needed
 node --version  # Should be 16+
@@ -102,8 +102,8 @@ rustup update
 cargo clean
 
 # Reinstall Tauri CLI
-npm uninstall -g @tauri-apps/cli
-npm install -g @tauri-apps/cli
+pnpm remove -g @tauri-apps/cli
+pnpm add -g @tauri-apps/cli
 ```
 
 ### Runtime Issues
@@ -294,7 +294,7 @@ rm -rf dist/
 rm -rf node_modules/
 
 # Update dependencies
-npm update
+pnpm update
 cargo update
 pip install --upgrade -e .
 
@@ -320,8 +320,8 @@ Operation not permitted
 **Solutions:**
 
 ```bash
-# Fix npm permissions
-sudo chown -R $(whoami) ~/.npm
+# Fix pnpm permissions
+sudo chown -R $(whoami) ~/.local/share/pnpm
 
 # Allow Terminal full disk access
 # System Preferences → Security & Privacy → Privacy → Full Disk Access
@@ -366,7 +366,7 @@ Execution of scripts is disabled
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # Or run specific commands
-powershell -ExecutionPolicy Bypass -Command "npm run tauri dev"
+powershell -ExecutionPolicy Bypass -Command "pnpm run tauri dev"
 ```
 
 #### Windows Defender Issues
@@ -426,14 +426,14 @@ python -m gigui.start_server --reload
 
 # Tauri logging
 export RUST_LOG=debug
-npm run tauri dev
+pnpm run tauri dev
 ```
 
 #### Log Locations
 
 -   **API Logs**: Console output or `./logs/api.log`
 -   **Frontend Logs**: Browser DevTools Console
--   **Tauri Logs**: Terminal running `npm run tauri dev`
+-   **Tauri Logs**: Terminal running `pnpm run tauri dev`
 -   **System Logs**:
     -   macOS: `Console.app` or `/var/log/`
     -   Linux: `journalctl` or `/var/log/`
@@ -541,7 +541,7 @@ When reporting issues, include:
 **Steps to Reproduce:**
 
 1. Start HTTP server: `python -m gigui.start_server`
-2. Start Tauri app: `npm run tauri dev`
+2. Start Tauri app: `pnpm run tauri dev`
 3. Load repository: `/path/to/repo`
 4. Click "Execute Analysis"
 

@@ -83,7 +83,7 @@ show_status() {
 start_dev() {
     echo "Starting Tauri development server..."
     cd "$SCRIPT_DIR"
-    npm run tauri dev
+    pnpm run tauri dev
 }
 
 test_api() {

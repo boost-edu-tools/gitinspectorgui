@@ -7,7 +7,7 @@ Get GitInspectorGUI up and running in just a few minutes.
 Before you begin, ensure you have:
 
 -   **Python 3.12+** with pip
--   **Node.js 16+** with npm
+-   **Node.js 16+** with pnpm
 -   **Rust 1.70+** with Cargo
 -   **Git 2.20+**
 
@@ -27,8 +27,8 @@ python -m gigui.start_server
 
 ```bash
 # In a new terminal
-npm install
-npm run tauri dev
+pnpm install
+pnpm run tauri dev
 ```
 
 ### 3. Verify Integration
@@ -60,7 +60,7 @@ For production deployment:
 python -m pip install -e .
 
 # Build the Tauri application
-npm run tauri build
+pnpm run tauri build
 ```
 
 ## 🆘 Troubleshooting
@@ -78,8 +78,8 @@ npm run tauri build
 
 **Build issues?**
 
--   Update Node.js and npm to latest versions
--   Clear npm cache: `npm cache clean --force`
--   Reinstall dependencies: `rm -rf node_modules && npm install`
+-   Update Node.js and pnpm to latest versions
+-   Clear pnpm cache: `pnpm store prune`
+-   Reinstall dependencies: `rm -rf node_modules && pnpm install`
 
 For more detailed troubleshooting, see the [Troubleshooting Guide](../development/troubleshooting.md).

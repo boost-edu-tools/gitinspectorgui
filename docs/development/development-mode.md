@@ -48,7 +48,7 @@ python -m gigui.start_server --reload --log-level DEBUG
 
 ```bash
 # In a new terminal
-npm run tauri dev
+pnpm run tauri dev
 ```
 
 ### 3. Make Changes and See Results
@@ -77,16 +77,16 @@ python -m gigui.start_server --reload --config config.json
 
 ```bash
 # Standard development
-npm run tauri dev
+pnpm run tauri dev
 
 # With specific Tauri config
-npm run tauri dev -- --config src-tauri/tauri.conf.dev.json
+pnpm run tauri dev -- --config src-tauri/tauri.conf.dev.json
 
 # Frontend only (for UI development)
-npm run dev
+pnpm run dev
 
 # Build for testing
-npm run tauri build --debug
+pnpm run tauri build --debug
 ```
 
 ### Testing Commands
@@ -116,7 +116,7 @@ curl -X POST http://127.0.0.1:8080/api/settings -H "Content-Type: application/js
 2. **Start Frontend**:
 
     ```bash
-    npm run tauri dev
+    pnpm run tauri dev
     ```
 
 3. **Make Changes**:
@@ -297,7 +297,7 @@ GIGUI_CACHE_DIR=./dev-cache
         {
             "label": "Start Tauri Dev",
             "type": "shell",
-            "command": "npm",
+            "command": "pnpm",
             "args": ["run", "tauri", "dev"],
             "group": "build",
             "presentation": {
@@ -409,11 +409,11 @@ curl http://127.0.0.1:8080/health
 **Hot reload not working**:
 
 ```bash
-# Clear npm cache
-npm cache clean --force
+# Clear pnpm cache
+pnpm store prune
 
 # Restart development server
-npm run tauri dev
+pnpm run tauri dev
 ```
 
 **Import errors after changes**:
@@ -437,7 +437,7 @@ pip list | grep gigui
 
 # Node.js environment
 node --version
-npm list --depth=0
+pnpm list --depth=0
 
 # Rust environment
 rustc --version
@@ -448,7 +448,7 @@ cargo --version
 
 -   **API Logs**: Console output or `./dev-logs/`
 -   **Frontend Logs**: Browser DevTools Console
--   **Tauri Logs**: Terminal running `npm run tauri dev`
+-   **Tauri Logs**: Terminal running `pnpm run tauri dev`
 
 ## Next Steps
 

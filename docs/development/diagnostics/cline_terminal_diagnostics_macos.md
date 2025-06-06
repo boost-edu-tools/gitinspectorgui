@@ -4,7 +4,7 @@ This document summarizes the key findings from a diagnostic session aimed at und
 
 ## 1. Core Command Execution
 
-*   **General Success:** Basic commands (`echo`, `pwd`, `ls`, `npm --version`, `npm install --dry-run`) execute successfully.
+*   **General Success:** Basic commands (`echo`, `pwd`, `ls`, `pnpm --version`, `pnpm install --dry-run`) execute successfully.
 *   **Output Retrieval:** Standard output (stdout) and standard error (stderr, e.g., for "command not found" or `cd` errors) are correctly captured and can be relayed *when explicitly requested* after command execution is confirmed by the user.
 *   **CWD Consistency:** The current working directory (CWD) for new terminal instances spawned by `execute_command` is `/Users/dvbeek/1-repos/gitlab`. (User modification of `.zshrc` resolved previous potential inconsistencies).
 
@@ -28,10 +28,10 @@ This document summarizes the key findings from a diagnostic session aimed at und
 *   **Multiple Terminal Sessions:** The user reported observing multiple "Cline terminal sessions" being active. This suggests that the `execute_command` tool likely spawns a new, isolated terminal session for each command or command chain. This reinforces the point that CWD changes via `cd` are not persistent between `execute_command` calls.
 *   **"Proceed while running" UI Issue:** A persistent UI issue was observed where a "Proceed while running" button appears for the user, even for commands that complete almost instantaneously. This button is dysfunctional in such cases and disrupts the workflow. This issue seems to be related to the VSCode extension or the environment integrating Cline with the terminal, rather than a failure of the commands themselves. It necessitates a manual step where the user confirms command execution and then provides output upon Cline's request.
 
-## 5. `npm` Command Status
+## 5. `pnpm` Command Status
 
-*   `npm --version` works correctly when executed from within the project directory.
-*   `npm install --dry-run` executed within the `gitinspectorgui` project directory reported "up to date," suggesting that `npm` believes all dependencies are currently met according to `package.json` and `package-lock.json`.
+*   `pnpm --version` works correctly when executed from within the project directory.
+*   `pnpm install --dry-run` executed within the `gitinspectorgui` project directory reported "up to date," suggesting that `pnpm` believes all dependencies are currently met according to `package.json` and `pnpm-lock.yaml`.
 
 ## 6. Nested Directory (`gitinspectorgui/gitinspectorgui/`)
 
