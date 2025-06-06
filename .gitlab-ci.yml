@@ -35,13 +35,7 @@ pages:
         paths:
             - public
     rules:
-        # This rule ensures the job runs only when:
-        # 1. It's a push to the default branch.
-        # 2. Files in the documentation directory or key config files have changed.
+        # This ensures that only pushes to the default branch will trigger
+        # a pages deploy
         - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-          changes:
-              - docs/**/*
-              - mkdocs.yml
-              - pyproject.toml
-              - .ci/docs.yml
 
