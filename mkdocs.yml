@@ -79,13 +79,12 @@ nav:
           - Development Mode: development/development-mode.md
           - Demo-Based Documentation-GUI Development: development/demo-based-documentation-gui-development.md
           - Design System Integration: development/design-system-integration.md
-          - Python Management (uv): development/python-management-uv.md
-          - Package Management (pnpm): development/package-management-pnpm.md
+          - Python Package Management (uv): development/python-management-uv.md
+          - Node.js Package Management (pnpm): development/package-management-pnpm.md
           - Enhanced Settings: development/enhanced-settings.md
           - Blame Tabs Implementation: development/blame-tabs-implementation.md
           - Troubleshooting: development/troubleshooting.md
-          - Diagnostics:
-                - macOS Terminal Diagnostics: development/diagnostics/cline_terminal_diagnostics_macos.md
+          - Cline VSCode Terminal Diagnostics: development/cline-vscode-terminal-diagnostics.md
     - API Reference:
           - HTTP API Reference: api/reference.md
           - Examples: api/examples.md

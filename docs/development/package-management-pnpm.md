@@ -1,10 +1,12 @@
-# Package Management with pnpm
+# Node.js Package Management with pnpm
 
-This guide covers the current package management setup for GitInspectorGUI using pnpm.
+This guide covers the Node.js package management setup for GitInspectorGUI's frontend using pnpm.
 
-## Current Setup
+## Overview
 
-GitInspectorGUI uses pnpm for package management, providing better performance, disk space efficiency, and dependency management.
+GitInspectorGUI uses pnpm for Node.js package management (JavaScript/TypeScript dependencies for the Tauri frontend), providing better performance, disk space efficiency, and dependency management compared to npm.
+
+**Note**: This covers frontend dependencies only. For Python backend dependencies, see [Python Management (uv)](python-management-uv.md).
 
 ## Installation and Setup
 

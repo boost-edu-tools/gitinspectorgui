@@ -20,6 +20,8 @@ Everything you need for development and customization:
 -   **[Development Mode](development/development-mode.md)** - Local development workflow
 -   **[Demo-Based Documentation-GUI Development](development/demo-based-documentation-gui-development.md)** - Unified development methodology
 -   **[Design System Integration](development/design-system-integration.md)** - Figma and Vercel integration
+-   **[Node.js Package Management (pnpm)](development/package-management-pnpm.md)** - Frontend dependency management
+-   **[Python Package Management (uv)](development/python-management-uv.md)** - Backend dependency management
 -   **[Enhanced Settings](development/enhanced-settings.md)** - Advanced configuration options
 -   **[Blame Tabs Implementation](development/blame-tabs-implementation.md)** - UI implementation details
 -   **[Troubleshooting](development/troubleshooting.md)** - Common issues and solutions
