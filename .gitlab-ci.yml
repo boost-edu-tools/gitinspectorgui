@@ -24,21 +24,24 @@ variables:
 # The Docker image that will be used to build your app
 image: node:lts
 
-pages:
-    stage: docs
-    # Functions that should be executed before the build script is run
-    before_script:
-        - corepack enable
-        - pnpm install --frozen-lockfile
-    script:
-        - ./scripts/test-docs-build.sh
-        # Create the group pages structure
-        - mkdir -p public
-        - mv public_temp/gitinspectorgui public/gitinspectorgui
-    artifacts:
-        paths:
-            - public
-    rules:
-        # This ensures that only pushes to the default branch will trigger
-        # a pages deploy
-        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+# Disabled individual project pages - documentation now served via group pages
+# at https://edu-boost.gitlab.io/gitinspectorgui/
+# 
+# pages:
+#     stage: docs
+#     # Functions that should be executed before the build script is run
+#     before_script:
+#         - corepack enable
+#         - pnpm install --frozen-lockfile
+#     script:
+#         - ./scripts/test-docs-build.sh
+#         # Create the group pages structure
+#         - mkdir -p public
+#         - mv public_temp/gitinspectorgui public/gitinspectorgui
+#     artifacts:
+#         paths:
+#             - public
+#     rules:
+#         # This ensures that only pushes to the default branch will trigger
+#         # a pages deploy
+#         - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
