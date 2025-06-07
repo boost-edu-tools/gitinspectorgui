@@ -52,9 +52,6 @@ pnpm run build
 
 # Build Tauri app
 pnpm run tauri build
-
-# Build Python CLI (optional)
-cd python && uv build
 ```
 
 ---
@@ -71,13 +68,6 @@ cd python && uv build
 | **macOS**   | `.app`      | Application bundle          |
 | **Linux**   | `.deb`      | Debian package              |
 | **Linux**   | `.AppImage` | Portable application        |
-
-### Python CLI
-
-| Format | Description                                 |
-| ------ | ------------------------------------------- |
-| `.whl` | Python wheel for package installation       |
-| Source | Available via `pip install gitinspectorgui` |
 
 ### Checksums
 
