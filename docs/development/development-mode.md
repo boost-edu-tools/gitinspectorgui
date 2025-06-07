@@ -343,7 +343,7 @@ Monitor memory usage during development:
 
 ```bash
 # Python memory profiling
-pip install memory-profiler
+uv add memory-profiler
 python -m memory_profiler -m gigui.start_server
 
 # Monitor with htop/top
@@ -420,7 +420,7 @@ pnpm run tauri dev
 
 ```bash
 # Reinstall in development mode
-pip install -e .
+uv sync
 
 # Check Python path
 python -c "import gigui; print(gigui.__file__)"
@@ -433,7 +433,7 @@ python -c "import gigui; print(gigui.__file__)"
 ```bash
 # Python environment
 python --version
-pip list | grep gigui
+uv pip list | grep gigui
 
 # Node.js environment
 node --version

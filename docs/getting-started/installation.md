@@ -6,11 +6,11 @@ Complete installation instructions for GitInspectorGUI development and productio
 
 ### Minimum Requirements
 
--   **Operating System**: Windows 10+, macOS 10.15+, or Linux (Ubuntu 18.04+)
--   **Python**: 3.8 or higher
--   **Node.js**: 16.0 or higher
--   **Rust**: 1.70 or higher
--   **Git**: 2.20 or higher
+-   **Operating System**: Windows 11+, macOS 15+, or Linux (Ubuntu 24.04+ LTS)
+-   **Python**: 3.13 or higher
+-   **Node.js**: 22.0 or higher
+-   **Rust**: 1.85 or higher
+-   **Git**: 2.45 or higher
 -   **Memory**: 4GB RAM minimum, 8GB recommended
 -   **Storage**: 2GB free space
 
@@ -62,8 +62,8 @@ Complete installation instructions for GitInspectorGUI development and productio
     sudo apt update
 
     # Install dependencies
-    sudo apt install python3 python3-pip nodejs git curl
-    
+    sudo apt install python3 python3-uv nodejs git curl
+
     # Enable pnpm
     corepack enable
 
@@ -91,7 +91,7 @@ cd gitinspectorgui
 # Using uv (recommended)
 uv sync
 
-# Or using pip
+# Or using pip (alternative)
 pip install -e .
 ```
 
@@ -187,7 +187,7 @@ The built application will be available in:
 
 ```bash
 # Ensure you're in the project directory and dependencies are installed
-pip install -e .
+uv sync
 ```
 
 **Rust compilation errors**

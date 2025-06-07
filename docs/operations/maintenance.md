@@ -145,9 +145,9 @@ curl http://127.0.0.1:8080/health
 
 Ensure system meets minimum requirements:
 
--   **Python 3.12+**
--   **Node.js 16+**
--   **Rust 1.70+**
+-   **Python 3.13+**
+-   **Node.js 22+**
+-   **Rust 1.85+**
 -   **Sufficient memory** for repository analysis
 -   **Disk space** for temporary files
 

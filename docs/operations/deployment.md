@@ -20,9 +20,9 @@ GitInspectorGUI is a Tauri-based desktop application that gets distributed as pl
 
 ### Prerequisites
 
--   **Node.js** 18+ with pnpm
--   **Rust** 1.70+ with Cargo
--   **uv** for Python package management
+-   **Python** 3.13+ with uv for package management
+-   **Node.js** 22+ with pnpm
+-   **Rust** 1.85+ with Cargo
 -   **Platform-specific tools**:
     -   Windows: Visual Studio Build Tools
     -   macOS: Xcode Command Line Tools
@@ -74,10 +74,10 @@ cd python && uv build
 
 ### Python CLI
 
-| Format | Description                                 |
-| ------ | ------------------------------------------- |
-| `.whl` | Python wheel for pip installation           |
-| Source | Available via `pip install gitinspectorgui` |
+| Format | Description                                                             |
+| ------ | ----------------------------------------------------------------------- |
+| `.whl` | Python wheel for pip installation                                       |
+| Source | Available via `uv add gitinspectorgui` or `pip install gitinspectorgui` |
 
 ### Checksums
 

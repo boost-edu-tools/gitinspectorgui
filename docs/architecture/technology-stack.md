@@ -51,7 +51,7 @@ Based on the detailed requirements above, here's the recommended technology and 
 
 ### Backend (Python)
 
--   **Language**: Python 3.11+
+-   **Language**: Python 3.13+
     -   Native support for `concurrent.futures`, `asyncio`, `multiprocessing`, and `threading`.
 -   **CLI**:
     -   Use `argparse` (already your choice).
@@ -117,5 +117,6 @@ Based on the detailed requirements above, here's the recommended technology and 
 ## Related Documents
 
 For development methodologies using this technology stack, see:
-- [Demo-Based Documentation-GUI Development](../development/demo-based-documentation-gui-development.md)
-- [Design System Integration](../development/design-system-integration.md)
+
+-   [Demo-Based Documentation-GUI Development](../development/demo-based-documentation-gui-development.md)
+-   [Design System Integration](../development/design-system-integration.md)

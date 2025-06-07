@@ -54,7 +54,7 @@ ModuleNotFoundError: No module named 'gigui'
 
 ```bash
 # Install in development mode
-pip install -e .
+uv sync
 
 # Or using uv
 uv sync
@@ -296,12 +296,12 @@ rm -rf node_modules/
 # Update dependencies
 pnpm update
 cargo update
-pip install --upgrade -e .
+uv sync --upgrade
 
 # Check system requirements
-rustc --version  # 1.70+
-node --version   # 16+
-python --version # 3.8+
+python --version # 3.13+
+node --version   # 22+
+rustc --version  # 1.85+
 ```
 
 ## Platform-Specific Issues
@@ -475,7 +475,7 @@ sudo ufw status  # Linux
 
 ```bash
 # Install profiling tools
-pip install memory-profiler line-profiler
+uv add memory-profiler line-profiler
 
 # Memory profiling
 python -m memory_profiler -m gigui.start_server

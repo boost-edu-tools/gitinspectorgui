@@ -6,10 +6,10 @@ Get GitInspectorGUI up and running in just a few minutes.
 
 Before you begin, ensure you have:
 
--   **Python 3.12+** with pip
--   **Node.js 16+** with pnpm
--   **Rust 1.70+** with Cargo
--   **Git 2.20+**
+-   **Python 3.13+** with uv
+-   **Node.js 22+** with pnpm
+-   **Rust 1.85+** with Cargo
+-   **Git 2.45+**
 
 ## 🚀 Start in 3 Steps
 
@@ -57,7 +57,7 @@ For production deployment:
 
 ```bash
 # Build the HTTP server (optional - runs from source)
-python -m pip install -e .
+uv sync
 
 # Build the Tauri application
 pnpm run tauri build
@@ -68,7 +68,7 @@ pnpm run tauri build
 **Server won't start?**
 
 -   Check Python version: `python --version`
--   Verify dependencies: `pip list | grep gigui`
+-   Verify dependencies: `uv pip list | grep gigui`
 
 **Frontend won't connect?**
 

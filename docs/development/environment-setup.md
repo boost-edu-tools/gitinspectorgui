@@ -15,10 +15,10 @@ GitInspectorGUI uses a modern development stack with hot reloading and debugging
 
 Ensure you have the required tools installed:
 
--   **Python 3.12+** with pip or uv
--   **Node.js 16+** with pnpm
--   **Rust 1.70+** with Cargo
--   **Git 2.20+**
+-   **Python 3.13+** with uv (recommended) or pip
+-   **Node.js 22+** with pnpm
+-   **Rust 1.85+** with Cargo
+-   **Git 2.45+**
 
 See the [Installation Guide](../getting-started/installation.md) for detailed installation instructions.
 
@@ -34,8 +34,8 @@ cd gitinspectorgui
 # Install Python dependencies (using uv - recommended)
 uv sync
 
-# Or using pip
-uv sync
+# Or using pip (alternative)
+pip install -e .
 
 # Install Node.js dependencies
 pnpm install
