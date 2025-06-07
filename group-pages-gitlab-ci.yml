@@ -1,9 +1,0 @@
-pages:
-    script:
-        - mkdir public
-        - echo "<h1>edu-boost Group</h1><p>Welcome to the edu-boost organization.</p><ul><li><a href='/gitinspectorgui/'>GitInspectorGUI Documentation</a></li></ul>" > public/index.html
-    artifacts:
-        paths:
-            - public
-    rules:
-        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH

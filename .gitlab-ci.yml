@@ -25,14 +25,15 @@ variables:
 image: node:lts
 
 # Placeholder job to satisfy GitLab CI requirements
-# Individual pages are disabled - documentation served via group pages
-placeholder:
+# Individual pages disabled - documentation served via group pages
+documentation_info:
     stage: test
     script:
-        - echo "Individual project pages have been disabled"
-        - echo "Documentation is now served via group pages at:"
-        - echo "https://edu-boost.gitlab.io/gitinspectorgui/"
-        - echo "This resolves the 404 error and centralizes documentation"
+        - echo "GitInspectorGUI Documentation Status:"
+        - echo "• Individual project pages: DISABLED"
+        - echo "• Documentation location: https://edu-boost.gitlab.io/gitinspectorgui/"
+        - echo "• Deployment method: Group pages (centralized)"
+        - echo "• Status: Active and accessible"
 
 # Disabled individual project pages - documentation now served via group pages
 # at https://edu-boost.gitlab.io/gitinspectorgui/
