@@ -67,28 +67,40 @@ echo "✅ Dependencies synchronized from pyproject.toml"
 echo "   - mkdocs: $(mkdocs --version)"
 echo "   - All MkDocs plugins included in pyproject.toml"
 
-# Build the documentation (same as GitLab Pages)
+# Build the documentation for group pages structure
 echo ""
-echo "🔨 Building documentation..."
-mkdocs build --site-dir public
+echo "🔨 Building documentation for group pages..."
+
+# First build to a temporary directory
+mkdocs build --site-dir public_temp_build
 
 if [ $? -eq 0 ]; then
     echo "✅ Documentation built successfully!"
+
+    # Create the group pages structure
+    echo "📁 Creating group pages structure..."
+    mkdir -p public_temp/gitinspectorgui
+    cp -r public_temp_build/* public_temp/gitinspectorgui/
+
     echo ""
-    echo "📁 Generated files in 'public/' directory:"
-    ls -la public/ | head -10
+    echo "📁 Generated files in 'public_temp/gitinspectorgui/' directory:"
+    ls -la public_temp/gitinspectorgui/ | head -10
     echo ""
     echo "📊 Build statistics:"
-    echo "   - Total files: $(find public -type f | wc -l)"
-    echo "   - HTML files: $(find public -name "*.html" | wc -l)"
-    echo "   - CSS files: $(find public -name "*.css" | wc -l)"
-    echo "   - JS files: $(find public -name "*.js" | wc -l)"
+    echo "   - Total files: $(find public_temp/gitinspectorgui -type f | wc -l)"
+    echo "   - HTML files: $(find public_temp/gitinspectorgui -name "*.html" | wc -l)"
+    echo "   - CSS files: $(find public_temp/gitinspectorgui -name "*.css" | wc -l)"
+    echo "   - JS files: $(find public_temp/gitinspectorgui -name "*.js" | wc -l)"
     echo ""
     echo "🌐 To test locally, you can:"
-    echo "   1. Run: python3 -m http.server 8080 --directory public"
-    echo "   2. Open: http://localhost:8080"
+    echo "   1. Run: python3 -m http.server 8080 --directory public_temp"
+    echo "   2. Open: http://localhost:8080/gitinspectorgui/"
     echo ""
-    echo "🚀 This build would be ready for GitLab Pages deployment!"
+    echo "🚀 This build is ready for GitLab Group Pages deployment!"
+    echo "   - Will be available at: https://edu-boost.gitlab.io/gitinspectorgui/"
+
+    # Clean up temporary build directory
+    rm -rf public_temp_build
 else
     echo "❌ Documentation build failed!"
     exit 1
@@ -100,9 +112,9 @@ echo "✅ Test completed successfully"
 
 echo ""
 echo "🔧 Next steps:"
-echo "   - Review the generated 'public/' directory"
+echo "   - Review the generated 'public_temp/gitinspectorgui/' directory"
 echo "   - Test the site locally with the HTTP server command above"
-echo "   - If everything looks good, you can enable GitLab Pages CI/CD"
+echo "   - If everything looks good, commit and push to trigger GitLab Pages CI/CD"
 echo ""
-echo "💡 To clean up: rm -rf public"
+echo "💡 To clean up: rm -rf public_temp"
 echo "💡 The .venv environment is preserved for your project"
