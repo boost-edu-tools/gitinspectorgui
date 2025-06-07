@@ -30,10 +30,10 @@ documentation_info:
     stage: test
     script:
         - echo "GitInspectorGUI Documentation Status:"
-        - echo "• Individual project pages: DISABLED"
-        - echo "• Documentation location: https://edu-boost.gitlab.io/gitinspectorgui/"
-        - echo "• Deployment method: Group pages (centralized)"
-        - echo "• Status: Active and accessible"
+        - echo "- Individual project pages: DISABLED"
+        - echo "- Documentation location: https://edu-boost.gitlab.io/gitinspectorgui/"
+        - echo "- Deployment method: Group pages (centralized)"
+        - echo "- Status: Active and accessible"
 
 # Disabled individual project pages - documentation now served via group pages
 # at https://edu-boost.gitlab.io/gitinspectorgui/
