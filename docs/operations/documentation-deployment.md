@@ -161,7 +161,7 @@ project/
 ## 🔄 Workflow
 
 1. **Develop**: Edit documentation in `docs/` directory
-2. **Test**: Run `python -m mkdocs serve` for live preview
+2. **Test**: Run `mkdocs serve` for live preview
 3. **Validate**: Run `./test-docs-build.sh` before committing
 4. **Deploy**: Push to `main` branch (if CI/CD is enabled)
 

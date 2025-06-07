@@ -112,15 +112,19 @@ uv add "requests>=2.25.0"
 ### Running Scripts
 
 ```bash
-# Run Python scripts with project environment
-uv run python script.py
+# First, ensure dependencies are installed and environment is activated
+uv sync
+
+# Then run commands directly (uv automatically manages the environment)
+python script.py
 
 # Run project CLI commands
-uv run gigui --help
+gigui --help
 
 # Run development tools
-uv run pytest
-uv run mkdocs serve
+pytest
+mkdocs serve
+# To stop: pkill -f "mkdocs serve"
 ```
 
 ### Updating Dependencies
@@ -144,20 +148,24 @@ uv lock --upgrade
 # Install project in development mode
 uv sync
 
+# After uv sync, commands are available directly:
+
 # Run the CLI tool
-uv run gigui --help
+gigui --help
 
 # Run tests
-uv run pytest
+pytest
 
 # Build documentation
-uv run mkdocs build
+mkdocs build
 
 # Start development server
-uv run mkdocs serve
+mkdocs serve
+# To stop: pkill -f "mkdocs serve"
 
 # Run API server
-uv run python -m gigui.start_server
+python -m gigui.start_server
+# To stop: pkill -f "gigui.start_server"
 ```
 
 ## Benefits Achieved
@@ -224,7 +232,7 @@ uv sync --refresh
 
 ```bash
 # If port 8000 is in use, use a different port
-uv run mkdocs serve --dev-addr=127.0.0.1:8001
+mkdocs serve --dev-addr=127.0.0.1:8001
 
 # Or find and kill the process using port 8000
 lsof -i :8000
