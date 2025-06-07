@@ -21,20 +21,20 @@ pnpm --version
 rustc --version
 cargo --version
 
-# Test HTTP server
-curl http://127.0.0.1:8080/health
+# Test Tauri development build
+pnpm run tauri build --debug
 ```
 
-### Service Status
+### Development Status
 
 ```bash
-# Check if HTTP server is running
+# Check if development HTTP server is running (development only)
 lsof -i :8080
 
 # Check Tauri development server
 ps aux | grep "tauri dev"
 
-# Check for port conflicts
+# Check for port conflicts during development
 netstat -tulpn | grep :8080
 ```
 
@@ -130,27 +130,28 @@ python -m gigui.start_server --port 8081
 sudo netstat -tulpn | grep :8080
 ```
 
-#### Frontend Won't Connect to API
+#### Frontend Won't Connect to API (Development Only)
 
 **Symptoms:**
 
--   Tauri app opens but shows connection errors
--   Network errors in browser console
--   Empty results or loading states
+-   Tauri development app opens but shows connection errors
+-   Network errors in browser DevTools console
+-   Empty results or loading states during development
 
 **Solutions:**
 
 ```bash
-# Verify server is running
+# Verify development server is running
 curl http://127.0.0.1:8080/health
 
-# Check CORS settings
-export GIGUI_CORS_ENABLED=true
+# Restart development API server
 python -m gigui.start_server --reload
 
-# Verify network connectivity
-ping 127.0.0.1
-telnet 127.0.0.1 8080
+# Check if port is available
+lsof -i :8080
+
+# Use different port if needed
+python -m gigui.start_server --port 8081
 ```
 
 #### Analysis Fails or Hangs
@@ -439,34 +440,32 @@ pnpm run tauri dev
     -   Linux: `journalctl` or `/var/log/`
     -   Windows: Event Viewer
 
-### Network Diagnostics
+### Development API Diagnostics
 
-#### Test API Endpoints
+#### Test Development API Endpoints
 
 ```bash
-# Health check
+# Health check (development server only)
 curl -v http://127.0.0.1:8080/health
 
-# Settings endpoint
+# Settings endpoint (development server only)
 curl -v -X GET http://127.0.0.1:8080/api/settings
 
-# Test with verbose output
+# Test analysis endpoint (development server only)
 curl -v -X POST http://127.0.0.1:8080/api/execute_analysis \
   -H "Content-Type: application/json" \
   -d '{"repository_path": "/tmp"}'
 ```
 
-#### Network Connectivity
+#### Development Server Connectivity
 
 ```bash
-# Test local connectivity
+# Test local development server connectivity
 ping 127.0.0.1
 telnet 127.0.0.1 8080
 
-# Check firewall
-sudo ufw status  # Linux
-# Windows Firewall settings
-# macOS System Preferences → Security & Privacy → Firewall
+# Check if development server port is blocked
+lsof -i :8080
 ```
 
 ### Performance Profiling
@@ -575,18 +574,21 @@ Analysis hangs at 50% progress
 4. **Backup Configuration**: Keep working configurations backed up
 5. **Documentation**: Document custom configurations and workarounds
 
-### Health Monitoring
+### Development Health Monitoring
 
 ```bash
-# Regular health checks
+# Regular development server health checks
 curl http://127.0.0.1:8080/health
 
-# Monitor logs for warnings
+# Monitor development logs for warnings
 tail -f logs/api.log | grep -i warning
 
-# Check system resources
+# Check system resources during development
 df -h  # Disk space
 free -h  # Memory usage
+
+# Monitor Tauri development process
+ps aux | grep "tauri dev"
 ```
 
 This troubleshooting guide should help resolve most common issues. For persistent problems, don't hesitate to seek help from the development team or community.
