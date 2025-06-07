@@ -3,12 +3,13 @@
 ## Architecture Evolution
 
 ### Previous Architecture Challenges
+
 The original implementation used stdout-based JSON communication between Tauri and Python, which had several limitations:
 
-- **Fragile parsing**: Any logging or print statements would break JSON parsing
-- **Mixed concerns**: Data transport mixed with human-readable output
-- **Limited debugging**: Debugging required disabling logging
-- **Error handling**: Limited to stderr with no structured error responses
+-   **Fragile parsing**: Any logging or print statements would break JSON parsing
+-   **Mixed concerns**: Data transport mixed with human-readable output
+-   **Limited debugging**: Debugging required disabling logging
+-   **Error handling**: Limited to stderr with no structured error responses
 
 ### Current HTTP-based Architecture
 
@@ -26,24 +27,28 @@ graph TB
 ## Design Benefits
 
 ### Robust Communication
-- **HTTP Protocol**: Built-in error handling, status codes, headers
-- **Structured Responses**: JSON-based request/response format
-- **Error Handling**: Rich HTTP status codes and detailed error responses
+
+-   **HTTP Protocol**: Built-in error handling, status codes, headers
+-   **Structured Responses**: JSON-based request/response format
+-   **Error Handling**: Rich HTTP status codes and detailed error responses
 
 ### Developer Experience
-- **Full Logging**: Complete logging capability without interference
-- **Debuggable**: Easy to test with curl, Postman, or other HTTP tools
-- **Testable**: Can test API independently of Tauri frontend
+
+-   **Full Logging**: Complete logging capability without interference
+-   **Debuggable**: Easy to test with curl, Postman, or other HTTP tools
+-   **Testable**: Can test API independently of Tauri frontend
 
 ### Architecture Qualities
-- **Standard Protocol**: Well-understood HTTP protocol with excellent tooling
-- **Cross-platform**: Works identically on all platforms
-- **Scalable**: Can handle multiple concurrent requests
-- **Future-Proof**: Easy to extend with authentication, rate limiting, etc.
+
+-   **Standard Protocol**: Well-understood HTTP protocol with excellent tooling
+-   **Cross-platform**: Works identically on all platforms
+-   **Scalable**: Can handle multiple concurrent requests
+-   **Future-Proof**: Easy to extend with authentication, rate limiting, etc.
 
 ## Current Implementation
 
 #### Python HTTP Server
+
 ```python
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -59,7 +64,7 @@ app = FastAPI(title="GitInspectorGUI API", version="1.0.0")
 @app.post("/api/execute_analysis")
 async def execute_analysis(settings: Settings) -> AnalysisResult:
     logger.info(f"Starting analysis for {len(settings.input_fstrs)} repositories")
-    
+
     try:
         api = GitInspectorAPI()
         result = api.execute_analysis(settings)
@@ -75,6 +80,7 @@ async def health_check():
 ```
 
 #### Tauri HTTP Client
+
 ```rust
 use reqwest;
 use serde_json;
@@ -82,7 +88,7 @@ use serde_json;
 #[command]
 pub async fn execute_analysis(settings: Settings) -> Result<AnalysisResult, String> {
     let client = reqwest::Client::new();
-    
+
     let response = client
         .post("http://127.0.0.1:8080/api/execute_analysis")
         .json(&settings)
@@ -90,7 +96,7 @@ pub async fn execute_analysis(settings: Settings) -> Result<AnalysisResult, Stri
         .send()
         .await
         .map_err(|e| format!("HTTP request failed: {}", e))?;
-    
+
     match response.status() {
         reqwest::StatusCode::OK => {
             let result: AnalysisResult = response.json().await
@@ -108,6 +114,7 @@ pub async fn execute_analysis(settings: Settings) -> Result<AnalysisResult, Stri
 ## Error Handling Architecture
 
 ### Structured Error Responses
+
 The HTTP architecture provides rich error handling capabilities:
 
 ```python
@@ -142,20 +149,21 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
 ```
 
 ### Error Handling Benefits
-- **Structured Responses**: Consistent error format across all endpoints
-- **Rich Context**: Detailed error information with request IDs for tracking
-- **HTTP Status Codes**: Standard HTTP status codes for different error types
-- **Debugging Support**: Full error context without stdout contamination
+
+-   **Structured Responses**: Consistent error format across all endpoints
+-   **Rich Context**: Detailed error information with request IDs for tracking
+-   **HTTP Status Codes**: Standard HTTP status codes for different error types
+-   **Debugging Support**: Full error context without stdout contamination
 
 ## Future Extensibility
 
 The HTTP-based architecture provides a foundation for future enhancements:
 
-- **Authentication**: Easy to add API keys or OAuth when needed
-- **Rate Limiting**: Built-in support for request throttling
-- **Monitoring**: Standard HTTP metrics and logging
-- **Caching**: HTTP caching headers for performance optimization
-- **Versioning**: API versioning through URL paths or headers
+-   **Authentication**: Easy to add API keys or OAuth when needed
+-   **Rate Limiting**: Built-in support for request throttling
+-   **Monitoring**: Standard HTTP metrics and logging
+-   **Caching**: HTTP caching headers for performance optimization
+-   **Versioning**: API versioning through URL paths or headers
 
 ## Summary
 

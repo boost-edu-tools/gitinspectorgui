@@ -29,22 +29,22 @@ pnpm install
 
 ### Common Commands
 
-| Command | Purpose |
-|---------|---------|
-| `pnpm install` | Install all dependencies |
-| `pnpm run tauri:dev` | Start development server |
-| `pnpm run tauri:build` | Build for production |
-| `pnpm run dev` | Start frontend development |
-| `pnpm test` | Run tests |
-| `pnpm update` | Update dependencies |
-| `pnpm audit` | Security audit |
+| Command                | Purpose                    |
+| ---------------------- | -------------------------- |
+| `pnpm install`         | Install all dependencies   |
+| `pnpm run tauri:dev`   | Start development server   |
+| `pnpm run tauri:build` | Build for production       |
+| `pnpm run dev`         | Start frontend development |
+| `pnpm test`            | Run tests                  |
+| `pnpm update`          | Update dependencies        |
+| `pnpm audit`           | Security audit             |
 
 ## Key Benefits
 
-- **Faster installs**: Up to 2x faster than npm
-- **Disk space savings**: Shared dependency storage
-- **Better security**: Stricter dependency resolution
-- **Monorepo support**: Better workspace management
+-   **Faster installs**: Up to 2x faster than npm
+-   **Disk space savings**: Shared dependency storage
+-   **Better security**: Stricter dependency resolution
+-   **Monorepo support**: Better workspace management
 
 ## Development Workflow
 
@@ -80,6 +80,7 @@ pnpm run test:coverage
 ### Common Issues
 
 **pnpm command not found**
+
 ```bash
 # Enable corepack
 corepack enable
@@ -89,12 +90,14 @@ npm install -g pnpm
 ```
 
 **Permission errors**
+
 ```bash
 # Fix pnpm permissions (macOS/Linux)
 sudo chown -R $(whoami) ~/.local/share/pnpm
 ```
 
 **Cache issues**
+
 ```bash
 # Clear pnpm cache
 pnpm store prune
@@ -111,6 +114,7 @@ pnpm install
 Update your VS Code tasks and launch configurations to use `pnpm` instead of `npm`.
 
 **Example task (.vscode/tasks.json):**
+
 ```json
 {
     "label": "Start Tauri Dev",
@@ -123,24 +127,25 @@ Update your VS Code tasks and launch configurations to use `pnpm` instead of `np
 ## CI/CD Changes
 
 The CI/CD pipeline has been updated to use pnpm:
-- GitLab CI now uses `pnpm install --frozen-lockfile`
-- Build scripts use pnpm commands
-- All documentation reflects pnpm usage
+
+-   GitLab CI now uses `pnpm install --frozen-lockfile`
+-   Build scripts use pnpm commands
+-   All documentation reflects pnpm usage
 
 ## Getting Help
 
-- **pnpm Documentation**: https://pnpm.io/
-- **Project Issues**: Use GitLab issues for project-specific problems
-- **Team Chat**: Ask in team channels for quick help
+-   **pnpm Documentation**: https://pnpm.io/
+-   **Project Issues**: Use GitLab issues for project-specific problems
+-   **Team Chat**: Ask in team channels for quick help
 
 ## Setup Checklist
 
-- [ ] Install pnpm (`corepack enable`)
-- [ ] Install project dependencies (`pnpm install`)
-- [ ] Configure IDE for pnpm usage
-- [ ] Test development workflow (`pnpm run tauri:dev`)
-- [ ] Test build process (`pnpm run tauri:build`)
-- [ ] Verify all scripts work correctly
+-   [ ] Install pnpm (`corepack enable`)
+-   [ ] Install project dependencies (`pnpm install`)
+-   [ ] Configure IDE for pnpm usage
+-   [ ] Test development workflow (`pnpm run tauri:dev`)
+-   [ ] Test build process (`pnpm run tauri:build`)
+-   [ ] Verify all scripts work correctly
 
 ## FAQ
 

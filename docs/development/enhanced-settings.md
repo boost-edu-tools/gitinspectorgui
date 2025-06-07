@@ -28,7 +28,7 @@ settings = Settings(
     input_fstrs=["my_repo"],
     # Glob patterns for author exclusion
     ex_author_patterns=["bot-*", "*automated*", "ci-*"],
-    # Glob patterns for email exclusion  
+    # Glob patterns for email exclusion
     ex_email_patterns=["*@noreply.github.com", "*@dependabot.com"],
     # Glob patterns for commit message exclusion
     ex_message_patterns=["Merge pull request*", "Auto-generated*", "Version bump*"],
@@ -62,7 +62,7 @@ settings = Settings(
     max_thread_workers=8,           # Maximum number of worker threads
     multithread=True,               # Enable multithreading
     multicore=True,                 # Enable multicore processing
-    
+
     # Chunking for large datasets
     git_log_chunk_size=200,         # Process git log in chunks
     blame_chunk_size=50,            # Process blame data in chunks
@@ -78,7 +78,7 @@ Use predefined configurations for different repository sizes:
 # For large repositories
 settings.configure_for_large_repository()
 
-# For small repositories  
+# For small repositories
 settings.configure_for_small_repository()
 ```
 
@@ -252,23 +252,23 @@ settings.normalize_paths()
 ```python
 settings = Settings(
     input_fstrs=["large_project"],
-    
+
     # Performance optimization
     multithread=True,
     multicore=True,
     max_thread_workers=8,
     git_log_chunk_size=200,
     memory_limit_mb=4096,
-    
+
     # Filter out automated commits
     ex_author_patterns=["dependabot*", "renovate*", "*[bot]"],
     ex_email_patterns=["*@noreply.github.com", "*@users.noreply.github.com"],
     ex_message_patterns=["Merge pull request*", "Auto-generated*"],
-    
+
     # Analysis scope
     max_commit_count=5000,
     ignore_merge_commits=True,
-    
+
     # Output format
     file_formats=["html", "excel"],
     html_theme="dark",
@@ -281,17 +281,17 @@ settings = Settings(
 ```python
 settings = Settings(
     input_fstrs=["small_project"],
-    
+
     # Simple configuration
     multithread=False,
     verbosity=1,
-    
+
     # Include all commits
     max_commit_count=0,
-    
+
     # Basic filtering
     ex_authors=["ci-user"],
-    
+
     # Simple output
     file_formats=["html"],
     html_enable_search=False
@@ -303,25 +303,25 @@ settings = Settings(
 ```python
 settings = Settings(
     input_fstrs=["enterprise_repo"],
-    
+
     # High performance
     multithread=True,
     multicore=True,
     max_thread_workers=16,
     memory_limit_mb=8192,
     enable_gc_optimization=True,
-    
+
     # Comprehensive filtering
     ex_author_patterns=["*service-account*", "build-*"],
     ex_email_patterns=["*@build.company.com"],
     ex_file_patterns=["generated/*", "*.min.js", "*.bundle.*"],
-    
+
     # Detailed blame analysis
     blame_follow_moves=True,
     blame_show_email=True,
     ignore_revs_file=".git-blame-ignore-revs",
     enable_ignore_revs=True,
-    
+
     # Professional output
     file_formats=["excel"],
     excel_max_rows=500000,
@@ -353,4 +353,6 @@ The `to_legacy_format()` method ensures compatibility with any remaining legacy 
 
 ## Conclusion
 
-The enhanced Settings class provides comprehensive control over git repository analysis while maintaining full compatibility with the legacy codebase. The new features enable fine-tuned analysis for repositories of any size and complexity.
+The enhanced Settings class provides comprehensive control over git repository
+analysis while maintaining full compatibility with the legacy codebase. The new
+features enable fine-tuned analysis for repositories of any size and complexity.
