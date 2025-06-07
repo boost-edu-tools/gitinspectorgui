@@ -342,8 +342,8 @@ python -m gigui.start_server --reload --reload-dir python/gigui
 Monitor memory usage during development:
 
 ```bash
-# Python memory profiling
-uv add memory-profiler
+# Python memory profiling (tools included in dev dependencies)
+uv sync --group dev
 python -m memory_profiler -m gigui.start_server
 
 # Monitor with htop/top

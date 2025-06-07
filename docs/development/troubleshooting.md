@@ -474,8 +474,8 @@ sudo ufw status  # Linux
 #### Python Profiling
 
 ```bash
-# Install profiling tools
-uv add memory-profiler line-profiler
+# Install profiling tools (included in dev dependencies)
+uv sync --group dev
 
 # Memory profiling
 python -m memory_profiler -m gigui.start_server

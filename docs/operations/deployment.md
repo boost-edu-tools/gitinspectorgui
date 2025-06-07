@@ -74,10 +74,10 @@ cd python && uv build
 
 ### Python CLI
 
-| Format | Description                                                             |
-| ------ | ----------------------------------------------------------------------- |
-| `.whl` | Python wheel for pip installation                                       |
-| Source | Available via `uv add gitinspectorgui` or `pip install gitinspectorgui` |
+| Format | Description                                 |
+| ------ | ------------------------------------------- |
+| `.whl` | Python wheel for package installation       |
+| Source | Available via `pip install gitinspectorgui` |
 
 ### Checksums
 
