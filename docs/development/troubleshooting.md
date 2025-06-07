@@ -154,82 +154,6 @@ lsof -i :8080
 python -m gigui.start_server --port 8081
 ```
 
-#### Analysis Fails or Hangs
-
-**Symptoms:**
-
--   Analysis never completes
--   Empty results
--   Timeout errors
-
-**Solutions:**
-
-```bash
-# Check repository path
-ls -la /path/to/repository/.git
-
-# Verify git repository
-cd /path/to/repository
-git status
-
-# Test with smaller repository
-git log --oneline | head -10
-
-# Check available memory
-free -h  # Linux
-vm_stat  # macOS
-```
-
-### Performance Issues
-
-#### Slow Analysis Performance
-
-**Symptoms:**
-
--   Analysis takes very long time
--   High CPU/memory usage
--   System becomes unresponsive
-
-**Solutions:**
-
-```bash
-# Limit analysis scope
-# Use date ranges in settings
-# Exclude large binary files
-
-# Monitor resource usage
-htop  # Linux
-Activity Monitor  # macOS
-
-# Optimize git repository
-cd /path/to/repository
-git gc --aggressive
-git repack -ad
-```
-
-#### Memory Issues
-
-**Symptoms:**
-
-```
-MemoryError
-Out of memory
-System becomes slow
-```
-
-**Solutions:**
-
-```bash
-# Monitor memory usage
-python -m memory_profiler -m gigui.start_server
-
-# Reduce analysis scope
-# Use smaller date ranges
-# Analyze fewer files
-
-# Increase system memory or swap
-```
-
 ### Development Issues
 
 #### Hot Reload Not Working
@@ -582,10 +506,6 @@ curl http://127.0.0.1:8080/health
 
 # Monitor development logs for warnings
 tail -f logs/api.log | grep -i warning
-
-# Check system resources during development
-df -h  # Disk space
-free -h  # Memory usage
 
 # Monitor Tauri development process
 ps aux | grep "tauri dev"

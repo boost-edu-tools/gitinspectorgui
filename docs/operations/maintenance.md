@@ -16,9 +16,6 @@ GitInspectorGUI is a Tauri desktop application with a Python HTTP API backend. T
 # Update Python packages
 cd /path/to/gitinspectorgui
 uv sync --upgrade
-
-# Check for security vulnerabilities
-uv pip audit
 ```
 
 #### Node.js Dependencies
