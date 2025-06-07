@@ -220,6 +220,17 @@ uv sync
 uv sync --refresh
 ```
 
+**mkdocs serve port conflicts:**
+
+```bash
+# If port 8000 is in use, use a different port
+uv run mkdocs serve --dev-addr=127.0.0.1:8001
+
+# Or find and kill the process using port 8000
+lsof -i :8000
+kill -9 <PID>
+```
+
 ### Getting Help
 
 ```bash
