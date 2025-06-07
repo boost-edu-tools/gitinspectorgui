@@ -12,7 +12,7 @@ GitInspectorGUI is a Tauri-based desktop application that gets distributed as pl
 4. [Auto-Updates](#auto-updates)
 5. [Release Workflow](#release-workflow)
 6. [Version Management](#version-management)
-7. [Testing & Quality Assurance](#testing--quality-assurance)
+7. [Testing & Quality Assurance](#testing-quality-assurance)
 
 ---
 

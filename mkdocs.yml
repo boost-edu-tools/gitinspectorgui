@@ -77,21 +77,24 @@ nav:
     - Development:
           - Environment Setup: development/environment-setup.md
           - Development Mode: development/development-mode.md
+          - Demo-Based Documentation-GUI Development: development/demo-based-documentation-gui-development.md
+          - Design System Integration: development/design-system-integration.md
           - Python Management (uv): development/python-management-uv.md
           - Package Management (pnpm): development/package-management-pnpm.md
           - Enhanced Settings: development/enhanced-settings.md
           - Blame Tabs Implementation: development/blame-tabs-implementation.md
           - Troubleshooting: development/troubleshooting.md
+          - Diagnostics:
+                - macOS Terminal Diagnostics: development/diagnostics/cline_terminal_diagnostics_macos.md
     - API Reference:
           - HTTP API Reference: api/reference.md
           - Examples: api/examples.md
           - Error Handling: api/error-handling.md
     - Architecture:
           - System Overview: architecture/overview.md
-          - Legacy Integration: architecture/legacy-integration.md
+          - Technology Stack: architecture/technology-stack.md
           - Design Decisions: architecture/design-decisions.md
-          - Development with Docs: architecture/development_with_docs_architecture.md
-          - Technology Exploration: architecture/redesign.md
+          - Legacy Integration: architecture/legacy-integration.md
     - Operations:
           - Release & Distribution: operations/deployment.md
           - Documentation Deployment: operations/documentation-deployment.md

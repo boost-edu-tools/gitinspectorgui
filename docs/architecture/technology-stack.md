@@ -1,4 +1,4 @@
-# Full-stack Architecture?
+# Architecture design requirements
 
 Recommend tools and technologies to develop a full-stack desktop app with the following characteristics:
 
@@ -23,15 +23,13 @@ Recommend tools and technologies to develop a full-stack desktop app with the fo
 -   I want the (AI generated) architecture and code to be robust, relatively small, and easy to maintain.
 -   Do not give code fragments.
 
-# Answer
+# Technology Stack Selection
 
-Based on your detailed requirements, here's a technology and tooling stack that best matches your preferences for developing a robust, AI-supportable, full-stack desktop app:
+Based on the detailed requirements above, here's the recommended technology and tooling stack for developing a robust, AI-supportable, full-stack desktop application:
 
----
+## Core Technologies
 
-## 🔧 **Core Technologies**
-
-### 🖥️ **Frontend (GUI)**
+### Frontend (GUI)
 
 -   **Framework**: [Tauri](https://tauri.app/)
     -   Lightweight, secure, native-feel apps.
@@ -51,9 +49,7 @@ Based on your detailed requirements, here's a technology and tooling stack that 
     -   **TanStack Table (React Table)**: Advanced filtering, virtual scrolling, expandable rows.
     -   **react-virtualized-auto-sizer**: For automatic row sizing on hover.
 
----
-
-### 🐍 **Backend (Python)**
+### Backend (Python)
 
 -   **Language**: Python 3.11+
     -   Native support for `concurrent.futures`, `asyncio`, `multiprocessing`, and `threading`.
@@ -71,9 +67,7 @@ Based on your detailed requirements, here's a technology and tooling stack that 
     -   Use structured JSON output from Python backend.
     -   React frontend reads and displays JSON in tables.
 
----
-
-## 🧱 **App Architecture & Communication**
+## Application Architecture & Communication
 
 -   **Frontend ↔ Backend Communication**:
     -   **Short-lived**: Call Python scripts using `Command` API from Tauri or `tauri-plugin-shell`.
@@ -83,9 +77,7 @@ Based on your detailed requirements, here's a technology and tooling stack that 
     -   CLI parses it and overrides via `argparse`.
     -   GUI loads and modifies it via Zustand UI bindings.
 
----
-
-## 🚀 **Distribution & Updates**
+## Distribution & Updates
 
 -   **Desktop Packaging**:
     -   **Tauri**: Produces single-file apps for Windows/macOS (Arm+Intel) and Linux.
@@ -97,9 +89,7 @@ Based on your detailed requirements, here's a technology and tooling stack that 
 -   **Shared Binary**:
     -   Package both GUI and CLI in one binary or via CLI wrapper that invokes GUI subprocess.
 
----
-
-## 🎨 **Design & Prototyping**
+## Design & Prototyping
 
 -   **Figma UI Kit**:
     -   Flowbite Figma Kit (Free).
@@ -107,9 +97,7 @@ Based on your detailed requirements, here's a technology and tooling stack that 
 -   **Rapid Prototyping**:
     -   Use Tailwind Play or Vite + React + Tailwind dev setup.
 
----
-
-## 🤖 **AI-Friendly Development**
+## AI-Friendly Development
 
 -   **Best Practices**:
     -   Use clearly structured and documented components and schemas.
@@ -118,14 +106,16 @@ Based on your detailed requirements, here's a technology and tooling stack that 
 -   **AI Codegen Optimization**:
     -   Use `jsonschema` to generate forms.
     -   Predictable settings schema supports AI-friendly generation of CLI + GUI.
-    -   Tauri’s config-based build system simplifies environment setup for AI agents.
+    -   Tauri's config-based build system simplifies environment setup for AI agents.
 
----
-
-## 📦 **Useful Templates / Starters**
+## Useful Templates / Starters
 
 -   Tauri + React + TypeScript + Tailwind boilerplates (several exist on GitHub).
 -   shadcn/ui with Vite + React + Zustand template.
 -   PyInstaller / Nuitka starter for bundling Python CLI and daemon.
 
----
+## Related Documents
+
+For development methodologies using this technology stack, see:
+- [Demo-Based Documentation-GUI Development](../development/demo-based-documentation-gui-development.md)
+- [Design System Integration](../development/design-system-integration.md)

@@ -18,6 +18,8 @@ Everything you need for development and customization:
 
 -   **[Environment Setup](development/environment-setup.md)** - Development environment configuration
 -   **[Development Mode](development/development-mode.md)** - Local development workflow
+-   **[Demo-Based Documentation-GUI Development](development/demo-based-documentation-gui-development.md)** - Unified development methodology
+-   **[Design System Integration](development/design-system-integration.md)** - Figma and Vercel integration
 -   **[Enhanced Settings](development/enhanced-settings.md)** - Advanced configuration options
 -   **[Blame Tabs Implementation](development/blame-tabs-implementation.md)** - UI implementation details
 -   **[Troubleshooting](development/troubleshooting.md)** - Common issues and solutions
@@ -37,8 +39,8 @@ Understanding the system design:
 -   **[System Overview](architecture/overview.md)** - High-level architecture
 -   **[Legacy Integration](architecture/legacy-integration.md)** - Legacy system compatibility
 -   **[Design Decisions](architecture/design-decisions.md)** - Architectural rationale
--   **[Development with Docs](architecture/development_with_docs_architecture.md)** - Documentation workflow
--   **[Technology Exploration](architecture/redesign.md)** - Technology stack analysis
+-   **[Demo-Based Documentation-GUI Development](development/demo-based-documentation-gui-development.md)** - Unified development methodology
+-   **[Technology Stack](architecture/technology-stack.md)** - Technology stack selection and analysis
 
 ### 🚀 Operations
 
