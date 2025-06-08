@@ -25,6 +25,7 @@ Everything you need for development and customization:
 -   **[Enhanced Settings](development/enhanced-settings.md)** - Advanced configuration options
 -   **[Blame Tabs Implementation](development/blame-tabs-implementation.md)** - UI implementation details
 -   **[Troubleshooting](development/troubleshooting.md)** - Common issues and solutions
+-   **[Cline Command Execution Analysis](development/cline-command-execution-analysis.md)** - Analysis of command execution issues in Cline VSCode extension
 
 ### 🔌 API Reference
 

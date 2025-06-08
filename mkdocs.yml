@@ -84,7 +84,7 @@ nav:
           - Enhanced Settings: development/enhanced-settings.md
           - Blame Tabs Implementation: development/blame-tabs-implementation.md
           - Troubleshooting: development/troubleshooting.md
-          - Cline VSCode Terminal Diagnostics: development/cline-vscode-terminal-diagnostics.md
+          - Cline Command Execution Analysis: development/cline-command-execution-analysis.md
     - API Reference:
           - HTTP API Reference: api/reference.md
           - Examples: api/examples.md
