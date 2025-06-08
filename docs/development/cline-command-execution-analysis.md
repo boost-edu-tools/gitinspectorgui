@@ -23,7 +23,7 @@ Commands using shell operators (`&&`, `;`, `|`, `||`) hang indefinitely when exe
 -   `echo "test1" | cat` - Pipe operator
 -   `false || echo "this should run"` - OR operator
 -   `bash -c "echo test1 && echo test2"` - Explicit shell invocation
--   `git push origin main` - Network operation with authentication
+-   `git push origin main` - ⚠️ **See Important Note Below**
 
 ## Analysis
 
@@ -95,11 +95,41 @@ test
 
 But instead hangs indefinitely in Cline on macOS.
 
+## Important Note: VSCode Interactive Authentication vs Command Hanging
+
+⚠️ **Critical Discovery**: Not all apparent "hanging" is actual command failure.
+
+### Git Authentication in VSCode
+
+When `git push origin main` appears to "hang" in VSCode (including Cline), it may actually be waiting for authentication input through **VSCode's interactive authentication UI**:
+
+-   **What happens**: Git prompts for username/password
+-   **VSCode behavior**: Shows input box **at the top of the VSCode window** (not in terminal)
+-   **User experience**: Easy to miss this input box since users expect terminal input
+-   **Appears as**: Command hanging when it's actually waiting for user input
+
+### True Command Hanging vs Interactive Prompts
+
+**Actual Hanging (Confirmed):**
+
+-   Shell operators: `&&`, `;`, `|`, `||`
+-   Commands that should complete without user input
+-   No VSCode UI prompts appear
+
+**Interactive Authentication (Not Hanging):**
+
+-   Git commands requiring credentials
+-   VSCode shows input box at top of window
+-   Command is waiting for user input, not hanging
+
+This distinction is crucial for accurate diagnosis of the Cline command execution issue.
+
 ## Workarounds
 
 1. **Use explicit shell scripts**: Create `.sh` files and execute them
 2. **Single command execution**: Break compound commands into individual steps
 3. **Command substitution**: Use `$()` for some cases where pipes would be used
+4. **For git authentication**: Look for VSCode input prompts at the top of the window
 
 ## Community Reports & GitHub Issues
 
