@@ -84,7 +84,11 @@ nav:
           - Enhanced Settings: development/enhanced-settings.md
           - Blame Tabs Implementation: development/blame-tabs-implementation.md
           - Troubleshooting: development/troubleshooting.md
-          - Cline Command Execution Analysis: development/cline-command-execution-analysis.md
+    - AI Tools:
+          - Overview: ai-tools/index.md
+          - Cline Command Execution Analysis: ai-tools/cline-command-execution-analysis.md
+          - Cline Usage Guidelines: ai-tools/cline-usage-guidelines.md
+          - Roo Code Guide: ai-tools/roo-code-guide.md
     - API Reference:
           - HTTP API Reference: api/reference.md
           - Examples: api/examples.md
