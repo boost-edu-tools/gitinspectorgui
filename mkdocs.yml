@@ -39,6 +39,7 @@ exclude_docs: |
     architecture/ARCHITECTURE_DIAGRAMS.md
     architecture/ARCHITECTURE_PLAN_SUMMARY.md
     archive/
+    ai-tools-old/
     deployment/PRODUCTION_DEPLOYMENT_GUIDE.md
     development/API_SIDECAR.md
     development/DEVELOPMENT_MODE.md
@@ -85,10 +86,9 @@ nav:
           - Blame Tabs Implementation: development/blame-tabs-implementation.md
           - Troubleshooting: development/troubleshooting.md
     - AI Tools:
-          - Overview: ai-tools/index.md
-          - Cline Command Execution Analysis: ai-tools/cline-command-execution-analysis.md
-          - Cline Usage Guidelines: ai-tools/cline-usage-guidelines.md
-          - Roo Code Guide: ai-tools/roo-code-guide.md
+          - Overview: ai-tools/overview.md
+          - Roo Code Development Guide: ai-tools/roo-code-guide.md
+          - Cline Development Guide: ai-tools/cline-guide.md
     - API Reference:
           - HTTP API Reference: api/reference.md
           - Examples: api/examples.md

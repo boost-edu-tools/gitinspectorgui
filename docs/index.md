@@ -12,6 +12,14 @@ New to GitInspectorGUI? Start here:
 
 ## 📚 Documentation Sections
 
+### 🤖 AI Tools
+
+AI-powered development ecosystem and workflows:
+
+-   **[AI Tools Overview](ai-tools/overview.md)** - Three-tool ecosystem introduction and selection guide
+-   **[Cline Development Guide](ai-tools/cline-guide.md)** - Direct coding assistance and troubleshooting
+-   **[Roo Code Development Guide](ai-tools/roo-code-guide.md)** - Multi-agent architecture and advanced features
+
 ### 🛠️ Development
 
 Everything you need for development and customization:
@@ -25,7 +33,6 @@ Everything you need for development and customization:
 -   **[Enhanced Settings](development/enhanced-settings.md)** - Advanced configuration options
 -   **[Blame Tabs Implementation](development/blame-tabs-implementation.md)** - UI implementation details
 -   **[Troubleshooting](development/troubleshooting.md)** - Common issues and solutions
--   **[Cline Command Execution Analysis](development/cline-command-execution-analysis.md)** - Analysis of command execution issues in Cline VSCode extension
 
 ### 🔌 API Reference
 

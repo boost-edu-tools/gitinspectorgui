@@ -1,99 +1,57 @@
-# Roo Code Guide
-
-Comprehensive guide to using Roo Code for complex architecture setup and project orchestration.
+# Roo Code Development Guide
 
 ## Overview
 
-Roo Code (formerly Roo Cline) is an AI-powered autonomous coding agent that provides a whole dev team of AI agents in your code editor. Unlike Cline's single-agent approach, Roo Code offers specialized modes and orchestration capabilities for complex development workflows.
+Roo Code was originally forked from Cline, it has evolved into a multi-agent development platform with specialized modes and enhanced capabilities.
 
-## Key Differences from Cline
+## Multi-Agent Architecture
 
-### Multi-Agent Architecture
+### Available Modes
 
-**Roo Code:**
+**🏗️ Architect Mode:**
 
--   Multiple specialized modes (Code, Architect, Ask, Debug, Orchestrator)
--   Each mode has specific tool access and behavior patterns
--   Orchestrator mode can delegate tasks to other modes
--   Sticky model assignment per mode
+-   **Purpose:** System design and high-level planning
+-   **Best for:** Architecture documentation, technical specifications
 
-**Cline:**
+**🪃 Orchestrator Mode:**
 
--   Single general-purpose agent
--   Consistent behavior across all tasks
--   Direct tool access without mode restrictions
+-   **Purpose:** Strategic workflow orchestration and task delegation
+-   **Key feature:** Uses `new_task` tool for delegating to specialized modes
+-   **Best for:** Complex multi-component projects
 
-### When to Use Roo Code vs Cline
+**⚡ Code Mode:**
 
-**Use Roo Code for:**
+-   **Purpose:** Direct implementation and coding tasks
+-   **Best for:** Active development, debugging, file operations
 
--   Complex architecture planning and implementation
--   Multi-step projects requiring different expertise
--   Team-like workflows with specialized roles
--   Projects requiring safety controls (read-only modes)
--   Systematic debugging and troubleshooting
+**❓ Ask Mode:**
 
-**Use Cline for:**
+-   **Purpose:** Learning, exploration, and safe planning
+-   **Best for:** Understanding codebases, research, safe exploration
 
--   Direct, immediate coding tasks
--   Simple file modifications
--   Quick debugging sessions
--   Cost-sensitive workflows (single agent)
+**🐛 Debug Mode:**
 
-## Roo Code Modes for Architecture Setup
+-   **Purpose:** Systematic troubleshooting and issue resolution
+-   **Best for:** Identifying and fixing bugs, performance analysis
 
-### 1. Architect Mode (`🏗️ Architect`)
+## Advanced Capabilities
 
-**Purpose:** System design and high-level planning
+### Browser Automation
 
-**Tool Access:**
+-   **Extended browser automation** with customization options
+-   **More control** over testing different screen sizes and image quality
+-   **Advanced web scraping** and testing capabilities
+-   **Custom browser configurations** for specific testing needs
 
--   `read` - Analyze existing codebase
--   `browser` - Research technologies and patterns
--   `mcp` - Access external tools and APIs
--   `edit` (restricted) - Markdown files only for documentation
+## Strategic Usage Patterns
 
-**Workflow:**
+### Mode Selection and execution Strategy
 
-1. **Information Gathering:** Analyzes requirements and existing code
-2. **Architecture Design:** Creates system diagrams and technical specifications
-3. **Implementation Planning:** Breaks down work into actionable tasks
-4. **Documentation:** Creates comprehensive architecture documentation
-
-### 2. Orchestrator Mode (`🪃 Orchestrator`)
-
-**Purpose:** Strategic workflow orchestration and task delegation
-
-**Tool Access:**
-
--   `read` - Analyze project structure
--   `browser` - Research and gather information
--   `command` - Execute build and deployment commands
--   `mcp` - Access external tools
--   `edit` (restricted) - Mode configuration files only
-
-**Key Capability:** Uses the `new_task` tool to delegate subtasks to specialized modes
-
-## Best Practices
-
-### 1. Mode Selection Strategy
-
--   **Start with Architect** for complex projects
--   **Use Orchestrator** for multi-component systems
--   **Switch to Code** for implementation details
--   **Use Debug** for systematic troubleshooting
--   **Use Ask** for learning and exploration
-
-### 2. Task Delegation
-
--   Break complex tasks into mode-appropriate subtasks
--   Use clear, specific instructions for each mode
--   Maintain context between mode switches
--   Document decisions and handoffs
-
-### 3. Safety and Control
-
--   Use restricted modes (Ask, Architect) for planning phases
--   Enable full tool access only when implementing
--   Review architecture plans before implementation
--   Use checkpoints for complex workflows
+1. **Start with Architect** for complex system design and planning
+2. **Evaluate and update plan** evaluate saved architect plan and update where
+   needed
+3. **Archtect switches mode** Let Archtect decide to execute plan via Orchestrator or Code\*\*
+4. **Use Orchestrator** for project coordination and task delegation
+5. **Switch to Code** for implementation details and active development
+6. **Deploy Debug** for systematic troubleshooting and issue resolution
+7. **Leverage Ask** for learning and codebase exploration
