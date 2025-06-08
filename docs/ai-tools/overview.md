@@ -2,7 +2,7 @@
 
 ## Overview
 
-The GitInspectorGUI project utilizes a carefully selected ecosystem of AI tools that collectively provide the best available AI-assisted development experience in 2025. This documentation covers our recommended workflow combining three complementary tools, each optimized for specific aspects of software development.
+The GitInspectorGUI project utilizes a set of AI tools that in our experience, collectively provide the best available AI-assisted development in 2025. This documentation covers our recommended workflow combining three complementary tools, each optimized for specific aspects of software development.
 
 ## The Three-Tool Ecosystem
 
