@@ -23,17 +23,26 @@ Commands using shell operators (`&&`, `;`, `|`, `||`) hang indefinitely when exe
 -   `echo "test1" | cat` - Pipe operator
 -   `false || echo "this should run"` - OR operator
 -   `bash -c "echo test1 && echo test2"` - Explicit shell invocation
+-   `git push origin main` - Network operation with authentication
 
 ## Analysis
 
 ### Root Cause
 
-The issue is **specifically with shell control operators** that create compound commands or command chains:
+The issue affects **multiple types of commands** that involve complex execution patterns:
+
+**Shell Control Operators:**
 
 -   `&&` (AND)
 -   `;` (command separator)
 -   `|` (pipe)
 -   `||` (OR)
+
+**Network/Authentication Operations:**
+
+-   Git commands requiring authentication
+-   Commands with interactive prompts
+-   Network operations with timeouts
 
 ### What Works vs What Doesn't
 
