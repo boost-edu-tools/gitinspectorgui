@@ -20,127 +20,160 @@ Complete installation instructions for GitInspectorGUI development and productio
 -   **Terminal**: Modern terminal with Unicode support
 -   **Git Client**: Command line git or GUI client
 
-## Installation Steps
+## Quick Installation by Platform
 
-### 1. Install System Dependencies
+### Windows
 
-=== "macOS"
+1. **Install Git and Node.js version manager:**
 
-    ```bash
-    # Install Homebrew (if not already installed)
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-    # Install dependencies
-    brew install python node rust git
-
-    # Verify installations
-    python3 --version
-    node --version
-    rustc --version
-    git --version
-    ```
-
-=== "Windows"
-
-    1. **Python**: Download from [python.org](https://python.org) and install
-    2. **Node.js**: Download from [nodejs.org](https://nodejs.org) and install
-    3. **Rust**: Download from [rustup.rs](https://rustup.rs) and install
-    4. **Git**: Download from [git-scm.com](https://git-scm.com) and install
-
-    Verify in PowerShell:
     ```powershell
-    python --version
-    node --version
-    rustc --version
-    git --version
+    winget install Git.Git Schniz.fnm
     ```
 
-=== "Linux (Ubuntu/Debian)"
+    - `Git.Git` - Git version control system
+    - `Schniz.fnm` - Fast Node Manager (for managing Node.js versions)
+
+2. **Install Python package manager:**
+
+    ```powershell
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+    ```
+
+    - `uv` - Fast Python package manager and project manager
+
+3. **Install Rust toolchain:**
+
+    - Download and run `rustup-init.exe` from [https://rustup.rs/](https://rustup.rs/)
+    - `rustup` - Rust toolchain installer and version manager
+
+4. **Restart terminal, then install Node.js package manager:**
+    ```powershell
+    npm install -g pnpm
+    ```
+    - `pnpm` - Fast, disk space efficient Node.js package manager
+
+### macOS
+
+1. **Install Git via Xcode command line tools:**
 
     ```bash
-    # Update package list
-    sudo apt update
-
-    # Install dependencies
-    sudo apt install python3 python3-uv nodejs git curl
-
-    # Enable pnpm
-    corepack enable
-
-    # Install Rust
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-    source ~/.cargo/env
-
-    # Verify installations
-    python3 --version
-    node --version
-    rustc --version
-    git --version
+    xcode-select --install
     ```
 
-### 2. Clone the Repository
+    - Provides Git and essential development tools
+
+2. **Install package managers:**
+
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    curl -fsSL https://fnm.vercel.app/install | bash
+    ```
+
+    - `uv` - Fast Python package manager and project manager
+    - `rustup` - Rust toolchain installer and version manager
+    - `fnm` - Fast Node Manager (for managing Node.js versions)
+
+3. **Restart terminal, then install Node.js package manager:**
+    ```bash
+    npm install -g pnpm
+    ```
+    - `pnpm` - Fast, disk space efficient Node.js package manager
+
+### Linux
+
+1. **Install Git:**
+
+    ```bash
+    sudo apt install git     # Debian/Ubuntu
+    sudo dnf install git     # Fedora
+    ```
+
+    - Git version control system
+
+2. **Install package managers:**
+
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    curl -fsSL https://fnm.vercel.app/install | bash
+    ```
+
+    - `uv` - Fast Python package manager and project manager
+    - `rustup` - Rust toolchain installer and version manager
+    - `fnm` - Fast Node Manager (for managing Node.js versions)
+
+3. **Restart terminal, then install Node.js package manager:**
+    ```bash
+    npm install -g pnpm
+    ```
+    - `pnpm` - Fast, disk space efficient Node.js package manager
+
+## Project Setup
+
+### Clone Repository
 
 ```bash
 git clone https://gitlab.com/your-username/gitinspectorgui.git
 cd gitinspectorgui
 ```
 
-### 3. Install Python Dependencies
+### Install Dependencies
 
-```bash
-# Using uv (recommended)
-uv sync
+1. **Python dependencies:**
 
-# Or using pip (alternative)
-pip install -e .
-```
+    ```bash
+    uv sync
+    ```
 
-### 4. Install Node.js Dependencies
+2. **Node.js dependencies:**
 
-```bash
-pnpm install
-```
+    ```bash
+    pnpm install
+    ```
 
-### 5. Install Tauri CLI
-
-```bash
-pnpm add -g @tauri-apps/cli
-```
+3. **Tauri CLI:**
+    ```bash
+    pnpm add -g @tauri-apps/cli
+    ```
 
 ## Verification
 
 ### Test Python API
 
-```bash
-# Start the HTTP server
-python -m gigui.start_server
+1. **Start the HTTP server:**
 
-# In another terminal, test the health endpoint
-curl http://127.0.0.1:8080/health
-```
+    ```bash
+    python -m gigui.start_server
+    ```
 
-Expected response:
+2. **Test the health endpoint (in another terminal):**
 
-```json
-{
-    "status": "healthy",
-    "version": "1.0.0",
-    "timestamp": "2025-01-01T12:00:00Z"
-}
-```
+    ```bash
+    curl http://127.0.0.1:8080/health
+    ```
+
+    Expected response:
+
+    ```json
+    {
+        "status": "healthy",
+        "version": "1.0.0",
+        "timestamp": "2025-01-01T12:00:00Z"
+    }
+    ```
 
 ### Test Tauri Application
 
 ```bash
-# Start development server
 pnpm run tauri dev
 ```
 
 The Tauri application window should open and connect to the HTTP server automatically.
 
-## Development Environment Setup
+## Development Environment
 
-### VS Code Extensions (Recommended)
+### VS Code Extensions
 
 Install these extensions for the best development experience:
 
@@ -162,16 +195,15 @@ GIGUI_API_HOST=127.0.0.1
 GIGUI_API_PORT=8080
 ```
 
-## Production Installation
+## Production Build
 
-### Build for Production
+### Build Application
 
 ```bash
-# Build the Tauri application
 pnpm run tauri build
 ```
 
-### Distribution
+### Distribution Files
 
 The built application will be available in:
 
@@ -183,32 +215,36 @@ The built application will be available in:
 
 ### Common Issues
 
-**Python module not found**
+**Python module not found:**
 
 ```bash
 # Ensure you're in the project directory and dependencies are installed
 uv sync
 ```
 
-**Rust compilation errors**
+**Rust compilation errors:**
 
 ```bash
 # Update Rust to latest version
 rustup update
 ```
 
-**Node.js permission errors**
+**Node.js permission errors:**
 
 ```bash
 # Fix pnpm permissions (macOS/Linux)
 sudo chown -R $(whoami) ~/.local/share/pnpm
 ```
 
-**Port 8080 already in use**
+**Port 8080 already in use:**
 
 ```bash
-# Find and kill process using port 8080
+# Find and kill process using port 8080 (macOS/Linux)
 lsof -ti:8080 | xargs kill -9
+
+# Windows
+netstat -ano | findstr :8080
+taskkill /PID <PID> /F
 ```
 
 ### Getting Help
@@ -227,3 +263,51 @@ After successful installation:
 1. **[Quick Start](quick-start.md)** - Get the application running
 2. **[First Analysis](first-analysis.md)** - Run your first repository analysis
 3. **[Development Mode](../development/development-mode.md)** - Set up for active development
+
+## Detailed Installation Notes
+
+### Package Manager Details
+
+**uv (Python package manager):**
+
+-   Provides fast Python package management
+-   Enables `uv self update` capability when installed via official installer
+-   Alternative: Use `pip install -e .` if uv is not available
+
+**pnpm (Node.js package manager):**
+
+-   More efficient than npm with better dependency management
+-   Uses hard links to save disk space
+-   Alternative: Use `npm` if pnpm is not available
+
+**fnm (Node.js version manager):**
+
+-   Enables easy switching between Node.js versions
+-   Faster than nvm with better cross-platform support
+-   Alternative: Install Node.js directly from [nodejs.org](https://nodejs.org)
+
+**rustup (Rust toolchain manager):**
+
+-   Official Rust toolchain manager
+-   Provides excellent version control and component management
+-   Required for Tauri development
+
+### Platform-Specific Notes
+
+**Windows:**
+
+-   Use PowerShell or Command Prompt for installation commands
+-   winget is available by default on Windows 10 1709+ and Windows 11
+-   Some commands may require administrator privileges
+
+**macOS:**
+
+-   Xcode command line tools provide Git and other essential development tools
+-   Choose between Homebrew and Xcode tools based on your existing setup
+-   Terminal restart may be required after installing shell tools
+
+**Linux:**
+
+-   Use your distribution's package manager for system integration
+-   Some distributions may require additional development packages
+-   Ensure your user has proper permissions for global package installation
