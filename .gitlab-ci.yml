@@ -63,9 +63,9 @@ trigger_docs_rebuild:
         - echo "Documentation changes detected, triggering group pages rebuild..."
         - |
           curl -X POST \
-            -F token=$DOCS_TRIGGER_TOKEN \
-            -F ref=main \
-            "https://gitlab.com/api/v4/projects/$EDUBOOST_PROJECT_ID/trigger/pipeline"
+              -F token=$DOCS_TRIGGER_TOKEN \
+              -F ref=main \
+              "https://gitlab.com/api/v4/projects/edu-boost%2Fedu-boost.gitlab.io/trigger/pipeline
         - echo "Group pages rebuild triggered successfully"
     rules:
         - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
