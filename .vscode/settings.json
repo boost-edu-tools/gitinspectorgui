@@ -1,4 +1,16 @@
 {
+    "cSpell.enabled": true,
+    "cSpell.import": [
+        "../../dev-config/cspell.json"
+    ],
+    //
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+        "source.addMissingImports": "always",
+        "source.organizeImports": "explicit",
+        "source.fixAll.eslint": "explicit"
+    },
     "editor.detectIndentation": false,
     //
     // Controls how the editor should render whitespace characters.
@@ -7,7 +19,7 @@
     //  - selection: Render whitespace characters only on selected text.
     //  - trailing: Render only trailing whitespace characters.
     //  - all
-    "editor.formatOnSave": true,
+    "editor.renderWhitespace": "boundary",
     "editor.rulers": [
         88,
     ],
@@ -23,32 +35,9 @@
     "github.copilot.chat.editor.temporalContext.enabled": true,
     "github.copilot.chat.edits.temporalContext.enabled": true,
     //
-    "[javascript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    //
-    "[markdown]": {
-        "editor.tabSize": 2,
-        "editor.rulers": [
-            80,
-            88
-        ],
-    },
-    //
+    "prettier.enable": true,
     "prettier.tabWidth": 4,
     //
-    "[python]": {
-        "editor.defaultFormatter": "charliermarsh.ruff",
-        "editor.formatOnSave": true,
-        "editor.rulers": [
-            88
-        ],
-        //
-        // required for isort, see setting "isort.args"
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": "explicit",
-        },
-    },
     "python.analysis.aiCodeActions": {
         "generateDocstring": true
     },
@@ -68,7 +57,6 @@
     // Information: = Warning + execution times and return info etc (Default)
     // Trace: = Information + ?????
     "python.analysis.logLevel": "Information",
-    //
     "python.analysis.typeCheckingMode": "standard",
     "python.languageServer": "Pylance",
     //
@@ -81,61 +69,35 @@
     // Puts a single space between comment character "//" and comment text
     "rewrap.reformat": true,
     //
-    "terminal.integrated.persistentSessionReviveProcess": "never",
-    //
-    "workbench.editor.editorActionsLocation": "titleBar",
-    //
-    "cSpell.words": [
-        "colorlog",
-        "cprint",
-        "excelformat",
-        "formatstr",
-        "foss",
-        "fstat",
-        "fstr",
-        "fstring",
-        "fstrs",
-        "gigui",
-        "gitinspect",
-        "Gitinspector",
-        "gitinspectorgui",
-        "glsl",
-        "hexsha",
-        "htmls",
-        "initargs",
-        "iscomments",
-        "jsonschema",
-        "jspx",
-        "levelname",
-        "levelno",
-        "Macbook",
-        "MEIPASS",
-        "Menlo",
-        "multicore",
-        "multirepos",
-        "nmsp",
-        "nofix",
-        "numstat",
-        "outbase",
-        "outfilestr",
-        "pathstr",
-        "platformdirs",
-        "prepostfix",
-        "PSGUI",
-        "pstat",
-        "pysimplegui",
-        "rlib",
-        "scrollregion",
-        "SGGUI",
-        "singlecore",
-        "subfolders",
-        "thead",
-        "tiphelp",
-        "titlebar",
-        "tooldef",
-        "typedefs",
-        "unicore",
-        "worktree",
-        "xlsxwriter"
+    // Note: no Cline equivalent for this setting
+    "roo-cline.allowedCommands": [
+        "npm test",
+        "npm install",
+        "tsc",
+        "git log",
+        "git diff",
+        "git show"
     ],
+    //
+    "[markdown]": {
+        "editor.tabSize": 2,
+        "editor.rulers": [
+            80,
+            88
+        ],
+    },
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.codeActionsOnSave": {
+            "source.addMissingImports": "always",
+            "source.fixAll.ruff": "explicit",
+            "source.organizeImports.ruff": "explicit"
+        }
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
 }
