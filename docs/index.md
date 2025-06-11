@@ -2,6 +2,12 @@
 
 Welcome to the comprehensive documentation for GitInspectorGUI - a modern desktop application for git repository analysis with a Tauri + React + TypeScript frontend and Python HTTP API backend.
 
+## Try the Demo
+
+Experience GitInspectorGUI in action with our interactive demo:
+
+-   **[Live Demo](../)** - Try GitInspectorGUI with sample data in your browser
+
 ## Quick Start
 
 New to GitInspectorGUI? Start here:
