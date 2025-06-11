@@ -7,7 +7,7 @@ export default defineConfig(async () => ({
     plugins: [react()],
 
     // Set base path for GitLab Pages deployment
-    base: "/",
+    base: process.env.CI ? "/gitinspectorgui/" : "/",
 
     // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
     //

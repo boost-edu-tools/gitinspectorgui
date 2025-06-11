@@ -58,44 +58,26 @@ build_docs:
     rules:
         - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 
-# Deploy to GitLab Pages
-pages:
+# Deploy to group pages (edu-boost.gitlab.io)
+deploy_to_group_pages:
     stage: deploy
     dependencies:
         - build_app
         - build_docs
-    script:
-        - mkdir public
-        # Copy React app to root
-        - cp -r dist/* public/
-        # Copy documentation to /docs subdirectory
-        - mkdir -p public/docs
-        - cp -r site/* public/docs/
-    artifacts:
-        paths:
-            - public
-    rules:
-        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-
-# Trigger edu-boost.gitlab.io pipeline when documentation changes
-trigger_docs_rebuild:
-    stage: docs
     image: alpine:latest
     before_script:
         - apk add --no-cache curl
     script:
-        - echo "Documentation changes detected, triggering group pages rebuild..."
+        - echo "Deploying app and documentation to group pages..."
         - |
             if curl -f -X POST \
                 -F token=$DOCS_TRIGGER_TOKEN \
                 -F ref=main \
                 "https://gitlab.com/api/v4/projects/edu-boost%2Fedu-boost.gitlab.io/trigger/pipeline"; then
-                echo "Group pages rebuild triggered successfully"
+                echo "Group pages deployment triggered successfully"
             else
-                echo "Failed to trigger rebuild, but continuing..."
+                echo "Failed to trigger deployment, but continuing..."
             fi
     rules:
         - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-          changes:
-              - "docs/**/*"
     allow_failure: true

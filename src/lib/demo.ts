@@ -5,9 +5,14 @@ export function isDemoMode(): boolean {
     // Check if we're running on GitLab Pages
     if (typeof window !== "undefined") {
         const hostname = window.location.hostname;
+        const pathname = window.location.pathname;
 
-        // GitLab Pages detection - any gitlab.io domain
-        if (hostname.includes("gitlab.io")) {
+        // GitLab Pages detection - group pages or project pages
+        if (
+            hostname.includes("gitlab.io") &&
+            (pathname.includes("/gitinspectorgui") ||
+                hostname.includes("gitinspectorgui"))
+        ) {
             return true;
         }
     }
@@ -19,6 +24,13 @@ export function isDemoMode(): boolean {
  * Gets the base URL for the current environment
  */
 export function getBaseUrl(): string {
-    // Always use root path since we're deploying to root of GitLab Pages
+    if (isDemoMode()) {
+        // For group pages, use /gitinspectorgui as base
+        if (window.location.pathname.includes("/gitinspectorgui")) {
+            return "/gitinspectorgui";
+        }
+        // For project pages, use root
+        return "";
+    }
     return "";
 }

@@ -19,7 +19,7 @@ export function DemoBanner() {
                 </div>
                 <div className="flex items-center space-x-3">
                     <a
-                        href="/docs/"
+                        href="/gitinspectorgui/docs/"
                         className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 transition-colors"
                     >
                         <ExternalLink className="h-3 w-3 mr-1" />
