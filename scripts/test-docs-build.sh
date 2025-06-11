@@ -77,23 +77,41 @@ mkdocs build --site-dir public_temp_build
 if [ $? -eq 0 ]; then
     echo "✅ Documentation built successfully!"
 
+    # Build the React demo app
+    echo ""
+    echo "🔨 Building React demo app..."
+    npm run build
+
+    if [ $? -eq 0 ]; then
+        echo "✅ Demo app built successfully!"
+    else
+        echo "❌ Demo app build failed!"
+        exit 1
+    fi
+
     # Create the group pages structure
     echo "📁 Creating group pages structure..."
-    mkdir -p public_temp/gitinspectorgui
-    cp -r public_temp_build/* public_temp/gitinspectorgui/
+    mkdir -p public/gitinspectorgui
+    mkdir -p public/gitinspectorgui/demo
+
+    # Copy docs to root level
+    cp -r public_temp_build/* public/gitinspectorgui/
+
+    # Copy demo to /demo/ subdirectory
+    cp -r dist/* public/gitinspectorgui/demo/
 
     echo ""
-    echo "📁 Generated files in 'public_temp/gitinspectorgui/' directory:"
-    ls -la public_temp/gitinspectorgui/ | head -10
+    echo "📁 Generated files in 'public/gitinspectorgui/' directory:"
+    ls -la public/gitinspectorgui/ | head -10
     echo ""
     echo "📊 Build statistics:"
-    echo "   - Total files: $(find public_temp/gitinspectorgui -type f | wc -l)"
-    echo "   - HTML files: $(find public_temp/gitinspectorgui -name "*.html" | wc -l)"
-    echo "   - CSS files: $(find public_temp/gitinspectorgui -name "*.css" | wc -l)"
-    echo "   - JS files: $(find public_temp/gitinspectorgui -name "*.js" | wc -l)"
+    echo "   - Total files: $(find public/gitinspectorgui -type f | wc -l)"
+    echo "   - HTML files: $(find public/gitinspectorgui -name "*.html" | wc -l)"
+    echo "   - CSS files: $(find public/gitinspectorgui -name "*.css" | wc -l)"
+    echo "   - JS files: $(find public/gitinspectorgui -name "*.js" | wc -l)"
     echo ""
     echo "🌐 To test locally, you can:"
-    echo "   1. Run: python3 -m http.server 8080 --directory public_temp"
+    echo "   1. Run: python3 -m http.server 8080 --directory public"
     echo "   2. Open: http://localhost:8080/gitinspectorgui/"
     echo ""
     echo "🚀 This build is ready for GitLab Group Pages deployment!"
@@ -112,9 +130,9 @@ echo "✅ Test completed successfully"
 
 echo ""
 echo "🔧 Next steps:"
-echo "   - Review the generated 'public_temp/gitinspectorgui/' directory"
+echo "   - Review the generated 'public/gitinspectorgui/' directory"
 echo "   - Test the site locally with the HTTP server command above"
 echo "   - If everything looks good, commit and push to trigger GitLab Pages CI/CD"
 echo ""
-echo "💡 To clean up: rm -rf public_temp"
+echo "💡 To clean up: rm -rf public"
 echo "💡 The .venv environment is preserved for your project"
