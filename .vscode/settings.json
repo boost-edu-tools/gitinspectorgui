@@ -8,7 +8,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": {
         "source.addMissingImports": "always",
-        "source.organizeImports": "explicit",
+        "source.organizeImports": "never",
         "source.fixAll.eslint": "explicit"
     },
     "editor.detectIndentation": false,

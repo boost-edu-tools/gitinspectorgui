@@ -1,69 +1,105 @@
-import { create } from "zustand";
-import type { AnalysisResult, RepositoryResult } from "@/types/results";
 import { executeAnalysis } from "@/lib/api";
+import type { AnalysisResult, RepositoryResult } from "@/types/results";
 import type { Settings } from "@/types/settings";
+import { create } from "zustand";
 
 interface ResultsStore {
-  results: AnalysisResult | null;
-  isAnalyzing: boolean;
-  error: string | null;
-  selectedRepository: string | null;
-  selectedTable: "authors" | "files" | "blame";
-  runAnalysis: (settings: Settings) => Promise<void>;
-  selectRepository: (repoName: string) => void;
-  selectTable: (table: "authors" | "files" | "blame") => void;
-  clearResults: () => void;
-  getCurrentRepository: () => RepositoryResult | null;
-  setResults: (results: AnalysisResult) => void;
+    results: AnalysisResult | null;
+    isAnalyzing: boolean;
+    error: string | null;
+    selectedRepository: string | null;
+    selectedTable: "authors" | "files" | "blame";
+    runAnalysis: (settings: Settings) => Promise<void>;
+    selectRepository: (repoName: string) => void;
+    selectTable: (table: "authors" | "files" | "blame") => void;
+    clearResults: () => void;
+    getCurrentRepository: () => RepositoryResult | null;
+    setResults: (results: AnalysisResult) => void;
 }
 
 export const useResultsStore = create<ResultsStore>((set, get) => ({
-  results: null,
-  isAnalyzing: false,
-  error: null,
-  selectedRepository: null,
-  selectedTable: "authors",
+    results: null,
+    isAnalyzing: false,
+    error: null,
+    selectedRepository: null,
+    selectedTable: "authors",
 
-  runAnalysis: async (settings) => {
-    set({ isAnalyzing: true, error: null, results: null });
-    try {
-      const results = await executeAnalysis(settings);
-      set({
-        results,
-        isAnalyzing: false,
-        selectedRepository: results.repositories.length > 0 ? results.repositories[0].name : null
-      });
-    } catch (error) {
-      set({
-        error: error instanceof Error ? error.message : "Analysis failed",
-        isAnalyzing: false,
-      });
-    }
-  },
+    runAnalysis: async (settings) => {
+        set({ isAnalyzing: true, error: null, results: null });
 
-  selectRepository: (repoName) => {
-    set({ selectedRepository: repoName });
-  },
+        // Check if we're in demo mode
+        const isDemo =
+            typeof window !== "undefined" &&
+            window.location.hostname.includes("gitlab.io") &&
+            window.location.pathname.includes("/gitinspectorgui");
 
-  selectTable: (table) => {
-    set({ selectedTable: table });
-  },
+        if (isDemo) {
+            // Use sample data in demo mode
+            const { sampleAnalysisResult } = await import("@/data/sampleData");
 
-  clearResults: () => {
-    set({ results: null, error: null, selectedRepository: null });
-  },
+            // Simulate loading time
+            await new Promise((resolve) => setTimeout(resolve, 1500));
 
-  getCurrentRepository: () => {
-    const { results, selectedRepository } = get();
-    if (!results || !selectedRepository) return null;
-    return results.repositories.find(repo => repo.name === selectedRepository) || null;
-  },
+            set({
+                results: sampleAnalysisResult,
+                isAnalyzing: false,
+                selectedRepository:
+                    sampleAnalysisResult.repositories.length > 0
+                        ? sampleAnalysisResult.repositories[0].name
+                        : null,
+            });
+            return;
+        }
 
-  setResults: (results) => {
-    set({
-      results,
-      error: null,
-      selectedRepository: results.repositories.length > 0 ? results.repositories[0].name : null
-    });
-  },
+        try {
+            const results = await executeAnalysis(settings);
+            set({
+                results,
+                isAnalyzing: false,
+                selectedRepository:
+                    results.repositories.length > 0
+                        ? results.repositories[0].name
+                        : null,
+            });
+        } catch (error) {
+            set({
+                error:
+                    error instanceof Error ? error.message : "Analysis failed",
+                isAnalyzing: false,
+            });
+        }
+    },
+
+    selectRepository: (repoName) => {
+        set({ selectedRepository: repoName });
+    },
+
+    selectTable: (table) => {
+        set({ selectedTable: table });
+    },
+
+    clearResults: () => {
+        set({ results: null, error: null, selectedRepository: null });
+    },
+
+    getCurrentRepository: () => {
+        const { results, selectedRepository } = get();
+        if (!results || !selectedRepository) return null;
+        return (
+            results.repositories.find(
+                (repo) => repo.name === selectedRepository
+            ) || null
+        );
+    },
+
+    setResults: (results) => {
+        set({
+            results,
+            error: null,
+            selectedRepository:
+                results.repositories.length > 0
+                    ? results.repositories[0].name
+                    : null,
+        });
+    },
 }));

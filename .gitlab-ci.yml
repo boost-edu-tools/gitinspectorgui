@@ -6,7 +6,7 @@ stages:
     - test
     - build
     - docs
-    - release
+    - deploy
 
 variables:
     CARGO_HOME: $CI_PROJECT_DIR/.cargo
@@ -24,17 +24,59 @@ variables:
 # The Docker image that will be used to build your app
 image: node:lts
 
-# Placeholder job to satisfy GitLab CI requirements
-# Individual pages disabled/removed - documentation served via group pages
-documentation_info:
-    stage: test
+# Build the React application
+build_app:
+    stage: build
+    before_script:
+        - npm install -g pnpm
+        - pnpm install
     script:
-        - echo "Documentation served via group pages at https://edu-boost.gitlab.io/gitinspectorgui/"
+        - pnpm build
+    artifacts:
+        paths:
+            - dist/
+        expire_in: 1 hour
+    rules:
+        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+
+# Build documentation
+build_docs:
+    stage: build
+    image: python:3.11
+    before_script:
+        - pip install mkdocs mkdocs-material
+    script:
+        - mkdocs build
+    artifacts:
+        paths:
+            - site/
+        expire_in: 1 hour
+    rules:
+        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+
+# Deploy to GitLab Pages
+pages:
+    stage: deploy
+    dependencies:
+        - build_app
+        - build_docs
+    script:
+        - mkdir public
+        # Copy React app to root
+        - cp -r dist/* public/
+        # Copy documentation to /docs subdirectory
+        - mkdir -p public/docs
+        - cp -r site/* public/docs/
+    artifacts:
+        paths:
+            - public
+    rules:
+        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 
 # Trigger edu-boost.gitlab.io pipeline when documentation changes
 trigger_docs_rebuild:
     stage: docs
-    image: alpine:latest 
+    image: alpine:latest
     before_script:
         - apk add --no-cache curl
     script:
@@ -51,5 +93,5 @@ trigger_docs_rebuild:
     rules:
         - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
           changes:
-            - "docs/**/*"
+              - "docs/**/*"
     allow_failure: true
