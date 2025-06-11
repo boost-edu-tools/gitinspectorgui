@@ -58,6 +58,18 @@ build_docs:
     rules:
         - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 
+# Disable project pages (redirect to group pages)
+pages:
+    stage: deploy
+    script:
+        - mkdir public
+        - echo '<html><head><meta http-equiv="refresh" content="0; url=https://edu-boost.gitlab.io/gitinspectorgui/"></head><body>Redirecting to <a href="https://edu-boost.gitlab.io/gitinspectorgui/">https://edu-boost.gitlab.io/gitinspectorgui/</a></body></html>' > public/index.html
+    artifacts:
+        paths:
+            - public
+    rules:
+        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+
 # Deploy to group pages (edu-boost.gitlab.io)
 deploy_to_group_pages:
     stage: deploy
