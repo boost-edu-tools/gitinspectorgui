@@ -42,9 +42,13 @@ build_app:
 # Build documentation
 build_docs:
     stage: build
-    image: squidfunk/mkdocs-material:latest
+    image: python:3.11-slim
+    cache:
+        key: mkdocs-deps
+        paths:
+            - .pip-cache/
     before_script:
-        - pip install mkdocs-mermaid2-plugin
+        - pip install --cache-dir .pip-cache mkdocs mkdocs-material mkdocs-mermaid2-plugin
     script:
         - mkdocs build
     artifacts:
