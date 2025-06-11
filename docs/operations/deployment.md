@@ -2,17 +2,46 @@
 
 ## Overview
 
-GitInspectorGUI is a Tauri-based desktop application that gets distributed as platform-specific installers and packages. This guide covers building releases, distribution strategies, and update mechanisms for desktop applications.
+GitInspectorGUI is a Tauri-based desktop application with a Python FastAPI HTTP server backend that gets distributed as platform-specific installers and packages. This guide covers the complete release process from development to distribution, including build automation, testing, and deployment strategies.
 
 ## Table of Contents
 
-1. [Build Process](#build-process)
-2. [Release Artifacts](#release-artifacts)
-3. [Distribution Platforms](#distribution-platforms)
-4. [Auto-Updates](#auto-updates)
-5. [Release Workflow](#release-workflow)
-6. [Version Management](#version-management)
-7. [Testing & Quality Assurance](#testing-quality-assurance)
+1. [Quick Release Guide](#quick-release-guide)
+2. [Build Process](#build-process)
+3. [Release Artifacts](#release-artifacts)
+4. [Distribution Platforms](#distribution-platforms)
+5. [Auto-Updates](#auto-updates)
+6. [Release Workflow](#release-workflow)
+7. [Version Management](#version-management)
+8. [Testing & Quality Assurance](#testing-quality-assurance)
+9. [CI/CD Integration](#cicd-integration)
+10. [Development to Production](#development-to-production)
+
+---
+
+## Quick Release Guide
+
+For experienced developers who need a fast release:
+
+```bash
+# 1. Update versions and changelog
+./scripts/update-version.sh 1.2.0
+
+# 2. Build all platforms
+./scripts/build-all-platforms.sh
+
+# 3. Test release artifacts
+./scripts/test-release.sh
+
+# 4. Create and publish release
+gh release create v1.2.0 \
+  --title "GitInspectorGUI v1.2.0" \
+  --notes-file CHANGELOG.md \
+  --verify-tag \
+  dist/releases/*
+```
+
+**⚠️ Prerequisites**: Ensure you have completed the [Environment Setup](../development/environment-setup.md) and tested in [Development Mode](../development/development-mode.md).
 
 ---
 
@@ -30,28 +59,61 @@ GitInspectorGUI is a Tauri-based desktop application that gets distributed as pl
 
 ### Cross-Platform Build
 
-Use the automated build script:
+Use the automated build script for cross-platform builds:
 
 ```bash
-# Build for current platform
-./scripts/build-all-platforms.sh
+# Build for current platform only
+./scripts/build-all-platforms.sh --current
+
+# Build for all supported platforms (requires platform-specific setup)
+./scripts/build-all-platforms.sh --all
+
+# Build with specific configuration
+./scripts/build-all-platforms.sh --config production
 
 # Artifacts will be in dist/releases/
 ls dist/releases/
 ```
 
+**Platform Requirements:**
+
+-   **Windows**: Requires Windows machine or Windows VM
+-   **macOS**: Requires macOS machine (code signing requires Apple Developer account)
+-   **Linux**: Can be built on any Linux distribution
+
 ### Manual Build Commands
 
+For development and testing builds:
+
 ```bash
-# Install dependencies
+# 1. Install dependencies
 pnpm install
 uv sync
 
-# Build frontend
+# 2. Build frontend assets
 pnpm run build
 
-# Build Tauri app
+# 3. Build Python FastAPI server
+cd python && uv build
+
+# 4. Build Tauri application
 pnpm run tauri build
+
+# 5. Verify build artifacts
+ls src-tauri/target/release/bundle/
+ls python/dist/  # Python wheel
+```
+
+### Development Build
+
+For faster iteration during development:
+
+```bash
+# Development build (faster, includes debug symbols)
+pnpm run tauri build --debug
+
+# Test the development build
+./src-tauri/target/debug/gitinspectorgui
 ```
 
 ---
@@ -77,7 +139,34 @@ All release artifacts include SHA256 checksums in `checksums.sha256`.
 
 ## Distribution Platforms
 
-### 1. GitHub Releases (Primary)
+### 1. GitLab Releases (Primary)
+
+**Advantages:**
+
+-   Integrated with GitLab CI/CD
+-   Free hosting for open source projects
+-   Automatic update detection
+-   Version history and release notes
+-   Package registry integration
+
+**Setup:**
+
+```bash
+# Create release with GitLab CLI
+glab release create v1.0.0 \
+  --name "GitInspectorGUI v1.0.0" \
+  --notes "Release notes here" \
+  dist/releases/*
+
+# Or using GitLab API
+curl --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+     --data name="v1.0.0" \
+     --data tag_name="v1.0.0" \
+     --data description="Release notes" \
+     "https://gitlab.com/api/v4/projects/$PROJECT_ID/releases"
+```
+
+### 2. GitHub Releases (Alternative)
 
 **Advantages:**
 
@@ -89,14 +178,14 @@ All release artifacts include SHA256 checksums in `checksums.sha256`.
 **Setup:**
 
 ```bash
-# Create release with GitHub CLI
+# Create release with GitHub CLI (if mirroring to GitHub)
 gh release create v1.0.0 \
   --title "GitInspectorGUI v1.0.0" \
   --notes "Release notes here" \
   dist/releases/*
 ```
 
-### 2. Platform-Specific Stores
+### 3. Platform-Specific Stores
 
 #### Windows
 
@@ -119,7 +208,7 @@ gh release create v1.0.0 \
 -   **Flathub**: Flatpak distribution
 -   **Distribution repositories**: Debian, Ubuntu, Fedora, etc.
 
-### 3. Direct Download
+### 4. Direct Download
 
 Host installers on your own website with download links:
 
@@ -135,7 +224,7 @@ Host installers on your own website with download links:
 
 ### Tauri Updater Configuration
 
-Configure in `src-tauri/tauri.conf.json`:
+Configure in [`src-tauri/tauri.conf.json`](../../src-tauri/tauri.conf.json):
 
 ```json
 {
@@ -143,13 +232,21 @@ Configure in `src-tauri/tauri.conf.json`:
         "updater": {
             "active": true,
             "endpoints": [
-                "https://releases.example.com/updates/{{target}}/{{current_version}}"
+                "https://gitlab.com/your-username/gitinspectorgui/-/releases/{{current_version}}/downloads/{{target}}"
             ],
             "dialog": true,
             "pubkey": "YOUR_PUBLIC_KEY_HERE"
         }
     }
 }
+```
+
+**Development vs Production Configuration:**
+
+```bash
+# Use different configs for different environments
+pnpm run tauri build --config src-tauri/tauri.conf.json          # Production
+pnpm run tauri build --config src-tauri/tauri.conf.dev.json     # Development
 ```
 
 ### Update Server Response
@@ -192,16 +289,87 @@ tauri signer sign -k ~/.tauri/myapp.key --password mypassword
 
 ### 1. Pre-Release Checklist
 
--   [ ] Update version in `package.json`
--   [ ] Update version in `src-tauri/tauri.conf.json`
--   [ ] Update version in `python/pyproject.toml`
--   [ ] Update `CHANGELOG.md`
--   [ ] Run full test suite
+**Version Updates:**
+
+-   [ ] Update version in [`package.json`](../../package.json)
+-   [ ] Update version in [`src-tauri/tauri.conf.json`](../../src-tauri/tauri.conf.json)
+-   [ ] Update version in [`python/pyproject.toml`](../../python/pyproject.toml)
+-   [ ] Update [`CHANGELOG.md`](../../CHANGELOG.md) with new features and fixes
+
+**Quality Assurance:**
+
+-   [ ] Run full test suite: `python -m pytest && pnpm test`
+-   [ ] Test in [Development Mode](../development/development-mode.md)
+-   [ ] Verify [Enhanced Settings](../development/enhanced-settings.md) work correctly
 -   [ ] Test on all target platforms
+-   [ ] Verify Python API sidecar builds correctly
+-   [ ] Test auto-updater functionality (if enabled)
+
+**Documentation:**
+
+-   [ ] Update API documentation if endpoints changed
+-   [ ] Update user guides if UI changed
+-   [ ] Verify [Installation Guide](../getting-started/installation.md) is current
 
 ### 2. Automated Release Pipeline
 
-Example GitHub Actions workflow (`.github/workflows/release.yml`):
+Example GitLab CI workflow ([`.gitlab-ci.yml`](../../.gitlab-ci.yml)):
+
+```yaml
+stages:
+    - test
+    - build
+    - release
+
+variables:
+    PYTHON_VERSION: "3.13"
+    NODE_VERSION: "22"
+    RUST_VERSION: "1.85"
+
+# Test stage
+test:
+    stage: test
+    image: python:$PYTHON_VERSION
+    before_script:
+        - curl -fsSL https://get.pnpm.io/install.sh | sh -
+        - source ~/.bashrc
+        - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        - source ~/.cargo/env
+    script:
+        - uv sync
+        - pnpm install
+        - python -m pytest
+        - pnpm test
+    only:
+        - tags
+
+# Build stage
+build:
+    stage: build
+    parallel:
+        matrix:
+            - PLATFORM: [ubuntu-latest, windows-latest, macos-latest]
+    script:
+        - ./scripts/build-all-platforms.sh --current
+        - ./scripts/test-release.sh
+    artifacts:
+        paths:
+            - dist/releases/
+        expire_in: 1 week
+    only:
+        - tags
+
+# Release stage
+release:
+    stage: release
+    image: registry.gitlab.com/gitlab-org/release-cli:latest
+    script:
+        - glab release create $CI_COMMIT_TAG --name "GitInspectorGUI $CI_COMMIT_TAG" --notes-file CHANGELOG.md dist/releases/*
+    only:
+        - tags
+```
+
+**Alternative GitHub Actions** (if mirroring to GitHub):
 
 ```yaml
 name: Release
@@ -219,16 +387,26 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            - name: Setup Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.13"
+
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: 18
+                  node-version: 22
 
             - name: Setup Rust
               uses: dtolnay/rust-toolchain@stable
 
+            - name: Install uv
+              run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
             - name: Install dependencies
-              run: pnpm install
+              run: |
+                  uv sync
+                  pnpm install
 
             - name: Build app
               run: pnpm run tauri build
@@ -243,21 +421,85 @@ jobs:
 ### 3. Manual Release Steps
 
 ```bash
-# 1. Tag the release
+# 1. Prepare the release
+./scripts/prepare-release.sh v1.0.0
+
+# 2. Tag the release
 git tag v1.0.0
 git push origin v1.0.0
 
-# 2. Build all platforms
-./scripts/build-all-platforms.sh
+# 3. Build all platforms
+./scripts/build-all-platforms.sh --all
 
-# 3. Create GitHub release
-gh release create v1.0.0 \
-  --title "GitInspectorGUI v1.0.0" \
+# 4. Test release artifacts
+./scripts/test-release.sh
+
+# 5. Create GitLab release
+glab release create v1.0.0 \
+  --name "GitInspectorGUI v1.0.0" \
   --notes-file CHANGELOG.md \
   dist/releases/*
 
-# 4. Update auto-updater endpoints
-# Upload signed artifacts to your update server
+# 6. Update documentation deployment
+mkdocs gh-deploy  # If using GitHub Pages for docs
+
+# 7. Announce release
+# - Update project README
+# - Post to relevant communities
+# - Update package managers (if applicable)
+```
+
+### 4. Release Scripts
+
+Create these helper scripts in [`scripts/`](../../scripts/):
+
+**`scripts/prepare-release.sh`**:
+
+```bash
+#!/bin/bash
+VERSION=$1
+if [ -z "$VERSION" ]; then
+    echo "Usage: $0 <version>"
+    exit 1
+fi
+
+# Update version in all files
+sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
+sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
+sed -i "s/version = \".*\"/version = \"$VERSION\"/" python/pyproject.toml
+
+echo "Updated version to $VERSION in all files"
+echo "Please update CHANGELOG.md manually"
+```
+
+**`scripts/test-release.sh`**:
+
+```bash
+#!/bin/bash
+# Test release artifacts
+echo "Testing release artifacts..."
+
+# Verify checksums
+cd dist/releases
+sha256sum -c checksums.sha256
+
+# Test installation (platform-specific)
+case "$(uname -s)" in
+    Darwin)
+        echo "Testing macOS .dmg..."
+        # Add macOS-specific tests
+        ;;
+    Linux)
+        echo "Testing Linux packages..."
+        # Add Linux-specific tests
+        ;;
+    MINGW*|CYGWIN*)
+        echo "Testing Windows installer..."
+        # Add Windows-specific tests
+        ;;
+esac
+
+echo "Release artifacts tested successfully"
 ```
 
 ---
@@ -341,6 +583,111 @@ tauri signer verify -k public.key -s signature.sig app.exe
 
 ---
 
+## CI/CD Integration
+
+### GitLab CI/CD Setup
+
+The project uses GitLab CI/CD for automated testing and deployment. Key features:
+
+**Pipeline Stages:**
+
+1. **Test**: Run Python and frontend tests
+2. **Build**: Create platform-specific builds
+3. **Release**: Publish to GitLab releases
+4. **Deploy**: Update documentation
+
+**Configuration Files:**
+
+-   [`.gitlab-ci.yml`](../../.gitlab-ci.yml) - Main CI/CD pipeline
+-   [`scripts/switch-ci.sh`](../../scripts/switch-ci.sh) - Switch between CI providers
+
+**Environment Variables:**
+
+```bash
+# Required in GitLab CI/CD settings
+GITLAB_TOKEN=your_gitlab_token
+TAURI_PRIVATE_KEY=your_signing_key
+TAURI_KEY_PASSWORD=your_key_password
+```
+
+### Documentation Deployment
+
+Automated documentation deployment to GitLab Pages:
+
+```yaml
+# In .gitlab-ci.yml
+pages:
+    stage: deploy
+    script:
+        - mkdocs build
+        - mv site public
+    artifacts:
+        paths:
+            - public
+    only:
+        - main
+```
+
+See [Documentation Deployment Guide](documentation-deployment.md) for details.
+
+---
+
+## Development to Production
+
+### From Development Mode to Release
+
+1. **Development Phase**:
+
+    - Use [Development Mode](../development/development-mode.md) for rapid iteration
+    - Test with [Enhanced Settings](../development/enhanced-settings.md)
+    - Follow [Environment Setup](../development/environment-setup.md)
+
+2. **Pre-Release Testing**:
+
+    ```bash
+    # Test production build locally
+    pnpm run tauri build
+    ./src-tauri/target/release/gitinspectorgui
+
+    # Test Python API sidecar
+    cd python && ./test-api-sidecar.sh
+    ```
+
+3. **Release Preparation**:
+
+    - Update versions across all files
+    - Update documentation
+    - Create comprehensive changelog
+
+4. **Release Execution**:
+
+    - Use automated CI/CD pipeline
+    - Monitor build status
+    - Test release artifacts
+
+5. **Post-Release**:
+    - Monitor user feedback
+    - Track download statistics
+    - Plan next iteration
+
+### AI-Assisted Development Integration
+
+This project uses a [three-tool AI ecosystem](../ai-tools/overview.md) for development:
+
+**For Release Management:**
+
+-   **Claude.ai**: Research best practices, analyze release notes
+-   **Roo Code**: Orchestrate complex release workflows
+-   **Cline**: Make direct file updates and fixes
+
+**Recommended Workflow:**
+
+1. Use Claude.ai to research release strategies
+2. Use Roo Code Architect mode to plan release process
+3. Use Cline for direct file modifications and testing
+
+---
+
 ## Distribution Best Practices
 
 ### Security
@@ -364,4 +711,73 @@ tauri signer verify -k public.key -s signature.sig app.exe
 -   **User Feedback**: Support channels and issue tracking
 -   **Update Success Rates**: Monitor auto-update effectiveness
 
-This distribution model aligns with GitInspectorGUI's desktop application architecture and provides users with familiar installation experiences on each platform.
+## Troubleshooting Releases
+
+### Common Build Issues
+
+**Python API Sidecar Build Fails:**
+
+```bash
+# Check Python environment
+python --version
+uv --version
+
+# Rebuild sidecar
+cd python
+./build-api-sidecar.sh --clean
+```
+
+**Tauri Build Fails:**
+
+```bash
+# Update Rust toolchain
+rustup update
+
+# Clean build cache
+cargo clean
+rm -rf src-tauri/target
+
+# Rebuild
+pnpm run tauri build
+```
+
+**Code Signing Issues:**
+
+```bash
+# Verify signing certificate
+security find-identity -v -p codesigning  # macOS
+signtool.exe /list /s My                  # Windows
+
+# Test signing
+tauri signer sign --help
+```
+
+### Release Validation
+
+**Before Publishing:**
+
+1. Test installation on clean systems
+2. Verify auto-updater functionality
+3. Check all download links work
+4. Validate checksums match
+5. Test uninstallation process
+
+**After Publishing:**
+
+1. Monitor download statistics
+2. Check for user-reported issues
+3. Verify auto-updater detects new version
+4. Update documentation if needed
+
+---
+
+## Next Steps
+
+After successful deployment:
+
+1. **Monitor Release**: Track downloads and user feedback
+2. **Plan Updates**: Use [Version Management](#version-management) for future releases
+3. **Improve Process**: Refine CI/CD pipeline based on experience
+4. **Documentation**: Keep [Installation Guide](../getting-started/installation.md) updated
+
+This distribution model aligns with GitInspectorGUI's desktop application architecture, modern CI/CD practices, and provides users with familiar installation experiences on each platform while supporting the project's AI-assisted development workflow.

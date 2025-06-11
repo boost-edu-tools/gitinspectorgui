@@ -5,8 +5,72 @@
 
 set -e
 
+# Default options
+BUILD_ALL=false
+BUILD_CURRENT=true
+CONFIG="production"
+CLEAN_BUILD=false
+VERBOSE=false
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --all)
+            BUILD_ALL=true
+            BUILD_CURRENT=false
+            shift
+            ;;
+        --current)
+            BUILD_CURRENT=true
+            BUILD_ALL=false
+            shift
+            ;;
+        --config)
+            CONFIG="$2"
+            shift 2
+            ;;
+        --clean)
+            CLEAN_BUILD=true
+            shift
+            ;;
+        --verbose|-v)
+            VERBOSE=true
+            shift
+            ;;
+        --help|-h)
+            echo "GitInspectorGUI Cross-Platform Build Script"
+            echo ""
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --all              Build for all supported platforms"
+            echo "  --current          Build for current platform only (default)"
+            echo "  --config CONFIG    Use specific configuration (production|development)"
+            echo "  --clean            Clean build cache before building"
+            echo "  --verbose, -v      Enable verbose output"
+            echo "  --help, -h         Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  $0                           # Build for current platform"
+            echo "  $0 --all                     # Build for all platforms"
+            echo "  $0 --config development      # Build with development config"
+            echo "  $0 --clean --verbose         # Clean build with verbose output"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
 echo "🚀 GitInspectorGUI Cross-Platform Build Script"
 echo "=============================================="
+echo "Configuration: $CONFIG"
+echo "Build mode: $([ "$BUILD_ALL" = true ] && echo "All platforms" || echo "Current platform")"
+echo "Clean build: $([ "$CLEAN_BUILD" = true ] && echo "Yes" || echo "No")"
+echo ""
 
 # Colors for output
 RED='\033[0;31m'
@@ -38,6 +102,13 @@ if [ ! -f "src-tauri/tauri.conf.json" ]; then
     exit 1
 fi
 
+# Set Tauri config file based on configuration
+TAURI_CONFIG="src-tauri/tauri.conf.json"
+if [ "$CONFIG" = "development" ] && [ -f "src-tauri/tauri.conf.dev.json" ]; then
+    TAURI_CONFIG="src-tauri/tauri.conf.dev.json"
+    print_status "Using development configuration: $TAURI_CONFIG"
+fi
+
 # Check dependencies
 print_status "Checking dependencies..."
 
@@ -55,9 +126,52 @@ if ! command -v uv &> /dev/null; then
     print_warning "uv is not installed, Python backend may not work properly"
 fi
 
+# Clean build if requested
+if [ "$CLEAN_BUILD" = true ]; then
+    print_status "Cleaning build cache..."
+
+    # Clean Rust build cache
+    if [ -d "src-tauri/target" ]; then
+        rm -rf src-tauri/target
+        print_status "Cleaned Rust build cache"
+    fi
+
+    # Clean Node.js build cache
+    if [ -d "node_modules" ]; then
+        rm -rf node_modules
+        print_status "Cleaned Node.js cache"
+    fi
+
+    # Clean Python build cache
+    if [ -d "python/dist" ]; then
+        rm -rf python/dist
+        print_status "Cleaned Python build cache"
+    fi
+
+    # Clean previous releases
+    if [ -d "dist/releases" ]; then
+        rm -rf dist/releases
+        print_status "Cleaned previous releases"
+    fi
+fi
+
 # Install frontend dependencies
 print_status "Installing frontend dependencies..."
-pnpm install
+if [ "$VERBOSE" = true ]; then
+    pnpm install
+else
+    pnpm install --silent
+fi
+
+# Install Python dependencies
+if command -v uv &> /dev/null; then
+    print_status "Installing Python dependencies..."
+    if [ "$VERBOSE" = true ]; then
+        uv sync
+    else
+        uv sync --quiet
+    fi
+fi
 
 # Install Tauri CLI if not present
 if ! command -v tauri &> /dev/null; then
@@ -65,9 +179,27 @@ if ! command -v tauri &> /dev/null; then
     pnpm add -g @tauri-apps/cli
 fi
 
+# Build Python FastAPI server package
+print_status "Building Python FastAPI server package..."
+if command -v uv &> /dev/null; then
+    cd python
+    if [ "$VERBOSE" = true ]; then
+        uv build
+    else
+        uv build --quiet 2>/dev/null || uv build
+    fi
+    cd ..
+else
+    print_warning "uv not available, skipping Python package build"
+fi
+
 # Build frontend
 print_status "Building frontend..."
-pnpm run build
+if [ "$VERBOSE" = true ]; then
+    pnpm run build
+else
+    pnpm run build --silent
+fi
 
 # Create output directory
 mkdir -p dist/releases
@@ -76,71 +208,127 @@ mkdir -p dist/releases
 build_target() {
     local target=$1
     local platform=$2
-    
+
     print_status "Building for $platform ($target)..."
-    
-    if cargo tauri build --target $target; then
+
+    # Build command with appropriate config
+    local build_cmd="cargo tauri build --target $target --config $TAURI_CONFIG"
+
+    if [ "$VERBOSE" = true ]; then
+        build_cmd="$build_cmd --verbose"
+    fi
+
+    if eval $build_cmd; then
         print_success "Successfully built for $platform"
-        
+
         # Copy artifacts to dist directory
         case $platform in
-            "Windows")
+            "Windows"*)
                 cp src-tauri/target/$target/release/bundle/msi/*.msi dist/releases/ 2>/dev/null || true
                 cp src-tauri/target/$target/release/bundle/nsis/*.exe dist/releases/ 2>/dev/null || true
                 ;;
-            "macOS")
+            "macOS"*)
                 cp -r src-tauri/target/$target/release/bundle/dmg/*.dmg dist/releases/ 2>/dev/null || true
-                cp -r src-tauri/target/$target/release/bundle/macos/*.app dist/releases/ 2>/dev/null || true
+                # Create tarball of .app for easier distribution
+                if ls src-tauri/target/$target/release/bundle/macos/*.app 1> /dev/null 2>&1; then
+                    cd src-tauri/target/$target/release/bundle/macos/
+                    for app in *.app; do
+                        tar -czf "../../../../../dist/releases/${app%.app}-$target.app.tar.gz" "$app"
+                    done
+                    cd - > /dev/null
+                fi
                 ;;
-            "Linux")
+            "Linux"*)
                 cp src-tauri/target/$target/release/bundle/deb/*.deb dist/releases/ 2>/dev/null || true
                 cp src-tauri/target/$target/release/bundle/appimage/*.AppImage dist/releases/ 2>/dev/null || true
+                cp src-tauri/target/$target/release/bundle/rpm/*.rpm dist/releases/ 2>/dev/null || true
                 ;;
         esac
+
+        # Make AppImages executable
+        chmod +x dist/releases/*.AppImage 2>/dev/null || true
+
     else
         print_error "Failed to build for $platform"
         return 1
     fi
 }
 
-# Detect current platform and build accordingly
+# Build targets based on options
 CURRENT_OS=$(uname -s)
-case $CURRENT_OS in
-    "Darwin")
-        print_status "Detected macOS - Building for macOS targets"
-        build_target "x86_64-apple-darwin" "macOS-Intel"
-        build_target "aarch64-apple-darwin" "macOS-Apple-Silicon"
-        ;;
-    "Linux")
-        print_status "Detected Linux - Building for Linux targets"
-        build_target "x86_64-unknown-linux-gnu" "Linux-x64"
-        ;;
-    "MINGW"*|"MSYS"*|"CYGWIN"*)
-        print_status "Detected Windows - Building for Windows targets"
-        build_target "x86_64-pc-windows-msvc" "Windows-x64"
-        ;;
-    *)
-        print_warning "Unknown OS: $CURRENT_OS - Building for current target only"
-        cargo tauri build
-        ;;
-esac
+CURRENT_ARCH=$(uname -m)
 
-# Build Python CLI distribution
-print_status "Building Python CLI distribution..."
-if command -v uv &> /dev/null; then
-    cd python
-    
-    # Create wheel
-    if uv build; then
-        print_success "Python wheel built successfully"
-        cp dist/*.whl ../dist/releases/ 2>/dev/null || true
-    else
-        print_warning "Failed to build Python wheel"
-    fi
-    
-    cd ..
+if [ "$BUILD_ALL" = true ]; then
+    print_status "Building for all supported platforms..."
+
+    # Note: Cross-compilation requires platform-specific setup
+    case $CURRENT_OS in
+        "Darwin")
+            print_status "Building macOS targets..."
+            build_target "x86_64-apple-darwin" "macOS-Intel"
+            build_target "aarch64-apple-darwin" "macOS-Apple-Silicon"
+
+            print_warning "Cross-compilation to Windows/Linux from macOS requires additional setup"
+            print_warning "Consider using CI/CD or platform-specific machines for complete builds"
+            ;;
+        "Linux")
+            print_status "Building Linux targets..."
+            build_target "x86_64-unknown-linux-gnu" "Linux-x64"
+
+            # Try to build for other architectures if cross-compilation is set up
+            if rustup target list --installed | grep -q "aarch64-unknown-linux-gnu"; then
+                build_target "aarch64-unknown-linux-gnu" "Linux-ARM64"
+            fi
+
+            print_warning "Cross-compilation to Windows/macOS from Linux requires additional setup"
+            ;;
+        "MINGW"*|"MSYS"*|"CYGWIN"*)
+            print_status "Building Windows targets..."
+            build_target "x86_64-pc-windows-msvc" "Windows-x64"
+
+            print_warning "Cross-compilation to macOS/Linux from Windows requires additional setup"
+            ;;
+        *)
+            print_warning "Unknown OS: $CURRENT_OS - Building for current target only"
+            cargo tauri build --config $TAURI_CONFIG
+            ;;
+    esac
+
+elif [ "$BUILD_CURRENT" = true ]; then
+    print_status "Building for current platform: $CURRENT_OS ($CURRENT_ARCH)"
+
+    case $CURRENT_OS in
+        "Darwin")
+            if [ "$CURRENT_ARCH" = "arm64" ]; then
+                build_target "aarch64-apple-darwin" "macOS-Apple-Silicon"
+            else
+                build_target "x86_64-apple-darwin" "macOS-Intel"
+            fi
+            ;;
+        "Linux")
+            if [ "$CURRENT_ARCH" = "aarch64" ]; then
+                build_target "aarch64-unknown-linux-gnu" "Linux-ARM64"
+            else
+                build_target "x86_64-unknown-linux-gnu" "Linux-x64"
+            fi
+            ;;
+        "MINGW"*|"MSYS"*|"CYGWIN"*)
+            build_target "x86_64-pc-windows-msvc" "Windows-x64"
+            ;;
+        *)
+            print_warning "Unknown OS: $CURRENT_OS - Using default build"
+            cargo tauri build --config $TAURI_CONFIG
+            ;;
+    esac
+fi
+
+# Copy Python package to releases if built
+print_status "Copying Python package to releases..."
+if [ -d "python/dist" ] && ls python/dist/*.whl 1> /dev/null 2>&1; then
+    cp python/dist/*.whl dist/releases/ 2>/dev/null || true
+    print_success "Python wheel copied to releases"
 else
-    print_warning "Skipping Python CLI build - uv not available"
+    print_warning "No Python wheel found to copy"
 fi
 
 # Generate checksums
@@ -163,10 +351,13 @@ ls -la dist/releases/ 2>/dev/null || echo "No release files found"
 echo ""
 echo "🎉 GitInspectorGUI build complete!"
 echo "   Desktop apps: dist/releases/"
-echo "   Python CLI: Available via pip install (if wheel was built)"
+echo "   Python FastAPI server: Available via pip install (if wheel was built)"
 echo ""
 echo "📋 Next steps:"
-echo "   1. Test the built applications"
-echo "   2. Upload to release distribution platform"
-echo "   3. Update auto-updater endpoints"
-echo "   4. Publish Python package to PyPI"
+echo "   1. Test the built applications: ./scripts/test-release.sh"
+echo "   2. Create release tag: git tag vX.Y.Z && git push origin vX.Y.Z"
+echo "   3. Upload to GitLab releases: glab release create vX.Y.Z dist/releases/*"
+echo "   4. Update auto-updater endpoints (if configured)"
+echo "   5. Publish Python package to PyPI: cd python && uv publish"
+echo ""
+echo "💡 Tip: Use './scripts/prepare-release.sh X.Y.Z' to prepare version updates"
