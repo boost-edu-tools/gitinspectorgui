@@ -71,7 +71,7 @@ markdown_extensions:
 
 nav:
     - Home: index.md
-    - Demo: ../demo/
+    - Demo: demo/
     - Getting Started:
           - Quick Start: getting-started/quick-start.md
           - Installation: getting-started/installation.md
