@@ -2,7 +2,7 @@
 
 Welcome to the comprehensive documentation for GitInspectorGUI - a modern desktop application for git repository analysis with a Tauri + React + TypeScript frontend and Python HTTP API backend.
 
-## 🚀 Quick Start
+## Quick Start
 
 New to GitInspectorGUI? Start here:
 
@@ -10,9 +10,9 @@ New to GitInspectorGUI? Start here:
 -   **[Installation](getting-started/installation.md)** - Detailed setup instructions
 -   **[First Analysis](getting-started/first-analysis.md)** - Run your first repository analysis
 
-## 📚 Documentation Sections
+## Documentation Sections
 
-### 🤖 AI Tools
+### AI Tools
 
 AI-powered development ecosystem and workflows:
 
@@ -20,7 +20,7 @@ AI-powered development ecosystem and workflows:
 -   **[Cline Development Guide](ai-tools/cline-guide.md)** - Direct coding assistance and troubleshooting
 -   **[Roo Code Development Guide](ai-tools/roo-code-guide.md)** - Multi-agent architecture and advanced features
 
-### 🛠️ Development
+### Development
 
 Everything you need for development and customization:
 
@@ -34,7 +34,7 @@ Everything you need for development and customization:
 -   **[Blame Tabs Implementation](development/blame-tabs-implementation.md)** - UI implementation details
 -   **[Troubleshooting](development/troubleshooting.md)** - Common issues and solutions
 
-### 🔌 API Reference
+### API Reference
 
 Complete API documentation for integration:
 
@@ -42,7 +42,7 @@ Complete API documentation for integration:
 -   **[Examples](api/examples.md)** - Practical code examples
 -   **[Error Handling](api/error-handling.md)** - Error codes and troubleshooting
 
-### 🏗️ Architecture
+### Architecture
 
 Understanding the system design:
 
@@ -52,7 +52,7 @@ Understanding the system design:
 -   **[Demo-Based Documentation-GUI Development](development/demo-based-documentation-gui-development.md)** - Unified development methodology
 -   **[Technology Stack](architecture/technology-stack.md)** - Technology stack selection and analysis
 
-### 🚀 Operations
+### Operations
 
 Production deployment and maintenance:
 
@@ -60,7 +60,7 @@ Production deployment and maintenance:
 -   **[Monitoring](operations/monitoring.md)** - System monitoring
 -   **[Maintenance](operations/maintenance.md)** - Ongoing maintenance procedures
 
-## 🎯 Key Features
+## Key Features
 
 -   **Modern Architecture**: HTTP API with Tauri desktop frontend
 -   **Cross-Platform**: Windows, macOS, and Linux support
@@ -68,7 +68,7 @@ Production deployment and maintenance:
 -   **Interactive UI**: Modern React-based interface with advanced filtering
 -   **Developer-Friendly**: Comprehensive API and documentation
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 GitInspectorGUI uses a modern HTTP API architecture:
 
@@ -84,7 +84,7 @@ graph TD
     H[API Types] --> B
 ```
 
-## 🤝 Contributing
+## Contributing
 
 This documentation is designed to help developers understand, use, and contribute to GitInspectorGUI. Each section provides practical, actionable information to support your development workflow.
 

@@ -11,7 +11,7 @@ Before you begin, ensure you have:
 -   **Rust 1.85+** with Cargo
 -   **Git 2.45+**
 
-## 🚀 Start in 3 Steps
+## Start in 3 Steps
 
 ### 1. Start the HTTP API Server
 
@@ -37,7 +37,7 @@ pnpm run tauri dev
 -   Check the browser console for any connection errors
 -   Test analysis functionality with a sample repository
 
-## ✅ Verification
+## Verification
 
 Once both components are running:
 
@@ -45,13 +45,13 @@ Once both components are running:
 2. **Frontend**: The Tauri application window should open
 3. **Integration**: Try loading a git repository for analysis
 
-## 🎯 Next Steps
+## Next Steps
 
 -   **[Installation Guide](installation.md)** - Detailed setup instructions
 -   **[First Analysis](first-analysis.md)** - Run your first repository analysis
 -   **[Development Mode](../development/development-mode.md)** - Set up for development
 
-## 🔧 Production Build
+## Production Build
 
 For production deployment:
 
@@ -63,7 +63,7 @@ uv sync
 pnpm run tauri build
 ```
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 **Server won't start?**
 
