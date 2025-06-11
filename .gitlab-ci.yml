@@ -42,10 +42,9 @@ build_app:
 # Build documentation
 build_docs:
     stage: build
-    image: python:3.11
-    before_script:
-        - pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
+    image: squidfunk/mkdocs-material:latest
     script:
+        - pip install mkdocs-mermaid2-plugin
         - mkdocs build
     artifacts:
         paths:
