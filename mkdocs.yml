@@ -70,8 +70,8 @@ markdown_extensions:
     - md_in_html
 
 nav:
-    - Demo: ../
     - Home: index.md
+    - Demo: ../demo/
     - Getting Started:
           - Quick Start: getting-started/quick-start.md
           - Installation: getting-started/installation.md
