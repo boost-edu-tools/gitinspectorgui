@@ -3,6 +3,7 @@ import { Phase3ResultsInterface } from "./components/Phase3ResultsInterface";
 import { SettingsFormTabs } from "./components/SettingsFormTabs";
 import { useResultsStore } from "./stores/resultsStore";
 import { DemoBanner } from "./components/DemoBanner";
+import { isDemoMode } from "./lib/demo";
 import { useEffect } from "react";
 
 function App() {
@@ -10,12 +11,7 @@ function App() {
 
     // Auto-load sample data in demo mode
     useEffect(() => {
-        const isDemo =
-            typeof window !== "undefined" &&
-            window.location.hostname.includes("gitlab.io") &&
-            window.location.pathname.includes("/gitinspectorgui");
-
-        if (isDemo && !results) {
+        if (isDemoMode() && !results) {
             // Load sample data automatically in demo mode
             import("./data/sampleData").then(({ sampleAnalysisResult }) => {
                 setResults(sampleAnalysisResult);
@@ -23,15 +19,11 @@ function App() {
         }
     }, [results, setResults]);
 
-    // Check if we're in demo mode for banner display
-    const isDemoMode =
-        typeof window !== "undefined" &&
-        window.location.hostname.includes("gitlab.io") &&
-        window.location.pathname.includes("/gitinspectorgui");
+    const isDemo = isDemoMode();
 
     return (
         <div className="app-container flex flex-col h-screen">
-            {isDemoMode && <DemoBanner />}
+            {isDemo && <DemoBanner />}
             <div className="flex flex-1">
                 {/* Settings Panel */}
                 <div className="settings-panel w-1/3 flex flex-col">
