@@ -5,19 +5,14 @@ export function isDemoMode(): boolean {
     // Check if we're running on GitLab Pages
     if (typeof window !== "undefined") {
         const hostname = window.location.hostname;
-        const pathname = window.location.pathname;
 
-        // GitLab Pages detection
-        if (
-            hostname.includes("gitlab.io") &&
-            pathname.includes("/gitinspectorgui")
-        ) {
+        // GitLab Pages detection - any gitlab.io domain
+        if (hostname.includes("gitlab.io")) {
             return true;
         }
     }
 
-    // Check for production build with GitLab Pages base URL
-    return window.location.pathname.startsWith("/gitinspectorgui");
+    return false;
 }
 
 /**
@@ -25,7 +20,8 @@ export function isDemoMode(): boolean {
  */
 export function getBaseUrl(): string {
     if (isDemoMode()) {
-        return "/gitinspectorgui";
+        // For GitLab Pages, use the current pathname as base
+        return window.location.pathname.replace(/\/$/, "");
     }
     return "";
 }

@@ -42,7 +42,7 @@ build_app:
 # Build documentation
 build_docs:
     stage: build
-    image: python:3.11-slim
+    image: python:3.13-slim
     cache:
         key: mkdocs-deps
         paths:
