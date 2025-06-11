@@ -44,7 +44,7 @@ build_docs:
     stage: build
     image: python:3.11
     before_script:
-        - pip install mkdocs mkdocs-material
+        - pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
     script:
         - mkdocs build
     artifacts:
