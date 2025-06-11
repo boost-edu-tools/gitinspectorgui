@@ -19,9 +19,6 @@ export function isDemoMode(): boolean {
  * Gets the base URL for the current environment
  */
 export function getBaseUrl(): string {
-    if (isDemoMode()) {
-        // For GitLab Pages, use the current pathname as base
-        return window.location.pathname.replace(/\/$/, "");
-    }
+    // Always use root path since we're deploying to root of GitLab Pages
     return "";
 }
