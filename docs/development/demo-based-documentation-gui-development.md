@@ -1,33 +1,27 @@
-# Demo-Based Documentation-GUI Development
+# Demo-Based GUI Development
 
 ## Overview
 
-This document describes a unified development methodology where components are built with integrated demo modes that serve both GUI development and interactive documentation simultaneously. This approach leverages AI's natural tendency to build with mock data and incremental testing to create a powerful development-documentation pipeline.
+Development methodology where components include built-in demo modes for both development testing and interactive documentation.
 
-## Core Methodology
+## Core Concept
 
-### Unified Component Development Philosophy
+Components are built with integrated demo capabilities that serve dual purposes:
 
-The key insight is that AI naturally builds components with mock data and realistic test scenarios. Instead of discarding this during development, we formalize and leverage it to create components that are:
+-   **Development** - Realistic testing with mock data
+-   **Documentation** - Interactive examples for users
 
--   **Self-documenting** through their demo states
--   **Battle-tested** with realistic scenarios from day one
--   **Interactive** for both development and user education
--   **Consistent** between development testing and user documentation
+## Implementation
 
-### The Demo-Based Approach
-
-Every component gets developed with built-in demo capabilities:
+### Component Pattern
 
 ```typescript
-// AI-friendly component pattern
 interface ComponentProps {
     data?: RealData;
     demoMode?: boolean;
     demoScenario?: "basic" | "complex" | "error" | "loading";
 }
 
-// AI naturally builds this way
 export const AnalysisChart = ({
     data,
     demoMode,
@@ -35,140 +29,74 @@ export const AnalysisChart = ({
 }: ComponentProps) => {
     const chartData = demoMode ? generateDemoData(demoScenario) : data;
 
-    // Component logic remains the same
-    // Demo modes provide realistic data for development and documentation
-    return <div className="analysis-chart">{/* Chart implementation */}</div>;
+    return <div className="analysis-chart">{/* Implementation */}</div>;
 };
 ```
 
-## Technical Implementation
+### Demo Data Generation
 
-### Smart Component Architecture
+```typescript
+const generateDemoData = (scenario: string) => {
+    switch (scenario) {
+        case "basic":
+            return { commits: 150, authors: 5, files: 25 };
+        case "complex":
+            return { commits: 5000, authors: 50, files: 500 };
+        case "error":
+            return null; // Trigger error state
+        case "loading":
+            return undefined; // Trigger loading state
+        default:
+            return { commits: 100, authors: 3, files: 15 };
+    }
+};
+```
 
-Components are designed to seamlessly switch between real data and demo modes:
+## Architecture
 
--   **Real Data Mode**: Production usage with actual repository data
--   **Demo Mode**: Development and documentation with realistic mock data
--   **Scenario Support**: Multiple demo scenarios (success, loading, error, edge cases)
--   **Automatic Extraction**: Demo scenarios automatically become documentation examples
-
-### Development-Documentation Feedback Loop
+### Development Flow
 
 ```mermaid
 graph LR
-    A[AI builds component with mocks] --> B[Documentation auto-captures demo]
-    B --> C[Users interact with demo]
-    C --> D[Feedback informs next AI iteration]
+    A[Build Component] --> B[Add Demo Modes]
+    B --> C[Auto-Generate Docs]
+    C --> D[User Testing]
     D --> A
 ```
 
-This creates a virtuous cycle where:
-
-1. AI builds components with realistic mock data
-2. Documentation automatically captures these demo modes
-3. Users interact with live demos in documentation
-4. User feedback improves both AI prompts and component design
-
-### Repository Structure
+### File Structure
 
 ```
-project/
-├── src/
-│   ├── components/
-│   │   ├── Chart.tsx           # AI builds with demo modes
-│   │   └── Chart.stories.tsx   # Auto-generated from demo modes
-├── docs/
-│   ├── interactive/            # Auto-deployed demos
-│   └── api/                    # Generated from AI's mock implementations
-├── ai-context/
-│   ├── demo-data/              # Formalized from AI testing
-│   ├── scenarios/              # AI test scenarios → user tutorials
-│   └── prompts/                # Reusable AI development prompts
+src/
+├── components/
+│   ├── Chart.tsx           # Component with demo modes
+│   └── Chart.stories.tsx   # Auto-generated stories
+├── demo-data/
+│   ├── scenarios.ts        # Demo scenarios
+│   └── generators.ts       # Data generators
+└── docs/
+    └── interactive/        # Live demos
 ```
-
-## AI Development Workflow Integration
-
-### Enhanced AI Prompting Pattern
-
-```
-"Build component X with:
-1. Real data interface for production use
-2. Demo mode with realistic mock data
-3. Multiple scenarios (success, loading, error, edge cases)
-4. Export demo scenarios for automatic documentation generation"
-```
-
-### Auto-Documentation Pipeline
-
-The methodology includes automatic documentation generation:
-
--   **Component Analysis**: Extract demo modes from components automatically
--   **Scenario Documentation**: Generate documentation examples from AI's test scenarios
--   **Interactive Playgrounds**: Create interactive demos from AI's development iterations
--   **Mock Data Reuse**: Use the same realistic data AI uses for testing
 
 ## Benefits
 
-### For Development
+### Development
 
--   **Realistic Testing**: Components are tested with realistic scenarios from the start
--   **Edge Case Coverage**: Demo modes naturally catch edge cases early
--   **Natural Boundaries**: Component boundaries emerge naturally through demo scenarios
--   **Faster Iteration**: Immediate visual feedback through demo modes
+-   **Realistic testing** - Components tested with representative data
+-   **Edge case coverage** - Multiple scenarios catch issues early
+-   **Faster iteration** - Immediate visual feedback
+-   **Consistent boundaries** - Clear component interfaces
 
-### For Documentation
+### Documentation
 
--   **Always Current**: Interactive examples are always up-to-date with code
--   **Realistic Scenarios**: User scenarios match actual development testing
--   **Rich Demo Data**: Demo data feels real and representative
--   **Progressive Complexity**: Natural progression from basic to advanced scenarios
+-   **Always current** - Examples stay synchronized with code
+-   **Interactive** - Users can try features before installation
+-   **Realistic scenarios** - Demo data represents actual usage
+-   **Progressive complexity** - Basic to advanced examples
 
-### For Users
+## Integration
 
--   **Hands-on Learning**: Try functionality before installation
--   **Real-world Understanding**: See actual usage patterns and capabilities
--   **Risk-free Testing**: Test configurations and scenarios safely
--   **Smooth Transition**: Easy progression from demo to real usage
-
-## Implementation Workflow
-
-### Component Development Process
-
-1. **AI Builds Component**: With real data interface and demo modes
-2. **Demo Scenarios**: Multiple realistic scenarios for different use cases
-3. **Automatic Extraction**: Demo modes extracted for documentation
-4. **Interactive Deployment**: Demos deployed as interactive documentation
-5. **User Feedback**: Real user interaction data feeds back to development
-
-### Development Prompt Enhancement
-
-```typescript
-// Enhanced AI development pattern
-interface ComponentMeta {
-    realDataInterface: DataInterface;
-    demoScenarios: DemoScenario[];
-    documentationExamples: DocExample[];
-    userInteractionData?: InteractionMetrics[];
-}
-
-// AI builds with full context
-export const EnhancedComponent = ({
-    data,
-    demoMode,
-    demoScenario = "default",
-}: ComponentProps) => {
-    // Uses realistic demo data that becomes documentation
-    const displayData = demoMode ? generateDemoData(demoScenario) : data;
-
-    return <ComponentImplementation data={displayData} />;
-};
-```
-
-## Integration with Development Tools
-
-### Storybook Integration
-
-Demo modes automatically generate Storybook stories:
+### Storybook Stories
 
 ```typescript
 // Auto-generated from demo modes
@@ -180,49 +108,87 @@ export default {
 export const Basic = () => <AnalysisChart demoMode demoScenario="basic" />;
 export const Complex = () => <AnalysisChart demoMode demoScenario="complex" />;
 export const Error = () => <AnalysisChart demoMode demoScenario="error" />;
+export const Loading = () => <AnalysisChart demoMode demoScenario="loading" />;
 ```
 
 ### Testing Integration
 
-Demo scenarios become the foundation for comprehensive testing:
-
 ```typescript
-// Tests use the same demo data as documentation
 describe("AnalysisChart", () => {
     it("handles basic scenario", () => {
         const demoData = generateDemoData("basic");
         render(<AnalysisChart data={demoData} />);
-        // Test assertions
+        expect(screen.getByText("150 commits")).toBeInTheDocument();
+    });
+
+    it("handles error scenario", () => {
+        render(<AnalysisChart demoMode demoScenario="error" />);
+        expect(screen.getByText("No data available")).toBeInTheDocument();
     });
 });
 ```
 
+## Demo Scenarios
+
+### Standard Scenarios
+
+-   **basic** - Simple, typical usage
+-   **complex** - Large dataset, stress testing
+-   **error** - Error states and edge cases
+-   **loading** - Loading and pending states
+-   **empty** - No data scenarios
+
+### Custom Scenarios
+
+```typescript
+const customScenarios = {
+    "large-repo": { commits: 10000, authors: 100, files: 1000 },
+    "single-author": { commits: 50, authors: 1, files: 10 },
+    "many-files": { commits: 200, authors: 5, files: 500 },
+};
+```
+
+## Workflow
+
+### Component Development
+
+1. **Build component** with real data interface
+2. **Add demo modes** with realistic scenarios
+3. **Generate documentation** from demo modes
+4. **Deploy interactive demos** for user testing
+5. **Collect feedback** to improve implementation
+
+### AI Development Pattern
+
+```typescript
+// Enhanced prompt pattern for AI development
+interface ComponentMeta {
+    realDataInterface: DataInterface;
+    demoScenarios: DemoScenario[];
+    documentationExamples: DocExample[];
+}
+
+// AI builds with full context
+export const Component = ({ data, demoMode, demoScenario }: Props) => {
+    const displayData = demoMode ? generateDemoData(demoScenario) : data;
+    return <Implementation data={displayData} />;
+};
+```
+
 ## Quality Assurance
 
-### Consistency Benefits
+### Consistency
 
--   **Single Source of Truth**: Demo data used across development, testing, and documentation
--   **Realistic Scenarios**: All scenarios based on actual development testing
--   **Automatic Updates**: Documentation updates automatically with code changes
--   **User-Tested Patterns**: Demo scenarios validated through user interaction
+-   **Single source of truth** - Same demo data across development, testing, docs
+-   **Automatic synchronization** - Documentation updates with code changes
+-   **Comprehensive coverage** - All component states documented
 
-### Maintenance Advantages
+### Maintenance
 
--   **Reduced Duplication**: No separate mock data for different purposes
--   **Automatic Synchronization**: Documentation always matches current implementation
--   **Comprehensive Coverage**: All component states documented through demo modes
--   **Feedback Integration**: User feedback directly improves development quality
-
-## Related Documents
-
-This methodology integrates with:
-
--   [Design System Integration](design-system-integration.md) - For advanced design system integration
--   [Technology Stack](../architecture/technology-stack.md) - For the underlying technology choices
--   [Development Mode](development-mode.md) - For development environment setup
+-   **Reduced duplication** - No separate mock data for different purposes
+-   **Feedback integration** - User interaction improves development quality
+-   **Realistic testing** - Demo scenarios based on actual usage patterns
 
 ## Summary
 
-The demo-based documentation-GUI development methodology creates a unified approach where AI development practices directly enhance user experience, and user feedback improves AI development quality. Your documentation becomes a living, interactive representation of your application's capabilities, while your development process becomes more robust and user-focused.
-
-This approach transforms the traditional separation between development and documentation into an integrated workflow that benefits developers, users, and the overall quality of the application.
+Demo-based development creates components that are self-documenting and battle-tested from day one. Interactive documentation stays current with code while providing users hands-on experience before installation.

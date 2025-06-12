@@ -1,343 +1,98 @@
 # Development Mode
 
-Learn how to use GitInspectorGUI's development mode for rapid iteration and debugging.
-
 ## Overview
 
-Development mode provides an optimized workflow for active development with:
+Optimized development workflow with hot reloading, debugging, and fast iteration.
 
--   ✅ **Hot Reloading**: Instant feedback on code changes
--   ✅ **Full Debugging**: Breakpoints and step-through debugging
--   ✅ **Fast Iteration**: No build steps required for Python changes
--   ✅ **Same Interface**: Uses the production Tauri frontend
+## Architecture
 
-## Architecture Comparison
-
-### Production Mode
+### Development vs Production
 
 ```mermaid
-graph LR
-    A[Tauri Frontend] --> B[HTTP Client]
-    B --> C[Python HTTP Server]
-    C --> D[Git Analysis Engine]
-```
+graph TB
+    subgraph "Development"
+        A[Tauri Frontend] --> B[HTTP Client]
+        B --> C[Dev Server + Auto-reload]
+        C --> D[Git Analysis Engine]
+        E[Code Changes] --> C
+    end
 
-### Development Mode
-
-```mermaid
-graph LR
-    A[Tauri Frontend] --> B[HTTP Client]
-    B --> C[Development Server]
-    C --> D[Hot Reload Module]
-    D --> E[Git Analysis Engine]
-
-    F[Code Changes] --> D
-    D --> G[Auto Restart]
+    subgraph "Production"
+        F[Tauri Frontend] --> G[HTTP Client]
+        G --> H[Python HTTP Server]
+        H --> I[Git Analysis Engine]
+    end
 ```
 
 ## Quick Start
 
-### 1. Start Development Server
+### Start Development Environment
 
 ```bash
-# Start the HTTP API with auto-reload
+# Terminal 1: Start API server with auto-reload
 python -m gigui.start_server --reload --log-level DEBUG
-```
 
-### 2. Start Frontend Development
-
-```bash
-# In a new terminal
+# Terminal 2: Start frontend with hot reload
 pnpm run tauri dev
 ```
 
-### 3. Make Changes and See Results
-
-Edit any Python file in `python/gigui/` and see changes immediately!
-
-## Development Commands
-
-### HTTP Server Commands
+### Development Commands
 
 ```bash
-# Basic development server
-python -m gigui.start_server --reload
+# API Server Options
+python -m gigui.start_server --reload                    # Basic auto-reload
+python -m gigui.start_server --reload --log-level DEBUG  # With debug logging
+python -m gigui.start_server --reload --port 8081        # Custom port
 
-# With debug logging
-python -m gigui.start_server --reload --log-level DEBUG
-
-# Custom host/port
-python -m gigui.start_server --reload --host 0.0.0.0 --port 8081
-
-# With specific configuration
-python -m gigui.start_server --reload --config config.json
+# Frontend Options
+pnpm run tauri dev                                        # Full development
+pnpm run dev                                             # Frontend only
+pnpm run tauri build --debug                            # Debug build
 ```
 
-### Frontend Commands
+## Hot Reloading
 
-```bash
-# Standard development
-pnpm run tauri dev
+### Python Changes
 
-# With specific Tauri config
-pnpm run tauri dev -- --config src-tauri/tauri.conf.dev.json
+-   **Auto-restart** - Server detects file changes and restarts
+-   **Preserved connections** - Existing HTTP connections maintained
+-   **Instant feedback** - Changes visible immediately
 
-# Frontend only (for UI development)
-pnpm run dev
+### Frontend Changes
 
-# Build for testing
-pnpm run tauri build --debug
-```
+-   **Hot Module Replacement** - Components update without page refresh
+-   **State preservation** - React state maintained when possible
+-   **Automatic refresh** - Full reload if HMR fails
 
-### Testing Commands
+### Rust Changes
 
-```bash
-# Test Python API directly
-python -m gigui.cli --help
+-   **Auto-recompile** - Cargo rebuilds on file changes
+-   **Full restart** - Tauri app restarts completely
 
-# Run API tests
-python -m pytest python/test_*.py
-
-# Test HTTP endpoints
-curl http://127.0.0.1:8080/health
-curl -X POST http://127.0.0.1:8080/api/settings -H "Content-Type: application/json" -d '{}'
-```
-
-## Development Workflow
-
-### Typical Development Session
-
-1. **Start Backend**:
-
-    ```bash
-    python -m gigui.start_server --reload --log-level DEBUG
-    ```
-
-2. **Start Frontend**:
-
-    ```bash
-    pnpm run tauri dev
-    ```
-
-3. **Make Changes**:
-
-    - Edit Python files → Server auto-restarts
-    - Edit React/TypeScript files → Frontend hot-reloads
-    - Edit Rust files → Tauri rebuilds automatically
-
-4. **Test Changes**:
-    - Use the GUI for integration testing
-    - Use curl for API testing
-    - Use browser DevTools for frontend debugging
-
-### Hot Reloading Behavior
-
-**Python Changes**:
-
--   Server detects file changes
--   Automatically restarts the server
--   Preserves existing connections where possible
--   Logs restart events
-
-**Frontend Changes**:
-
--   Vite detects file changes
--   Hot Module Replacement (HMR) updates components
--   State is preserved when possible
--   Browser automatically refreshes if needed
-
-**Rust Changes**:
-
--   Cargo detects file changes
--   Recompiles and restarts Tauri app
--   Full application restart required
-
-## Debugging Features
+## Debugging
 
 ### Python API Debugging
-
-**Console Logging**:
 
 ```python
 import logging
 logger = logging.getLogger(__name__)
 
-def my_function():
-    logger.debug("Debug information")
-    logger.info("General information")
-    logger.warning("Warning message")
-    logger.error("Error occurred")
-```
-
-**Breakpoint Debugging**:
-
-```python
-# Add breakpoint in VS Code or use debugger
-import pdb; pdb.set_trace()  # Python debugger
-breakpoint()  # Python 3.7+ built-in
-```
-
-**Request/Response Logging**:
-
-```bash
-# Enable detailed HTTP logging
-python -m gigui.start_server --reload --log-level DEBUG
+def analyze_repository(settings):
+    logger.debug(f"Starting analysis with: {settings}")
+    breakpoint()  # Python 3.7+ debugger
+    # Implementation
 ```
 
 ### Frontend Debugging
 
-**Browser DevTools**:
-
--   Right-click in Tauri window → "Inspect Element"
--   Console tab for JavaScript errors
--   Network tab for HTTP requests
--   Sources tab for breakpoints
-
-**React DevTools**:
-
-```bash
-# Install React DevTools browser extension
-# Available in the browser DevTools when debugging
-```
-
-**State Debugging**:
-
 ```typescript
-// Zustand store debugging
-import { useResultsStore } from "../stores/resultsStore";
+// Browser DevTools available in Tauri
+console.log("Debug info:", data);
 
-function MyComponent() {
-    const store = useResultsStore();
-    console.log("Current state:", store);
-    // ...
-}
+// React DevTools for component inspection
+const store = useResultsStore();
+console.log("Store state:", store);
 ```
-
-## Configuration
-
-### Development Environment Variables
-
-Create `.env` file in project root:
-
-```bash
-# API Configuration
-GIGUI_DEBUG=true
-GIGUI_LOG_LEVEL=DEBUG
-GIGUI_API_HOST=127.0.0.1
-GIGUI_API_PORT=8080
-
-# Development Features
-GIGUI_AUTO_RELOAD=true
-GIGUI_CORS_ENABLED=true
-GIGUI_DETAILED_ERRORS=true
-
-# Paths
-GIGUI_DATA_DIR=./dev-data
-GIGUI_LOG_DIR=./dev-logs
-GIGUI_CACHE_DIR=./dev-cache
-```
-
-### VS Code Configuration
-
-**Launch Configuration** (`.vscode/launch.json`):
-
-```json
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Debug API Server",
-            "type": "python",
-            "request": "launch",
-            "module": "gigui.start_server",
-            "args": ["--reload", "--log-level", "DEBUG"],
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}",
-            "env": {
-                "GIGUI_DEBUG": "true"
-            }
-        },
-        {
-            "name": "Debug CLI",
-            "type": "python",
-            "request": "launch",
-            "module": "gigui.cli",
-            "args": ["--repository", "/path/to/test/repo"],
-            "console": "integratedTerminal"
-        }
-    ]
-}
-```
-
-**Tasks Configuration** (`.vscode/tasks.json`):
-
-```json
-{
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Start Dev Server",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "-m",
-                "gigui.start_server",
-                "--reload",
-                "--log-level",
-                "DEBUG"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "new"
-            }
-        },
-        {
-            "label": "Start Tauri Dev",
-            "type": "shell",
-            "command": "pnpm",
-            "args": ["run", "tauri", "dev"],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "new"
-            }
-        }
-    ]
-}
-```
-
-## Performance Optimization
-
-### Development Performance Tips
-
-**Faster Startup**:
-
-```bash
-# Skip unnecessary checks in development
-export GIGUI_SKIP_VALIDATION=true
-python -m gigui.start_server --reload
-```
-
-**Reduced Logging**:
-
-```bash
-# Use INFO level for better performance
-python -m gigui.start_server --reload --log-level INFO
-```
-
-**Selective Reloading**:
-
-```bash
-# Watch specific directories only
-python -m gigui.start_server --reload --reload-dir python/gigui
-```
-
-## Testing in Development Mode
 
 ### API Testing
 
@@ -345,103 +100,158 @@ python -m gigui.start_server --reload --reload-dir python/gigui
 # Health check
 curl http://127.0.0.1:8080/health
 
-# Settings endpoint
-curl -X GET http://127.0.0.1:8080/api/settings
-
-# Analysis endpoint (with test data)
+# Test analysis endpoint
 curl -X POST http://127.0.0.1:8080/api/execute_analysis \
   -H "Content-Type: application/json" \
-  -d '{"repository_path": "/path/to/test/repo"}'
+  -d '{"repository_path": "/path/to/repo"}'
+```
+
+## Configuration
+
+### Environment Variables
+
+```bash
+# .env file
+GIGUI_DEBUG=true
+GIGUI_LOG_LEVEL=DEBUG
+GIGUI_API_PORT=8080
+GIGUI_AUTO_RELOAD=true
+GIGUI_CORS_ENABLED=true
+```
+
+### VS Code Setup
+
+```json
+// .vscode/launch.json
+{
+    "configurations": [
+        {
+            "name": "Debug API Server",
+            "type": "python",
+            "request": "launch",
+            "module": "gigui.start_server",
+            "args": ["--reload", "--log-level", "DEBUG"],
+            "env": { "GIGUI_DEBUG": "true" }
+        }
+    ]
+}
+```
+
+## Development Workflow
+
+### Typical Session
+
+1. **Start backend** - `python -m gigui.start_server --reload`
+2. **Start frontend** - `pnpm run tauri dev`
+3. **Make changes** - Edit files and see immediate results
+4. **Test integration** - Use GUI and API testing
+5. **Debug issues** - Use breakpoints and logging
+
+### File Change Behavior
+
+-   **Python files** → Server auto-restarts
+-   **React/TypeScript** → Hot module replacement
+-   **Rust files** → Full Tauri rebuild
+-   **Config files** → Manual restart required
+
+## Performance Optimization
+
+### Faster Development
+
+```bash
+# Skip validation checks
+export GIGUI_SKIP_VALIDATION=true
+
+# Reduce logging overhead
+python -m gigui.start_server --reload --log-level INFO
+
+# Watch specific directories only
+python -m gigui.start_server --reload --reload-dir python/gigui
+```
+
+## Testing
+
+### API Testing
+
+```bash
+# Run test suite
+python -m pytest
+
+# Test specific modules
+python -m pytest -k "test_api"
+
+# With coverage
+python -m pytest --cov=gigui --cov-report=html
 ```
 
 ### Integration Testing
 
 ```bash
-# Run full test suite
-python -m pytest
+# Test HTTP endpoints
+curl http://127.0.0.1:8080/health
+curl -X GET http://127.0.0.1:8080/api/settings
 
-# Run specific test categories
-python -m pytest -k "test_api"
-python -m pytest -k "test_integration"
-
-# Run with coverage
-python -m pytest --cov=gigui --cov-report=html
+# Frontend testing
+pnpm run test
+pnpm run test:e2e
 ```
 
 ## Troubleshooting
 
-### Common Development Issues
+### Common Issues
 
-**Server won't restart on changes**:
+**Server won't restart**
 
 ```bash
-# Check file permissions
-ls -la python/gigui/
-
-# Restart manually
+# Kill existing processes
 pkill -f "gigui.start_server"
 python -m gigui.start_server --reload
 ```
 
-**Frontend not connecting to API**:
+**Frontend connection issues**
 
 ```bash
-# Verify server is running
+# Verify server running
 curl http://127.0.0.1:8080/health
 
 # Check CORS settings
-# Add to .env: GIGUI_CORS_ENABLED=true
+export GIGUI_CORS_ENABLED=true
 ```
 
-**Hot reload not working**:
+**Hot reload not working**
 
 ```bash
-# Clear pnpm cache
+# Clear caches
 pnpm store prune
+rm -rf node_modules/.vite
 
-# Restart development server
+# Restart development
 pnpm run tauri dev
 ```
 
-**Import errors after changes**:
+**Import errors**
 
 ```bash
-# Reinstall in development mode
+# Reinstall dependencies
 uv sync
 
-# Check Python path
+# Verify Python path
 python -c "import gigui; print(gigui.__file__)"
 ```
 
 ### Debug Information
 
-**System Information**:
-
 ```bash
-# Python environment
+# Environment check
 python --version
-uv pip list | grep gigui
-
-# Node.js environment
 node --version
-pnpm list --depth=0
-
-# Rust environment
 rustc --version
-cargo --version
+
+# Package versions
+uv pip list | grep gigui
+pnpm list --depth=0
 ```
 
-**Log Locations**:
+## Summary
 
--   **API Logs**: Console output or `./dev-logs/`
--   **Frontend Logs**: Browser DevTools Console
--   **Tauri Logs**: Terminal running `pnpm run tauri dev`
-
-## Next Steps
-
-After mastering development mode:
-
-1. **[Enhanced Settings](enhanced-settings.md)** - Configure advanced options
-2. **[Troubleshooting](troubleshooting.md)** - Solve common issues
-3. **[API Reference](../api/reference.md)** - Understand the API in detail
-4. **[Architecture](../architecture/overview.md)** - Learn the system design
+Development mode provides hot reloading, comprehensive debugging, and fast iteration cycles. The HTTP API architecture enables independent frontend and backend development with immediate feedback on changes.

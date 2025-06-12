@@ -1,384 +1,196 @@
 # System Architecture Overview
 
-Comprehensive overview of GitInspectorGUI's HTTP API architecture and design principles.
+Modern HTTP API architecture with Tauri desktop frontend and Python backend.
 
-## Architecture Summary
-
-GitInspectorGUI uses a modern, decoupled architecture with HTTP-based communication between the frontend and backend components:
+## Architecture
 
 ```mermaid
 graph TB
-    subgraph "Frontend Layer"
-        A[Tauri Desktop App]
-        B[React + TypeScript UI]
-        C[Zustand State Management]
+    subgraph "Frontend"
+        A[Tauri Desktop]
+        B[React + TypeScript]
+        C[Zustand State]
     end
 
-    subgraph "Communication Layer"
-        D[HTTP Client]
-        E[JSON API]
-        F[WebSocket Events]
+    subgraph "Backend"
+        D[FastAPI Server]
+        E[Git Analysis Engine]
+        F[Legacy Integration]
     end
 
-    subgraph "Backend Layer"
-        G[FastAPI HTTP Server]
-        H[Git Analysis Engine]
-        I[Data Processing]
-    end
-
-    subgraph "Data Layer"
-        J[Git Repositories]
-        K[Settings Storage]
-        L[Cache Layer]
+    subgraph "Data"
+        G[Git Repositories]
+        H[Settings Storage]
     end
 
     A --> B
     B --> C
-    B --> D
+    B -->|HTTP| D
     D --> E
-    E --> G
-    G --> H
-    H --> I
-    I --> J
-    G --> K
-    G --> L
-
-    style A fill:#e1f5fe
-    style G fill:#f3e5f5
-    style J fill:#e8f5e8
+    E --> F
+    F --> G
+    D --> H
 ```
 
 ## Core Components
 
-### 1. Frontend (Tauri + React)
+### Frontend Stack
 
-**Technology Stack:**
+-   **Tauri** - Cross-platform desktop framework
+-   **React 18** - Modern UI with hooks
+-   **TypeScript** - Type safety
+-   **Vite** - Fast build tool
+-   **Tailwind CSS** - Utility-first styling
+-   **Zustand** - Lightweight state management
 
--   **Tauri**: Cross-platform desktop framework
--   **React 18**: Modern UI library with hooks
--   **TypeScript**: Type-safe JavaScript
--   **Vite**: Fast build tool and dev server
--   **Tailwind CSS**: Utility-first CSS framework
--   **Zustand**: Lightweight state management
+### Backend Stack
 
-**Key Features:**
+-   **FastAPI** - Modern Python web framework
+-   **Pydantic** - Data validation
+-   **Uvicorn** - ASGI server
+-   **GitPython** - Git operations
+-   **Legacy Engine** - Sophisticated analysis algorithms
 
--   Native desktop performance
--   Cross-platform compatibility (Windows, macOS, Linux)
--   Modern React patterns with functional components
--   Type-safe API integration
--   Responsive design with Tailwind CSS
+## API Design
 
-### 2. Backend (Python HTTP API)
-
-**Technology Stack:**
-
--   **FastAPI**: Modern Python web framework
--   **Pydantic**: Data validation and serialization
--   **Uvicorn**: ASGI server for production
--   **GitPython**: Git repository interaction
--   **Asyncio**: Asynchronous processing
-
-**Key Features:**
-
--   RESTful API design
--   Automatic OpenAPI documentation
--   Async/await support for performance
--   Comprehensive error handling
--   Built-in request validation
-
-### 3. Communication Protocol
-
-**HTTP API Design:**
-
--   RESTful endpoints with clear semantics
--   JSON request/response format
--   Standard HTTP status codes
--   Comprehensive error responses
--   Request/response validation
-
-**Key Endpoints:**
+### Key Endpoints
 
 -   `GET /health` - Server health check
 -   `POST /api/execute_analysis` - Repository analysis
 -   `GET/POST /api/settings` - Settings management
 -   `GET /api/engine_info` - Engine capabilities
--   `GET /api/performance_stats` - Performance metrics
+
+### Communication
+
+-   **Protocol** - HTTP/JSON
+-   **Validation** - Pydantic models
+-   **Error handling** - Standard HTTP status codes
+-   **Documentation** - Auto-generated OpenAPI
+
+## Data Flow
+
+```mermaid
+sequenceDiagram
+    Frontend->>API: POST /api/execute_analysis
+    API->>Engine: analyze_repository()
+    Engine->>Git: git commands
+    Git-->>Engine: repository data
+    Engine-->>API: processed results
+    API-->>Frontend: JSON response
+```
 
 ## Design Principles
 
-### 1. Separation of Concerns
+### Separation of Concerns
 
-**Frontend Responsibilities:**
+-   **Frontend** - UI, state management, visualization
+-   **Backend** - Git analysis, data processing, persistence
+-   **Communication** - Clean HTTP API boundary
 
--   User interface and interaction
--   State management and caching
--   Input validation and formatting
--   Result visualization and filtering
+### Performance
 
-**Backend Responsibilities:**
+-   **Async operations** - Non-blocking I/O
+-   **Parallel processing** - Multi-threaded analysis
+-   **Efficient data structures** - Memory optimization
+-   **Caching** - Result and operation caching
 
--   Git repository analysis
--   Data processing and aggregation
--   Settings persistence
--   Performance optimization
+### Reliability
 
-### 2. Scalability and Performance
+-   **Error handling** - Comprehensive error types
+-   **Input validation** - Type-safe requests
+-   **Logging** - Structured logging with levels
+-   **Health monitoring** - Performance metrics
 
-**Horizontal Scaling:**
+## Development vs Production
 
--   Stateless API design
--   Process-based parallelization
--   Configurable resource limits
--   Efficient memory management
-
-**Vertical Scaling:**
-
--   Multi-threaded analysis
--   Async I/O operations
--   Intelligent caching strategies
--   Resource monitoring
-
-### 3. Reliability and Robustness
-
-**Error Handling:**
-
--   Comprehensive error types
--   Graceful degradation
--   Retry mechanisms
--   Detailed logging
-
-**Data Integrity:**
-
--   Input validation
--   Type safety
--   Atomic operations
--   Consistent state management
-
-## Data Flow Architecture
-
-### 1. Analysis Request Flow
+### Development Mode
 
 ```mermaid
-sequenceDiagram
-    participant UI as React UI
-    participant Store as Zustand Store
-    participant Client as HTTP Client
-    participant API as FastAPI Server
-    participant Engine as Git Engine
-    participant Git as Git Repository
-
-    UI->>Store: Update settings
-    UI->>Client: Execute analysis
-    Client->>API: POST /api/execute_analysis
-    API->>Engine: Start analysis
-    Engine->>Git: Git commands
-    Git-->>Engine: Repository data
-    Engine-->>API: Processed results
-    API-->>Client: JSON response
-    Client-->>Store: Update results
-    Store-->>UI: Trigger re-render
+graph LR
+    A[Vite Dev Server] --> B[FastAPI Dev Server]
+    B --> C[Local Git Repos]
 ```
 
-### 2. Settings Management Flow
+-   Hot module replacement
+-   Auto-reload on changes
+-   Development debugging tools
+
+### Production Build
 
 ```mermaid
-sequenceDiagram
-    participant UI as Settings Form
-    participant Store as Settings Store
-    participant Client as HTTP Client
-    participant API as FastAPI Server
-    participant Storage as File System
-
-    UI->>Store: Update setting
-    Store->>Client: Save settings
-    Client->>API: POST /api/settings
-    API->>Storage: Persist settings
-    Storage-->>API: Confirmation
-    API-->>Client: Success response
-    Client-->>Store: Update state
-    Store-->>UI: Reflect changes
+graph LR
+    A[Tauri Desktop App] --> B[Embedded Python Server]
+    B --> C[User Repositories]
 ```
+
+-   Compiled desktop application
+-   Bundled Python backend
+-   Local-only communication
+
+## Technology Rationale
+
+### Why HTTP API?
+
+**Previous stdout-based IPC issues:**
+
+-   Fragile JSON parsing
+-   Mixed output streams
+-   Limited debugging
+-   Process management complexity
+
+**HTTP API benefits:**
+
+-   Standard protocol with tooling
+-   Robust error handling
+-   Easy testing and debugging
+-   Clean separation of concerns
+
+### Stack Choices
+
+**Tauri + React:**
+
+-   Native performance with web tech
+-   Cross-platform compatibility
+-   Rich ecosystem
+-   Modern development experience
+
+**FastAPI + Python:**
+
+-   Excellent git libraries
+-   Fast development
+-   Strong typing
+-   Automatic documentation
 
 ## Performance Architecture
 
-### 1. Analysis Performance
+### Analysis Optimization
 
-**Optimization Strategies:**
+-   **Parallel processing** - Configurable worker count
+-   **Memory efficiency** - Optimized data structures
+-   **Git operation batching** - Reduced command overhead
+-   **Incremental analysis** - Large repository support
 
--   Parallel processing with configurable worker count
--   Incremental analysis for large repositories
--   Intelligent caching of git operations
--   Memory-efficient data structures
+### Frontend Optimization
 
-**Performance Monitoring:**
+-   **Virtual scrolling** - Large dataset handling
+-   **Component memoization** - Expensive calculation caching
+-   **Lazy loading** - Progressive component loading
+-   **State efficiency** - Minimal re-renders
 
--   Real-time progress tracking
--   Resource usage metrics
--   Performance statistics API
--   Bottleneck identification
+## Monitoring
 
-### 2. Frontend Performance
+### Logging
 
-**Optimization Techniques:**
+-   **Levels** - DEBUG, INFO, WARNING, ERROR, CRITICAL
+-   **Structured** - JSON format for analysis
+-   **Destinations** - Console (dev), files (prod)
 
--   Virtual scrolling for large datasets
--   Lazy loading of components
--   Memoization of expensive calculations
--   Efficient state updates
+### Health Checks
 
-**User Experience:**
+-   **Basic health** - `/health` endpoint
+-   **Performance metrics** - Request times, memory usage
+-   **Error tracking** - Failure rates and types
 
--   Progressive loading indicators
--   Responsive design patterns
--   Smooth animations and transitions
--   Keyboard shortcuts and accessibility
+## Summary
 
-## Application Architecture
-
-### 1. Development Mode
-
-```mermaid
-graph LR
-    subgraph "Development Environment"
-        A[Source Code]
-        B[Hot Reload Server]
-        C[Development API]
-        D[Local Git Repos]
-    end
-
-    A --> B
-    B --> C
-    C --> D
-
-    style A fill:#fff2cc
-    style B fill:#d5e8d4
-    style C fill:#f8cecc
-```
-
-**Components:**
-
--   Vite development server with HMR
--   FastAPI with auto-reload
--   Local file system access
--   Development debugging tools
-
-### 2. Built Application
-
-```mermaid
-graph LR
-    subgraph "Desktop Application"
-        A[Tauri Frontend]
-        B[Embedded Python Backend]
-        C[Local HTTP API]
-        D[User Repositories]
-    end
-
-    A --> C
-    B --> C
-    C --> D
-
-    style A fill:#fff2cc
-    style B fill:#d5e8d4
-    style C fill:#f8cecc
-```
-
-**Components:**
-
--   Compiled Tauri desktop application
--   Bundled Python HTTP server
--   Local-only communication
--   Direct file system access
-
-## Technology Decisions
-
-### 1. Why HTTP API Architecture?
-
-**Previous Architecture Issues:**
-
--   Stdout-based IPC was fragile
--   JSON parsing failures from mixed output
--   Limited debugging capabilities
--   Process management complexity
-
-**HTTP API Benefits:**
-
--   Clean separation of concerns
--   Standard protocol with excellent tooling
--   Robust error handling
--   Easy testing and debugging
--   Industry-standard approach
-
-### 2. Technology Stack Rationale
-
-**Frontend (Tauri + React):**
-
--   ✅ Native performance with web technologies
--   ✅ Cross-platform compatibility
--   ✅ Rich ecosystem and community
--   ✅ Type safety with TypeScript
--   ✅ Modern development experience
-
-**Backend (FastAPI + Python):**
-
--   ✅ Excellent git integration libraries
--   ✅ Fast development and prototyping
--   ✅ Strong typing with Pydantic
--   ✅ Automatic API documentation
--   ✅ High performance with async support
-
-## Future Enhancements
-
-### 1. Performance Improvements
-
-**Planned Optimizations:**
-
--   Enhanced caching strategies for large repositories
--   Improved memory management for massive codebases
--   Better parallel processing algorithms
--   Incremental analysis capabilities
-
-### 2. Feature Extensions
-
-**Potential Additions:**
-
--   Plugin architecture for custom analysis
--   Advanced visualization capabilities
--   Export formats (PDF, CSV, etc.)
--   Integration with external development tools
-
-## Monitoring and Observability
-
-### 1. Logging Architecture
-
-**Log Levels and Categories:**
-
--   **DEBUG**: Detailed execution flow
--   **INFO**: General operational information
--   **WARNING**: Potential issues or degraded performance
--   **ERROR**: Error conditions requiring attention
--   **CRITICAL**: Severe errors affecting functionality
-
-**Log Destinations:**
-
--   Console output for development
--   File-based logging for production
--   Structured JSON logging for analysis
--   Performance metrics collection
-
-### 2. Health Monitoring
-
-**Health Check Endpoints:**
-
--   `/health` - Basic server health
--   `/api/performance_stats` - Performance metrics
--   `/api/engine_info` - Engine capabilities
-
-**Metrics Tracked:**
-
--   Request/response times
--   Memory usage patterns
--   Analysis completion rates
--   Error frequencies and types
-
-This architecture provides a solid foundation for GitInspectorGUI's current needs while maintaining flexibility for future enhancements and scaling requirements.
+HTTP-based architecture provides robust, maintainable foundation with clean separation between desktop frontend and analysis backend. Designed for performance, reliability, and future extensibility.

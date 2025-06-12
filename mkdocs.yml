@@ -84,7 +84,6 @@ nav:
           - Python Package Management (uv): development/python-management-uv.md
           - Node.js Package Management (pnpm): development/package-management-pnpm.md
           - Enhanced Settings: development/enhanced-settings.md
-          - Blame Tabs Implementation: development/blame-tabs-implementation.md
           - Troubleshooting: development/troubleshooting.md
     - AI Tools:
           - Overview: ai-tools/overview.md

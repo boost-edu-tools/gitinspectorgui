@@ -1,209 +1,164 @@
-# Your First Analysis
-
-Learn how to perform your first git repository analysis with GitInspectorGUI.
+# First Analysis
 
 ## Prerequisites
 
-Before starting, ensure you have:
+-   GitInspectorGUI installed ([Installation Guide](installation.md))
+-   HTTP server and Tauri app running ([Quick Start](quick-start.md))
+-   Git repository to analyze
 
--   ✅ GitInspectorGUI installed ([Installation Guide](installation.md))
--   ✅ Both HTTP server and Tauri app running ([Quick Start](quick-start.md))
--   ✅ A git repository to analyze (can be this project itself)
+## Quick Start
 
-## Step-by-Step Tutorial
-
-### 1. Prepare a Repository
-
-You can use any git repository. For this tutorial, we'll use the GitInspectorGUI project itself:
+### 1. Start Application
 
 ```bash
-# If you haven't cloned it yet
-git clone https://gitlab.com/your-username/gitinspectorgui.git
-cd gitinspectorgui
-
-# Or use any existing git repository
-cd /path/to/your/git/repository
-```
-
-### 2. Start the Application
-
-Ensure both components are running:
-
-```bash
-# Terminal 1: Start HTTP server
+# Terminal 1: Start API server
 python -m gigui.start_server
 
-# Terminal 2: Start Tauri app
+# Terminal 2: Start frontend
 pnpm run tauri dev
 ```
 
-### 3. Configure Analysis Settings
+### 2. Configure Analysis
 
-In the GitInspectorGUI application:
+1. **Repository Path** - Browse and select git repository
+2. **Analysis Options** - Enable blame and change analysis
+3. **Date Range** - Set analysis period (default: all history)
 
-1. **Repository Path**: Click "Browse" and select your git repository folder
-2. **Analysis Options**:
-    - ✅ Enable "Blame Analysis" for detailed file attribution
-    - ✅ Enable "Change Analysis" for commit history insights
-    - ⚙️ Adjust date ranges if needed (default: all history)
+### 3. Execute Analysis
 
-### 4. Run Your First Analysis
+1. Click **"Execute Analysis"**
+2. Monitor progress indicator
+3. Wait for results (30 seconds to several minutes)
 
-1. Click the **"Execute Analysis"** button
-2. Watch the progress indicator
-3. Wait for results to appear (may take 30 seconds to several minutes depending on repository size)
-
-### 5. Explore the Results
-
-Once analysis completes, you'll see several result tables:
-
-#### Blame Analysis Tables
-
--   **File Blame Summary**: Shows who contributed to each file
--   **Author Statistics**: Contribution statistics by author
--   **Line Attribution**: Detailed line-by-line attribution
-
-#### Change Analysis Tables
-
--   **Commit History**: Chronological commit information
--   **File Changes**: Which files changed in each commit
--   **Author Activity**: Commit activity by author over time
-
-### 6. Interactive Features
-
-Try these interactive features:
-
-#### Table Filtering
-
--   **Column Filters**: Click column headers to sort and filter
--   **Search**: Use the search box to find specific files or authors
--   **Date Ranges**: Filter by commit date ranges
-
-#### Blame File Navigation
-
--   **File List**: Click on different files in the sidebar
--   **Line Details**: Hover over lines to see detailed blame information
--   **Commit Links**: Click commit hashes to see full commit details
-
-#### Settings Adjustment
-
--   **Real-time Updates**: Change settings and click "Execute" again
--   **Comment Filtering**: Toggle comment line inclusion
--   **Output Formats**: Switch between different table views
-
-## Understanding the Results
+## Understanding Results
 
 ### Blame Analysis
 
-Shows **who wrote what** in your codebase:
+Shows **who wrote what** in the codebase:
 
--   **Lines of Code**: How many lines each author contributed
--   **File Ownership**: Which authors are primary contributors to each file
--   **Recent Activity**: Who has been active recently
+-   **Lines of Code** - Author contribution counts
+-   **File Ownership** - Primary contributors per file
+-   **Recent Activity** - Current active contributors
 
 ### Change Analysis
 
 Shows **what changed when**:
 
--   **Commit Frequency**: How often changes are made
--   **File Hotspots**: Which files change most frequently
--   **Author Patterns**: When different authors are most active
+-   **Commit Frequency** - Change patterns over time
+-   **File Hotspots** - Most frequently modified files
+-   **Author Patterns** - Individual contribution timelines
+
+## Interactive Features
+
+### Table Operations
+
+-   **Sort/Filter** - Click column headers
+-   **Search** - Find specific files or authors
+-   **Date Filtering** - Limit by time ranges
+
+### Blame Navigation
+
+-   **File Selection** - Browse files in sidebar
+-   **Line Details** - Hover for blame information
+-   **Commit Links** - Click hashes for details
 
 ## Common Use Cases
 
-### Code Review Preparation
+### Code Review
 
-1. Run analysis on feature branch
-2. Review blame data for new/modified files
-3. Identify areas needing extra review attention
+```bash
+# Analyze feature branch
+git checkout feature-branch
+# Run analysis to identify review areas
+```
 
 ### Team Insights
 
-1. Analyze main branch over time
-2. Review author contribution patterns
-3. Identify knowledge concentration areas
+-   Analyze contribution patterns
+-   Identify knowledge concentration
+-   Review author activity trends
 
-### Legacy Code Understanding
+### Legacy Understanding
 
-1. Analyze older repositories
-2. Find original authors of complex code sections
-3. Understand evolution of key files
+-   Find original authors of complex code
+-   Understand file evolution
+-   Map historical changes
 
-## Tips for Better Analysis
+## Performance Tips
 
-### Repository Preparation
+### Large Repositories
 
--   **Clean History**: Ensure repository has meaningful commit messages
--   **Author Consistency**: Use consistent author names/emails
--   **Branch Selection**: Analyze the appropriate branch for your needs
+-   **Limit date ranges** - Focus on relevant periods
+-   **Filter directories** - Analyze specific components
+-   **Incremental analysis** - Regular smaller analyses
 
-### Performance Optimization
+### Optimization Settings
 
--   **Date Ranges**: Limit analysis to relevant time periods for large repositories
--   **File Filtering**: Focus on specific directories if needed
--   **Incremental Analysis**: Run periodic analyses rather than full history each time
-
-### Result Interpretation
-
--   **Context Matters**: Consider team size and project timeline
--   **Quality vs Quantity**: Lines of code don't always indicate contribution value
--   **Temporal Patterns**: Look for trends over time, not just snapshots
+```python
+# For large repos
+settings = Settings(
+    input_fstrs=["repo_path"],
+    max_commit_count=1000,
+    multithread=True,
+    memory_limit_mb=2048
+)
+```
 
 ## Troubleshooting
 
-### Analysis Fails to Start
+### Analysis Issues
 
--   ✅ Verify repository path is correct
--   ✅ Ensure you have read permissions
--   ✅ Check that it's a valid git repository (`git status` works)
+**Fails to start:**
 
-### Slow Performance
+-   Verify repository path exists
+-   Check git repository validity: `git status`
+-   Ensure read permissions
 
--   🔧 Reduce date range for initial analysis
--   🔧 Exclude large binary files if possible
--   🔧 Close other resource-intensive applications
+**Slow performance:**
 
-### Empty Results
+-   Reduce date range
+-   Close resource-intensive applications
+-   Enable multithreading
 
--   📋 Check if repository has commits in the selected date range
--   📋 Verify branch has the expected history
--   📋 Ensure git repository is properly initialized
+**Empty results:**
+
+-   Check commits exist in date range
+-   Verify correct branch selected
+-   Confirm repository initialization
 
 ### Connection Issues
 
--   🌐 Verify HTTP server is running on port 8080
--   🌐 Check browser console for error messages
--   🌐 Restart both server and application
+**Server problems:**
 
-## Next Steps
-
-After your first successful analysis:
-
-1. **[Development Mode](../development/development-mode.md)** - Set up for development
-2. **[Enhanced Settings](../development/enhanced-settings.md)** - Explore advanced configuration
-3. **[API Reference](../api/reference.md)** - Learn about programmatic access
-4. **[Troubleshooting](../development/troubleshooting.md)** - Solve common issues
+-   Verify server running on port 8080
+-   Check browser console for errors
+-   Restart server and application
 
 ## Example Output
 
-Here's what you might see for a typical analysis:
-
 ```
-Repository: gitinspectorgui
-Analysis Period: 2024-01-01 to 2025-01-01
-Total Commits: 156
-Total Authors: 3
-Files Analyzed: 89
+Repository: my-project
+Period: 2024-01-01 to 2025-01-01
+Commits: 156 | Authors: 3 | Files: 89
 
 Top Contributors:
-1. developer@example.com - 1,234 lines (45%)
-2. contributor@example.com - 987 lines (36%)
-3. maintainer@example.com - 543 lines (19%)
+1. alice@dev.com - 1,234 lines (45%)
+2. bob@dev.com - 987 lines (36%)
+3. carol@dev.com - 543 lines (19%)
 
-Most Active Files:
-1. src/components/ResultsTables.tsx - 23 commits
-2. python/gigui/api.py - 19 commits
-3. docs/README.md - 15 commits
+Active Files:
+1. src/main.tsx - 23 commits
+2. api/server.py - 19 commits
+3. README.md - 15 commits
 ```
 
-Congratulations! You've completed your first GitInspectorGUI analysis. 🎉
+## Next Steps
+
+-   **[Enhanced Settings](../development/enhanced-settings.md)** - Advanced configuration
+-   **[Development Mode](../development/development-mode.md)** - Development setup
+-   **[API Reference](../api/reference.md)** - Programmatic access
+-   **[Troubleshooting](../development/troubleshooting.md)** - Common issues
+
+## Summary
+
+GitInspectorGUI provides comprehensive git repository analysis through blame and change tracking. The interactive interface enables deep exploration of code ownership, contribution patterns, and repository evolution.

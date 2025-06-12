@@ -2,177 +2,61 @@
 
 ## Overview
 
-This document describes how to integrate Figma design systems and Vercel deployment pipelines with the [Demo-Based Documentation-GUI Development](demo-based-documentation-gui-development.md) methodology to create a comprehensive AI-driven development ecosystem.
+Integration strategy for Figma design systems and Vercel deployment with demo-based development methodology.
 
-## Integration Strategy
-
-The key insight is creating a **design-to-deployment pipeline** where:
-
-1. **Figma provides design consistency** across your desktop app and web documentation
-2. **Vercel enables rapid iteration** of your interactive documentation
-3. **AI bridges the gap** between design specs and working code
-4. **User feedback from web demos** informs your desktop app development
-
-For your specific repository analysis tool, this means academic users can:
-
--   Try the tool with sample repositories before installing
--   Visually configure complex settings through an interactive web interface
--   Export their configurations as JSON files for the desktop app
--   See live previews of blame analysis and change detection output
-
-## Figma Integration Strategy
-
-### Design Token Pipeline
-
-```mermaid
-graph LR
-    A[Figma Design System] --> B[Design Tokens]
-    B --> C[Tailwind Config]
-    C --> D[AI Components]
-    D --> E[Demo Modes]
-    E --> F[Interactive Docs]
-```
-
-**Implementation Approach:**
-
--   Use Figma's **Design Tokens** plugin to export design system as JSON
--   Configure **Tailwind CSS** to consume these tokens automatically
--   AI components inherit consistent design language from Figma source
--   Flowbite Figma Kit becomes your single source of truth
-
-### AI-Enhanced Figma Workflow
-
-```typescript
-// AI prompt enhancement with Figma context
-const aiPrompt = `
-Build a ${componentName} component using:
-- Design tokens from figma-tokens.json
-- Flowbite design patterns for ${componentType}
-- Demo modes with realistic data
-- Export scenarios for interactive documentation
-`;
-```
-
-### Component-Design Synchronization
-
--   Use **Figma Dev Mode** to inspect spacing, colors, and interactions
--   AI references Figma component specs during development
--   Create Figma component → AI builds React equivalent → Auto-document
--   Demo modes reflect actual Figma design specifications
-
-## Vercel Integration Architecture
-
-### Multi-Environment Strategy
+## Architecture
 
 ```mermaid
 graph TB
-    A[Production App - Tauri] --> B[Vercel Docs Site]
-    B --> C[Interactive Playground]
-    C --> D[Component Storybook]
-
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#e8f5e8
-    style D fill:#fff2cc
+    A[Figma Design System] --> B[Design Tokens]
+    B --> C[Tailwind Config]
+    C --> D[React Components]
+    D --> E[Demo Modes]
+    E --> F[Vercel Deployment]
+    F --> G[Interactive Docs]
 ```
 
-**Three Vercel Deployments:**
+## Design Token Pipeline
 
-1. **Main Documentation** (`docs.yourapp.com`) - Comprehensive documentation
-2. **Interactive Playground** (`try.yourapp.com`) - Live demo environment
-3. **Component Storybook** (`components.yourapp.com`) - Design system showcase
-
-### Auto-Deployment Pipeline
-
-```mermaid
-sequenceDiagram
-    participant AI as AI Development
-    participant Demo as Demo Extraction
-    participant Vercel as Vercel Deploy
-    participant Docs as Documentation
-    participant Users as User Feedback
-
-    AI->>Demo: Build component with demo modes
-    Demo->>Vercel: Deploy interactive demos
-    Vercel->>Docs: Update documentation
-    Docs->>Users: Provide interactive experience
-    Users->>AI: Feedback improves next iteration
-```
-
-## Technical Implementation
-
-### Repository Structure
-
-```
-project/
-├── apps/
-│   ├── desktop/           # Tauri app
-│   ├── docs/              # Next.js docs site
-│   └── playground/        # Interactive demo app
-├── packages/
-│   ├── ui/                # Shared components
-│   ├── design-tokens/     # Figma exports
-│   └── mock-data/         # AI-generated test data
-├── figma/
-│   ├── tokens.json        # Exported design tokens
-│   └── components.json    # Component specifications
-└── vercel.json            # Multi-app deployment config
-```
-
-### Design Token Automation
+### Figma Integration
 
 ```javascript
-// scripts/sync-figma-tokens.js
+// Auto-sync Figma tokens to Tailwind
 const { figmaToTailwind } = require("@figma/design-tokens");
 
-// Auto-sync Figma tokens to Tailwind config
 async function syncDesignTokens() {
     const tokens = await fetchFigmaTokens();
     const tailwindConfig = figmaToTailwind(tokens);
-
-    // Update shared Tailwind config
     await updateTailwindConfig(tailwindConfig);
-
-    // Trigger AI component updates
-    await triggerAIComponentSync();
 }
 ```
 
-### AI-Enhanced Component Development
+### Component Development
 
 ```typescript
-// Enhanced AI development pattern
-interface ComponentMeta {
-    figmaSpec: FigmaComponentSpec;
-    demoScenarios: DemoScenario[];
-    deployUrl?: string;
-    feedbackData?: UserInteraction[];
+interface ComponentProps {
+    data?: RealData;
+    demoMode?: boolean;
+    figmaVariant?: "default" | "compact" | "detailed";
 }
 
-// AI builds with Figma context
-export const EnhancedComponent = ({
+export const DesignSystemComponent = ({
     data,
     demoMode,
     figmaVariant = "default",
 }: ComponentProps) => {
-    // Uses Figma design tokens automatically
     const styles = useFigmaTokens(figmaVariant);
-    const chartData = demoMode ? generateDemoData() : data;
+    const displayData = demoMode ? generateDemoData() : data;
 
-    return (
-        <div className={styles.container}>
-            {/* Component implementation using Figma specs */}
-        </div>
-    );
+    return <div className={styles.container}>{/* Implementation */}</div>;
 };
 ```
 
-## Vercel Deployment Strategy
+## Vercel Multi-Environment Strategy
 
-### Multi-App Configuration
+### Deployment Configuration
 
 ```json
-// vercel.json
 {
     "projects": [
         {
@@ -194,117 +78,103 @@ export const EnhancedComponent = ({
 }
 ```
 
-### Interactive Documentation Features
+### Repository Structure
 
--   **Try Before Download**: Full app simulation using demo modes
--   **Configuration Generator**: Interactive settings that export to JSON
--   **Live Code Examples**: Edit and preview components instantly
--   **Performance Metrics**: Real user data feeding back to development
+```
+project/
+├── apps/
+│   ├── desktop/           # Tauri app
+│   ├── docs/              # Documentation site
+│   └── playground/        # Interactive demos
+├── packages/
+│   ├── ui/                # Shared components
+│   ├── design-tokens/     # Figma exports
+│   └── mock-data/         # Demo data
+└── figma/
+    ├── tokens.json        # Design tokens
+    └── components.json    # Component specs
+```
 
-## AI Workflow Integration
+## Development Workflow
 
-### Enhanced Development Cycle
+### Enhanced AI Development
+
+```typescript
+// AI prompt with Figma context
+const aiPrompt = `
+Build ${componentName} using:
+- Design tokens from figma-tokens.json
+- Flowbite patterns for ${componentType}
+- Demo modes with realistic data
+- Auto-deploy to Vercel for testing
+`;
+```
+
+### Feedback Loop
 
 ```mermaid
-graph LR
-    A[Design in Figma] --> B[Export Design Tokens]
-    B --> C[AI Builds Component]
-    C --> D[Auto-Deploy Demos]
-    D --> E[Collect User Data]
-    E --> F[Feed Back to AI]
-    F --> A
+sequenceDiagram
+    AI->>Demo: Build component with demo modes
+    Demo->>Vercel: Deploy interactive demos
+    Vercel->>Users: Provide live experience
+    Users->>AI: Feedback improves iteration
 ```
 
-### Figma-AI Prompting Strategy
+## Benefits
 
-```
-"Build a data table component that:
-- Follows Figma design spec at figma-spec.json
-- Uses design tokens from tokens.json
-- Includes demo modes for: empty state, loading, error, large dataset
-- Matches Flowbite table patterns
-- Exports interactive demos for Vercel deployment"
-```
+### Development
 
-## User Experience Benefits
+-   **Design consistency** - Single source of truth from Figma
+-   **Rapid iteration** - Auto-deploy demos for testing
+-   **User feedback** - Real usage data drives improvements
+-   **Component reuse** - Shared design system across apps
 
-### For Academic Users
+### User Experience
 
--   **Try Before Install**: Full app experience in browser
--   **Configuration Wizard**: Visual setup matching desktop app
--   **Tutorial Playground**: Learn with realistic repository data
--   **Export Settings**: Download JSON config for desktop app
-
-### For Student Developers
-
--   **Component Library**: Live examples with code
--   **Design System**: Figma components → React components
--   **Deployment Pipeline**: See changes live instantly
--   **Feedback Loop**: Real usage data drives development
+-   **Try before install** - Full app simulation in browser
+-   **Configuration wizard** - Visual setup matching desktop
+-   **Interactive tutorials** - Learn with realistic data
+-   **Settings export** - Download JSON for desktop app
 
 ## Implementation Phases
 
-### Phase 1: Design System Foundation
+### Phase 1: Foundation
 
 -   Set up Figma design token export
 -   Configure Tailwind with Figma tokens
--   Create AI prompts that reference design specs
--   Build first components with Figma constraints
+-   Create AI prompts referencing design specs
+-   Build components with Figma constraints
 
-### Phase 2: Vercel Multi-Deployment
+### Phase 2: Deployment
 
--   Set up three Vercel apps (docs, playground, storybook)
--   Create auto-deployment from AI component generation
+-   Set up Vercel multi-app deployment
+-   Create auto-deployment pipeline
 -   Build interactive demo framework
--   Implement settings export to JSON
+-   Implement settings export
 
 ### Phase 3: Feedback Integration
 
--   Add analytics to interactive demos
--   Create feedback loop: User behavior → AI prompts
--   Implement A/B testing for component variations
--   Build performance monitoring dashboard
+-   Add analytics to demos
+-   Create user behavior feedback loop
+-   Implement A/B testing
+-   Build performance monitoring
 
-### Phase 4: Advanced AI Features
+## Repository Analysis Tool Benefits
 
--   AI generates components from Figma designs automatically
--   User interaction data trains better AI prompts
--   Dynamic demo scenarios based on popular use cases
--   Automated design system updates
+### Interactive Features
 
-## Specific Benefits for Repository Analysis Tool
+-   **Sample repository demos** - Try with curated examples
+-   **Blame analysis previews** - See output before running
+-   **Visual configuration** - Settings builder with preview
+-   **Performance testing** - Try different repository sizes
 
-### Interactive Git Repository Browser
+### Academic Integration
 
--   **Sample Repository Demos**: Try with curated example repositories
--   **Blame Analysis Previews**: See output tables before running analysis
--   **Settings Configuration**: Visual builder for JSON configuration
--   **Performance Testing**: Try with different repository sizes and complexity
-
-### Academic User Experience
-
--   **Course Integration**: Embed interactive demos in curricula
--   **Student Onboarding**: Progressive learning before installation
--   **Configuration Sharing**: Teachers share settings via URLs
--   **Results Comparison**: Compare analysis across different settings
-
-## Integration with Demo-Based Development
-
-This design system integration builds directly upon the [Demo-Based Documentation-GUI Development](demo-based-documentation-gui-development.md) methodology by:
-
--   **Enhancing Demo Modes**: Figma design specs make demos more visually consistent
--   **Streamlining Deployment**: Vercel automatically deploys demo modes as interactive docs
--   **Improving Feedback**: Real user interaction data from deployed demos improves AI development
--   **Scaling Documentation**: Multi-environment deployment supports different user needs
-
-## Related Documents
-
--   [Demo-Based Documentation-GUI Development](demo-based-documentation-gui-development.md) - Core methodology this builds upon
--   [Technology Stack](../architecture/technology-stack.md) - Underlying technology choices
--   [Development Mode](development-mode.md) - Development environment setup
+-   **Course embedding** - Interactive demos in curricula
+-   **Student onboarding** - Progressive learning path
+-   **Configuration sharing** - Teachers share via URLs
+-   **Results comparison** - Compare analysis settings
 
 ## Summary
 
-This integrated approach transforms your desktop app into a comprehensive ecosystem where design, development, documentation, and user experience work together seamlessly through AI automation. The combination of Figma design consistency, Vercel deployment automation, and demo-based development creates a powerful feedback loop that continuously improves both the development process and user experience.
-
-The result is a development methodology that produces better software faster while creating exceptional documentation and user onboarding experiences.
+Design system integration creates a comprehensive ecosystem where Figma designs, React components, and Vercel deployment work together through AI automation. This produces consistent user experiences while enabling rapid iteration and user feedback collection.

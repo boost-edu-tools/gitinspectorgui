@@ -1,181 +1,188 @@
-# Documentation Deployment Guide
+# Documentation Deployment
 
-This guide explains how to test and deploy the MkDocs documentation to GitLab Pages.
+## Overview
 
-> **Note**: This project is hosted under the `edu-boost` GitLab group.
+Deploy MkDocs documentation to GitLab Pages using automated CI/CD pipeline.
 
-## 🧪 Step 1: Test Locally First
+## Local Testing
 
-Before enabling automatic CI/CD, ensure your environment is set up and test the documentation build:
+### Test Documentation Build
 
 ```bash
-# Ensure dependencies are installed (if not already done)
+# Install dependencies
 uv sync --group dev
 
-# Run the local test script
+# Test build locally
 ./scripts/test-docs-build.sh
 ```
 
-This script will:
-
--   Use your existing `.venv` environment
--   Verify MkDocs dependencies from `pyproject.toml`
--   Build the documentation to `public/` directory
--   Show build statistics and next steps
-
-## 🌐 Step 2: Test the Built Site
-
-After running the test script, serve the built site locally:
+### Serve Built Site
 
 ```bash
-# Serve the built documentation
+# Serve documentation locally
 python3 -m http.server 8080 --directory public
 
-# Open in browser: http://localhost:8080
+# Open: http://localhost:8080
 ```
 
-Verify that:
+### Verification Checklist
 
 -   All pages load correctly
 -   Navigation works properly
 -   Mermaid diagrams render
 -   Search functionality works
--   Mobile responsiveness is good
+-   Mobile responsiveness
 
-## 🚀 Step 3: Deploy to GitLab Pages
+## GitLab Pages Deployment
 
-Deployment to GitLab Pages is handled by a CI/CD pipeline. The configuration is managed by the `scripts/switch-ci.sh` script, which generates the `.gitlab-ci.yml` file.
-
-### 3.1 How It Works
-
-The `switch-ci.sh` script assembles the final `.gitlab-ci.yml` from partial files located in the `.ci/` directory. This allows for flexible pipeline configurations.
-
--   `.ci/base.yml`: Contains the basic stage definitions.
--   `.ci/docs.yml`: Contains the specific job for building and deploying the MkDocs site to GitLab Pages.
--   `.ci/app.yml`: Contains jobs for building the main application (used for full releases).
-
-### 3.2 Enabling the Documentation Pipeline
-
-To deploy the documentation, you must first generate the correct CI/CD configuration file.
+### CI/CD Configuration
 
 ```bash
-# Enable the documentation-only pipeline
+# Enable documentation pipeline
 ./scripts/switch-ci.sh docs
-```
 
-This command creates a `.gitlab-ci.yml` file configured to only build and deploy the documentation.
-
-### 3.3 Pushing Changes to Deploy
-
-Once the pipeline is enabled, any push to the default branch (`main`) will automatically trigger the `pages` job.
-
-```bash
-# Add your changes and the generated CI file
+# Commit and deploy
 git add .
-git commit -m "Update documentation and enable Pages deployment"
+git commit -m "Enable documentation deployment"
 git push origin main
 ```
 
-### 3.4 Monitor Deployment
-
-1.  Go to **CI/CD** → **Pipelines** in your GitLab project.
-2.  Watch the `pages` job in the pipeline.
-3.  Once successful, your documentation will be available at:
-    **https://edu-boost.gitlab.io/gitinspectorgui**
-
-#### Manually Rerunning a Pipeline
-
-If you need to rerun a pipeline without making a new commit (for example, to test a fix), you can do so from the GitLab UI:
-
-1.  Navigate to the **CI/CD** → **Pipelines** page.
-2.  Find the pipeline you want to rerun (it will likely be the most recent one with a "failed" status).
-3.  On the right side of the pipeline's entry, click the **"Retry"** (circular arrows) button. This will trigger a new run of the entire pipeline using the same commit.
-
-## 🔧 Troubleshooting
-
-### Pipeline Fails
-
-If the GitLab Pages pipeline fails:
-
-1. Check the job logs in GitLab CI/CD → Pipelines
-2. Common issues:
-    - Missing dependencies (should be handled by the pipeline)
-    - MkDocs configuration errors
-    - Broken links in documentation
-
-### Local Test Fails
-
-If the local test script fails:
-
-1. Check Python 3 is installed: `python3 --version`
-2. Ensure you're in the project root directory
-3. Check MkDocs configuration: `mkdocs.yml`
-
-### Documentation Not Updating
-
-If changes don't appear on the live site:
-
-1. Verify the pipeline completed successfully
-2. Check GitLab Pages settings
-3. Clear browser cache
-4. Wait a few minutes for CDN propagation
-
-## 📁 File Structure
-
-```
-project/
-├── .ci/                          # Partial CI/CD configurations
-│   ├── app.yml                   # App build jobs
-│   ├── base.yml                  # Base CI configuration
-│   └── docs.yml                  # Documentation job
-├── mkdocs.yml                    # MkDocs configuration
-├── docs/                         # Documentation source
-├── scripts/
-│   ├── switch-ci.sh             # CI configuration switcher
-│   └── test-docs-build.sh       # Local documentation testing
-└── .gitlab-ci.yml                # Generated CI file (ignored by Git)
-```
-
-## ⚖️ CI/CD Configuration Comparison
+### Pipeline Modes
 
 | Mode     | Command                       | Purpose              |
 | -------- | ----------------------------- | -------------------- |
-| **Docs** | `./scripts/switch-ci.sh docs` | Documentation only   |
-| **Apps** | `./scripts/switch-ci.sh apps` | Apps + Documentation |
-| **Off**  | `./scripts/switch-ci.sh off`  | Disable all CI/CD    |
+| **docs** | `./scripts/switch-ci.sh docs` | Documentation only   |
+| **apps** | `./scripts/switch-ci.sh apps` | Apps + Documentation |
+| **off**  | `./scripts/switch-ci.sh off`  | Disable CI/CD        |
 
-**When to use Documentation CI:**
+### Deployment Process
 
--   Regular documentation updates
--   Faster feedback on doc changes
--   Lower resource usage
--   Automatic deployment on doc changes
+1. **Configure** - Run switch-ci.sh script
+2. **Push** - Commit triggers pipeline
+3. **Monitor** - Check CI/CD → Pipelines
+4. **Access** - Site available at `https://edu-boost.gitlab.io/gitinspectorgui`
 
-**When to use Full Application CI:**
+## File Structure
 
--   Creating application releases
--   Building cross-platform binaries
--   Comprehensive testing pipeline
--   Publishing to package repositories
+```
+project/
+├── .ci/
+│   ├── base.yml          # Base CI configuration
+│   ├── docs.yml          # Documentation job
+│   └── app.yml           # Application jobs
+├── mkdocs.yml            # MkDocs configuration
+├── docs/                 # Documentation source
+├── scripts/
+│   ├── switch-ci.sh      # CI configuration switcher
+│   └── test-docs-build.sh # Local testing
+└── .gitlab-ci.yml        # Generated CI file
+```
 
-## 🔄 Workflow
+## Troubleshooting
 
-1. **Develop**: Edit documentation in `docs/` directory
-2. **Test**: Run `mkdocs serve` for live preview
-3. **Validate**: Run `./test-docs-build.sh` before committing
-4. **Deploy**: Push to `main` branch (if CI/CD is enabled)
+### Pipeline Issues
 
-## 🛡️ Safety Features
+**Build fails:**
 
--   CI/CD is disabled by default (`.gitlab-ci.yml.disabled`)
--   Local testing script validates build before deployment
--   Documentation builds are isolated in virtual environments
--   Failed builds don't affect the live site
+-   Check CI/CD → Pipelines logs
+-   Verify MkDocs configuration
+-   Check for broken links
 
-## 📞 Support
+**Documentation not updating:**
 
-If you encounter issues:
+-   Verify pipeline completed successfully
+-   Clear browser cache
+-   Wait for CDN propagation
 
-1. Check the local test output for specific errors
-2. Review MkDocs documentation: https://www.mkdocs.org/
-3. Check GitLab Pages documentation: https://docs.gitlab.com/ee/user/project/pages/
+### Local Issues
+
+**Test script fails:**
+
+```bash
+# Check Python version
+python3 --version
+
+# Verify project directory
+pwd
+
+# Check MkDocs config
+cat mkdocs.yml
+```
+
+**Dependencies missing:**
+
+```bash
+# Reinstall dependencies
+uv sync --group dev
+
+# Verify MkDocs installation
+mkdocs --version
+```
+
+## Development Workflow
+
+### Standard Process
+
+1. **Edit** - Modify files in `docs/` directory
+2. **Preview** - Run `mkdocs serve` for live preview
+3. **Test** - Run `./scripts/test-docs-build.sh`
+4. **Deploy** - Push to main branch
+
+### Live Preview
+
+```bash
+# Start development server
+mkdocs serve
+
+# Open: http://127.0.0.1:8000
+```
+
+## CI/CD Pipeline Details
+
+### Documentation Job
+
+```yaml
+pages:
+    stage: deploy
+    image: python:3.13
+    script:
+        - pip install -e .[dev]
+        - mkdocs build --site-dir public
+    artifacts:
+        paths:
+            - public
+    only:
+        - main
+```
+
+### Pipeline Triggers
+
+-   **Automatic** - Push to main branch
+-   **Manual** - Retry from GitLab UI
+-   **Scheduled** - Optional scheduled builds
+
+## Safety Features
+
+-   **Default disabled** - CI/CD requires explicit enablement
+-   **Local validation** - Test script prevents broken deployments
+-   **Isolated builds** - Virtual environments prevent conflicts
+-   **Rollback capability** - Failed builds don't affect live site
+
+## Monitoring
+
+### Pipeline Status
+
+-   Navigate to **CI/CD** → **Pipelines**
+-   Monitor job progress and logs
+-   Check deployment status
+
+### Site Health
+
+-   Verify site accessibility
+-   Test navigation and search
+-   Check mobile responsiveness
+-   Validate external links
+
+## Summary
+
+GitLab Pages deployment provides automated documentation publishing with local testing capabilities. The flexible CI/CD configuration supports both documentation-only and full application deployments.
