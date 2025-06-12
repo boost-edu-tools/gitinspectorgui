@@ -11,10 +11,10 @@ Modern desktop application for git repository analysis with Tauri + React + Type
 
 ### Prerequisites
 
--   Python 3.8+
--   Node.js 16+ with pnpm
--   Rust 1.70+
--   Git 2.20+
+-   Python 3.11+
+-   Node.js 20+ with pnpm
+-   Rust 1.75+
+-   Git 2.40+
 
 ### Development
 
