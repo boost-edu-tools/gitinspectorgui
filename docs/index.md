@@ -6,7 +6,7 @@ Welcome to the comprehensive documentation for GitInspectorGUI - a modern deskto
 
 Experience GitInspectorGUI in action with our interactive demo:
 
--   **[Live Demo](../demo/)** - Try GitInspectorGUI with sample data in your browser
+-   **[Live Demo](demo/)** - Try GitInspectorGUI with sample data in your browser
 
 ## Quick Start
 
