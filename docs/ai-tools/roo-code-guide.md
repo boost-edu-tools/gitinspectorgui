@@ -39,3 +39,8 @@ Multi-agent development platform with specialized modes and orchestration.
 -   **Large projects** with multiple components
 -   **System design** and planning phases
 -   **Advanced browser testing** requirements
+
+## Related
+
+-   **[AI Tools Overview](overview.md)** - Complete AI development ecosystem guide
+-   **[Cline Guide](cline-guide.md)** - VSCode coding assistance

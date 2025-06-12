@@ -75,3 +75,8 @@ bash script.sh
 2. **Debugging** - Error analysis and fixes
 3. **Structure changes** - Project organization
 4. **Testing** - Run and validate changes
+
+## Related
+
+-   **[AI Tools Overview](overview.md)** - Complete AI development ecosystem guide
+-   **[Roo Code Guide](roo-code-guide.md)** - Multi-agent workflows

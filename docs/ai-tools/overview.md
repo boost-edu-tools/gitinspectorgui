@@ -65,7 +65,7 @@ AI-powered development tools and workflows for GitInspectorGUI.
 -   **Checkpoints over commits** - Use tool checkpoints, commit when ready
 -   **Clean git history** - Avoid frequent micro-commits
 
-## Documentation
+## Related
 
--   **[Cline Guide](cline-guide.md)** - Direct development assistance
+-   **[Cline Guide](cline-guide.md)** - VSCode coding assistance
 -   **[Roo Code Guide](roo-code-guide.md)** - Multi-agent workflows
