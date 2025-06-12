@@ -224,7 +224,7 @@ Host installers on your own website with download links:
 
 ### Tauri Updater Configuration
 
-Configure in [`src-tauri/tauri.conf.json`](../../src-tauri/tauri.conf.json):
+Configure in `src-tauri/tauri.conf.json`:
 
 ```json
 {
@@ -291,10 +291,10 @@ tauri signer sign -k ~/.tauri/myapp.key --password mypassword
 
 **Version Updates:**
 
--   [ ] Update version in [`package.json`](../../package.json)
--   [ ] Update version in [`src-tauri/tauri.conf.json`](../../src-tauri/tauri.conf.json)
--   [ ] Update version in [`python/pyproject.toml`](../../python/pyproject.toml)
--   [ ] Update [`CHANGELOG.md`](../../CHANGELOG.md) with new features and fixes
+-   [ ] Update version in `package.json`
+-   [ ] Update version in `src-tauri/tauri.conf.json`
+-   [ ] Update version in `python/pyproject.toml`
+-   [ ] Update `CHANGELOG.md` with new features and fixes
 
 **Quality Assurance:**
 
@@ -313,7 +313,7 @@ tauri signer sign -k ~/.tauri/myapp.key --password mypassword
 
 ### 2. Automated Release Pipeline
 
-Example GitLab CI workflow ([`.gitlab-ci.yml`](../../.gitlab-ci.yml)):
+Example GitLab CI workflow (`.gitlab-ci.yml`):
 
 ```yaml
 stages:
@@ -451,7 +451,7 @@ mkdocs gh-deploy  # If using GitHub Pages for docs
 
 ### 4. Release Scripts
 
-Create these helper scripts in [`scripts/`](../../scripts/):
+Create these helper scripts in `scripts/`:
 
 **`scripts/prepare-release.sh`**:
 
@@ -598,8 +598,8 @@ The project uses GitLab CI/CD for automated testing and deployment. Key features
 
 **Configuration Files:**
 
--   [`.gitlab-ci.yml`](../../.gitlab-ci.yml) - Main CI/CD pipeline
--   [`scripts/switch-ci.sh`](../../scripts/switch-ci.sh) - Switch between CI providers
+-   `.gitlab-ci.yml` - Main CI/CD pipeline
+-   `scripts/switch-ci.sh` - Switch between CI providers
 
 **Environment Variables:**
 

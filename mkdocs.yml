@@ -97,6 +97,7 @@ nav:
     - Architecture:
           - System Overview: architecture/overview.md
           - Technology Stack: architecture/technology-stack.md
+          - Design Background: architecture/design-background-info.md
           - Design Decisions: architecture/design-decisions.md
           - Legacy Integration: architecture/legacy-integration.md
     - Operations:

@@ -1,123 +1,71 @@
-# AI-Powered Development Ecosystem
+# AI Development Ecosystem
 
-## Overview
+AI-powered development tools and workflows for GitInspectorGUI.
 
-The GitInspectorGUI project utilizes a set of AI tools that in our experience, collectively provide the best available AI-assisted development in 2025. This documentation covers our recommended workflow combining three complementary tools, each optimized for specific aspects of software development.
+## Tool Overview
 
-## The Three-Tool Ecosystem
+### Claude.ai - Research Hub
 
-### 1. Claude.ai - Research and Analysis Hub
+-   **Model:** Claude 3.5 Sonnet (Anthropic API)
+-   **Use:** Research, documentation analysis, web search
+-   **Strengths:** File upload analysis, current information access
 
--   **Purpose:** Strategic research, documentation analysis, web-based information gathering
--   **Model:** Claude Sonnet 4 (via Anthropic API)
--   **Best for:** Complex research tasks supported by analysis of uploaded files, content generation with web search
+### Cline (VSCode) - Primary Development
 
-### 2. VSCode with Roo Code - Advanced Development
+-   **Model:** Claude 3.5 Sonnet (OpenRouter API)
+-   **Use:** Direct coding, file modifications, debugging
+-   **Strengths:** Reliable execution, minimal setup, file system access
 
--   **Purpose:** Complex architecture, multi-agent workflows, specialized development modes
--   **Model:** Claude Sonnet 4 (via OpenRouter API)
--   **Best for:** Large projects, system architecture, orchestrated development tasks
+### Roo Code (VSCode) - Advanced Architecture
 
-### 3. VSCode with Cline - Direct Development
+-   **Model:** Claude 3.5 Sonnet (OpenRouter API)
+-   **Use:** Complex architecture, multi-agent workflows
+-   **Strengths:** System design, orchestrated development
 
--   **Purpose:** Direct coding, immediate file modifications, single-agent tasks
--   **Model:** Claude Sonnet 4 (via OpenRouter API)
--   **Best for:** Relatively quick file edits, debugging, straightforward development tasks
+## Selection Guide
 
-## Why This Combination Works
+### Primary Tool: Cline
 
-**Complementary Strengths:**
+-   Most development tasks
+-   File modifications and debugging
+-   Reliable, consistent performance
+-   **Recommended first choice**
 
--   **Claude.ai** excels at research and provides web search capabilities that VSCode extensions lack
--   **Roo Code** offers specialized modes and multi-agent orchestration for complex projects
--   **Cline** provides reliable, direct development assistance with minimal setup
+### Research Tool: Claude.ai
 
-**Cost Optimization:**
+-   When Cline lacks current information
+-   When Cline repeatedly fails to fix a bug
+-   Technology research and best practices
+-   Multi-file analysis requirements
+-   Web search capabilities needed
 
--   Pricing for Claude Sonnet 4 starts at $3 per million input tokens and $15 per million output tokens
--   OpenRouter provides access to the same models at competitive rates
--   Strategic tool selection based on task complexity can in principle minimize token usage
+### Architecture Tool: Roo Code
 
-## Tool Selection Guide
+-   Complex system architecture planning
+-   Multi-component project coordination
+-   **Use only when specifically needed**
 
-### Use Cline when:
+## Workflow Patterns
 
--   **Primary development tool** - Most reliable and consistent performance
--   Making direct code changes and file modifications
--   General development tasks requiring good, correctly working solutions
--   Streamlined development workflow with minimal setup
--   **Recommended as first choice** for most development scenarios
+### Research → Implementation
 
-### Use Claude.ai when:
+1. **Research Phase (Claude.ai)**
 
--   Cline gets stuck providing incorrect fixes repeatedly
--   Quick and correct solutions needed with web search capabilities
--   Researching current technologies or best practices
--   Analyzing multiple uploaded files for insights
--   Generating research-backed content or documentation
--   **Trade-off**: Inconvenience of manual file uploads and applying suggested changes
+    - Upload relevant files for analysis
+    - Research current best practices
+    - Generate implementation guidelines
 
-### Use Roo Code when:
+2. **Implementation Phase (Cline)**
+    - Save research as markdown reference
+    - Use Cline for actual code changes
+    - Reference research document for decisions
 
--   **Only when you specifically need** architect and orchestrator functionality
--   Planning complex architecture or system design
--   Managing large, multi-component projects requiring orchestration
--   Needing specialized modes for complex project coordination
+### Development Best Practices
 
-## Checkpoint Strategy in Roo Code and Cline
+-   **Checkpoints over commits** - Use tool checkpoints, commit when ready
+-   **Clean git history** - Avoid frequent micro-commits
 
-**Use checkpoints instead of frequent commits:**
+## Documentation
 
--   Roo / Cline create a checkpoint after each change
--   User asks for commit when necessary
-
-**Benefits:**
-
--   Clean git history
--   Easy rollback options: user can revert to each checkpoint
-
-## Response Style Optimization in Roo Code and Cline
-
-**Problem:** Verbose completion summaries
-
-Roo Code and Cline have a tendency to provide extremely detailed completion
-summaries. What is even worse is that after each minor additional action related to the
-completed task(s), the complete summary is repeated including the minor
-addtional action.
-
-Asking Cline or Roo Code not to do this, helps for a short time, but after each
-reload of VSCode, the behavior resets.
-
-**Solution**
-
-Apart from temporary solutions, a permanent proper solution is unclear.
-
-### Combining Claude.ai with Roo Code or CLine
-
-**Problem**
-
--   Claude.ai excels at web-based supported research
--   Roo Code and Cline excel at editing project files, but are very limited in
-    web-based search
-
-We often need both.
-
-**Solution**
-
-#### 1. Research Phase (Claude.ai)
-
--   Enter you prompt question and if needed, add relevant files for analysis to
-    the the prompt by uploading them
--   Research current best practices and technologies
--   Create comprehensive output for implementation
-
-#### 2. Implementation Phase (Local Development)
-
--   Save Claude.ai research output as an markdown reference file
--   Switch to VSCode with Roo Code or Cline
--   Instruct Roo or Cline to use the markdown reference file in the required (re)design
-
-## Documentation Structure
-
--   **[Roo Code Development Guide](roo-code-guide.md)** - Multi-agent architecture and advanced features
--   **[Cline Development Guide](cline-guide.md)** - Direct coding assistance and troubleshooting
+-   **[Cline Guide](cline-guide.md)** - Direct development assistance
+-   **[Roo Code Guide](roo-code-guide.md)** - Multi-agent workflows

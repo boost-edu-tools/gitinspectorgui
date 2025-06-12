@@ -1,16 +1,8 @@
-# Node.js Package Management with pnpm
+# Package Management (pnpm)
 
-This guide covers the Node.js package management setup for GitInspectorGUI's frontend using pnpm.
+Frontend dependency management for GitInspectorGUI using pnpm.
 
-## Overview
-
-GitInspectorGUI uses pnpm for Node.js package management (JavaScript/TypeScript dependencies for the Tauri frontend), providing better performance, disk space efficiency, and dependency management compared to npm.
-
-**Note**: This covers frontend dependencies only. For Python backend dependencies, see [Python Management (uv)](python-management-uv.md).
-
-## Installation and Setup
-
-### Install pnpm
+## Installation
 
 ```bash
 # Enable pnpm (recommended)
@@ -20,100 +12,67 @@ corepack enable
 npm install -g pnpm
 ```
 
-### Project Setup
+## Commands
 
-```bash
-# Install project dependencies
-pnpm install
-```
+| Command                | Purpose              |
+| ---------------------- | -------------------- |
+| `pnpm install`         | Install dependencies |
+| `pnpm run tauri:dev`   | Start development    |
+| `pnpm run tauri:build` | Build production     |
+| `pnpm test`            | Run tests            |
+| `pnpm update`          | Update dependencies  |
+| `pnpm audit`           | Security audit       |
 
-### Common Commands
+## Benefits
 
-| Command                | Purpose                    |
-| ---------------------- | -------------------------- |
-| `pnpm install`         | Install all dependencies   |
-| `pnpm run tauri:dev`   | Start development server   |
-| `pnpm run tauri:build` | Build for production       |
-| `pnpm run dev`         | Start frontend development |
-| `pnpm test`            | Run tests                  |
-| `pnpm update`          | Update dependencies        |
-| `pnpm audit`           | Security audit             |
-
-## Key Benefits
-
--   **Faster installs**: Up to 2x faster than npm
--   **Disk space savings**: Shared dependency storage
--   **Better security**: Stricter dependency resolution
--   **Monorepo support**: Better workspace management
+-   **2x faster** than npm installs
+-   **Disk space efficient** - shared dependency storage
+-   **Stricter security** - better dependency resolution
+-   **Monorepo support** - workspace management
 
 ## Development Workflow
 
-### Starting Development
-
 ```bash
-# 1. Start the HTTP API server
+# Start API server
 python -m gigui.start_server --reload
 
-# 2. Start the Tauri application (in new terminal)
+# Start Tauri app (new terminal)
 pnpm run tauri:dev
 ```
 
-### Building for Production
+## Production Build
 
 ```bash
-# Build the application
 pnpm run tauri:build
-```
-
-### Running Tests
-
-```bash
-# Run frontend tests
-pnpm test
-
-# Run with coverage
-pnpm run test:coverage
 ```
 
 ## Troubleshooting
 
-### Common Issues
-
-**pnpm command not found**
+### Command Not Found
 
 ```bash
-# Enable corepack
 corepack enable
-
-# Or install globally
+# or
 npm install -g pnpm
 ```
 
-**Permission errors**
+### Permission Issues
 
 ```bash
-# Fix pnpm permissions (macOS/Linux)
 sudo chown -R $(whoami) ~/.local/share/pnpm
 ```
 
-**Cache issues**
+### Cache Issues
 
 ```bash
-# Clear pnpm cache
 pnpm store prune
-
-# Reinstall dependencies
 rm -rf node_modules pnpm-lock.yaml
 pnpm install
 ```
 
-## IDE Integration
+## VS Code Integration
 
-### VS Code
-
-Update your VS Code tasks and launch configurations to use `pnpm` instead of `npm`.
-
-**Example task (.vscode/tasks.json):**
+**.vscode/tasks.json:**
 
 ```json
 {
@@ -124,39 +83,13 @@ Update your VS Code tasks and launch configurations to use `pnpm` instead of `np
 }
 ```
 
-## CI/CD Changes
+## CI/CD
 
-The CI/CD pipeline has been updated to use pnpm:
+-   Uses `pnpm install --frozen-lockfile`
+-   Lock file: `pnpm-lock.yaml` (commit to version control)
+-   All build scripts use pnpm commands
 
--   GitLab CI now uses `pnpm install --frozen-lockfile`
--   Build scripts use pnpm commands
--   All documentation reflects pnpm usage
+## Related
 
-## Getting Help
-
--   **pnpm Documentation**: https://pnpm.io/
--   **Project Issues**: Use GitLab issues for project-specific problems
--   **Team Chat**: Ask in team channels for quick help
-
-## Setup Checklist
-
--   [ ] Install pnpm (`corepack enable`)
--   [ ] Install project dependencies (`pnpm install`)
--   [ ] Configure IDE for pnpm usage
--   [ ] Test development workflow (`pnpm run tauri:dev`)
--   [ ] Test build process (`pnpm run tauri:build`)
--   [ ] Verify all scripts work correctly
-
-## FAQ
-
-**Q: Why does the project use pnpm?**
-A: pnpm provides better performance, disk space efficiency, and more reliable dependency management compared to npm.
-
-**Q: What about the lock file?**
-A: The project uses `pnpm-lock.yaml` for dependency locking. This file should be committed to version control.
-
-**Q: Can I use npm instead?**
-A: While npm might work, pnpm is the recommended and supported package manager for this project.
-
-**Q: What if I encounter issues?**
-A: Check the troubleshooting section above, or create an issue in the project repository with details about your problem.
+-   **[Python Management (uv)](python-management-uv.md)** - Backend dependencies
+-   **[Development Mode](development-mode.md)** - Local development setup
