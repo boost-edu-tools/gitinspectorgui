@@ -31,13 +31,6 @@ Shell operators hang indefinitely on macOS systems.
 -   `|` (pipe)
 -   `||` (OR)
 
-**Working commands:**
-
--   Simple commands (`pwd`, `ls`, `echo`)
--   File operations
--   Command substitution (`$()`)
--   Background processes (`&`)
-
 ### Workarounds
 
 **1. Break compound commands:**
@@ -64,7 +57,19 @@ bash script.sh
 
 ### Recovery
 
--   Toggle Plan/Act mode to resume
+#### **When Cline UI Hangs (Common Issue on macOS)**
+
+**Cline UI hanging is a known issue.** If Cline becomes unresponsive or stops processing:
+
+1. **Click "Plan"** button in the Cline interface
+2. **Click "Act"** button immediately after
+3. **Look for and click "Approve"** button that should appear
+4. Cline should resume normal operation
+
+> **💡 Quick Fix:** Plan → Act → Approve sequence resolves most hanging issues
+
+#### Other Recovery Options
+
 -   Restart VSCode if commands hang
 -   Use checkpoints for rollback
 -   Monitor for authentication prompts
