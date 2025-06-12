@@ -1,262 +1,209 @@
 # Monitoring and Logging
 
-Basic monitoring and logging for GitInspectorGUI.
-
-## Overview
-
-GitInspectorGUI consists of a Tauri desktop application with a Python HTTP API backend. This guide covers essential monitoring and logging practices.
+Essential monitoring and logging for GitInspectorGUI.
 
 ## Health Monitoring
 
-### Built-in Health Check
-
-The HTTP API provides a health check endpoint:
+### API Health Check
 
 ```bash
-# Check if the API server is running
+# Check server status
 curl http://127.0.0.1:8080/health
 ```
 
-**Expected Response:**
+**Response:**
 
 ```json
 {
     "status": "healthy",
     "version": "1.0.0",
-    "timestamp": "2025-06-05T21:04:00.000Z",
-    "uptime": 3600.5
+    "timestamp": "2025-06-05T21:04:00.000Z"
 }
 ```
 
-### Performance Statistics
+### Performance Metrics
 
 ```bash
-# Get performance metrics
+# Performance stats
 curl http://127.0.0.1:8080/api/performance_stats
-```
 
-### Engine Information
-
-```bash
-# Get engine capabilities
+# Engine info
 curl http://127.0.0.1:8080/api/engine_info
 ```
 
-## Application Logging
+## Logging
 
-### Development Logging
-
-When running in development mode, logs are displayed in the console:
+### Development Mode
 
 ```bash
-# Start with debug logging
+# Debug logging
 python -m gigui.start_server --log-level DEBUG
 
-# Start Tauri with logging
+# Tauri logging
 pnpm run tauri dev
 ```
 
 ### Log Locations
 
--   **API Server**: Console output when running the Python server
--   **Tauri Application**: Terminal output during development
--   **Browser Console**: Frontend logs (accessible via DevTools)
+-   **API Server**: Console output
+-   **Tauri App**: Terminal output
+-   **Frontend**: Browser DevTools Console
 
 ### Log Levels
 
-The Python API supports standard log levels:
-
--   `DEBUG`: Detailed execution information
--   `INFO`: General operational information
+-   `DEBUG`: Detailed execution info
+-   `INFO`: General operations
 -   `WARNING`: Potential issues
 -   `ERROR`: Error conditions
 -   `CRITICAL`: Severe errors
 
-## Basic Monitoring
+## System Monitoring
 
-### System Resource Monitoring
-
-Monitor system resources during analysis:
+### Resource Usage
 
 ```bash
-# Monitor CPU and memory usage (macOS)
+# CPU and memory (macOS/Linux)
 top -pid $(pgrep -f "gigui.start_server")
-
-# Monitor CPU and memory usage (Linux)
 htop -p $(pgrep -f "gigui.start_server")
 
-# Windows Task Manager
-# Look for Python processes related to GitInspectorGUI
+# Windows: Task Manager → Python processes
 ```
 
-### Application Monitoring
-
-**Check if services are running:**
+### Service Status
 
 ```bash
-# Check if HTTP server is running
-curl -f http://127.0.0.1:8080/health || echo "API server not running"
+# API server health
+curl -f http://127.0.0.1:8080/health || echo "Server down"
 
-# Check if port 8080 is in use
+# Port usage
 lsof -i :8080  # macOS/Linux
 netstat -an | findstr :8080  # Windows
 ```
 
-**Monitor analysis performance:**
+### Performance Metrics
 
--   Watch memory usage during large repository analysis
--   Monitor disk I/O for temporary file operations
--   Check network connectivity if accessing remote repositories
+-   Memory usage during large analyses
+-   Disk I/O for temporary files
+-   Network connectivity for remote repos
 
 ## Error Tracking
 
-### Common Error Patterns
+### Common Errors
 
-**API Connection Errors:**
+**API Connection:**
 
 -   Server not running on port 8080
--   Firewall blocking local connections
--   Port conflicts with other applications
+-   Firewall blocking connections
+-   Port conflicts
 
-**Analysis Errors:**
+**Analysis Issues:**
 
 -   Invalid repository paths
 -   Insufficient permissions
--   Out of memory for large repositories
+-   Out of memory
 -   Git command failures
 
-### Error Log Analysis
+### Log Analysis
 
 ```bash
-# Search for errors in logs
+# Find errors
 grep -i error /path/to/logfile
 
-# Monitor logs in real-time
+# Real-time monitoring
 tail -f /path/to/logfile | grep -i error
 ```
 
-## Performance Monitoring
+## Performance Metrics
 
 ### Analysis Performance
 
-Monitor these metrics during repository analysis:
+-   **Duration**: Analysis completion time
+-   **Memory**: Peak consumption
+-   **Repository**: Commits/files processed
+-   **Success Rate**: Analysis success percentage
 
--   **Duration**: Time taken for analysis completion
--   **Memory Usage**: Peak memory consumption
--   **Repository Size**: Number of commits and files processed
--   **Success Rate**: Percentage of successful analyses
-
-### System Performance
-
-**Memory Usage:**
+### System Resources
 
 ```bash
-# Check available memory
+# Memory
 free -h  # Linux
 vm_stat  # macOS
-```
 
-**Disk Space:**
+# Disk space
+df -h
 
-```bash
-# Check disk usage
-df -h  # macOS/Linux
-```
-
-**Process Monitoring:**
-
-```bash
-# Monitor GitInspectorGUI processes
+# Processes
 ps aux | grep -E "(gigui|tauri)"
 ```
 
-## Simple Alerting
+## Health Checks
 
-### Basic Health Checks
-
-Create a simple health check script:
+### API Health Script
 
 ```bash
 #!/bin/bash
-# health-check.sh
-
 if curl -f http://127.0.0.1:8080/health > /dev/null 2>&1; then
-    echo "✅ GitInspectorGUI API is healthy"
-    exit 0
+    echo "✅ API healthy"
 else
-    echo "❌ GitInspectorGUI API is not responding"
-    exit 1
+    echo "❌ API not responding"
 fi
 ```
 
 ### Resource Alerts
 
-Monitor critical resources:
-
 ```bash
 #!/bin/bash
-# resource-check.sh
-
-# Check memory usage
+# Memory check
 MEMORY_USAGE=$(free | grep Mem | awk '{printf "%.0f", $3/$2 * 100.0}')
-if [ "$MEMORY_USAGE" -gt 90 ]; then
-    echo "⚠️  High memory usage: ${MEMORY_USAGE}%"
-fi
+[ "$MEMORY_USAGE" -gt 90 ] && echo "⚠️ High memory: ${MEMORY_USAGE}%"
 
-# Check disk space
+# Disk check
 DISK_USAGE=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-if [ "$DISK_USAGE" -gt 90 ]; then
-    echo "⚠️  High disk usage: ${DISK_USAGE}%"
-fi
+[ "$DISK_USAGE" -gt 90 ] && echo "⚠️ High disk: ${DISK_USAGE}%"
 ```
 
 ## Troubleshooting
 
 ### Log Analysis
 
-**Find recent errors:**
-
 ```bash
-# Last 100 lines with errors
+# Recent errors
 tail -100 /path/to/logfile | grep -i error
 
-# Errors from last hour
-grep -i error /path/to/logfile | grep "$(date -d '1 hour ago' '+%Y-%m-%d %H')"
-```
-
-**Performance issues:**
-
-```bash
-# Look for slow operations
+# Performance issues
 grep -i "duration\|timeout\|slow" /path/to/logfile
 ```
 
 ### Common Issues
 
-**High Memory Usage:**
+**High Memory:**
 
--   Reduce repository analysis scope
--   Close other applications
--   Restart GitInspectorGUI
+-   Reduce analysis scope
+-   Close other apps
+-   Restart application
 
 **Slow Performance:**
 
 -   Check system resources
--   Reduce analysis parameters
--   Verify repository accessibility
+-   Reduce parameters
+-   Verify repo accessibility
 
 **Connection Issues:**
 
--   Verify HTTP server is running
--   Check port 8080 availability
--   Restart both frontend and backend
+-   Verify server running
+-   Check port availability
+-   Restart services
 
 ## Best Practices
 
-1. **Regular Health Checks**: Periodically verify the API health endpoint
-2. **Resource Monitoring**: Keep an eye on memory and disk usage during large analyses
-3. **Log Retention**: Keep logs for troubleshooting but manage disk space
-4. **Error Tracking**: Monitor and investigate recurring errors
-5. **Performance Baselines**: Establish normal performance metrics for comparison
+1. **Regular health checks** - Monitor API endpoint
+2. **Resource monitoring** - Watch memory/disk during analysis
+3. **Log retention** - Balance troubleshooting needs with disk space
+4. **Error tracking** - Investigate recurring issues
+5. **Performance baselines** - Establish normal metrics
 
-This monitoring approach focuses on the essential aspects of keeping GitInspectorGUI running smoothly without unnecessary complexity.
+## Related
+
+-   **[Maintenance](maintenance.md)** - System maintenance
+-   **[Deployment](deployment.md)** - Production deployment
+-   **[Troubleshooting](../development/troubleshooting.md)** - Issue resolution

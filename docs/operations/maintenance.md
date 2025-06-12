@@ -1,160 +1,118 @@
 # Maintenance Guide
 
-Basic maintenance procedures for GitInspectorGUI.
+Essential maintenance procedures for GitInspectorGUI.
 
-## Overview
+## Updates
 
-GitInspectorGUI is a Tauri desktop application with a Python HTTP API backend. This guide covers essential maintenance tasks for keeping the application running smoothly.
-
-## Application Updates
-
-### Updating Dependencies
-
-#### Python Dependencies
+### Dependencies
 
 ```bash
-# Update Python packages
-cd /path/to/gitinspectorgui
+# Python packages
 uv sync --upgrade
-```
 
-#### Node.js Dependencies
-
-```bash
-# Update Node.js packages
+# Node.js packages
 pnpm update
-
-# Check for security issues
-pnpm audit
 pnpm audit fix
-```
 
-#### Rust Dependencies
-
-```bash
-# Update Rust dependencies
+# Rust dependencies
 cargo update
 ```
 
 ### Application Updates
 
-When updating to a new version of GitInspectorGUI:
+1. **Backup** current installation
+2. **Stop** running services
+3. **Update** application files
+4. **Restart** services
+5. **Verify** functionality
 
-1. **Backup current installation**
-2. **Stop running services**
-3. **Update application files**
-4. **Restart services**
-5. **Verify functionality**
-
-## Basic Troubleshooting
+## Troubleshooting
 
 ### Service Issues
 
-**HTTP Server won't start:**
-
 ```bash
-# Check if port 8080 is in use
-lsof -i :8080
-
-# Kill process if needed
-kill -9 $(lsof -ti:8080)
-
-# Restart server
+# HTTP Server won't start
+lsof -ti:8080 | xargs kill -9
 python -m gigui.start_server
-```
 
-**Tauri app won't start:**
-
-```bash
-# Check for build issues
-pnpm run tauri dev
-
-# Clear cache if needed
+# Tauri app issues
 rm -rf node_modules
 pnpm install
 ```
 
 ### Performance Issues
 
-**Slow analysis:**
+-   **Slow analysis**: Reduce repository scope, close other apps
+-   **High memory**: Monitor with system tools, restart if needed
 
--   Reduce repository size or date range
--   Close other resource-intensive applications
--   Check available system memory
+## Logs
 
-**High memory usage:**
+### Locations
 
--   Monitor with system tools (Activity Monitor, Task Manager, htop)
--   Restart application if memory usage is excessive
+-   **API**: Console output from `python -m gigui.start_server`
+-   **Frontend**: Browser DevTools Console
+-   **Tauri**: Terminal output from `pnpm run tauri dev`
 
-## Log Management
-
-### Log Locations
-
--   **API Logs**: Console output when running `python -m gigui.start_server`
--   **Frontend Logs**: Browser DevTools Console (in development)
--   **Tauri Logs**: Terminal output when running `pnpm run tauri dev`
-
-### Basic Log Analysis
+### Analysis
 
 ```bash
-# Check for errors in recent logs
+# Check for errors
 grep -i error /path/to/logs
 
-# Monitor logs in real-time
+# Monitor real-time
 tail -f /path/to/logfile
 ```
 
-## Backup Recommendations
+## Backup
 
-### Important Files to Backup
+### Important Files
 
--   **Configuration files**: Settings and preferences
--   **Custom analysis results**: If saved locally
--   **Application configuration**: Any custom setup
+-   Configuration files and settings
+-   Custom analysis results
+-   Application configuration
 
-### Simple Backup
+### Commands
 
 ```bash
 # Backup configuration
 cp -r ~/.config/gitinspectorgui /backup/location/
 
-# Backup application directory (if modified)
+# Backup application
 cp -r /path/to/gitinspectorgui /backup/location/
 ```
 
 ## Health Checks
 
-### Basic Health Verification
+### API Health
 
 ```bash
-# Check HTTP API health
+# Check HTTP API
 curl http://127.0.0.1:8080/health
 
-# Verify basic functionality
+# Basic functionality test
 # 1. Start HTTP server
 # 2. Start Tauri app
-# 3. Load a test repository
-# 4. Run a small analysis
+# 3. Load test repository
+# 4. Run small analysis
 ```
 
 ### System Requirements
 
-Ensure system meets minimum requirements:
-
 -   **Python 3.13+**
 -   **Node.js 22+**
 -   **Rust 1.85+**
--   **Sufficient memory** for repository analysis
+-   **Sufficient memory** for analysis
 -   **Disk space** for temporary files
 
-## Getting Help
+## Support
 
-If you encounter issues:
+1. **[Troubleshooting Guide](../development/troubleshooting.md)** - Common issues
+2. **Review logs** for error messages
+3. **Verify requirements** are met
+4. **Check repository** for known issues
 
-1. **Check the [Troubleshooting Guide](../development/troubleshooting.md)**
-2. **Review error messages** in logs
-3. **Verify system requirements**
-4. **Check project repository** for known issues
+## Related
 
-This maintenance guide focuses on the essential tasks needed to keep GitInspectorGUI running effectively without unnecessary complexity.
+-   **[Deployment](deployment.md)** - Production deployment
+-   **[Monitoring](monitoring.md)** - System monitoring
+-   **[Troubleshooting](../development/troubleshooting.md)** - Issue resolution

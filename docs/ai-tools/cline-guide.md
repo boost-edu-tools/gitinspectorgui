@@ -1,91 +1,77 @@
 # Cline Development Guide
 
-## Overview
+Direct coding assistance with VSCode integration.
 
-Cline is in most cases the best tool for direct coding that do not require Roo Code's Architect mode.
+## Capabilities
 
-## Current Status and Capabilities
+### Strengths
 
-### What Cline Excels At
+-   **Direct file operations** - Reliable code generation and modification
+-   **Single-agent workflow** - Straightforward task execution
+-   **File system access** - Full project directory operations
+-   **User approval workflow** - Safe, controlled changes
 
--   **Direct code generation and modification** with user approval
--   **Reliable file operations** across project directories
--   **Single-agent workflow** for straightforward tasks
+### Best Use Cases
 
-## Command Execution Issues (macOS)
+-   Code modifications and debugging
+-   File creation and editing
+-   Project structure changes
+-   Direct development tasks
 
-### Confirmed Problem
+## macOS Command Issues
 
-**Issue:** Commands using shell operators hang indefinitely on macOS
+### Problem
+
+Shell operators hang indefinitely on macOS systems.
 
 **Affected operators:**
 
--   `&&` (AND operator)
--   `;` (command separator)
--   `|` (pipe operator)
--   `||` (OR operator)
+-   `&&` (AND)
+-   `;` (separator)
+-   `|` (pipe)
+-   `||` (OR)
 
 **Working commands:**
 
--   Simple commands (`pwd`, `ls -la`, `echo "test"`)
--   File operations and directory changes
--   Command substitution (`$()`, backticks)
+-   Simple commands (`pwd`, `ls`, `echo`)
+-   File operations
+-   Command substitution (`$()`)
 -   Background processes (`&`)
 
-**Status:** Known issue in GitHub repository with multiple community reports
+### Workarounds
 
-### Technical Analysis
+**1. Break compound commands:**
 
-**Root cause appears to be in Cline's command execution engine:**
+```bash
+# Instead of: echo "test1" && echo "test2"
+echo "test1"
+echo "test2"
+```
 
-1. **Process Management:** Improper handling of shell subprocess for compound commands
-2. **Output Buffering:** Shell waiting for all parts of compound command before flushing output
-3. **Exit Code Detection:** Failure to detect when compound commands finish execution
-4. **Shell Parsing:** Command parsing logic not properly handling shell operators
+**2. Use shell scripts:**
 
-### Impact on Development
+```bash
+# Create script.sh with compound commands
+bash script.sh
+```
 
-This significantly limits Cline's usefulness for:
+**3. Command substitution:**
 
--   Build scripts that chain commands
--   Conditional command execution
--   Data processing pipelines
--   Complex development workflows
+```bash
+# Use: echo $(date)
+# Instead of: date | cat
+```
 
-### Current Workarounds
+### Recovery
 
-1. **Break compound commands into individual steps**
+-   Toggle Plan/Act mode to resume
+-   Restart VSCode if commands hang
+-   Use checkpoints for rollback
+-   Monitor for authentication prompts
 
-    ```bash
-    # Instead of: echo "test1" && echo "test2"
-    # Use separate commands:
-    echo "test1"
-    echo "test2"
-    ```
+## Typical Usage
 
-2. **Use explicit shell scripts** for complex operations
-
-    ```bash
-    # Create script.sh with compound commands
-    # Execute: bash script.sh
-    ```
-
-3. **Leverage command substitution** where possible
-
-    ```bash
-    # Use: echo $(date)
-    # Instead of: date | cat
-    ```
-
-4. **Monitor for VSCode authentication prompts**
-    - Git commands may show input prompts at top of VSCode window
-    - Not actual hanging - waiting for user authentication
-
-### Community Solutions
-
-When commands do hang:
-
--   Toggle Plan/Act mode to re-enable "Resume Task"
--   Exit all terminal windows and restart VS Code
--   Restore from checkpoints when commands fail
--   Use explicit shell scripts for complex command sequences
+1. **File modifications** - Direct code changes
+2. **Debugging** - Error analysis and fixes
+3. **Structure changes** - Project organization
+4. **Testing** - Run and validate changes

@@ -1,57 +1,41 @@
 # Roo Code Development Guide
 
-## Overview
+Multi-agent development platform with specialized modes and orchestration.
 
-Roo Code was originally forked from Cline, it has evolved into a multi-agent development platform with specialized modes and enhanced capabilities.
+## Multi-Agent Modes
 
-## Multi-Agent Architecture
+### 🏗️ Architect Mode
 
-### Available Modes
+-   **System design** and high-level planning
+-   **Architecture documentation** and technical specifications
+-   **Strategic project planning**
 
-**🏗️ Architect Mode:**
+### 🪃 Orchestrator Mode
 
--   **Purpose:** System design and high-level planning
--   **Best for:** Architecture documentation, technical specifications
+-   **Workflow orchestration** and task delegation
+-   **Multi-component coordination** using `new_task` tool
 
-**🪃 Orchestrator Mode:**
+### ⚡ Code Mode
 
--   **Purpose:** Strategic workflow orchestration and task delegation
--   **Key feature:** Uses `new_task` tool for delegating to specialized modes
--   **Best for:** Complex multi-component projects
+-   **Direct implementation** and coding tasks
+-   **Active development** and debugging
+-   **File operations** and modifications
 
-**⚡ Code Mode:**
+### ❓ Ask Mode
 
--   **Purpose:** Direct implementation and coding tasks
--   **Best for:** Active development, debugging, file operations
+-   **Learning and exploration** without file changes
+-   **Codebase understanding** and research
+-   **Safe planning** and analysis
 
-**❓ Ask Mode:**
+### 🐛 Debug Mode
 
--   **Purpose:** Learning, exploration, and safe planning
--   **Best for:** Understanding codebases, research, safe exploration
+-   **Systematic troubleshooting** and issue resolution
+-   **Bug identification** and performance analysis
+-   **Error diagnosis** and fixes
 
-**🐛 Debug Mode:**
+## Typical usage
 
--   **Purpose:** Systematic troubleshooting and issue resolution
--   **Best for:** Identifying and fixing bugs, performance analysis
-
-## Advanced Capabilities
-
-### Browser Automation
-
--   **Extended browser automation** with customization options
--   **More control** over testing different screen sizes and image quality
--   **Advanced web scraping** and testing capabilities
--   **Custom browser configurations** for specific testing needs
-
-## Strategic Usage Patterns
-
-### Mode Selection and execution Strategy
-
-1. **Start with Architect** for complex system design and planning
-2. **Evaluate and update plan** evaluate saved architect plan and update where
-   needed
-3. **Archtect switches mode** Let Archtect decide to execute plan via Orchestrator or Code\*\*
-4. **Use Orchestrator** for project coordination and task delegation
-5. **Switch to Code** for implementation details and active development
-6. **Deploy Debug** for systematic troubleshooting and issue resolution
-7. **Leverage Ask** for learning and codebase exploration
+-   **Complex architecture** requiring multi-agent coordination
+-   **Large projects** with multiple components
+-   **System design** and planning phases
+-   **Advanced browser testing** requirements
