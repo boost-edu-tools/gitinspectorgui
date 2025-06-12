@@ -1,0 +1,1 @@
+Ask permission before committing
