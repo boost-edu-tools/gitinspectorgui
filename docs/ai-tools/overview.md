@@ -40,26 +40,29 @@ The GitInspectorGUI project utilizes a set of AI tools that in our experience, c
 
 ## Tool Selection Guide
 
+### Use Cline when:
+
+-   **Primary development tool** - Most reliable and consistent performance
+-   Making direct code changes and file modifications
+-   General development tasks requiring good, correctly working solutions
+-   Streamlined development workflow with minimal setup
+-   **Recommended as first choice** for most development scenarios
+
 ### Use Claude.ai when:
 
+-   Cline gets stuck providing incorrect fixes repeatedly
+-   Quick and correct solutions needed with web search capabilities
 -   Researching current technologies or best practices
 -   Analyzing multiple uploaded files for insights
 -   Generating research-backed content or documentation
--   Needing web search integration for current information
--   Working on tasks not directly tied to your codebase
+-   **Trade-off**: Inconvenience of manual file uploads and applying suggested changes
 
 ### Use Roo Code when:
 
+-   **Only when you specifically need** architect and orchestrator functionality
 -   Planning complex architecture or system design
--   Managing large, multi-component projects
--   Needing specialized modes (Architect, Debug, Orchestrator)
--   Requiring browser automation or advanced customization
-
-### Use Cline when:
-
--   Making direct, possibly plan supported, code changes
--   Working with relatively simple, reliable development tasks
--   Preferring a streamlined, straightforward assistant
+-   Managing large, multi-component projects requiring orchestration
+-   Needing specialized modes for complex project coordination
 
 ## Checkpoint Strategy in Roo Code and Cline
 
