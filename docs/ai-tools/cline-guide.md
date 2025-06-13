@@ -74,13 +74,6 @@ bash script.sh
 -   Use checkpoints for rollback
 -   Monitor for authentication prompts
 
-## Typical Usage
-
-1. **File modifications** - Direct code changes
-2. **Debugging** - Error analysis and fixes
-3. **Structure changes** - Project organization
-4. **Testing** - Run and validate changes
-
 ## Related
 
 -   **[AI Tools Overview](overview.md)** - Complete AI development ecosystem guide
