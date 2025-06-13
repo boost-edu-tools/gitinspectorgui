@@ -75,6 +75,7 @@ nav:
     - Getting Started:
           - Quick Start: getting-started/quick-start.md
           - Installation: getting-started/installation.md
+          - CLI Usage: getting-started/cli-usage.md
           - First Analysis: getting-started/first-analysis.md
     - Development:
           - Environment Setup: development/environment-setup.md
