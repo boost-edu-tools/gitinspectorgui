@@ -74,7 +74,8 @@ uv run pyinstaller api-sidecar.spec --clean --noconfirm
 ```
 
 !!! note "Web Interface Integration"
-The backend includes capabilities for web-based interactive output with features like `auto_open_browser`, `server_port`, and `max_browser_tabs`. However, these web interface integration capabilities are not yet exposed via CLI flags. Future versions may include options like `--web` or `--interactive` to launch the rich interactive tables available in the GUI application.
+
+    The backend includes capabilities for web-based interactive output with features like `auto_open_browser`, `server_port`, and `max_browser_tabs`. However, these web interface integration capabilities are not yet exposed via CLI flags. Future versions may include options like `--web` or `--interactive` to launch the rich interactive tables available in the GUI application.
 
 ## JSON Format Output Example
 
