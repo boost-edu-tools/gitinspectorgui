@@ -80,6 +80,7 @@ nav:
     - Development:
           - Environment Setup: development/environment-setup.md
           - Development Mode: development/development-mode.md
+          - Server Management: development/server-management.md
           - Build Process: development/build-process.md
           - Demo-Based Documentation-GUI Development: development/demo-based-documentation-gui-development.md
           - Design System Integration: development/design-system-integration.md
