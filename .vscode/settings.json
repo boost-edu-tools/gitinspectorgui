@@ -91,7 +91,7 @@
         "editor.codeActionsOnSave": {
             "source.addMissingImports": "always",
             "source.fixAll.ruff": "explicit",
-            "source.organizeImports.ruff": "explicit"
+            "source.organizeImports.ruff": "never"
         }
     },
     "[json]": {

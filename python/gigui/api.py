@@ -19,11 +19,14 @@ import logging
 import sys
 import time
 from dataclasses import asdict, dataclass
-from pathlib import Path
 from math import floor
+from pathlib import Path
 
-from gigui.typedefs import Author, Email, FileStr, SHA, OID
-from gigui.api_types import Settings, AnalysisResult, RepositoryResult, AuthorStat, FileStat, BlameEntry
+from gigui.api_types import (
+    AnalysisResult,
+    Settings,
+)
+from gigui.typedefs import SHA, Author, Email, FileStr
 
 # Configure logging for API operations
 logging.basicConfig(level=logging.INFO)
@@ -36,7 +39,6 @@ DAYS_IN_YEAR = 365.25
 DAYS_IN_MONTH = 30.44
 
 
-
 # Import legacy engine after api_types to avoid circular imports
 from gigui.legacy_engine import legacy_engine
 
@@ -44,6 +46,7 @@ from gigui.legacy_engine import legacy_engine
 @dataclass
 class CommitGroup:
     """A CommitGroup holds the sum of commit data for commits that share the same person author and file name."""
+
     fstr: FileStr
     author: Author
     insertions: int
@@ -54,7 +57,7 @@ class CommitGroup:
 
 class Stat:
     """Statistics for commits, insertions, deletions, and blame data."""
-    
+
     def __init__(self) -> None:
         self.shas: set[SHA] = set()  # Use to calculate the number of commits as len(shas)
         self.insertions: int = 0
@@ -109,18 +112,17 @@ class Stat:
         remaining_days = round(remaining_days - months * DAYS_IN_MONTH)
         if years:
             return f"{years}:{months:02}:{remaining_days:02}"
-        else:
-            return f"{months:02}:{remaining_days:02}"
+        return f"{months:02}:{remaining_days:02}"
 
 
 class Person:
     """Represents a person (author) with multiple possible names and emails."""
-    
+
     # Class-level settings that can be configured from Settings
     show_renames: bool = False
     ex_author_patterns: list[str] = []
     ex_email_patterns: list[str] = []
-    
+
     @classmethod
     def configure_from_settings(cls, settings: "Settings"):
         """Configure Person class filtering from Settings object."""
@@ -132,11 +134,11 @@ class Person:
         self.authors: set[Author] = {author}
         self.emails: set[Email] = {email}
         self.author: Author = self.get_author()
-        
+
         # If any of the filters match, this will be set to True
         # so that the person will be excluded from the output.
         self.filter_matched: bool = False
-        
+
         self.match_author_filter(author)
         self.match_email_filter(email)
 
@@ -150,31 +152,31 @@ class Person:
 
     def find_filter_match(self, patterns: list[str], author_or_email: str):
         """Check if author or email matches any exclusion pattern.
-        
+
         Supports both exact string matches and glob patterns.
         """
-        from fnmatch import fnmatchcase
         import re
-        
+        from fnmatch import fnmatchcase
+
         if self.filter_matched or author_or_email == "*":
             return
-            
+
         for pattern in patterns:
             if not pattern:  # Skip empty patterns
                 continue
-                
+
             # Check for exact match first (case-insensitive)
             if pattern.lower() == author_or_email.lower():
                 self.filter_matched = True
                 return
-                
+
             # Check for glob pattern match
             if fnmatchcase(author_or_email.lower(), pattern.lower()):
                 self.filter_matched = True
                 return
-                
+
             # Check for regex pattern (if pattern contains regex metacharacters)
-            if any(char in pattern for char in r'[]{}()+*?^$|\.'):
+            if any(char in pattern for char in r"[]{}()+*?^$|\."):
                 try:
                     if re.search(pattern, author_or_email, re.IGNORECASE):
                         self.filter_matched = True
@@ -223,181 +225,203 @@ class Person:
 class GitRepository:
     """
     DEPRECATED: Simple Git repository wrapper for basic operations.
-    
+
     This class is maintained for backward compatibility but is no longer used
     in the main analysis workflow. The Legacy Engine Wrapper now handles all
     sophisticated git repository analysis.
     """
-    
+
     def __init__(self, path: str):
         self.path = Path(path)
         self.name = self.path.name
         logger.warning("GitRepository class is deprecated. Use Legacy Engine Wrapper instead.")
-        
+
     def is_git_repository(self) -> bool:
         """Check if the path is a git repository."""
         return (self.path / ".git").exists() or (self.path / ".git").is_file()
-    
+
     def get_tracked_files(self) -> list[FileStr]:
         """DEPRECATED: Get list of tracked files in the repository."""
         logger.warning("get_tracked_files is deprecated. Use Legacy Engine Wrapper for analysis.")
         import subprocess
+
         try:
             if not self.is_git_repository():
                 return []
-                
+
             result = subprocess.run(
                 ["git", "ls-files"],
                 cwd=self.path,
                 capture_output=True,
                 text=True,
-                timeout=10
+                timeout=10,
+                check=False,
             )
-            
+
             if result.returncode == 0:
-                files = [f.strip() for f in result.stdout.split('\n') if f.strip()]
+                files = [f.strip() for f in result.stdout.split("\n") if f.strip()]
                 return files[:50]  # Limit to first 50 files for demo
             return []
-            
+
         except (subprocess.TimeoutExpired, subprocess.SubprocessError, FileNotFoundError):
             return []
-    
+
     def get_commit_count(self) -> int:
         """DEPRECATED: Get total number of commits in the repository."""
         logger.warning("get_commit_count is deprecated. Use Legacy Engine Wrapper for analysis.")
         import subprocess
+
         try:
             if not self.is_git_repository():
                 return 0
-                
+
             result = subprocess.run(
                 ["git", "rev-list", "--count", "HEAD"],
                 cwd=self.path,
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
+                check=False,
             )
-            
+
             if result.returncode == 0:
                 return int(result.stdout.strip())
             return 0
-            
-        except (subprocess.TimeoutExpired, subprocess.SubprocessError, FileNotFoundError, ValueError):
+
+        except (
+            subprocess.TimeoutExpired,
+            subprocess.SubprocessError,
+            FileNotFoundError,
+            ValueError,
+        ):
             return 0
-    
+
     def get_authors(self) -> list[str]:
         """DEPRECATED: Get list of authors who have committed to this repository."""
         logger.warning("get_authors is deprecated. Use Legacy Engine Wrapper for analysis.")
         import subprocess
+
         try:
             if not self.is_git_repository():
                 return []
-                
+
             result = subprocess.run(
                 ["git", "log", "--format=%an <%ae>"],
                 cwd=self.path,
                 capture_output=True,
                 text=True,
-                timeout=10
+                timeout=10,
+                check=False,
             )
-            
+
             if result.returncode == 0:
-                authors = list(set(line.strip() for line in result.stdout.split('\n') if line.strip()))
+                authors = list(
+                    set(line.strip() for line in result.stdout.split("\n") if line.strip())
+                )
                 return authors[:10]  # Limit to first 10 authors for demo
             return []
-            
+
         except (subprocess.TimeoutExpired, subprocess.SubprocessError, FileNotFoundError):
             return []
-    
+
     def get_author_stats(self) -> dict[str, dict]:
         """DEPRECATED: Get detailed statistics for each author."""
         logger.warning("get_author_stats is deprecated. Use Legacy Engine Wrapper for analysis.")
         import subprocess
+
         try:
             if not self.is_git_repository():
                 return {}
-                
+
             # Get commit stats per author
             result = subprocess.run(
                 ["git", "log", "--format=%an <%ae>|%H|%ct", "--numstat"],
                 cwd=self.path,
                 capture_output=True,
                 text=True,
-                timeout=30
+                timeout=30,
+                check=False,
             )
-            
+
             if result.returncode != 0:
                 return {}
-            
+
             author_stats = {}
             current_author = None
             current_commit = None
             current_timestamp = None
-            
-            for line in result.stdout.split('\n'):
+
+            for line in result.stdout.split("\n"):
                 line = line.strip()
                 if not line:
                     continue
-                    
-                if '|' in line and len(line.split('|')) == 3:
+
+                if "|" in line and len(line.split("|")) == 3:
                     # Author line: "Name <email>|commit_hash|timestamp"
-                    parts = line.split('|')
+                    parts = line.split("|")
                     current_author = parts[0]
                     current_commit = parts[1]
                     current_timestamp = int(parts[2])
-                    
+
                     if current_author not in author_stats:
                         author_stats[current_author] = {
-                            'commits': set(),
-                            'insertions': 0,
-                            'deletions': 0,
-                            'files': set(),
-                            'timestamps': []
+                            "commits": set(),
+                            "insertions": 0,
+                            "deletions": 0,
+                            "files": set(),
+                            "timestamps": [],
                         }
-                    
-                    author_stats[current_author]['commits'].add(current_commit)
-                    author_stats[current_author]['timestamps'].append(current_timestamp)
-                    
-                elif current_author and '\t' in line:
+
+                    author_stats[current_author]["commits"].add(current_commit)
+                    author_stats[current_author]["timestamps"].append(current_timestamp)
+
+                elif current_author and "\t" in line:
                     # Stat line: "insertions\tdeletions\tfilename"
-                    parts = line.split('\t')
+                    parts = line.split("\t")
                     if len(parts) >= 3:
                         try:
-                            insertions = int(parts[0]) if parts[0] != '-' else 0
-                            deletions = int(parts[1]) if parts[1] != '-' else 0
+                            insertions = int(parts[0]) if parts[0] != "-" else 0
+                            deletions = int(parts[1]) if parts[1] != "-" else 0
                             filename = parts[2]
-                            
-                            author_stats[current_author]['insertions'] += insertions
-                            author_stats[current_author]['deletions'] += deletions
-                            author_stats[current_author]['files'].add(filename)
+
+                            author_stats[current_author]["insertions"] += insertions
+                            author_stats[current_author]["deletions"] += deletions
+                            author_stats[current_author]["files"].add(filename)
                         except ValueError:
                             continue
-            
+
             # Convert sets to counts and calculate percentages
-            total_commits = sum(len(stats['commits']) for stats in author_stats.values())
-            
+            total_commits = sum(len(stats["commits"]) for stats in author_stats.values())
+
             for author, stats in author_stats.items():
-                stats['commit_count'] = len(stats['commits'])
-                stats['file_count'] = len(stats['files'])
-                stats['percentage'] = (stats['commit_count'] / total_commits * 100) if total_commits > 0 else 0
-                
+                stats["commit_count"] = len(stats["commits"])
+                stats["file_count"] = len(stats["files"])
+                stats["percentage"] = (
+                    (stats["commit_count"] / total_commits * 100) if total_commits > 0 else 0
+                )
+
                 # Calculate age from oldest commit
-                if stats['timestamps']:
-                    oldest_timestamp = min(stats['timestamps'])
-                    stats['age'] = Stat.timestamp_to_age(oldest_timestamp)
+                if stats["timestamps"]:
+                    oldest_timestamp = min(stats["timestamps"])
+                    stats["age"] = Stat.timestamp_to_age(oldest_timestamp)
                 else:
-                    stats['age'] = "0:00:00"
-            
+                    stats["age"] = "0:00:00"
+
             return author_stats
-            
-        except (subprocess.TimeoutExpired, subprocess.SubprocessError, FileNotFoundError, ValueError):
+
+        except (
+            subprocess.TimeoutExpired,
+            subprocess.SubprocessError,
+            FileNotFoundError,
+            ValueError,
+        ):
             return {}
 
 
 class GitInspectorAPI:
     """
     Main API class for git repository analysis.
-    
+
     PHASE 4 COMPLETION: This API class now integrates with the sophisticated
     legacy analysis engine while maintaining the existing API contract for
     the frontend. All analysis operations are delegated to the Legacy Engine
@@ -408,27 +432,31 @@ class GitInspectorAPI:
         """Initialize the API with legacy engine integration."""
         self.settings_file = Path.home() / ".gitinspectorgui" / "settings.json"
         self.settings_file.parent.mkdir(exist_ok=True)
-        
+
         # Initialize performance tracking
         self._api_start_time = time.time()
         self._analysis_count = 0
-        
+
         logger.info("GitInspectorAPI initialized with Legacy Engine Wrapper integration")
-        logger.info(f"Legacy Engine capabilities: {len(legacy_engine.get_engine_info()['capabilities'])} features")
+        logger.info(
+            f"Legacy Engine capabilities: {len(legacy_engine.get_engine_info()['capabilities'])} features"
+        )
 
     def get_settings(self) -> Settings:
         """Load settings from file or return defaults with enhanced error handling."""
         logger.debug("Loading settings from file")
-        
+
         if self.settings_file.exists():
             try:
                 with self.settings_file.open(encoding="utf-8") as f:
                     data = json.load(f)
-                
+
                 settings = Settings(**data)
-                logger.info(f"Settings loaded successfully: {len(settings.input_fstrs)} repositories configured")
+                logger.info(
+                    f"Settings loaded successfully: {len(settings.input_fstrs)} repositories configured"
+                )
                 return settings
-                
+
             except (json.JSONDecodeError, OSError, TypeError) as e:
                 logger.error(f"Error loading settings: {e}")
                 print(f"Error loading settings: {e}", file=sys.stderr)
@@ -439,21 +467,23 @@ class GitInspectorAPI:
     def save_settings(self, settings: Settings) -> None:
         """Save settings to file with enhanced validation and error handling."""
         logger.debug("Saving settings to file")
-        
+
         try:
             # Validate settings before saving
             is_valid, error_msg = legacy_engine.validate_settings(settings)
             if not is_valid:
                 logger.warning(f"Saving potentially invalid settings: {error_msg}")
-            
+
             # Normalize paths before saving
             settings.normalize_paths()
-            
+
             with self.settings_file.open("w", encoding="utf-8") as f:
                 json.dump(asdict(settings), f, indent=2)
-                
-            logger.info(f"Settings saved successfully: {len(settings.input_fstrs)} repositories configured")
-            
+
+            logger.info(
+                f"Settings saved successfully: {len(settings.input_fstrs)} repositories configured"
+            )
+
         except OSError as e:
             logger.error(f"Error saving settings: {e}")
             print(f"Error saving settings: {e}", file=sys.stderr)
@@ -462,10 +492,10 @@ class GitInspectorAPI:
     def execute_analysis(self, settings: Settings) -> AnalysisResult:
         """
         Execute git repository analysis using the sophisticated legacy engine.
-        
+
         PHASE 4 COMPLETION: This method now uses the Legacy Engine Wrapper to provide
         sophisticated analysis while maintaining the existing API contract for the frontend.
-        
+
         The legacy engine provides:
         - Advanced person identity merging
         - Sophisticated statistics calculation
@@ -474,59 +504,57 @@ class GitInspectorAPI:
         - Pattern-based filtering
         - Memory management
         - Multi-threading support
-        
+
         Args:
             settings: Enhanced GUI settings object
-            
+
         Returns:
             AnalysisResult compatible with current GUI frontend
         """
         logger.info("API executing analysis using Legacy Engine Wrapper")
-        
+
         try:
             # Validate settings before delegating to legacy engine
             is_valid, error_msg = legacy_engine.validate_settings(settings)
             if not is_valid:
                 logger.error(f"Settings validation failed: {error_msg}")
                 return AnalysisResult(
-                    repositories=[],
-                    success=False,
-                    error=f"Settings validation failed: {error_msg}"
+                    repositories=[], success=False, error=f"Settings validation failed: {error_msg}"
                 )
-            
+
             # Configure Person class with enhanced filtering settings (for backward compatibility)
             Person.configure_from_settings(settings)
-            
+
             # Normalize paths for cross-platform compatibility
             settings.normalize_paths()
-            
+
             # Delegate to the sophisticated legacy engine
             logger.info("Delegating analysis to Legacy Engine Wrapper")
             result = legacy_engine.execute_analysis(settings)
-            
+
             # Update analysis count for performance tracking
             self._analysis_count += 1
-            
+
             # Log completion status
             if result.success and result.repositories:
-                logger.info(f"Analysis completed successfully: {len(result.repositories)} repositories processed")
+                logger.info(
+                    f"Analysis completed successfully: {len(result.repositories)} repositories processed"
+                )
             else:
                 logger.warning(f"Analysis completed with issues: {result.error}")
-            
+
             return result
 
         except Exception as e:
             logger.error(f"API analysis execution failed: {e}")
             return AnalysisResult(
-                repositories=[],
-                success=False,
-                error=f"API analysis execution failed: {e}"
+                repositories=[], success=False, error=f"API analysis execution failed: {e}"
             )
-    
+
     def get_engine_info(self) -> dict:
         """
         Get information about the analysis engine capabilities.
-        
+
         Returns:
             Dictionary with engine information and capabilities
         """
@@ -536,26 +564,26 @@ class GitInspectorAPI:
             "integration_complete": True,
             "legacy_engine_active": True,
             "api_uptime_seconds": time.time() - self._api_start_time,
-            "analyses_performed": self._analysis_count
+            "analyses_performed": self._analysis_count,
         }
         return engine_info
-    
+
     def validate_settings(self, settings: Settings) -> tuple[bool, str]:
         """
         Validate settings for analysis compatibility.
-        
+
         Args:
             settings: Settings to validate
-            
+
         Returns:
             Tuple of (is_valid, error_message)
         """
         return legacy_engine.validate_settings(settings)
-    
+
     def get_performance_stats(self) -> dict:
         """
         Get API performance statistics.
-        
+
         Returns:
             Dictionary with performance metrics
         """
@@ -563,10 +591,12 @@ class GitInspectorAPI:
         return {
             "api_uptime_seconds": uptime,
             "analyses_performed": self._analysis_count,
-            "average_analyses_per_hour": (self._analysis_count / uptime * 3600) if uptime > 0 else 0,
+            "average_analyses_per_hour": (self._analysis_count / uptime * 3600)
+            if uptime > 0
+            else 0,
             "legacy_engine_active": True,
             "settings_file": str(self.settings_file),
-            "settings_file_exists": self.settings_file.exists()
+            "settings_file_exists": self.settings_file.exists(),
         }
 
 
@@ -590,28 +620,43 @@ def main():
                 sys.exit(1)
 
             settings_data = json.loads(sys.argv[2])
-            
+
             # Ensure all required fields have defaults
             defaults = {
-                'include_files': [],
-                'ex_files': [],
-                'extensions': ["c", "cc", "cif", "cpp", "glsl", "h", "hh", "hpp", "java", "js", "py", "rb", "sql", "ts"],
-                'ex_authors': [],
-                'ex_emails': [],
-                'ex_revisions': [],
-                'ex_messages': [],
-                'file_formats': ["html"],
-                'ex_author_patterns': [],
-                'ex_email_patterns': [],
-                'ex_message_patterns': [],
-                'ex_file_patterns': [],
+                "include_files": [],
+                "ex_files": [],
+                "extensions": [
+                    "c",
+                    "cc",
+                    "cif",
+                    "cpp",
+                    "glsl",
+                    "h",
+                    "hh",
+                    "hpp",
+                    "java",
+                    "js",
+                    "py",
+                    "rb",
+                    "sql",
+                    "ts",
+                ],
+                "ex_authors": [],
+                "ex_emails": [],
+                "ex_revisions": [],
+                "ex_messages": [],
+                "file_formats": ["html"],
+                "ex_author_patterns": [],
+                "ex_email_patterns": [],
+                "ex_message_patterns": [],
+                "ex_file_patterns": [],
             }
-            
+
             # Apply defaults for missing fields
             for key, default_value in defaults.items():
                 if key not in settings_data or settings_data[key] is None:
                     settings_data[key] = default_value
-            
+
             settings = Settings(**settings_data)
             api.save_settings(settings)
             print(json.dumps({"success": True}))
@@ -622,31 +667,64 @@ def main():
                 sys.exit(1)
 
             settings_data = json.loads(sys.argv[2])
-            
+
             # Ensure all required fields have defaults
             defaults = {
-                'include_files': [],
-                'ex_files': [],
-                'extensions': ["c", "cc", "cif", "cpp", "glsl", "h", "hh", "hpp", "java", "js", "py", "rb", "sql", "ts"],
-                'ex_authors': [],
-                'ex_emails': [],
-                'ex_revisions': [],
-                'ex_messages': [],
-                'file_formats': ["html"],
-                'ex_author_patterns': [],
-                'ex_email_patterns': [],
-                'ex_message_patterns': [],
-                'ex_file_patterns': [],
+                "include_files": [],
+                "ex_files": [],
+                "extensions": [
+                    "c",
+                    "cc",
+                    "cif",
+                    "cpp",
+                    "glsl",
+                    "h",
+                    "hh",
+                    "hpp",
+                    "java",
+                    "js",
+                    "py",
+                    "rb",
+                    "sql",
+                    "ts",
+                ],
+                "ex_authors": [],
+                "ex_emails": [],
+                "ex_revisions": [],
+                "ex_messages": [],
+                "file_formats": ["html"],
+                "ex_author_patterns": [],
+                "ex_email_patterns": [],
+                "ex_message_patterns": [],
+                "ex_file_patterns": [],
             }
-            
+
             # Apply defaults for missing fields
             for key, default_value in defaults.items():
                 if key not in settings_data or settings_data[key] is None:
                     settings_data[key] = default_value
-            
+
             settings = Settings(**settings_data)
             result = api.execute_analysis(settings)
             print(json.dumps(asdict(result)))
+
+        elif command == "start_server":
+            # Start the HTTP server
+            from gigui.http_server import start_server
+
+            host = "127.0.0.1"
+            port = 8080
+
+            # Parse optional host and port arguments
+            if len(sys.argv) > 2:
+                for arg in sys.argv[2:]:
+                    if arg.startswith("--host="):
+                        host = arg.split("=", 1)[1]
+                    elif arg.startswith("--port="):
+                        port = int(arg.split("=", 1)[1])
+
+            print(f"Starting HTTP server on {host}:{port}", file=sys.stderr)
+            start_server(host=host, port=port)
 
         else:
             print(f"Unknown command: {command}", file=sys.stderr)

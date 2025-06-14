@@ -143,8 +143,8 @@ if [ "$CLEAN_BUILD" = true ]; then
     fi
 
     # Clean Python build cache
-    if [ -d "python/dist" ]; then
-        rm -rf python/dist
+    if [ -d "dist" ]; then
+        rm -rf dist
         print_status "Cleaned Python build cache"
     fi
 
@@ -182,24 +182,18 @@ fi
 # Build Python FastAPI server package
 print_status "Building Python FastAPI server package..."
 if command -v uv &> /dev/null; then
-    cd python
     if [ "$VERBOSE" = true ]; then
         uv build
     else
         uv build --quiet 2>/dev/null || uv build
     fi
-    cd ..
 else
     print_warning "uv not available, skipping Python package build"
 fi
 
 # Build frontend
 print_status "Building frontend..."
-if [ "$VERBOSE" = true ]; then
-    pnpm run build
-else
-    pnpm run build --silent
-fi
+pnpm run build
 
 # Create output directory
 mkdir -p dist/releases
@@ -324,8 +318,8 @@ fi
 
 # Copy Python package to releases if built
 print_status "Copying Python package to releases..."
-if [ -d "python/dist" ] && ls python/dist/*.whl 1> /dev/null 2>&1; then
-    cp python/dist/*.whl dist/releases/ 2>/dev/null || true
+if [ -d "dist" ] && ls dist/*.whl 1> /dev/null 2>&1; then
+    cp dist/*.whl dist/releases/ 2>/dev/null || true
     print_success "Python wheel copied to releases"
 else
     print_warning "No Python wheel found to copy"

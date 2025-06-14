@@ -2,6 +2,10 @@ use serde::{Deserialize, Serialize};
 use tauri::command;
 use reqwest;
 use std::time::Duration;
+use std::process::{Command, Stdio};
+use std::path::PathBuf;
+use std::io::{BufReader, Read};
+use tauri::Manager;
 
 const API_BASE_URL: &str = "http://127.0.0.1:8080";
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(300); // 5 minutes for analysis operations
@@ -13,13 +17,13 @@ pub struct Settings {
     pub input_fstrs: Vec<String>,
     pub depth: i32,
     pub subfolder: String,
-    
+
     // File Analysis Settings
     pub n_files: i32,
     pub include_files: Vec<String>,
     pub ex_files: Vec<String>,
     pub extensions: Vec<String>,
-    
+
     // Author and Commit Filtering
     pub ex_authors: Vec<String>,
     pub ex_emails: Vec<String>,
@@ -27,37 +31,80 @@ pub struct Settings {
     pub ex_messages: Vec<String>,
     pub since: String,
     pub until: String,
-    
+
     // Output and Format Settings
     pub outfile_base: String,
     pub fix: String,
     pub file_formats: Vec<String>,
     pub view: String,
-    
+
     // Analysis Options
     pub copy_move: i32,
     pub scaled_percentages: bool,
     pub blame_exclusions: String,
     pub blame_skip: bool,
     pub show_renames: bool,
-    
+
     // Content Analysis
     pub deletions: bool,
     pub whitespace: bool,
     pub empty_lines: bool,
     pub comments: bool,
-    
+
     // Performance Settings
     pub multithread: bool,
     pub multicore: bool,
     pub verbosity: i32,
-    
+
     // Development/Testing
     pub dryrun: i32,
-    
+
     // GUI-specific
     pub gui_settings_full_path: bool,
     pub col_percent: i32,
+
+    // Additional required fields for Python backend compatibility
+    pub ex_author_patterns: Vec<String>,
+    pub ex_email_patterns: Vec<String>,
+    pub ex_message_patterns: Vec<String>,
+    pub ex_file_patterns: Vec<String>,
+    pub ignore_revs_file: String,
+    pub enable_ignore_revs: bool,
+    pub blame_follow_moves: bool,
+    pub blame_ignore_whitespace: bool,
+    pub blame_minimal_context: bool,
+    pub blame_show_email: bool,
+    pub output_encoding: String,
+    pub date_format: String,
+    pub author_display_format: String,
+    pub line_number_format: String,
+    pub excel_max_rows: i32,
+    pub excel_abbreviate_names: bool,
+    pub excel_freeze_panes: bool,
+    pub html_theme: String,
+    pub html_enable_search: bool,
+    pub html_max_entries_per_page: i32,
+    pub server_port: i32,
+    pub server_host: String,
+    pub max_browser_tabs: i32,
+    pub auto_open_browser: bool,
+    pub profile: i32,
+    pub debug_show_main_event_loop: bool,
+    pub debug_multiprocessing: bool,
+    pub debug_git_commands: bool,
+    pub log_git_output: bool,
+    pub legacy_mode: bool,
+    pub preserve_legacy_output_format: bool,
+    pub max_thread_workers: i32,
+    pub git_log_chunk_size: i32,
+    pub blame_chunk_size: i32,
+    pub max_core_workers: i32,
+    pub memory_limit_mb: i32,
+    pub enable_gc_optimization: bool,
+    pub max_commit_count: i32,
+    pub max_file_size_kb: i32,
+    pub follow_renames: bool,
+    pub ignore_merge_commits: bool,
 }
 
 impl Default for Settings {
@@ -67,7 +114,7 @@ impl Default for Settings {
             input_fstrs: vec![],
             depth: 5,
             subfolder: String::new(),
-            
+
             // File Analysis Settings
             n_files: 5,
             include_files: vec![],
@@ -76,7 +123,7 @@ impl Default for Settings {
                            "glsl".to_string(), "h".to_string(), "hh".to_string(), "hpp".to_string(),
                            "java".to_string(), "js".to_string(), "py".to_string(), "rb".to_string(),
                            "sql".to_string(), "ts".to_string()],
-            
+
             // Author and Commit Filtering
             ex_authors: vec![],
             ex_emails: vec![],
@@ -84,37 +131,80 @@ impl Default for Settings {
             ex_messages: vec![],
             since: String::new(),
             until: String::new(),
-            
+
             // Output and Format Settings
             outfile_base: "gitinspect".to_string(),
             fix: "prefix".to_string(),
             file_formats: vec!["html".to_string()],
             view: "auto".to_string(),
-            
+
             // Analysis Options
             copy_move: 1,
             scaled_percentages: false,
             blame_exclusions: "hide".to_string(),
             blame_skip: false,
             show_renames: false,
-            
+
             // Content Analysis
             deletions: false,
             whitespace: false,
             empty_lines: false,
             comments: false,
-            
+
             // Performance Settings
             multithread: true,
             multicore: false,
             verbosity: 0,
-            
+
             // Development/Testing
             dryrun: 0,
-            
+
             // GUI-specific
             gui_settings_full_path: false,
             col_percent: 75,
+
+            // Additional required fields for Python backend compatibility
+            ex_author_patterns: vec![],
+            ex_email_patterns: vec![],
+            ex_message_patterns: vec![],
+            ex_file_patterns: vec![],
+            ignore_revs_file: String::new(),
+            enable_ignore_revs: false,
+            blame_follow_moves: true,
+            blame_ignore_whitespace: false,
+            blame_minimal_context: false,
+            blame_show_email: true,
+            output_encoding: "utf-8".to_string(),
+            date_format: "iso".to_string(),
+            author_display_format: "name".to_string(),
+            line_number_format: "decimal".to_string(),
+            excel_max_rows: 1048576,
+            excel_abbreviate_names: true,
+            excel_freeze_panes: true,
+            html_theme: "default".to_string(),
+            html_enable_search: true,
+            html_max_entries_per_page: 100,
+            server_port: 8080,
+            server_host: "localhost".to_string(),
+            max_browser_tabs: 20,
+            auto_open_browser: true,
+            profile: 0,
+            debug_show_main_event_loop: false,
+            debug_multiprocessing: false,
+            debug_git_commands: false,
+            log_git_output: false,
+            legacy_mode: false,
+            preserve_legacy_output_format: false,
+            max_thread_workers: 6,
+            git_log_chunk_size: 100,
+            blame_chunk_size: 20,
+            max_core_workers: 16,
+            memory_limit_mb: 1024,
+            enable_gc_optimization: true,
+            max_commit_count: 0,
+            max_file_size_kb: 1024,
+            follow_renames: true,
+            ignore_merge_commits: false,
         }
     }
 }
@@ -207,7 +297,7 @@ where
     R: From<T>,
 {
     let mut last_error = String::new();
-    
+
     for attempt in 1..=MAX_RETRIES {
         match request_builder()
             .send()
@@ -234,12 +324,12 @@ where
                 println!("Attempt {}/{} failed for {}: {}", attempt, MAX_RETRIES, operation_name, last_error);
             }
         }
-        
+
         if attempt < MAX_RETRIES {
             tokio::time::sleep(Duration::from_millis(1000 * attempt as u64)).await;
         }
     }
-    
+
     Err(format!("{} failed after {} attempts. Last error: {}", operation_name, MAX_RETRIES, last_error))
 }
 
@@ -247,7 +337,7 @@ where
 #[command]
 pub async fn execute_analysis(_app: tauri::AppHandle, mut settings: Settings) -> Result<AnalysisResult, String> {
     println!("Executing analysis with settings: {:?}", settings);
-    
+
     // Convert relative paths to absolute paths to fix the path resolution issue
     let mut absolute_paths = Vec::new();
     for path in &settings.input_fstrs {
@@ -272,12 +362,12 @@ pub async fn execute_analysis(_app: tauri::AppHandle, mut settings: Settings) ->
         absolute_paths.push(absolute_path);
         println!("Converted path '{}' to absolute path '{}'", path, absolute_paths.last().unwrap());
     }
-    
+
     // Update settings with absolute paths
     settings.input_fstrs = absolute_paths;
-    
+
     let client = create_http_client().await?;
-    
+
     make_request_with_retry::<AnalysisResult, AnalysisResult>(
         &client,
         || client.post(&format!("{}/api/execute_analysis", API_BASE_URL))
@@ -289,7 +379,7 @@ pub async fn execute_analysis(_app: tauri::AppHandle, mut settings: Settings) ->
 #[command]
 pub async fn get_settings(_app: tauri::AppHandle) -> Result<Settings, String> {
     let client = create_http_client().await?;
-    
+
     make_request_with_retry::<Settings, Settings>(
         &client,
         || client.get(&format!("{}/api/settings", API_BASE_URL)),
@@ -300,22 +390,22 @@ pub async fn get_settings(_app: tauri::AppHandle) -> Result<Settings, String> {
 #[command]
 pub async fn save_settings(_app: tauri::AppHandle, settings: Settings) -> Result<(), String> {
     println!("Saving settings: {:?}", settings);
-    
+
     let client = create_http_client().await?;
-    
+
     #[derive(Deserialize)]
     struct SaveResponse {
         success: bool,
         message: String,
     }
-    
+
     let response: SaveResponse = make_request_with_retry::<SaveResponse, SaveResponse>(
         &client,
         || client.post(&format!("{}/api/settings", API_BASE_URL))
             .json(&settings),
         "Save settings"
     ).await?;
-    
+
     if response.success {
         Ok(())
     } else {
@@ -326,7 +416,7 @@ pub async fn save_settings(_app: tauri::AppHandle, settings: Settings) -> Result
 #[command]
 pub async fn get_engine_info(_app: tauri::AppHandle) -> Result<EngineInfo, String> {
     let client = create_http_client().await?;
-    
+
     make_request_with_retry::<EngineInfo, EngineInfo>(
         &client,
         || client.get(&format!("{}/api/engine_info", API_BASE_URL)),
@@ -337,7 +427,7 @@ pub async fn get_engine_info(_app: tauri::AppHandle) -> Result<EngineInfo, Strin
 #[command]
 pub async fn get_performance_stats(_app: tauri::AppHandle) -> Result<PerformanceStats, String> {
     let client = create_http_client().await?;
-    
+
     make_request_with_retry::<PerformanceStats, PerformanceStats>(
         &client,
         || client.get(&format!("{}/api/performance_stats", API_BASE_URL)),
@@ -348,10 +438,76 @@ pub async fn get_performance_stats(_app: tauri::AppHandle) -> Result<Performance
 #[command]
 pub async fn health_check(_app: tauri::AppHandle) -> Result<HealthStatus, String> {
     let client = create_http_client().await?;
-    
+
     make_request_with_retry::<HealthStatus, HealthStatus>(
         &client,
         || client.get(&format!("{}/health", API_BASE_URL)),
         "Health check"
     ).await
+}
+
+#[command]
+pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String> {
+    println!("Starting Python HTTP server...");
+
+    // Get the resource directory path
+    let resource_dir = app.path().resource_dir()
+        .map_err(|e| format!("Failed to get resource directory: {}", e))?;
+
+    // Path to the Python sidecar executable
+    let sidecar_path = resource_dir.join("dist").join("gitinspector-api-sidecar");
+
+    if !sidecar_path.exists() {
+        return Err(format!("Python sidecar not found at: {}", sidecar_path.display()));
+    }
+
+    println!("Found Python sidecar at: {}", sidecar_path.display());
+
+    // Start the HTTP server using the Python sidecar
+    // We'll use the start_server command to start the FastAPI server
+    let mut cmd = Command::new(&sidecar_path);
+    cmd.args(["start_server", "--host=127.0.0.1", "--port=8080"])
+        .current_dir(&resource_dir)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+
+    match cmd.spawn() {
+        Ok(mut child) => {
+            println!("Python HTTP server started with PID: {}", child.id());
+
+            // Wait a moment for the server to start
+            tokio::time::sleep(Duration::from_millis(2000)).await;
+
+            // Check if the server is responding
+            let client = create_http_client().await?;
+            match client.get(&format!("{}/health", API_BASE_URL)).send().await {
+                Ok(response) if response.status().is_success() => {
+                    println!("Python HTTP server is responding");
+                    Ok("Python HTTP server started successfully".to_string())
+                }
+                Ok(response) => {
+                    let status = response.status();
+                    Err(format!("Python HTTP server responded with status: {}", status))
+                }
+                Err(e) => {
+                    // Try to get error output from the process
+                    if let Ok(Some(exit_status)) = child.try_wait() {
+                        if let Some(stderr) = child.stderr.take() {
+                            use std::io::Read;
+                            let mut error_output = String::new();
+                            if let Ok(_) = std::io::BufReader::new(stderr).read_to_string(&mut error_output) {
+                                return Err(format!("Python server failed to start. Exit status: {:?}, Error: {}", exit_status, error_output));
+                            }
+                        }
+                        Err(format!("Python server process exited with status: {:?}", exit_status))
+                    } else {
+                        Err(format!("Python HTTP server not responding: {}", e))
+                    }
+                }
+            }
+        }
+        Err(e) => {
+            Err(format!("Failed to start Python sidecar: {}", e))
+        }
+    }
 }
