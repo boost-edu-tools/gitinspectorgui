@@ -6,7 +6,8 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TAURI_DIR="$SCRIPT_DIR/src-tauri"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+TAURI_DIR="$PROJECT_ROOT/src-tauri"
 ORIGINAL_CONFIG="$TAURI_DIR/tauri.conf.json"
 DEV_CONFIG="$TAURI_DIR/tauri.conf.dev.json"
 BACKUP_CONFIG="$TAURI_DIR/tauri.conf.json.backup"
@@ -33,13 +34,13 @@ show_help() {
 
 enable_dev_mode() {
     echo "Enabling development mode..."
-    
+
     # Backup original config if not already backed up
     if [ ! -f "$BACKUP_CONFIG" ]; then
         cp "$ORIGINAL_CONFIG" "$BACKUP_CONFIG"
         echo "Backed up original config to tauri.conf.json.backup"
     fi
-    
+
     # Copy dev config to main config
     cp "$DEV_CONFIG" "$ORIGINAL_CONFIG"
     echo "✅ Development mode enabled!"
@@ -50,12 +51,12 @@ enable_dev_mode() {
 
 disable_dev_mode() {
     echo "Disabling development mode..."
-    
+
     if [ ! -f "$BACKUP_CONFIG" ]; then
         echo "❌ No backup config found. Development mode may not have been enabled."
         exit 1
     fi
-    
+
     # Restore original config
     cp "$BACKUP_CONFIG" "$ORIGINAL_CONFIG"
     echo "✅ Development mode disabled!"
@@ -82,25 +83,25 @@ show_status() {
 
 start_dev() {
     echo "Starting Tauri development server..."
-    cd "$SCRIPT_DIR"
+    cd "$PROJECT_ROOT"
     pnpm run tauri dev
 }
 
 test_api() {
     echo "Testing Python API directly..."
-    cd "$SCRIPT_DIR/python"
-    
+    cd "$PROJECT_ROOT/python"
+
     echo "1. Testing get_settings..."
     python dev_api.py get_settings
-    
+
     echo ""
     echo "2. Testing save_settings..."
     python dev_api.py save_settings '{"input_fstrs": ["/tmp/test"], "depth": 5}'
-    
+
     echo ""
     echo "3. Testing execute_analysis..."
     python dev_api.py execute_analysis '{"input_fstrs": ["/tmp/test"]}'
-    
+
     echo ""
     echo "✅ API tests completed!"
 }
