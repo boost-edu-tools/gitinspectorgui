@@ -15,24 +15,8 @@ Key features:
 block_cipher = None
 
 # Minimal dependencies for API-only operation
-# Excludes: xlsxwriter, werkzeug, fastapi, requests, GUI components
-excludes = [
-    "xlsxwriter",
-    "werkzeug",
-    "fastapi",
-    "requests",
-    "tkinter",
-    "PyQt5",
-    "PyQt6",
-    "PySide2",
-    "PySide6",
-    "matplotlib",
-    "numpy",
-    "pandas",
-    "scipy",
-    "PIL",
-    "Pillow"
-]
+# No excludes needed since we only have lightweight dependencies
+excludes = []
 
 a = Analysis(
     ["gigui/api.py"],
@@ -42,11 +26,6 @@ a = Analysis(
     hiddenimports=[
         "git",
         "gitpython",
-        "colorlog",
-        "jsonschema",
-        "platformdirs",
-        "beautifulsoup4",
-        "jinja2",
         "gigui.legacy_engine",
         "gigui.typedefs",
         "gigui.person_data",
@@ -55,7 +34,7 @@ a = Analysis(
         "gigui.repo_blame",
         "gigui.repo_data",
         "gigui.utils",
-        "gigui.api_types"
+        "gigui.api_types",
     ],
     hookspath=[],
     hooksconfig={},
@@ -63,14 +42,10 @@ a = Analysis(
     excludes=excludes,
     win_private_assemblies=False,
     cipher=block_cipher,
-    noarchive=False
+    noarchive=False,
 )
 
-pyz = PYZ(
-    a.pure,
-    a.zipped_data,
-    cipher=block_cipher
-)
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
     pyz,
@@ -90,5 +65,5 @@ exe = EXE(
     disable_windowed_traceback=False,
     target_arch=None,
     codesign_identity=None,
-    entitlements_file=None
+    entitlements_file=None,
 )
