@@ -1,15 +1,15 @@
 # Cline Development Guide
 
-Direct coding assistance with VSCode integration.
+Direct coding assistance with VSCode integration for streamlined development workflows.
 
-## Capabilities
+## Core Capabilities
 
-### Strengths
+### What Cline Excels At
 
--   **Direct file operations** - Reliable code generation and modification
--   **Single-agent workflow** - Straightforward task execution
--   **File system access** - Full project directory operations
--   **User approval workflow** - Safe, controlled changes
+-   **Direct file operations** - Reliable code generation, modification, and refactoring
+-   **Single-agent workflow** - Straightforward task execution without complex coordination
+-   **Full file system access** - Complete project directory operations and navigation
+-   **User approval workflow** - Safe, controlled changes with explicit confirmation steps
 
 ### Best Use Cases
 
@@ -17,12 +17,43 @@ Direct coding assistance with VSCode integration.
 -   File creation and editing
 -   Project structure changes
 -   Direct development tasks
+-   Build script automation
+-   Documentation updates
 
-## macOS Command Issues
+## Common Issues & Troubleshooting
 
-### Problem
+### UI Hanging and Recovery
 
-Shell operators hang indefinitely on macOS systems.
+**Cline UI hanging is a known issue**, especially on macOS systems. When Cline becomes unresponsive or stops processing, try these recovery methods in order:
+
+#### Method 1: Simple Resume (Try First)
+
+1. **Click "Plan"** button in the Cline interface
+2. **Look for and click "Resume"** button that appears
+3. Cline should resume normal operation
+
+#### Method 2: Plan-Act-Approve Sequence
+
+If the simple resume doesn't work:
+
+1. **Click "Plan"** button in the Cline interface
+2. **Click "Act"** button immediately after
+3. **Look for and click "Approve"** button that should appear
+4. Cline should resume normal operation
+
+> **💡 Quick Recovery:** Try Plan → Resume first, then Plan → Act → Approve if needed
+
+#### Method 3: Full Reset
+
+If UI issues persist:
+
+-   Restart VSCode completely
+-   Use checkpoints for rollback if needed
+-   Monitor for authentication prompts that may be hidden
+
+### macOS Command Issues
+
+**Shell operators hang indefinitely** on macOS systems, causing Cline to become unresponsive.
 
 **Affected operators:**
 
@@ -31,50 +62,90 @@ Shell operators hang indefinitely on macOS systems.
 -   `|` (pipe)
 -   `||` (OR)
 
-### Workarounds
-
-**1. Break compound commands:**
+**Breaking commands doesn't work:**
 
 ```bash
-# Instead of: echo "test1" && echo "test2"
-echo "test1"
-echo "test2"
+# Instead of: cd scripts && ./dev-mode.sh
+# do not use
+cd scripts
+./dev-mode.sh
 ```
 
-**2. Use shell scripts:**
+This fails because Cline executes each command in a new shell instance. The directory change from `cd` is lost when the next command runs.
+
+**Solutions:**
+
+**Use direct path execution:**
+
+```bash
+# Instead of: cd scripts && ./dev-mode.sh
+./scripts/dev-mode.sh
+```
+
+**Use shell scripts for complex operations:**
 
 ```bash
 # Create script.sh with compound commands
 bash script.sh
 ```
 
-**3. Command substitution:**
+**Use command substitution:**
 
 ```bash
 # Use: echo $(date)
 # Instead of: date | cat
 ```
 
-### Recovery
+### Persistence Issues with .clinerules
 
-#### **When Cline UI Hangs (Common Issue on macOS)**
+**Problem:** Cline often reverts to default behavior, ignoring `.clinerules` folder configurations even when properly structured (one file per rule, top-level placement).
 
-**Cline UI hanging is a known issue.** If Cline becomes unresponsive or stops processing:
+**Root Causes:**
 
-1. **Click "Plan"** button in the Cline interface
-2. **Click "Act"** button immediately after
-3. **Look for and click "Approve"** button that should appear
-4. Cline should resume normal operation
+1. **Context reset** - Cline doesn't maintain `.clinerules` awareness across chat sessions
+2. **Rule loading timing** - Rules may not load at task start or when switching project areas
+3. **Memory limitations** - Long conversations can deprioritize earlier context including rules
 
-> **💡 Quick Fix:** Plan → Act → Approve sequence resolves most hanging issues
+**Effective Workarounds:**
 
-#### Other Recovery Options
+1. **Explicit reminders** - Begin new sessions with "Please read and follow the rules in .clinerules"
+2. **Reference rules when correcting** - Say "Please check .clinerules" rather than just correcting behavior
+3. **Shorter conversation sessions** - Start fresh chats for new features/tasks to ensure rule loading
+4. **Rule summaries** - Add `.clinerules/README.md` listing all active rules as quick reference
 
--   Restart VSCode if commands hang
--   Use checkpoints for rollback
--   Monitor for authentication prompts
+**Future Improvements Being Discussed:**
 
-## Related
+-   Auto-loading `.clinerules` at conversation start
+-   Persistent rule awareness across sessions
+-   Better VS Code workspace integration
+
+## Best Practices
+
+### Workflow Optimization
+
+-   **Start sessions with rule reminders** if using `.clinerules`
+-   **Break complex tasks** into smaller, focused conversations
+-   **Use checkpoints** before major changes
+-   **Monitor for hanging** and apply recovery methods promptly
+
+### Command Safety
+
+-   **Avoid shell operators** on macOS (use separate commands instead)
+-   **Test complex commands** in shell scripts first
+-   **Keep approval workflow enabled** for safety
+
+### Troubleshooting Strategy
+
+1. **Try simple recovery first** (Plan → Resume)
+2. **Escalate to Plan-Act-Approve** if needed
+3. **Check for .clinerules issues** if behavior seems inconsistent
+4. **Restart VSCode** as last resort
+
+## Related Resources
 
 -   **[AI Tools Overview](overview.md)** - Complete AI development ecosystem guide
--   **[Roo Code Guide](roo-code-guide.md)** - Multi-agent workflows
+-   **[Roo Code Guide](roo-code-guide.md)** - Multi-agent workflows and advanced patterns
+
+---
+
+> **Note:** These issues represent known limitations that the Cline development team is actively working to resolve. The workarounds provided are currently the most reliable solutions available.
