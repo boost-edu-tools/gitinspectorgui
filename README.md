@@ -37,6 +37,8 @@ pnpm run tauri dev
 
 ## ✨ Features
 
+-   **Desktop GUI**: Modern Tauri + React interface with real-time progress
+-   **Standalone CLI**: Portable command-line tool for automation and CI/CD
 -   Multi-repository analysis with 100+ configuration options
 -   Real-time progress indicators and interactive tables
 -   Robust error handling with retry mechanisms
