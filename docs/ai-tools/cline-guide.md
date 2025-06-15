@@ -121,19 +121,10 @@ bash script.sh
 
 ## Best Practices
 
-### Workflow Optimization
-
 -   **Start sessions with rule reminders** if using `.clinerules`
 -   **Break complex tasks** into smaller, focused conversations
 -   **Ensure checkpoints are enabled** in Settings > Feature Settings > Checkpoints for automatic rollback capability
 -   **Monitor for hanging** and apply recovery methods promptly
-
-### Troubleshooting Strategy
-
-1. **Try simple recovery first** (Plan → Resume)
-2. **Escalate to Plan-Act-Approve** if needed
-3. **Check for .clinerules issues** if behavior seems inconsistent
-4. **Restart VSCode** as last resort
 
 ## Related Resources
 
