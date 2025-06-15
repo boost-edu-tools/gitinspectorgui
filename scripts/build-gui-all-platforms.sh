@@ -1,69 +1,54 @@
 #!/bin/bash
 
 # GitInspectorGUI Cross-Platform Build Script
-# Builds the application for Windows, macOS, and Linux
+# Builds the GUI application for Windows, macOS, and Linux
 
 set -e
 
-# Default options
-BUILD_ALL=false
-BUILD_CURRENT=true
-CONFIG="production"
-CLEAN_BUILD=false
-VERBOSE=false
+# Load shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/build-utils.sh"
 
-# Parse command line arguments
+# GUI-specific configuration
+CONFIG="production"
+
+# Function to show help
+show_help() {
+    echo "GitInspectorGUI Cross-Platform Build Script"
+    echo ""
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --all              Build for all supported platforms"
+    echo "  --current          Build for current platform only (default)"
+    echo "  --config CONFIG    Use specific configuration (production|development)"
+    echo "  --clean            Clean build cache before building"
+    echo "  --verbose, -v      Enable verbose output"
+    echo "  --help, -h         Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0                           # Build for current platform"
+    echo "  $0 --all                     # Build for all platforms"
+    echo "  $0 --config development      # Build with development config"
+    echo "  $0 --clean --verbose         # Clean build with verbose output"
+}
+
+# Parse GUI-specific arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --all)
-            BUILD_ALL=true
-            BUILD_CURRENT=false
-            shift
-            ;;
-        --current)
-            BUILD_CURRENT=true
-            BUILD_ALL=false
-            shift
-            ;;
         --config)
             CONFIG="$2"
             shift 2
             ;;
-        --clean)
-            CLEAN_BUILD=true
-            shift
-            ;;
-        --verbose|-v)
-            VERBOSE=true
-            shift
-            ;;
-        --help|-h)
-            echo "GitInspectorGUI Cross-Platform Build Script"
-            echo ""
-            echo "Usage: $0 [OPTIONS]"
-            echo ""
-            echo "Options:"
-            echo "  --all              Build for all supported platforms"
-            echo "  --current          Build for current platform only (default)"
-            echo "  --config CONFIG    Use specific configuration (production|development)"
-            echo "  --clean            Clean build cache before building"
-            echo "  --verbose, -v      Enable verbose output"
-            echo "  --help, -h         Show this help message"
-            echo ""
-            echo "Examples:"
-            echo "  $0                           # Build for current platform"
-            echo "  $0 --all                     # Build for all platforms"
-            echo "  $0 --config development      # Build with development config"
-            echo "  $0 --clean --verbose         # Clean build with verbose output"
-            exit 0
-            ;;
         *)
-            echo "Unknown option: $1"
-            echo "Use --help for usage information"
-            exit 1
+            # Let shared parser handle common arguments
+            break
             ;;
     esac
 done
+
+# Parse common arguments
+parse_common_args "$@"
 
 echo "🚀 GitInspectorGUI Cross-Platform Build Script"
 echo "=============================================="
@@ -72,35 +57,8 @@ echo "Build mode: $([ "$BUILD_ALL" = true ] && echo "All platforms" || echo "Cur
 echo "Clean build: $([ "$CLEAN_BUILD" = true ] && echo "Yes" || echo "No")"
 echo ""
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Function to print colored output
-print_status() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-# Check if we're in the right directory
-if [ ! -f "src-tauri/tauri.conf.json" ]; then
-    print_error "Please run this script from the gitinspectorgui root directory"
-    exit 1
-fi
+# Validate project directory
+validate_project_directory "src-tauri/tauri.conf.json" "Please run this script from the gitinspectorgui root directory"
 
 # Set Tauri config file based on configuration
 TAURI_CONFIG="src-tauri/tauri.conf.json"
@@ -317,41 +275,15 @@ elif [ "$BUILD_CURRENT" = true ]; then
 fi
 
 # Copy Python package to releases if built
-print_status "Copying Python package to releases..."
-if [ -d "dist" ] && ls dist/*.whl 1> /dev/null 2>&1; then
-    cp dist/*.whl dist/releases/ 2>/dev/null || true
-    print_success "Python wheel copied to releases"
-else
-    print_warning "No Python wheel found to copy"
-fi
+copy_python_wheel "dist/releases"
 
 # Generate checksums
-print_status "Generating checksums..."
-cd dist/releases
-if ls *.* 1> /dev/null 2>&1; then
-    sha256sum * > checksums.sha256 2>/dev/null || shasum -a 256 * > checksums.sha256
-    print_success "Checksums generated"
-else
-    print_warning "No release files found for checksum generation"
-fi
-cd ../..
+generate_checksums "dist/releases"
 
 # Summary
-print_success "Build process completed!"
-echo ""
-echo "📦 Release artifacts:"
-ls -la dist/releases/ 2>/dev/null || echo "No release files found"
-
-echo ""
-echo "🎉 GitInspectorGUI build complete!"
+show_build_summary "dist/releases" "GitInspectorGUI"
 echo "   Desktop apps: dist/releases/"
 echo "   Python FastAPI server: Available via pip install (if wheel was built)"
-echo ""
-echo "📋 Next steps:"
-echo "   1. Test the built applications: ./scripts/test-release.sh"
-echo "   2. Create release tag: git tag vX.Y.Z && git push origin vX.Y.Z"
-echo "   3. Upload to GitLab releases: glab release create vX.Y.Z dist/releases/*"
-echo "   4. Update auto-updater endpoints (if configured)"
-echo "   5. Publish Python package to PyPI: cd python && uv publish"
-echo ""
-echo "💡 Tip: Use './scripts/prepare-release.sh X.Y.Z' to prepare version updates"
+
+# Show next steps
+show_next_steps "gui"

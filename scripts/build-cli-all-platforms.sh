@@ -5,58 +5,31 @@
 
 set -e
 
-# Default options
-BUILD_ALL=false
-BUILD_CURRENT=true
-CLEAN_BUILD=false
-VERBOSE=false
+# Load shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/build-utils.sh"
 
-# Parse command line arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --all)
-            BUILD_ALL=true
-            BUILD_CURRENT=false
-            shift
-            ;;
-        --current)
-            BUILD_CURRENT=true
-            BUILD_ALL=false
-            shift
-            ;;
-        --clean)
-            CLEAN_BUILD=true
-            shift
-            ;;
-        --verbose|-v)
-            VERBOSE=true
-            shift
-            ;;
-        --help|-h)
-            echo "GitInspectorCLI Cross-Platform Build Script"
-            echo ""
-            echo "Usage: $0 [OPTIONS]"
-            echo ""
-            echo "Options:"
-            echo "  --all              Build for all supported platforms"
-            echo "  --current          Build for current platform only (default)"
-            echo "  --clean            Clean build cache before building"
-            echo "  --verbose, -v      Enable verbose output"
-            echo "  --help, -h         Show this help message"
-            echo ""
-            echo "Examples:"
-            echo "  $0                           # Build for current platform"
-            echo "  $0 --all                     # Build for all platforms"
-            echo "  $0 --clean --verbose         # Clean build with verbose output"
-            exit 0
-            ;;
-        *)
-            echo "Unknown option: $1"
-            echo "Use --help for usage information"
-            exit 1
-            ;;
-    esac
-done
+# Function to show help
+show_help() {
+    echo "GitInspectorCLI Cross-Platform Build Script"
+    echo ""
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --all              Build for all supported platforms"
+    echo "  --current          Build for current platform only (default)"
+    echo "  --clean            Clean build cache before building"
+    echo "  --verbose, -v      Enable verbose output"
+    echo "  --help, -h         Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0                           # Build for current platform"
+    echo "  $0 --all                     # Build for all platforms"
+    echo "  $0 --clean --verbose         # Clean build with verbose output"
+}
+
+# Parse common arguments
+parse_common_args "$@"
 
 echo "🚀 GitInspectorCLI Cross-Platform Build Script"
 echo "=============================================="
@@ -64,35 +37,8 @@ echo "Build mode: $([ "$BUILD_ALL" = true ] && echo "All platforms" || echo "Cur
 echo "Clean build: $([ "$CLEAN_BUILD" = true ] && echo "Yes" || echo "No")"
 echo ""
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Function to print colored output
-print_status() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-# Check if we're in the right directory
-if [ ! -f "python/gigui/cli.py" ]; then
-    print_error "Please run this script from the gitinspectorgui root directory"
-    exit 1
-fi
+# Validate project directory
+validate_project_directory "python/gigui/cli.py" "Please run this script from the gitinspectorgui root directory"
 
 # Check dependencies
 print_status "Checking dependencies..."
@@ -314,24 +260,10 @@ elif [ "$BUILD_CURRENT" = true ]; then
 fi
 
 # Generate checksums
-print_status "Generating checksums..."
-cd dist/cli-releases
-if ls gitinspectorcli* 1> /dev/null 2>&1; then
-    sha256sum gitinspectorcli* > checksums.sha256 2>/dev/null || shasum -a 256 gitinspectorcli* > checksums.sha256
-    print_success "Checksums generated"
-else
-    print_warning "No CLI release files found for checksum generation"
-fi
-cd ../..
+generate_checksums "dist/cli-releases"
 
 # Summary
-print_success "CLI build process completed!"
-echo ""
-echo "📦 CLI release artifacts:"
-ls -la dist/cli-releases/ 2>/dev/null || echo "No CLI release files found"
-
-echo ""
-echo "🎉 GitInspectorCLI build complete!"
+show_build_summary "dist/cli-releases" "GitInspectorCLI"
 echo "   CLI executables: dist/cli-releases/"
 echo ""
 echo "📋 Usage examples:"
@@ -341,3 +273,6 @@ echo "   ./dist/cli-releases/gitinspectorcli-* /path/to/repo --output-format jso
 echo ""
 echo "💡 These executables can be distributed as standalone binaries!"
 echo "   Users don't need Python installed to run them."
+
+# Show next steps
+show_next_steps "cli"
