@@ -125,14 +125,8 @@ bash script.sh
 
 -   **Start sessions with rule reminders** if using `.clinerules`
 -   **Break complex tasks** into smaller, focused conversations
--   **Use checkpoints** before major changes
+-   **Ensure checkpoints are enabled** in Settings > Feature Settings > Checkpoints for automatic rollback capability
 -   **Monitor for hanging** and apply recovery methods promptly
-
-### Command Safety
-
--   **Avoid shell operators** on macOS (use separate commands instead)
--   **Test complex commands** in shell scripts first
--   **Keep approval workflow enabled** for safety
 
 ### Troubleshooting Strategy
 
