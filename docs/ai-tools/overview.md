@@ -4,7 +4,7 @@ This guide outlines the AI-powered development tools and workflows used for GitI
 
 ## Available Tools
 
-### 🔍 Claude.ai - Research & Analysis
+### Claude.ai - Research & Analysis
 
 **When to use:** Research, documentation analysis, exploring new technologies
 
@@ -12,7 +12,7 @@ This guide outlines the AI-powered development tools and workflows used for GitI
 -   **Key capabilities:** File upload analysis, web search, current information access
 -   **Best for:** Understanding complex codebases, researching best practices
 
-### ⚡ Cline (VSCode) - Primary Development
+### Cline (VSCode) - Primary Development
 
 **When to use:** Most coding tasks, file modifications, debugging
 
@@ -20,7 +20,7 @@ This guide outlines the AI-powered development tools and workflows used for GitI
 -   **Key capabilities:** Direct file system access, reliable execution, minimal setup
 -   **Best for:** Writing code, fixing bugs, implementing features, refactoring
 
-### 🏗️ Roo Code (VSCode) - System Architecture
+### Roo Code (VSCode) - System Architecture
 
 **When to use:** Complex system design, multi-component coordination
 
@@ -28,7 +28,7 @@ This guide outlines the AI-powered development tools and workflows used for GitI
 -   **Key capabilities:** Multi-agent workflows, orchestrated development
 -   **Best for:** Planning large features, system architecture, coordinating multiple components
 
-### 💡 GitHub Copilot - Inline Assistance
+### GitHub Copilot - Inline Assistance
 
 **When to use:** Quick single-line improvements, code completion
 
