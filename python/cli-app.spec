@@ -17,7 +17,8 @@ block_cipher = None
 # Dependencies for full CLI operation
 excludes = []
 
-a = Analysis(
+
+a = Analysis(  # pyright: ignore[reportUndefinedVariable]
     ["gitinspectorcli_main.py"],
     pathex=["python"],
     binaries=[],
@@ -55,9 +56,9 @@ a = Analysis(
     noarchive=False,
 )
 
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)  # pyright: ignore[reportUndefinedVariable]
 
-exe = EXE(
+exe = EXE(  # pyright: ignore[reportUndefinedVariable]
     pyz,
     a.scripts,
     a.binaries,

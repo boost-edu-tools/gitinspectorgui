@@ -1,71 +1,101 @@
 # AI Development Ecosystem
 
-AI-powered development tools and workflows for GitInspectorGUI.
+This guide outlines the AI-powered development tools and workflows used for GitInspectorGUI development, helping you choose the right tool for each task.
 
-## Tool Overview
+## Available Tools
 
-### Claude.ai - Research Hub
+### 🔍 Claude.ai - Research & Analysis
+
+**When to use:** Research, documentation analysis, exploring new technologies
 
 -   **Model:** Claude 3.5 Sonnet (Anthropic API)
--   **Use:** Research, documentation analysis, web search
--   **Strengths:** File upload analysis, current information access
+-   **Key capabilities:** File upload analysis, web search, current information access
+-   **Best for:** Understanding complex codebases, researching best practices
 
-### Cline (VSCode) - Primary Development
+### ⚡ Cline (VSCode) - Primary Development
 
--   **Model:** Claude 3.5 Sonnet (OpenRouter API)
--   **Use:** Direct coding, file modifications, debugging
--   **Strengths:** Reliable execution, minimal setup, file system access
-
-### Roo Code (VSCode) - Advanced Architecture
+**When to use:** Most coding tasks, file modifications, debugging
 
 -   **Model:** Claude 3.5 Sonnet (OpenRouter API)
--   **Use:** Complex architecture, multi-agent workflows
--   **Strengths:** System design, orchestrated development
+-   **Key capabilities:** Direct file system access, reliable execution, minimal setup
+-   **Best for:** Writing code, fixing bugs, implementing features, refactoring
 
-## Selection Guide
+### 🏗️ Roo Code (VSCode) - System Architecture
 
-### Primary Tool: Cline
+**When to use:** Complex system design, multi-component coordination
 
--   Most development tasks
--   File modifications and debugging
--   Reliable, consistent performance
--   **Recommended first choice**
+-   **Model:** Claude 3.5 Sonnet (OpenRouter API)
+-   **Key capabilities:** Multi-agent workflows, orchestrated development
+-   **Best for:** Planning large features, system architecture, coordinating multiple components
 
-### Research Tool: Claude.ai
+### 💡 GitHub Copilot - Inline Assistance
 
--   When Cline lacks current information
--   When Cline repeatedly fails to fix a bug
--   Technology research and best practices
--   Multi-file analysis requirements
--   Web search capabilities needed
+**When to use:** Quick single-line improvements, code completion
 
-### Architecture Tool: Roo Code
+-   **Key capability:** Inline editor improvements (Ctrl+I, macOS: Command+I)
+-   **Best for:** Small edits, code suggestions, completing patterns
 
--   Complex system architecture planning
--   Multi-component project coordination
--   **Use only when specifically needed**
+## Tool Selection Strategy
 
-## Workflow Patterns
+### Start with Cline
 
-### Research → Implementation
+Cline should be your **first choice** for most development tasks due to its reliability and direct file system access.
 
-1. **Research Phase (Claude.ai)**
+### Escalate to Claude.ai when:
 
-    - Upload relevant files for analysis
-    - Research current best practices
-    - Generate implementation guidelines
+-   Cline lacks current information about technologies
+-   Research is needed before implementation
+-   Cline repeatedly fails to solve a complex problem
 
-2. **Implementation Phase (Cline)**
-    - Save research as markdown reference
-    - Use Cline for actual code changes
-    - Reference research document for decisions
+### Use Roo Code only when:
 
-### Development Best Practices
+-   Planning complex system architecture
+-   Coordinating multiple components or services
+-   Managing large-scale refactoring across many files
 
--   **Checkpoints over commits** - Use tool checkpoints, commit when ready
--   **Clean git history** - Avoid frequent micro-commits
+### Use Copilot for:
 
-## Related
+-   Quick inline code improvements
+-   Auto-completion while typing
+-   Single-line fixes and enhancements
 
--   **[Cline Guide](cline-guide.md)** - VSCode coding assistance
--   **[Roo Code Guide](roo-code-guide.md)** - Multi-agent workflows
+## Recommended Workflows
+
+### Standard Development Flow
+
+1. **Plan** - Use Cline to understand requirements and plan approach
+2. **Implement** - Use Cline for coding and file modifications
+3. **Polish** - Use Copilot (Ctrl+I) for inline improvements
+4. **Commit** - Clean up and commit when feature is complete
+
+### Research-Heavy Development
+
+1. **Research** (Claude.ai) - Upload files, research technologies, generate guidelines
+2. **Document** - Save research findings as markdown reference
+3. **Implement** (Cline) - Code using research as guidance
+4. **Refine** (Copilot) - Polish with inline improvements
+
+### Complex Architecture Projects
+
+1. **Design** (Roo Code) - Plan system architecture and component interactions
+2. **Document** - Create architecture documentation
+3. **Implement** (Cline) - Build individual components
+4. **Integrate** (Cline/Roo Code) - Coordinate component integration
+
+## Best Practices
+
+### Version Control
+
+-   **Use checkpoints over frequent commits** - Let AI tools create checkpoints, commit when features are ready
+-   **Maintain clean git history** - Avoid micro-commits from AI iterations
+
+### Quality Assurance
+
+-   **Review AI suggestions** - Always understand and verify AI-generated code
+-   **Test incrementally** - Test changes as you build, don't wait until the end
+-   **Use multiple perspectives** - Switch tools if one approach isn't working
+
+## Related Guides
+
+-   **[Cline Guide](cline-guide.md)** - Detailed VSCode coding assistance workflows
+-   **[Roo Code Guide](roo-code-guide.md)** - Multi-agent development patterns
