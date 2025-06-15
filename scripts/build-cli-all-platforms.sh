@@ -103,7 +103,7 @@ build_cli_platform() {
 block_cipher = None
 
 a = Analysis(
-    ['gigui/cli.py'],
+    ['gitinspectorcli_main.py'],
     pathex=['python'],
     binaries=[],
     datas=[],
@@ -126,11 +126,15 @@ a = Analysis(
         'sys',
         'pathlib',
         'dataclasses',
+        'importlib.metadata',
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=[
+        'pkg_resources',
+        'setuptools.pkg_resources',
+    ],
     win_private_assemblies=False,
     cipher=block_cipher,
     noarchive=False,
