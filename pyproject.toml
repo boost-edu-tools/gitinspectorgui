@@ -31,10 +31,10 @@ classifiers = [
 ]
 requires-python = ">=3.13,<3.14"
 dependencies = [
-    "fastapi >= 0.115",
-    "gitpython>=3.1.43",
-    "requests >= 2.32.3",
-    "uvicorn[standard]>=0.24.0",
+    "fastapi >= 0.115.12",
+    "gitpython>=3.1.44",
+    "requests >= 2.32.4",
+    "uvicorn[standard]>=0.34.3",
 ]
 
 [project.urls]
@@ -47,10 +47,10 @@ gitinspectorgui = "gigui.cli:main"
 
 [dependency-groups]
 dev = [
-    "psutil >= 6.0.0",
-    "pyinstaller>=6.11.1",
-    "pytest>=8.3.5",
-    "ruff >= 0.9",
+    "psutil >= 7.0.0",
+    "pyinstaller>=6.14.1",
+    "pytest>=8.4.0",
+    "ruff >= 0.11.13",
 ]
 
 [tool.hatch.build.targets.wheel]
