@@ -525,6 +525,52 @@ class GitInspectorAPI:
             # Configure Person class with enhanced filtering settings (for backward compatibility)
             Person.configure_from_settings(settings)
 
+            # Fix working directory issue: resolve relative paths correctly
+            # When server runs from python/ directory, "." refers to python/, not project root
+            # We need to resolve paths relative to the project root, not current working directory
+            import os
+            from pathlib import Path
+
+            # Find the project root (directory containing .git)
+            current_dir = Path.cwd()
+            project_root = current_dir
+
+            # Search upward for .git directory
+            while project_root != project_root.parent:
+                if (project_root / ".git").exists():
+                    break
+                project_root = project_root.parent
+            else:
+                # If no .git found, check if current directory has .git
+                if not (current_dir / ".git").exists():
+                    # Try using the parent of python directory if we're in python/
+                    if current_dir.name == "python":
+                        project_root = current_dir.parent
+                    else:
+                        project_root = current_dir
+
+            logger.info(f"Resolved project root: {project_root}")
+            logger.info(f"Current working directory: {current_dir}")
+
+            # Resolve input paths relative to project root
+            resolved_paths = []
+            for path_str in settings.input_fstrs:
+                if path_str == ".":
+                    # "." should refer to project root, not current working directory
+                    resolved_path = str(project_root)
+                elif not os.path.isabs(path_str):
+                    # Relative paths should be relative to project root
+                    resolved_path = str(project_root / path_str)
+                else:
+                    # Absolute paths remain unchanged
+                    resolved_path = path_str
+
+                resolved_paths.append(resolved_path)
+                logger.info(f"Resolved path: {path_str} -> {resolved_path}")
+
+            # Update settings with resolved paths
+            settings.input_fstrs = resolved_paths
+
             # Normalize paths for cross-platform compatibility
             settings.normalize_paths()
 

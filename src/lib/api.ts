@@ -1,5 +1,6 @@
 import type { Settings } from "@/types/settings";
 import type { AnalysisResult } from "@/types/results";
+import { defaultSettings } from "@/types/settings";
 
 // Check if Tauri APIs are available
 const isTauriAvailable = () => {
@@ -72,8 +73,6 @@ export async function getSettings(): Promise<Settings> {
             return settings;
         } else {
             // In browser mode, return default settings or fetch from HTTP API
-            // Import and return the default settings
-            const { defaultSettings } = await import("../types/settings");
             return defaultSettings;
         }
     } catch (error) {

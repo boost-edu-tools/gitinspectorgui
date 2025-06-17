@@ -3,7 +3,7 @@ use tauri::command;
 use reqwest;
 use std::time::Duration;
 use std::process::{Command, Stdio, Child};
-use std::io::{BufReader, Read};
+use std::io::Read;
 use tauri::Manager;
 use std::sync::{Arc, Mutex};
 
@@ -549,12 +549,12 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
             if let Ok(Some(exit_status)) = child.try_wait() {
                 // Process exited immediately, get error output
                 let mut error_output = String::new();
-                if let Some(stderr) = child.stderr.take() {
-                    let _ = std::io::BufReader::new(stderr).read_to_string(&mut error_output);
+                if let Some(mut stderr) = child.stderr.take() {
+                    let _ = stderr.read_to_string(&mut error_output);
                 }
                 let mut stdout_output = String::new();
-                if let Some(stdout) = child.stdout.take() {
-                    let _ = std::io::BufReader::new(stdout).read_to_string(&mut stdout_output);
+                if let Some(mut stdout) = child.stdout.take() {
+                    let _ = stdout.read_to_string(&mut stdout_output);
                 }
                 return Err(format!("❌ Python server exited immediately. Exit status: {:?}\nSTDERR: {}\nSTDOUT: {}",
                     exit_status, error_output, stdout_output));
@@ -602,8 +602,8 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
                 if let Some(ref mut child) = process.as_mut() {
                     if let Ok(Some(exit_status)) = child.try_wait() {
                         let mut error_output = String::new();
-                        if let Some(stderr) = child.stderr.take() {
-                            let _ = std::io::BufReader::new(stderr).read_to_string(&mut error_output);
+                        if let Some(mut stderr) = child.stderr.take() {
+                            let _ = stderr.read_to_string(&mut error_output);
                         }
                         return Err(format!("❌ Python server process exited. Exit status: {:?}, Error: {}", exit_status, error_output));
                     } else {
