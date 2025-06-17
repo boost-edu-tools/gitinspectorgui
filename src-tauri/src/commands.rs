@@ -449,11 +449,154 @@ pub async fn health_check(_app: tauri::AppHandle) -> Result<HealthStatus, String
 // Type alias for the server process state
 type ServerProcess = Arc<Mutex<Option<Child>>>;
 
+// Helper function to kill processes on a specific port
+async fn kill_processes_on_port(port: u16) -> Result<(), String> {
+    println!("🔍 Checking for processes on port {}...", port);
+
+    #[cfg(target_os = "macos")]
+    {
+        // Use lsof to find processes on the port
+        match Command::new("lsof")
+            .args(["-ti", &format!(":{}", port)])
+            .output()
+        {
+            Ok(output) => {
+                let pids_str = String::from_utf8_lossy(&output.stdout);
+                let pids: Vec<&str> = pids_str.trim().split('\n').filter(|s| !s.is_empty()).collect();
+
+                if pids.is_empty() {
+                    println!("✅ No processes found on port {}", port);
+                    return Ok(());
+                }
+
+                println!("🎯 Found {} process(es) on port {}: {:?}", pids.len(), port, pids);
+
+                for pid in pids {
+                    if let Ok(pid_num) = pid.parse::<u32>() {
+                        println!("💀 Killing process with PID: {}", pid_num);
+                        match Command::new("kill")
+                            .args(["-9", pid])
+                            .output()
+                        {
+                            Ok(_) => println!("✅ Successfully killed PID {}", pid_num),
+                            Err(e) => println!("⚠️  Failed to kill PID {}: {}", pid_num, e),
+                        }
+                    }
+                }
+
+                // Wait a moment for processes to die
+                tokio::time::sleep(Duration::from_millis(500)).await;
+                println!("✅ Port {} cleanup completed", port);
+            }
+            Err(e) => {
+                println!("⚠️  Failed to check port {}: {}", port, e);
+                // Don't return error, just continue - lsof might not be available
+            }
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        // Use netstat to find processes on the port
+        match Command::new("netstat")
+            .args(["-ano"])
+            .output()
+        {
+            Ok(output) => {
+                let output_str = String::from_utf8_lossy(&output.stdout);
+                let mut pids_to_kill = Vec::new();
+
+                for line in output_str.lines() {
+                    if line.contains(&format!(":{}", port)) && line.contains("LISTENING") {
+                        let parts: Vec<&str> = line.split_whitespace().collect();
+                        if let Some(pid_str) = parts.last() {
+                            if let Ok(pid) = pid_str.parse::<u32>() {
+                                pids_to_kill.push(pid);
+                            }
+                        }
+                    }
+                }
+
+                if pids_to_kill.is_empty() {
+                    println!("✅ No processes found on port {}", port);
+                    return Ok(());
+                }
+
+                println!("🎯 Found {} process(es) on port {}: {:?}", pids_to_kill.len(), port, pids_to_kill);
+
+                for pid in pids_to_kill {
+                    println!("💀 Killing process with PID: {}", pid);
+                    match Command::new("taskkill")
+                        .args(["/F", "/PID", &pid.to_string()])
+                        .output()
+                    {
+                        Ok(_) => println!("✅ Successfully killed PID {}", pid),
+                        Err(e) => println!("⚠️  Failed to kill PID {}: {}", pid, e),
+                    }
+                }
+
+                // Wait a moment for processes to die
+                tokio::time::sleep(Duration::from_millis(500)).await;
+                println!("✅ Port {} cleanup completed", port);
+            }
+            Err(e) => {
+                println!("⚠️  Failed to check port {}: {}", port, e);
+            }
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        // Use lsof to find processes on the port (similar to macOS)
+        match Command::new("lsof")
+            .args(["-ti", &format!(":{}", port)])
+            .output()
+        {
+            Ok(output) => {
+                let pids_str = String::from_utf8_lossy(&output.stdout);
+                let pids: Vec<&str> = pids_str.trim().split('\n').filter(|s| !s.is_empty()).collect();
+
+                if pids.is_empty() {
+                    println!("✅ No processes found on port {}", port);
+                    return Ok(());
+                }
+
+                println!("🎯 Found {} process(es) on port {}: {:?}", pids.len(), port, pids);
+
+                for pid in pids {
+                    if let Ok(pid_num) = pid.parse::<u32>() {
+                        println!("💀 Killing process with PID: {}", pid_num);
+                        match Command::new("kill")
+                            .args(["-9", pid])
+                            .output()
+                        {
+                            Ok(_) => println!("✅ Successfully killed PID {}", pid_num),
+                            Err(e) => println!("⚠️  Failed to kill PID {}: {}", pid_num, e),
+                        }
+                    }
+                }
+
+                // Wait a moment for processes to die
+                tokio::time::sleep(Duration::from_millis(500)).await;
+                println!("✅ Port {} cleanup completed", port);
+            }
+            Err(e) => {
+                println!("⚠️  Failed to check port {}: {}", port, e);
+            }
+        }
+    }
+
+    Ok(())
+}
+
 #[command]
 pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String> {
     println!("🚀 Starting Python HTTP server...");
 
-    // Check if server is already running
+    // First, kill any zombie processes on port 8080
+    kill_processes_on_port(8080).await?;
+
+    // Check if server is already running after cleanup
     let client = create_http_client().await?;
     if let Ok(response) = client.get(&format!("{}/health", API_BASE_URL)).send().await {
         if response.status().is_success() {
