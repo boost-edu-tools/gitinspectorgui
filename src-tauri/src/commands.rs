@@ -489,7 +489,8 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
     // Start the HTTP server
     let mut cmd = if is_python_script {
         let mut cmd = Command::new("python3");
-        cmd.arg(&sidecar_path);
+        // Run as module to support relative imports
+        cmd.args(["-m", "gigui.start_server"]);
         cmd.args(["--host=127.0.0.1", "--port=8080"]);
         cmd
     } else {
