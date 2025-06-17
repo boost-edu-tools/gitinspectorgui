@@ -143,6 +143,31 @@ sudo dnf install gcc openssl-devel pkgconfig
 sudo pacman -S base-devel openssl pkgconf
 ```
 
+## Error Detection and Debugging
+
+### GUI Error Display
+
+**The GUI shows errors in two places:**
+
+1. **Error Display Area** (below the Execute button)
+
+    - The GUI automatically detects and displays most errors here
+    - Look for red error messages in this area first
+    - Shows user-friendly messages like "Repository path does not exist"
+
+2. **Browser Console** (for additional technical details)
+    - If the error display area doesn't show enough information
+    - Right-click anywhere in the GUI window
+    - Select "Inspect" from the context menu
+    - Click the "Console" tab in the developer tools panel
+    - Look for detailed error messages and technical information
+
+**Troubleshooting Flow:**
+
+1. Check the GUI error area first
+2. If you need more details, use the browser console
+3. Copy error messages for bug reports or further investigation
+
 ## Diagnostics
 
 ### Logging
