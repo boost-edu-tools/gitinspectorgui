@@ -19,14 +19,6 @@ python -c "import gigui; print('OK')"
 lsof -i :8080
 ```
 
-## AI-Assisted Troubleshooting Limitations
-
-When using AI tools for troubleshooting, be aware that AI troubleshooting is not perfect and has inherent limitations. AI assistants can get stuck in loops where they repeatedly try similar fixes without identifying the true root cause of a problem.
-
-Common AI troubleshooting loop patterns include trying the same solution with minor variations, missing fundamental underlying issues while focusing on symptoms, or incorrectly assuming that an error has been resolved when it persists. These loops can waste significant time and may lead to unnecessary changes to your codebase.
-
-When you notice an AI assistant getting stuck in such patterns, human intervention is needed to break the loop. Provide direct guidance to redirect the AI's focus toward the actual root cause, or take over the troubleshooting process yourself using the systematic approaches outlined in this guide.
-
 ## Installation Issues
 
 ### Python Module Not Found
