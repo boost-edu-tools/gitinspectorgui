@@ -118,15 +118,26 @@ export function SettingsForm() {
                     Since Date
                 </label>
                 <Input
-                    type="date"
+                    type="text"
                     value={settings.since}
                     onChange={handleInputChange("since")}
                     disabled={isLoading}
+                    placeholder="YYYY-MM-DD (leave empty for no restriction)"
                 />
                 <p className="text-xs text-muted-foreground">
-                    Only analyze commits after this date (leave empty for no
-                    restriction)
+                    Only analyze commits after this date (format: YYYY-MM-DD,
+                    leave empty for no restriction)
                 </p>
+                {settings.since && (
+                    <button
+                        type="button"
+                        onClick={() => updateSettings({ since: "" })}
+                        className="text-xs text-blue-600 hover:text-blue-800"
+                        disabled={isLoading}
+                    >
+                        Clear date
+                    </button>
+                )}
             </div>
 
             <div className="space-y-2">
@@ -134,15 +145,26 @@ export function SettingsForm() {
                     Until Date
                 </label>
                 <Input
-                    type="date"
+                    type="text"
                     value={settings.until}
                     onChange={handleInputChange("until")}
                     disabled={isLoading}
+                    placeholder="YYYY-MM-DD (leave empty for no restriction)"
                 />
                 <p className="text-xs text-muted-foreground">
-                    Only analyze commits before this date (leave empty for no
-                    restriction)
+                    Only analyze commits before this date (format: YYYY-MM-DD,
+                    leave empty for no restriction)
                 </p>
+                {settings.until && (
+                    <button
+                        type="button"
+                        onClick={() => updateSettings({ until: "" })}
+                        className="text-xs text-blue-600 hover:text-blue-800"
+                        disabled={isLoading}
+                    >
+                        Clear date
+                    </button>
+                )}
             </div>
 
             {/* Copy/Move Detection */}
