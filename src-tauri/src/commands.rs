@@ -2,9 +2,10 @@ use serde::{Deserialize, Serialize};
 use tauri::command;
 use reqwest;
 use std::time::Duration;
-use std::process::{Command, Stdio};
+use std::process::{Command, Stdio, Child};
 use std::io::{BufReader, Read};
 use tauri::Manager;
+use std::sync::{Arc, Mutex};
 
 const API_BASE_URL: &str = "http://127.0.0.1:8080";
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(300); // 5 minutes for analysis operations
@@ -445,9 +446,21 @@ pub async fn health_check(_app: tauri::AppHandle) -> Result<HealthStatus, String
     ).await
 }
 
+// Type alias for the server process state
+type ServerProcess = Arc<Mutex<Option<Child>>>;
+
 #[command]
 pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String> {
     println!("Starting Python HTTP server...");
+
+    // Check if server is already running
+    let client = create_http_client().await?;
+    if let Ok(response) = client.get(&format!("{}/health", API_BASE_URL)).send().await {
+        if response.status().is_success() {
+            println!("Python server is already running");
+            return Ok("Python HTTP server is already running".to_string());
+        }
+    }
 
     // Get the resource directory path
     let resource_dir = app.path().resource_dir()
@@ -504,29 +517,23 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
         .stderr(Stdio::piped());
 
     match cmd.spawn() {
-        Ok(mut child) => {
-            println!("Python HTTP server started with PID: {}", child.id());
+        Ok(child) => {
+            let child_id = child.id();
+            println!("Python HTTP server started with PID: {}", child_id);
+
+            // Store the process handle for later cleanup
+            let server_process: tauri::State<ServerProcess> = app.state();
+            if let Ok(mut process) = server_process.lock() {
+                *process = Some(child);
+            }
 
             // Wait longer for server to start (especially for Python scripts)
             let wait_time = if is_python_script { 5000 } else { 3000 };
             tokio::time::sleep(Duration::from_millis(wait_time)).await;
 
-            // Check if the process is still running
-            if let Ok(Some(exit_status)) = child.try_wait() {
-                // Process has already exited, get error output
-                if let Some(stderr) = child.stderr.take() {
-                    let mut error_output = String::new();
-                    if let Ok(_) = std::io::BufReader::new(stderr).read_to_string(&mut error_output) {
-                        return Err(format!("Python server failed to start. Exit status: {:?}, Error: {}", exit_status, error_output));
-                    }
-                }
-                return Err(format!("Python server process exited immediately with status: {:?}", exit_status));
-            }
-
             // Check if the server is responding
-            let client = create_http_client().await?;
             let mut attempts = 0;
-            let max_attempts = 5;
+            let max_attempts = 10;
 
             while attempts < max_attempts {
                 match client.get(&format!("{}/health", API_BASE_URL)).send().await {
@@ -548,21 +555,54 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
                 }
             }
 
-            // Final check if process is still running
-            if let Ok(Some(exit_status)) = child.try_wait() {
-                if let Some(stderr) = child.stderr.take() {
-                    let mut error_output = String::new();
-                    if let Ok(_) = std::io::BufReader::new(stderr).read_to_string(&mut error_output) {
-                        return Err(format!("Python server failed after startup. Exit status: {:?}, Error: {}", exit_status, error_output));
+            // Check if process is still running
+            let server_process: tauri::State<ServerProcess> = app.state();
+            if let Ok(mut process) = server_process.lock() {
+                if let Some(ref mut child) = process.as_mut() {
+                    if let Ok(Some(exit_status)) = child.try_wait() {
+                        if let Some(stderr) = child.stderr.take() {
+                            let mut error_output = String::new();
+                            if let Ok(_) = std::io::BufReader::new(stderr).read_to_string(&mut error_output) {
+                                return Err(format!("Python server failed after startup. Exit status: {:?}, Error: {}", exit_status, error_output));
+                            }
+                        }
+                        return Err(format!("Python server process exited with status: {:?}", exit_status));
                     }
                 }
-                Err(format!("Python server process exited with status: {:?}", exit_status))
-            } else {
-                Err("Python HTTP server started but is not responding to health checks".to_string())
             }
+
+            Err("Python HTTP server started but is not responding to health checks".to_string())
         }
         Err(e) => {
             Err(format!("Failed to start Python sidecar: {}", e))
         }
     }
+}
+
+#[command]
+pub async fn stop_python_server(app: tauri::AppHandle) -> Result<String, String> {
+    println!("Stopping Python HTTP server...");
+
+    let server_process: tauri::State<ServerProcess> = app.state();
+    let result = {
+        if let Ok(mut process) = server_process.lock() {
+            if let Some(mut child) = process.take() {
+                match child.kill() {
+                    Ok(_) => {
+                        let _ = child.wait(); // Wait for the process to actually terminate
+                        println!("Python server stopped successfully");
+                        Ok("Python HTTP server stopped successfully".to_string())
+                    }
+                    Err(e) => {
+                        Err(format!("Failed to stop Python server: {}", e))
+                    }
+                }
+            } else {
+                Ok("No Python server process to stop".to_string())
+            }
+        } else {
+            Err("Failed to access server process state".to_string())
+        }
+    };
+    result
 }
