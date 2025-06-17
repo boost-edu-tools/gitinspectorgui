@@ -26,42 +26,95 @@ const getTauriApis = async () => {
 export async function executeAnalysis(
     settings: Settings
 ): Promise<AnalysisResult> {
+    console.log(
+        "1. Execute Analysis - Starting with settings:",
+        settings.input_fstrs
+    );
+
     try {
         if (isTauriAvailable()) {
+            console.log("2. Using Tauri API in desktop mode");
+
             // Use Tauri API in desktop mode
             const { invoke, isTauri } = await getTauriApis();
             if (!isTauri()) {
-                throw new Error("Not running in Tauri context");
+                const error = "Not running in Tauri context";
+                console.error("ERROR:", error);
+                throw new Error(error);
             }
 
             const result = await invoke<AnalysisResult>("execute_analysis", {
                 settings,
             });
+
+            console.log("3. Tauri returned result:", {
+                success: result.success,
+                repositoryCount: result.repositories?.length || 0,
+                error: result.error,
+                repositories: result.repositories,
+            });
+
             return result;
         } else {
+            console.log("2. Using HTTP API in browser mode");
+
+            const url = "http://127.0.0.1:8080/api/execute_analysis";
+
             // Use HTTP API in browser mode
-            const response = await fetch(
-                "http://127.0.0.1:8080/api/execute_analysis",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(settings),
-                }
-            );
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(settings),
+            });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP ${response.status}: ${errorText}`);
+                let errorMessage = `HTTP ${response.status}`;
+
+                try {
+                    // Try to parse JSON error response
+                    const errorText = await response.text();
+                    const errorData = JSON.parse(errorText);
+
+                    // Extract detailed error message from the response
+                    if (errorData.detail?.message) {
+                        errorMessage = errorData.detail.message;
+                    } else if (errorData.detail?.error) {
+                        errorMessage = errorData.detail.error;
+                    } else if (errorData.message) {
+                        errorMessage = errorData.message;
+                    } else if (errorData.error) {
+                        errorMessage = errorData.error;
+                    } else {
+                        errorMessage = `HTTP ${response.status}: ${errorText}`;
+                    }
+                } catch (parseError) {
+                    // If JSON parsing fails, use the raw error text
+                    const errorText = await response.text();
+                    errorMessage = `HTTP ${response.status}: ${errorText}`;
+                }
+
+                console.error("ERROR: HTTP request failed:", errorMessage);
+                throw new Error(errorMessage);
             }
 
             const result = await response.json();
+
+            console.log("3. HTTP API returned result:", {
+                success: result.success,
+                repositoryCount: result.repositories?.length || 0,
+                error: result.error,
+                repositories: result.repositories,
+            });
+
             return result;
         }
     } catch (error) {
-        console.error("Failed to execute analysis:", error);
-        throw new Error(`Analysis failed: ${error}`);
+        const errorMessage =
+            error instanceof Error ? error.message : String(error);
+        console.error("ERROR: Analysis execution failed:", errorMessage);
+        throw new Error(`Analysis failed: ${errorMessage}`);
     }
 }
 

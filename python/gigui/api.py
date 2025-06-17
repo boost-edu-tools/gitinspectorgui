@@ -29,7 +29,11 @@ from gigui.api_types import (
 from gigui.typedefs import SHA, Author, Email, FileStr
 
 # Configure logging for API operations
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(), logging.FileHandler("gitinspector_api.log", mode="a")],
+)
 logger = logging.getLogger(__name__)
 
 # Constants for time calculations
@@ -511,18 +515,40 @@ class GitInspectorAPI:
         Returns:
             AnalysisResult compatible with current GUI frontend
         """
+        # Configure logging level based on debug settings
+        if getattr(settings, "debug_logging", False):
+            logger.setLevel(logging.DEBUG)
+            logger.debug("Debug logging enabled for analysis")
+        else:
+            logger.setLevel(logging.INFO)
+
+        start_time = time.time()
+        logger.info("=== API ANALYSIS EXECUTION STARTED ===")
         logger.info("API executing analysis using Legacy Engine Wrapper")
+
+        # Log detailed settings for debugging
+        logger.debug("Analysis settings received:")
+        logger.debug(f"  - Repositories: {settings.input_fstrs}")
+        logger.debug(f"  - Debug logging: {getattr(settings, 'debug_logging', False)}")
+        logger.debug(f"  - Debug API calls: {getattr(settings, 'debug_api_calls', False)}")
+        logger.debug(f"  - Debug analysis flow: {getattr(settings, 'debug_analysis_flow', False)}")
+        logger.debug(f"  - Verbosity: {settings.verbosity}")
+        logger.debug(f"  - Extensions: {settings.extensions}")
+        logger.debug(f"  - Multithread: {settings.multithread}")
 
         try:
             # Validate settings before delegating to legacy engine
+            logger.debug("Validating settings with legacy engine")
             is_valid, error_msg = legacy_engine.validate_settings(settings)
             if not is_valid:
                 logger.error(f"Settings validation failed: {error_msg}")
                 return AnalysisResult(
                     repositories=[], success=False, error=f"Settings validation failed: {error_msg}"
                 )
+            logger.debug("Settings validation passed")
 
             # Configure Person class with enhanced filtering settings (for backward compatibility)
+            logger.debug("Configuring Person class with settings")
             Person.configure_from_settings(settings)
 
             # Fix working directory issue: resolve relative paths correctly
@@ -530,6 +556,8 @@ class GitInspectorAPI:
             # We need to resolve paths relative to the project root, not current working directory
             import os
             from pathlib import Path
+
+            logger.debug("Resolving repository paths")
 
             # Find the project root (directory containing .git)
             current_dir = Path.cwd()
@@ -568,18 +596,58 @@ class GitInspectorAPI:
                 resolved_paths.append(resolved_path)
                 logger.info(f"Resolved path: {path_str} -> {resolved_path}")
 
+                # Validate that the resolved path exists and is a git repository
+                resolved_path_obj = Path(resolved_path)
+                if not resolved_path_obj.exists():
+                    logger.error(f"Repository path does not exist: {resolved_path}")
+                elif (
+                    not (resolved_path_obj / ".git").exists()
+                    and not (resolved_path_obj / ".git").is_file()
+                ):
+                    logger.warning(f"Path is not a git repository: {resolved_path}")
+                else:
+                    logger.debug(f"Repository path validated: {resolved_path}")
+
             # Update settings with resolved paths
             settings.input_fstrs = resolved_paths
+            logger.debug(f"Updated settings with {len(resolved_paths)} resolved paths")
 
             # Normalize paths for cross-platform compatibility
+            logger.debug("Normalizing paths for cross-platform compatibility")
             settings.normalize_paths()
 
             # Delegate to the sophisticated legacy engine
-            logger.info("Delegating analysis to Legacy Engine Wrapper")
+            logger.info("=== DELEGATING TO LEGACY ENGINE WRAPPER ===")
+            logger.debug("Calling legacy_engine.execute_analysis()")
+
             result = legacy_engine.execute_analysis(settings)
+
+            analysis_time = time.time() - start_time
+            logger.info(f"Legacy engine analysis completed in {analysis_time:.2f} seconds")
 
             # Update analysis count for performance tracking
             self._analysis_count += 1
+
+            # Log detailed results for debugging
+            logger.debug("=== ANALYSIS RESULTS SUMMARY ===")
+            logger.debug(f"Success: {result.success}")
+            logger.debug(f"Error: {result.error}")
+            logger.debug(
+                f"Repository count: {len(result.repositories) if result.repositories else 0}"
+            )
+
+            if result.repositories:
+                for i, repo in enumerate(result.repositories):
+                    logger.debug(f"Repository {i + 1}:")
+                    logger.debug(f"  - Name: {repo.name}")
+                    logger.debug(f"  - Path: {repo.path}")
+                    logger.debug(f"  - Authors: {len(repo.authors) if repo.authors else 0}")
+                    logger.debug(f"  - Files: {len(repo.files) if repo.files else 0}")
+                    logger.debug(
+                        f"  - Blame entries: {len(repo.blame_data) if repo.blame_data else 0}"
+                    )
+            else:
+                logger.warning("No repositories in result!")
 
             # Log completion status
             if result.success and result.repositories:
@@ -588,11 +656,23 @@ class GitInspectorAPI:
                 )
             else:
                 logger.warning(f"Analysis completed with issues: {result.error}")
+                if not result.repositories:
+                    logger.error("CRITICAL: Analysis returned zero repositories!")
 
+            logger.info("=== API ANALYSIS EXECUTION COMPLETED ===")
             return result
 
         except Exception as e:
-            logger.error(f"API analysis execution failed: {e}")
+            analysis_time = time.time() - start_time
+            logger.error(f"API analysis execution failed after {analysis_time:.2f} seconds: {e}")
+            logger.error(f"Exception type: {type(e).__name__}")
+            logger.error(f"Exception details: {e!s}")
+
+            # Log stack trace for debugging
+            import traceback
+
+            logger.error(f"Stack trace:\n{traceback.format_exc()}")
+
             return AnalysisResult(
                 repositories=[], success=False, error=f"API analysis execution failed: {e}"
             )

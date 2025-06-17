@@ -12,6 +12,11 @@ export function ExecuteButton() {
     const isDemo = isDemoMode();
 
     const handleExecute = async () => {
+        console.log(
+            "0. Execute button clicked with paths:",
+            settings.input_fstrs
+        );
+
         if (settings.input_fstrs.length === 0) {
             alert("Please specify at least one repository path");
             return;
