@@ -73,7 +73,7 @@ export async function getSettings(): Promise<Settings> {
         } else {
             // In browser mode, return default settings or fetch from HTTP API
             // Import and return the default settings
-            const { defaultSettings } = await import("@/types/settings");
+            const { defaultSettings } = await import("../types/settings");
             return defaultSettings;
         }
     } catch (error) {

@@ -3,7 +3,6 @@ use tauri::command;
 use reqwest;
 use std::time::Duration;
 use std::process::{Command, Stdio};
-use std::path::PathBuf;
 use std::io::{BufReader, Read};
 use tauri::Manager;
 
@@ -459,6 +458,8 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
         resource_dir.join("dist").join("gitinspector-api-sidecar"),
         resource_dir.join("gitinspector-api-sidecar"),
         resource_dir.join("bin").join("gitinspector-api-sidecar"),
+        // Python files are bundled directly in resource directory
+        resource_dir.join("gigui").join("start_server.py"),
         // For development, try the source directory
         resource_dir.parent().unwrap_or(&resource_dir).join("python").join("gigui").join("start_server.py"),
     ];
@@ -489,11 +490,11 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
     let mut cmd = if is_python_script {
         let mut cmd = Command::new("python3");
         cmd.arg(&sidecar_path);
-        cmd.args(["start_server", "--host=127.0.0.1", "--port=8080"]);
+        cmd.args(["--host=127.0.0.1", "--port=8080"]);
         cmd
     } else {
         let mut cmd = Command::new(&sidecar_path);
-        cmd.args(["start_server", "--host=127.0.0.1", "--port=8080"]);
+        cmd.args(["--host=127.0.0.1", "--port=8080"]);
         cmd
     };
 
