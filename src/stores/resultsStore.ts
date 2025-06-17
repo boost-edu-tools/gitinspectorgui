@@ -62,9 +62,27 @@ export const useResultsStore = create<ResultsStore>((set, get) => ({
                         : null,
             });
         } catch (error) {
+            let errorMessage = "Analysis failed";
+
+            if (error instanceof Error) {
+                if (
+                    error.message.includes("Connection refused") ||
+                    error.message.includes("tcp connect error")
+                ) {
+                    errorMessage =
+                        "Cannot connect to Python API server. Please ensure the server is running and try again.";
+                } else if (
+                    error.message.includes("Not running in Tauri context")
+                ) {
+                    errorMessage =
+                        "This feature requires the desktop application. Please use the Tauri app instead of the web version.";
+                } else {
+                    errorMessage = error.message;
+                }
+            }
+
             set({
-                error:
-                    error instanceof Error ? error.message : "Analysis failed",
+                error: errorMessage,
                 isAnalyzing: false,
             });
         }

@@ -454,20 +454,50 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
     let resource_dir = app.path().resource_dir()
         .map_err(|e| format!("Failed to get resource directory: {}", e))?;
 
-    // Path to the Python sidecar executable
-    let sidecar_path = resource_dir.join("dist").join("gitinspector-api-sidecar");
+    // Try multiple possible paths for the Python sidecar
+    let possible_paths = vec![
+        resource_dir.join("dist").join("gitinspector-api-sidecar"),
+        resource_dir.join("gitinspector-api-sidecar"),
+        resource_dir.join("bin").join("gitinspector-api-sidecar"),
+        // For development, try the source directory
+        resource_dir.parent().unwrap_or(&resource_dir).join("python").join("gigui").join("start_server.py"),
+    ];
 
-    if !sidecar_path.exists() {
-        return Err(format!("Python sidecar not found at: {}", sidecar_path.display()));
+    let mut sidecar_path = None;
+    for path in possible_paths {
+        if path.exists() {
+            sidecar_path = Some(path);
+            break;
+        }
     }
+
+    let sidecar_path = sidecar_path.ok_or_else(|| {
+        format!("Python sidecar not found. Searched paths: {:?}",
+                vec![
+                    resource_dir.join("dist").join("gitinspector-api-sidecar"),
+                    resource_dir.join("gitinspector-api-sidecar"),
+                    resource_dir.join("bin").join("gitinspector-api-sidecar"),
+                ])
+    })?;
 
     println!("Found Python sidecar at: {}", sidecar_path.display());
 
-    // Start the HTTP server using the Python sidecar
-    // We'll use the start_server command to start the FastAPI server
-    let mut cmd = Command::new(&sidecar_path);
-    cmd.args(["start_server", "--host=127.0.0.1", "--port=8080"])
-        .current_dir(&resource_dir)
+    // Determine if we're using a Python script or executable
+    let is_python_script = sidecar_path.extension().map_or(false, |ext| ext == "py");
+
+    // Start the HTTP server
+    let mut cmd = if is_python_script {
+        let mut cmd = Command::new("python3");
+        cmd.arg(&sidecar_path);
+        cmd.args(["start_server", "--host=127.0.0.1", "--port=8080"]);
+        cmd
+    } else {
+        let mut cmd = Command::new(&sidecar_path);
+        cmd.args(["start_server", "--host=127.0.0.1", "--port=8080"]);
+        cmd
+    };
+
+    cmd.current_dir(&resource_dir)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
 
@@ -475,35 +505,58 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
         Ok(mut child) => {
             println!("Python HTTP server started with PID: {}", child.id());
 
-            // Wait a moment for the server to start
-            tokio::time::sleep(Duration::from_millis(2000)).await;
+            // Wait longer for server to start (especially for Python scripts)
+            let wait_time = if is_python_script { 5000 } else { 3000 };
+            tokio::time::sleep(Duration::from_millis(wait_time)).await;
+
+            // Check if the process is still running
+            if let Ok(Some(exit_status)) = child.try_wait() {
+                // Process has already exited, get error output
+                if let Some(stderr) = child.stderr.take() {
+                    let mut error_output = String::new();
+                    if let Ok(_) = std::io::BufReader::new(stderr).read_to_string(&mut error_output) {
+                        return Err(format!("Python server failed to start. Exit status: {:?}, Error: {}", exit_status, error_output));
+                    }
+                }
+                return Err(format!("Python server process exited immediately with status: {:?}", exit_status));
+            }
 
             // Check if the server is responding
             let client = create_http_client().await?;
-            match client.get(&format!("{}/health", API_BASE_URL)).send().await {
-                Ok(response) if response.status().is_success() => {
-                    println!("Python HTTP server is responding");
-                    Ok("Python HTTP server started successfully".to_string())
-                }
-                Ok(response) => {
-                    let status = response.status();
-                    Err(format!("Python HTTP server responded with status: {}", status))
-                }
-                Err(e) => {
-                    // Try to get error output from the process
-                    if let Ok(Some(exit_status)) = child.try_wait() {
-                        if let Some(stderr) = child.stderr.take() {
-                            use std::io::Read;
-                            let mut error_output = String::new();
-                            if let Ok(_) = std::io::BufReader::new(stderr).read_to_string(&mut error_output) {
-                                return Err(format!("Python server failed to start. Exit status: {:?}, Error: {}", exit_status, error_output));
-                            }
-                        }
-                        Err(format!("Python server process exited with status: {:?}", exit_status))
-                    } else {
-                        Err(format!("Python HTTP server not responding: {}", e))
+            let mut attempts = 0;
+            let max_attempts = 5;
+
+            while attempts < max_attempts {
+                match client.get(&format!("{}/health", API_BASE_URL)).send().await {
+                    Ok(response) if response.status().is_success() => {
+                        println!("Python HTTP server is responding");
+                        return Ok("Python HTTP server started successfully".to_string());
+                    }
+                    Ok(response) => {
+                        println!("Server responded with status: {}, attempt {}/{}", response.status(), attempts + 1, max_attempts);
+                    }
+                    Err(e) => {
+                        println!("Health check failed, attempt {}/{}: {}", attempts + 1, max_attempts, e);
                     }
                 }
+
+                attempts += 1;
+                if attempts < max_attempts {
+                    tokio::time::sleep(Duration::from_millis(1000)).await;
+                }
+            }
+
+            // Final check if process is still running
+            if let Ok(Some(exit_status)) = child.try_wait() {
+                if let Some(stderr) = child.stderr.take() {
+                    let mut error_output = String::new();
+                    if let Ok(_) = std::io::BufReader::new(stderr).read_to_string(&mut error_output) {
+                        return Err(format!("Python server failed after startup. Exit status: {:?}, Error: {}", exit_status, error_output));
+                    }
+                }
+                Err(format!("Python server process exited with status: {:?}", exit_status))
+            } else {
+                Err("Python HTTP server started but is not responding to health checks".to_string())
             }
         }
         Err(e) => {

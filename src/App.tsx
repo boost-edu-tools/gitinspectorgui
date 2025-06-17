@@ -1,6 +1,7 @@
 import { ExecuteButton } from "./components/ExecuteButton";
 import { Phase3ResultsInterface } from "./components/Phase3ResultsInterface";
 import { SettingsFormTabs } from "./components/SettingsFormTabs";
+import { ServerStatus } from "./components/ServerStatus";
 import { useResultsStore } from "./stores/resultsStore";
 import { DemoBanner } from "./components/DemoBanner";
 import { isDemoMode } from "./lib/demo";
@@ -43,11 +44,13 @@ function App() {
                     </div>
 
                     {/* Fixed Execute Button */}
-                    <div className="p-6 pt-4 border-t border-border">
+                    <div className="p-6 pt-4 border-t border-border space-y-4">
+                        {!isDemo && <ServerStatus />}
+
                         <ExecuteButton />
 
                         {error && (
-                            <div className="p-4 mt-4 bg-destructive/10 border border-destructive/20 rounded-md">
+                            <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md">
                                 <p className="text-sm text-destructive font-medium">
                                     Error
                                 </p>
