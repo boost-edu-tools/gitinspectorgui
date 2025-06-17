@@ -451,13 +451,13 @@ type ServerProcess = Arc<Mutex<Option<Child>>>;
 
 #[command]
 pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String> {
-    println!("Starting Python HTTP server...");
+    println!("🚀 Starting Python HTTP server...");
 
     // Check if server is already running
     let client = create_http_client().await?;
     if let Ok(response) = client.get(&format!("{}/health", API_BASE_URL)).send().await {
         if response.status().is_success() {
-            println!("Python server is already running");
+            println!("✅ Python server is already running");
             return Ok("Python HTTP server is already running".to_string());
         }
     }
@@ -466,16 +466,26 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
     let resource_dir = app.path().resource_dir()
         .map_err(|e| format!("Failed to get resource directory: {}", e))?;
 
+    println!("📁 Resource directory: {}", resource_dir.display());
+
     // Try multiple possible paths for the Python sidecar
+    // Prioritize Python script over executable since we know it works
     let possible_paths = vec![
-        resource_dir.join("dist").join("gitinspector-api-sidecar"),
-        resource_dir.join("gitinspector-api-sidecar"),
-        resource_dir.join("bin").join("gitinspector-api-sidecar"),
-        // Python files are bundled directly in resource directory
+        // Python files are bundled directly in resource directory (PRIORITIZE THIS)
         resource_dir.join("gigui").join("start_server.py"),
         // For development, try the source directory
         resource_dir.parent().unwrap_or(&resource_dir).join("python").join("gigui").join("start_server.py"),
+        // Executables (lower priority since they have argument parsing issues)
+        resource_dir.join("dist").join("gitinspector-api-sidecar"),
+        resource_dir.join("gitinspector-api-sidecar"),
+        resource_dir.join("bin").join("gitinspector-api-sidecar"),
     ];
+
+    println!("🔍 Searching for Python sidecar in paths:");
+    for path in &possible_paths {
+        let exists = path.exists();
+        println!("  {} - {}", if exists { "✅" } else { "❌" }, path.display());
+    }
 
     let mut sidecar_path = None;
     for path in possible_paths {
@@ -486,18 +496,27 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
     }
 
     let sidecar_path = sidecar_path.ok_or_else(|| {
-        format!("Python sidecar not found. Searched paths: {:?}",
-                vec![
-                    resource_dir.join("dist").join("gitinspector-api-sidecar"),
-                    resource_dir.join("gitinspector-api-sidecar"),
-                    resource_dir.join("bin").join("gitinspector-api-sidecar"),
-                ])
+        format!("❌ Python sidecar not found in any expected location. Resource dir: {}", resource_dir.display())
     })?;
 
-    println!("Found Python sidecar at: {}", sidecar_path.display());
+    println!("✅ Found Python sidecar at: {}", sidecar_path.display());
 
     // Determine if we're using a Python script or executable
     let is_python_script = sidecar_path.extension().map_or(false, |ext| ext == "py");
+    println!("🐍 Is Python script: {}", is_python_script);
+
+    // Check if python3 is available
+    if is_python_script {
+        match Command::new("python3").arg("--version").output() {
+            Ok(output) => {
+                let version = String::from_utf8_lossy(&output.stdout);
+                println!("🐍 Python3 version: {}", version.trim());
+            }
+            Err(e) => {
+                return Err(format!("❌ Python3 not found or not executable: {}", e));
+            }
+        }
+    }
 
     // Start the HTTP server
     let mut cmd = if is_python_script {
@@ -505,10 +524,12 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
         // Run as module to support relative imports
         cmd.args(["-m", "gigui.start_server"]);
         cmd.args(["--host=127.0.0.1", "--port=8080"]);
+        println!("🚀 Command: python3 -m gigui.start_server --host=127.0.0.1 --port=8080");
         cmd
     } else {
         let mut cmd = Command::new(&sidecar_path);
         cmd.args(["--host=127.0.0.1", "--port=8080"]);
+        println!("🚀 Command: {} --host=127.0.0.1 --port=8080", sidecar_path.display());
         cmd
     };
 
@@ -516,10 +537,28 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
 
+    println!("📂 Working directory: {}", resource_dir.display());
+
     match cmd.spawn() {
-        Ok(child) => {
+        Ok(mut child) => {
             let child_id = child.id();
-            println!("Python HTTP server started with PID: {}", child_id);
+            println!("🎯 Python HTTP server started with PID: {}", child_id);
+
+            // Check if process exits immediately
+            tokio::time::sleep(Duration::from_millis(500)).await;
+            if let Ok(Some(exit_status)) = child.try_wait() {
+                // Process exited immediately, get error output
+                let mut error_output = String::new();
+                if let Some(stderr) = child.stderr.take() {
+                    let _ = std::io::BufReader::new(stderr).read_to_string(&mut error_output);
+                }
+                let mut stdout_output = String::new();
+                if let Some(stdout) = child.stdout.take() {
+                    let _ = std::io::BufReader::new(stdout).read_to_string(&mut stdout_output);
+                }
+                return Err(format!("❌ Python server exited immediately. Exit status: {:?}\nSTDERR: {}\nSTDOUT: {}",
+                    exit_status, error_output, stdout_output));
+            }
 
             // Store the process handle for later cleanup
             let server_process: tauri::State<ServerProcess> = app.state();
@@ -528,24 +567,26 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
             }
 
             // Wait longer for server to start (especially for Python scripts)
-            let wait_time = if is_python_script { 5000 } else { 3000 };
+            let wait_time = if is_python_script { 8000 } else { 3000 };
+            println!("⏳ Waiting {}ms for server to start...", wait_time);
             tokio::time::sleep(Duration::from_millis(wait_time)).await;
 
             // Check if the server is responding
             let mut attempts = 0;
-            let max_attempts = 10;
+            let max_attempts = 15;
 
+            println!("🔄 Starting health checks...");
             while attempts < max_attempts {
                 match client.get(&format!("{}/health", API_BASE_URL)).send().await {
                     Ok(response) if response.status().is_success() => {
-                        println!("Python HTTP server is responding");
+                        println!("✅ Python HTTP server is responding!");
                         return Ok("Python HTTP server started successfully".to_string());
                     }
                     Ok(response) => {
-                        println!("Server responded with status: {}, attempt {}/{}", response.status(), attempts + 1, max_attempts);
+                        println!("⚠️  Server responded with status: {}, attempt {}/{}", response.status(), attempts + 1, max_attempts);
                     }
                     Err(e) => {
-                        println!("Health check failed, attempt {}/{}: {}", attempts + 1, max_attempts, e);
+                        println!("❌ Health check failed, attempt {}/{}: {}", attempts + 1, max_attempts, e);
                     }
                 }
 
@@ -555,26 +596,26 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
                 }
             }
 
-            // Check if process is still running
+            // Final check if process is still running
             let server_process: tauri::State<ServerProcess> = app.state();
             if let Ok(mut process) = server_process.lock() {
                 if let Some(ref mut child) = process.as_mut() {
                     if let Ok(Some(exit_status)) = child.try_wait() {
+                        let mut error_output = String::new();
                         if let Some(stderr) = child.stderr.take() {
-                            let mut error_output = String::new();
-                            if let Ok(_) = std::io::BufReader::new(stderr).read_to_string(&mut error_output) {
-                                return Err(format!("Python server failed after startup. Exit status: {:?}, Error: {}", exit_status, error_output));
-                            }
+                            let _ = std::io::BufReader::new(stderr).read_to_string(&mut error_output);
                         }
-                        return Err(format!("Python server process exited with status: {:?}", exit_status));
+                        return Err(format!("❌ Python server process exited. Exit status: {:?}, Error: {}", exit_status, error_output));
+                    } else {
+                        return Err("❌ Python server process is running but not responding to health checks. Check if port 8080 is blocked or if there are permission issues.".to_string());
                     }
                 }
             }
 
-            Err("Python HTTP server started but is not responding to health checks".to_string())
+            Err("❌ Failed to access server process state".to_string())
         }
         Err(e) => {
-            Err(format!("Failed to start Python sidecar: {}", e))
+            Err(format!("❌ Failed to spawn Python process: {}", e))
         }
     }
 }
