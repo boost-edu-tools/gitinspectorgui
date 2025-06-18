@@ -1,12 +1,14 @@
 # Python-Focused Development Guide
 
-This guide is for Python developers working on GitInspectorGUI who want to focus on the Python backend while understanding how the frontend integration works.
+This guide is for Python developers contributing to GitInspectorGUI who want to focus on the Python backend development while understanding how the frontend integration works.
 
-## Understanding the Architecture
+**Note**: This focuses on development workflow. For GitInspectorGUI application features, see [gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
 
-### What You Need to Know
+## Development Architecture
 
-GitInspectorGUI has a **clear separation** between backend and frontend:
+### Development Separation
+
+The GitInspectorGUI codebase has a **clear separation** between backend and frontend development:
 
 ```mermaid
 graph LR

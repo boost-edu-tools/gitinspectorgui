@@ -1,13 +1,15 @@
-# Installation Guide
+# Development Environment Installation
 
-## Understanding What You're Installing
+## Understanding the Development Setup
 
-GitInspectorGUI uses multiple technologies that work together. If you're unfamiliar with any of these, see the **[Technology Primer](../technology-primer.md)** first.
+The GitInspectorGUI development environment uses multiple technologies. If you're unfamiliar with any of these, see the **[Technology Primer](../technology-primer.md)** first.
 
-**What you're setting up**:
+**Note**: This is for setting up the development environment. For application usage, see [gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
 
--   **Python environment** - For the git analysis backend
--   **Node.js environment** - For the React/TypeScript frontend
+**Development environment components**:
+
+-   **Python environment** - For backend development
+-   **Node.js environment** - For frontend development tools
 -   **Rust toolchain** - For the Tauri desktop framework
 -   **Package managers** - Modern tools for faster dependency management
 

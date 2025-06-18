@@ -1,22 +1,21 @@
-# GitInspectorGUI Documentation
+# GitInspectorGUI Developer Documentation
 
-Modern desktop application for git repository analysis. Built with Tauri + React + TypeScript frontend and Python HTTP API backend.
+Development environment and tooling documentation for GitInspectorGUI contributors.
 
-## New to This Technology Stack?
+**Note**: For application usage and features, see the main documentation at [gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
 
-If you're a Python developer unfamiliar with modern web/desktop development tools:
+## Development Environment Setup
 
--   **[Technology Primer](technology-primer.md)** - Understand Tauri, FastAPI, React, TypeScript, and other tools used in this project
+For developers contributing to GitInspectorGUI who need help with the modern development stack:
 
-## Demo
+-   **[Technology Primer](technology-primer.md)** - Understanding the development tools (Tauri, FastAPI, React, TypeScript, etc.)
+-   **[Python-Focused Development](development/python-focused-development.md)** - Backend development workflow for Python developers
 
--   **Live Demo** - Interactive demo available at the project root (`index.html`)
+## Development Setup
 
-## Getting Started
-
--   **[Quick Start](getting-started/quick-start.md)** - Setup and first run
--   **[Installation](getting-started/installation.md)** - Detailed installation
--   **[First Analysis](getting-started/first-analysis.md)** - Repository analysis workflow
+-   **[Quick Start](getting-started/quick-start.md)** - Get development environment running
+-   **[Installation](getting-started/installation.md)** - Detailed development setup
+-   **[First Analysis](getting-started/first-analysis.md)** - Test your development setup
 
 ## Documentation
 

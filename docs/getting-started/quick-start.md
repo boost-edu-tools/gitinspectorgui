@@ -1,6 +1,8 @@
 # Quick Start
 
-Setup and run GitInspectorGUI in 3 steps.
+Setup and run the GitInspectorGUI development environment in 3 steps.
+
+**Note**: This is for setting up the development environment. For application usage, see [gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
 
 ## Prerequisites
 

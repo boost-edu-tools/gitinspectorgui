@@ -1,22 +1,14 @@
-# First Analysis
+# Testing Your Development Setup
 
-Run your first git repository analysis with GitInspectorGUI.
+Test your GitInspectorGUI development environment with a first analysis run.
+
+**Note**: This is for testing your development setup. For application usage and features, see [gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
 
 ## Prerequisites
 
--   GitInspectorGUI installed ([Installation Guide](installation.md))
+-   Development environment installed ([Installation Guide](installation.md))
 -   HTTP server and Tauri app running ([Quick Start](quick-start.md))
--   A git repository to analyze (any local git repository will work)
-
-## What GitInspectorGUI Does
-
-GitInspectorGUI analyzes git repositories to show:
-
--   **Who wrote what code** (blame analysis)
--   **How the code evolved over time** (change analysis)
--   **Contribution patterns** and **file ownership**
-
-This is useful for understanding codebases, code reviews, and team dynamics.
+-   A git repository to test with (any local git repository will work)
 
 ## Step-by-Step First Analysis
 

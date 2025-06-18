@@ -1,10 +1,12 @@
 # Technology Stack Primer
 
-This guide explains each technology used in GitInspectorGUI for developers with computer science and Python backgrounds who may be unfamiliar with modern web/desktop development tools.
+This guide explains the development tools and technologies used in the GitInspectorGUI codebase for developers with computer science and Python backgrounds who may be unfamiliar with modern web/desktop development tools.
 
-## Overview
+**Note**: This focuses on the development environment and tools. For GitInspectorGUI application features and usage, see [gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
 
-GitInspectorGUI uses a modern multi-technology stack to create a desktop application with a web-based UI. Here's what each technology does and why it's used:
+## Development Stack Overview
+
+The GitInspectorGUI codebase uses a modern multi-technology development stack. Here's what each technology does and why it's used for development:
 
 ```mermaid
 graph TB
