@@ -71,6 +71,7 @@ markdown_extensions:
 
 nav:
     - Home: index.md
+    - Technology Primer: technology-primer.md
     - Demo: https://edu-boost.gitlab.io/gitinspectorgui/demo/
     - Getting Started:
           - Quick Start: getting-started/quick-start.md
@@ -79,6 +80,7 @@ nav:
           - CLI Standalone: getting-started/cli-standalone.md
           - First Analysis: getting-started/first-analysis.md
     - Development:
+          - Python-Focused Development: development/python-focused-development.md
           - Environment Setup: development/environment-setup.md
           - Development Mode: development/development-mode.md
           - Server Management: development/server-management.md
