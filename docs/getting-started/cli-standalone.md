@@ -19,111 +19,14 @@ Download the latest release for your platform:
 -   **Linux**: `gitinspectorcli-linux-x64` or `gitinspectorcli-linux-arm64`
 -   **Windows**: `gitinspectorcli-windows-x64.exe`
 
-## Quick Start
-
-### Basic Usage
+## Basic Usage
 
 ```bash
 # Analyze a single repository
 ./gitinspectorcli /path/to/repository
 
-# Analyze multiple repositories
-./gitinspectorcli /path/to/repo1 /path/to/repo2
-
 # Get help
 ./gitinspectorcli --help
-```
-
-### Common Options
-
-```bash
-# Limit number of files analyzed
-./gitinspectorcli /path/to/repo --n-files 50
-
-# Exclude certain authors
-./gitinspectorcli /path/to/repo --exclude-authors "bot*" "automated*"
-
-# Output as JSON
-./gitinspectorcli /path/to/repo --output-format json
-
-# Include only specific file types
-./gitinspectorcli /path/to/repo --include-files "*.py" "*.js"
-
-# Dry run (preview only)
-./gitinspectorcli /path/to/repo --dry-run
-```
-
-## Command-Line Options
-
-### Repository Selection
-
--   `repositories`: Repository paths to analyze (positional arguments)
--   `--depth DEPTH`: Maximum directory depth to search (default: 3)
-
-### File Analysis
-
--   `--n-files N_FILES`: Maximum number of files to analyze per repository (default: 100)
--   `--include-files [PATTERNS...]`: File patterns to include in analysis
--   `--exclude-files [PATTERNS...]`: File patterns to exclude from analysis
-
-### Author Filtering
-
--   `--exclude-authors [PATTERNS...]`: Author patterns to exclude from analysis
--   `--exclude-emails [PATTERNS...]`: Email patterns to exclude from analysis
-
-### Analysis Options
-
--   `--copy-move {0,1,2,3}`: Copy/move detection (0=None, 1=Copy, 2=Move, 3=Both)
--   `--scaled-percentages`: Use scaled percentages in output
--   `--blame-exclusions`: Enable blame exclusions
--   `--dynamic-blame-history`: Enable dynamic blame history
-
-### Output Options
-
--   `--output-format {json,table}`: Output format (default: table)
--   `--dry-run`: Perform a dry run (preview only)
-
-### Other Options
-
--   `--version`: Show program version
--   `--help`: Show help message
-
-## Examples
-
-### Analyze a Python Project
-
-```bash
-./gitinspectorcli /path/to/python-project \
-  --include-files "*.py" \
-  --exclude-authors "dependabot*" \
-  --n-files 100
-```
-
-### Generate JSON Report
-
-```bash
-./gitinspectorcli /path/to/repo \
-  --output-format json \
-  --n-files 50 > analysis-report.json
-```
-
-### Analyze Multiple Repositories
-
-```bash
-./gitinspectorcli \
-  /path/to/frontend \
-  /path/to/backend \
-  /path/to/shared \
-  --exclude-files "*.min.js" "*.lock" \
-  --exclude-authors "bot*"
-```
-
-### Quick Repository Overview
-
-```bash
-./gitinspectorcli /path/to/repo \
-  --n-files 20 \
-  --exclude-files "*.md" "*.txt"
 ```
 
 ## Output Formats
@@ -193,13 +96,6 @@ The JSON format provides structured data for programmatic use:
 }
 ```
 
-## Performance Tips
-
--   Use `--n-files` to limit analysis for large repositories
--   Use `--exclude-files` to skip irrelevant files (e.g., `*.min.js`, `*.lock`)
--   Use `--dry-run` to preview what will be analyzed
--   For CI/CD, use `--output-format json` for structured data
-
 ## Troubleshooting
 
 ### Permission Issues (macOS/Linux)
@@ -213,59 +109,6 @@ chmod +x gitinspectorcli-*
 ### Security Warnings (macOS)
 
 On macOS, you may need to allow the executable in System Preferences > Security & Privacy.
-
-### Large Repository Performance
-
-For very large repositories:
-
-```bash
-./gitinspectorcli /path/to/large-repo \
-  --n-files 50 \
-  --exclude-files "*.min.*" "node_modules/*" "dist/*"
-```
-
-## Integration with CI/CD
-
-### GitHub Actions
-
-```yaml
-- name: Download GitInspectorCLI
-  run: |
-      wget https://github.com/your-org/gitinspectorgui/releases/latest/download/gitinspectorcli-linux-x64
-      chmod +x gitinspectorcli-linux-x64
-
-- name: Analyze Repository
-  run: |
-      ./gitinspectorcli-linux-x64 . --output-format json > analysis.json
-```
-
-### GitLab CI
-
-```yaml
-analyze:
-    script:
-        - wget https://gitlab.com/your-org/gitinspectorgui/-/releases/permalink/latest/downloads/gitinspectorcli-linux-x64
-        - chmod +x gitinspectorcli-linux-x64
-        - ./gitinspectorcli-linux-x64 . --output-format json > analysis.json
-    artifacts:
-        reports:
-            artifacts:
-                paths:
-                    - analysis.json
-```
-
-## Comparison with GUI Version
-
-| Feature            | CLI          | GUI        |
-| ------------------ | ------------ | ---------- |
-| Analysis Engine    | ✅ Same      | ✅ Same    |
-| Standalone         | ✅ Yes       | ✅ Yes     |
-| Interactive UI     | ❌ No        | ✅ Yes     |
-| Batch Processing   | ✅ Yes       | ⚠️ Limited |
-| CI/CD Integration  | ✅ Excellent | ❌ No      |
-| JSON Output        | ✅ Yes       | ⚠️ Limited |
-| Real-time Progress | ❌ No        | ✅ Yes     |
-| Visual Charts      | ❌ No        | ✅ Yes     |
 
 ## Building from Source
 
