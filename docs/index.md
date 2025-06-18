@@ -4,54 +4,46 @@ Development environment and tooling documentation for GitInspectorGUI contributo
 
 **Note**: For application usage and features, see the main documentation at [gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
 
-## Development Environment Setup
+## Quick Navigation
 
-For developers contributing to GitInspectorGUI who need help with the modern development stack:
+### New to the Project?
 
--   **[Technology Primer](technology-primer.md)** - Understanding the development tools (Tauri, FastAPI, React, TypeScript, etc.)
--   **[Python-Focused Development](development/python-focused-development.md)** - Backend development workflow for Python developers
-
-## Development Setup
-
--   **[Quick Start](getting-started/quick-start.md)** - Get development environment running
--   **[Installation](getting-started/installation.md)** - Detailed development setup
--   **[First Analysis](getting-started/first-analysis.md)** - Test your development setup
-
-## Documentation
-
-### AI Tools
-
--   **[Overview](ai-tools/overview.md)** - AI development ecosystem
--   **[Cline Guide](ai-tools/cline-guide.md)** - Direct coding assistance
--   **[Roo Code Guide](ai-tools/roo-code-guide.md)** - Multi-agent workflows
+-   **[Technology Primer](technology-primer.md)** - Understanding the development tools
+-   **[Quick Start](getting-started/quick-start.md)** - Get running in 3 steps
+-   **[Installation Guide](getting-started/installation.md)** - Detailed setup
 
 ### Development
 
--   **[Python-Focused Development](development/python-focused-development.md)** - For Python developers working with this multi-stack project
+-   **[Development Workflow](development/development-workflow.md)** - Core development patterns
+-   **[Package Management](development/package-management.md)** - Dependencies and tools
+-   **[Build Process](development/build-process.md)** - Creating releases
 -   **[Environment Setup](development/environment-setup.md)** - Development configuration
--   **[Development Mode](development/development-mode.md)** - Local workflow
--   **[Package Management (pnpm)](development/package-management-pnpm.md)** - Frontend dependencies
--   **[Python Management (uv)](development/python-management-uv.md)** - Backend dependencies
 -   **[Troubleshooting](development/troubleshooting.md)** - Common issues
 
-### API
+### Command Line Interface
 
--   **[Reference](api/reference.md)** - HTTP API endpoints
--   **[Examples](api/examples.md)** - Code examples
--   **[Error Handling](api/error-handling.md)** - Error codes
+-   **[CLI Guide](getting-started/cli-guide.md)** - Complete command-line usage
+-   **[First Analysis](getting-started/first-analysis.md)** - Test your setup
 
-### Architecture
+### API Development
 
--   **[Overview](architecture/overview.md)** - System architecture
+-   **[HTTP API Reference](api/reference.md)** - Complete API documentation
+-   **[API Examples](api/examples.md)** - Usage patterns and code samples
+-   **[Error Handling](api/error-handling.md)** - Error codes and troubleshooting
+
+### AI-Assisted Development
+
+-   **[AI Tools Overview](ai-tools/overview.md)** - Development ecosystem
+-   **[Cline Guide](ai-tools/cline-guide.md)** - Direct coding assistance
+-   **[Roo Code Guide](ai-tools/roo-code-guide.md)** - Multi-agent workflows
+
+### Architecture & Operations
+
+-   **[System Overview](architecture/overview.md)** - System architecture
 -   **[Technology Stack](architecture/technology-stack.md)** - Technology choices
--   **[Legacy Integration](architecture/legacy-integration.md)** - Legacy compatibility
 -   **[Design Decisions](architecture/design-decisions.md)** - Architectural rationale
-
-### Operations
-
--   **[Deployment](operations/deployment.md)** - Production setup
--   **[Monitoring](operations/monitoring.md)** - System monitoring
--   **[Maintenance](operations/maintenance.md)** - Maintenance procedures
+-   **[Release & Distribution](operations/deployment.md)** - Production deployment
+-   **[Server Management](operations/server-management.md)** - Operational procedures
 
 ## Features
 

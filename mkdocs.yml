@@ -61,20 +61,17 @@ nav:
     - Getting Started:
           - Quick Start: getting-started/quick-start.md
           - Installation: getting-started/installation.md
-          - CLI Usage: getting-started/cli-usage.md
-          - CLI Standalone: getting-started/cli-standalone.md
+          - CLI Guide: getting-started/cli-guide.md
           - First Analysis: getting-started/first-analysis.md
     - Development:
-          - Python-Focused Development: development/python-focused-development.md
+          - Development Workflow: development/development-workflow.md
           - Environment Setup: development/environment-setup.md
-          - Development Mode: development/development-mode.md
-          - Server Management: development/server-management.md
+          - Package Management: development/package-management.md
           - Build Process: development/build-process.md
-          - Demo-Based Documentation-GUI Development: development/demo-based-documentation-gui-development.md
-          - Design System Integration: development/design-system-integration.md
-          - Python Package Management (uv): development/python-management-uv.md
-          - Node.js Package Management (pnpm): development/package-management-pnpm.md
           - Troubleshooting: development/troubleshooting.md
+          - Advanced:
+                - Demo-Based Development: development/advanced/demo-based-development.md
+                - Design System Integration: development/advanced/design-system-integration.md
     - AI Tools:
           - Overview: ai-tools/overview.md
           - Roo Code Development Guide: ai-tools/roo-code-guide.md
@@ -91,6 +88,7 @@ nav:
           - Legacy Integration: architecture/legacy-integration.md
     - Operations:
           - Release & Distribution: operations/deployment.md
+          - Server Management: operations/server-management.md
           - Documentation Deployment: operations/documentation-deployment.md
           - Monitoring: operations/monitoring.md
           - Maintenance: operations/maintenance.md

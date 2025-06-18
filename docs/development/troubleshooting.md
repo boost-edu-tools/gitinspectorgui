@@ -242,4 +242,5 @@ tail -f logs/api.log | grep -i warning
 ## Related
 
 -   **[Environment Setup](environment-setup.md)** - Development setup
--   **[Development Mode](development-mode.md)** - Development workflow
+-   **[Development Workflow](development-workflow.md)** - Development workflow
+-   **[Package Management](package-management.md)** - Dependencies and tools

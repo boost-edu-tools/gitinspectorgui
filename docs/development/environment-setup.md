@@ -177,6 +177,7 @@ cargo clean
 
 ## Related
 
--   **[Development Mode](development-mode.md)** - Development workflow
+-   **[Development Workflow](development-workflow.md)** - Development workflow
+-   **[Package Management](package-management.md)** - Dependencies and tools
 -   **[Troubleshooting](troubleshooting.md)** - Common issues
 -   **[API Reference](../api/reference.md)** - API documentation
