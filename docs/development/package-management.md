@@ -135,13 +135,7 @@ npm install -g pnpm
 
 ### Development Workflow
 
-```bash
-# Start API server
-python -m gigui.start_server --reload
-
-# Start Tauri app (new terminal)
-pnpm run tauri dev
-```
+For development server commands, see **[Development Workflow](development-workflow.md#development-server-commands-single-source-of-truth)**.
 
 ### Production Build
 
@@ -247,7 +241,7 @@ corepack enable                                   # pnpm
 uv sync          # Python dependencies
 pnpm install     # Node.js dependencies
 
-# 3. Start development
+# 3. Start development (see Development Workflow for all options)
 python -m gigui.start_server --reload  # Terminal 1
 pnpm run tauri dev                      # Terminal 2
 ```

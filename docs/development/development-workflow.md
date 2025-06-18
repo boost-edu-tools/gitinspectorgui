@@ -32,7 +32,46 @@ You can develop and test the Python backend **independently** of the frontend. T
 
 ## Development Environment
 
-### Quick Start Options
+**Prerequisites**: Complete the **[Getting Started Guide](../getting-started/01-prerequisites.md)** first.
+
+### Development Server Commands (Single Source of Truth)
+
+**Python Backend Server**:
+
+```bash
+# Basic development server
+python -m gigui.start_server
+
+# Development with auto-reload (recommended for development)
+python -m gigui.start_server --reload
+
+# Development with debug logging
+python -m gigui.start_server --reload --log-level DEBUG
+
+# Custom host and port
+python -m gigui.start_server --host 127.0.0.1 --port 8081
+
+# Production mode
+python -m gigui.start_server --host 0.0.0.0 --port 8080
+```
+
+**Frontend Development**:
+
+```bash
+# Full desktop development (recommended)
+pnpm run tauri dev
+
+# Frontend only (web browser, no desktop wrapper)
+pnpm run dev
+
+# Debug build
+pnpm run tauri build --debug
+
+# Production build
+pnpm run tauri build
+```
+
+### Development Workflow Options
 
 **Option 1: Python Backend Only (Recommended for Python developers)**
 
@@ -58,20 +97,6 @@ pnpm run tauri dev
 
 -   **Option 1**: Only runs the Python backend, perfect for API development and testing
 -   **Option 2**: Runs both backend and frontend, needed for UI testing and integration
-
-### Development Commands
-
-```bash
-# API Server Options
-python -m gigui.start_server --reload                    # Basic auto-reload
-python -m gigui.start_server --reload --log-level DEBUG  # With debug logging
-python -m gigui.start_server --reload --port 8081        # Custom port
-
-# Frontend Options
-pnpm run tauri dev                                        # Full development
-pnpm run dev                                             # Frontend only
-pnpm run tauri build --debug                            # Debug build
-```
 
 ## Python-First Development
 

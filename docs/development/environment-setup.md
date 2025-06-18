@@ -2,79 +2,70 @@
 
 Development environment configuration for GitInspectorGUI.
 
+**Prerequisites**: Complete the **[Getting Started Guide](../getting-started/01-prerequisites.md)** first for system requirements and project installation.
+
 ## Understanding the Development Stack
 
 If you're unfamiliar with the technologies used, see the **[Technology Primer](../technology-primer.md)** first.
 
-**What you're setting up**:
+**Development environment components**:
 
 -   **Frontend**: Tauri (desktop framework) + React (UI library) + TypeScript (typed JavaScript) + Vite (build tool)
 -   **Backend**: Python + FastAPI (modern web framework)
 -   **Package Management**: uv (fast Python package manager), pnpm (fast JavaScript package manager)
 -   **Build System**: Cargo (Rust compiler), Vite (frontend bundler)
 
-## Prerequisites
+## Development Configuration
 
--   **Python 3.13+** with uv (for the backend API server)
--   **Node.js 22+** with pnpm (for the frontend build tools)
--   **Rust 1.85+** with Cargo (required for Tauri desktop framework)
--   **Git 2.45+** (for repository analysis)
-
-See [Installation Guide](../getting-started/installation.md) for detailed setup instructions.
-
-## Setup
-
-### 1. Install Dependencies
-
-```bash
-# Clone repository
-git clone https://gitlab.com/your-username/gitinspectorgui.git
-cd gitinspectorgui
-
-# Python dependencies
-uv sync
-
-# Node.js dependencies
-pnpm install
-```
-
-### 2. VS Code Extensions
+### VS Code Extensions
 
 ```json
 {
     "recommendations": [
         "ms-python.python",
         "rust-lang.rust-analyzer",
+        "tauri-apps.tauri-vscode",
         "bradlc.vscode-tailwindcss"
     ]
 }
 ```
 
-## Development
+### Python Environment Configuration
 
-### API Server
+If using VS Code:
+
+1. `Ctrl+Shift+P` → "Python: Select Interpreter"
+2. Choose `.venv/bin/python` (created by `uv sync`)
+
+## Development Server Configuration
+
+For development server commands and workflows, see **[Development Workflow](development-workflow.md)**.
+
+### API Server Configuration
 
 ```bash
-# Start with auto-reload
-python -m gigui.start_server --reload
+# Custom host and port
+python -m gigui.start_server --host 127.0.0.1 --port 8080
 
-# With debug logging
+# Debug logging
+python -m gigui.start_server --log-level DEBUG
+
+# Development mode with auto-reload
 python -m gigui.start_server --reload --log-level DEBUG
 ```
 
-**Features**: Auto-reload, debug logging, OpenAPI docs at `/docs`
-
-### Frontend
+### Frontend Configuration
 
 ```bash
-# Start Tauri development
+# Development with hot reload
 pnpm run tauri dev
 
-# With custom config
+# With custom Tauri config
 pnpm run tauri dev -- --config src-tauri/tauri.conf.dev.json
-```
 
-**Features**: Hot reloading, TypeScript checking, DevTools, Zustand state
+# Frontend only (without desktop wrapper)
+pnpm run dev
+```
 
 ## Debugging
 

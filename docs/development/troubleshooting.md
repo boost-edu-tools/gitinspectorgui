@@ -59,13 +59,15 @@ lsof -ti:8080 | xargs kill -9
 python -m gigui.start_server --port 8081
 ```
 
+For all server command options, see **[Development Workflow](development-workflow.md#development-server-commands-single-source-of-truth)**.
+
 ### Frontend Connection Issues
 
 ```bash
 # Test API health
 curl http://127.0.0.1:8080/health
 
-# Restart development server
+# Restart development server (see Development Workflow for all options)
 python -m gigui.start_server --reload
 ```
 
@@ -74,7 +76,7 @@ python -m gigui.start_server --reload
 ### Hot Reload Not Working
 
 ```bash
-# Restart with reload enabled
+# Restart with reload enabled (see Development Workflow for all options)
 python -m gigui.start_server --reload
 
 # Kill and restart servers
@@ -85,7 +87,7 @@ pkill -f "tauri dev"
 ### Debugging Issues
 
 ```bash
-# Enable debug logging
+# Enable debug logging (see Development Workflow for all options)
 python -m gigui.start_server --log-level DEBUG
 
 # Verify VS Code extensions

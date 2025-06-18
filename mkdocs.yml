@@ -59,10 +59,11 @@ nav:
     - Technology Primer: technology-primer.md
     - Demo: https://edu-boost.gitlab.io/gitinspectorgui/demo/
     - Getting Started:
-          - Quick Start: getting-started/quick-start.md
-          - Installation: getting-started/installation.md
+          - Prerequisites: getting-started/01-prerequisites.md
+          - Installation: getting-started/02-installation.md
+          - Quick Start: getting-started/03-quick-start.md
+          - First Analysis: getting-started/04-first-analysis.md
           - CLI Guide: getting-started/cli-guide.md
-          - First Analysis: getting-started/first-analysis.md
     - Development:
           - Development Workflow: development/development-workflow.md
           - Environment Setup: development/environment-setup.md
