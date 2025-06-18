@@ -2,21 +2,25 @@
 
 Development environment configuration for GitInspectorGUI.
 
-## Stack
+## Understanding the Development Stack
 
--   **Frontend**: Tauri + React + TypeScript + Vite
--   **Backend**: Python + FastAPI
--   **Package Management**: uv (Python), pnpm (Node.js)
--   **Build System**: Cargo (Rust), Vite (Frontend)
+If you're unfamiliar with the technologies used, see the **[Technology Primer](../technology-primer.md)** first.
+
+**What you're setting up**:
+
+-   **Frontend**: Tauri (desktop framework) + React (UI library) + TypeScript (typed JavaScript) + Vite (build tool)
+-   **Backend**: Python + FastAPI (modern web framework)
+-   **Package Management**: uv (fast Python package manager), pnpm (fast JavaScript package manager)
+-   **Build System**: Cargo (Rust compiler), Vite (frontend bundler)
 
 ## Prerequisites
 
--   **Python 3.13+** with uv
--   **Node.js 22+** with pnpm
--   **Rust 1.85+** with Cargo
--   **Git 2.45+**
+-   **Python 3.13+** with uv (for the backend API server)
+-   **Node.js 22+** with pnpm (for the frontend build tools)
+-   **Rust 1.85+** with Cargo (required for Tauri desktop framework)
+-   **Git 2.45+** (for repository analysis)
 
-See [Installation Guide](../getting-started/installation.md) for setup details.
+See [Installation Guide](../getting-started/installation.md) for detailed setup instructions.
 
 ## Setup
 

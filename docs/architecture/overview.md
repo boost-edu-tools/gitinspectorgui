@@ -2,6 +2,12 @@
 
 Modern HTTP API architecture with Tauri desktop frontend and Python backend.
 
+## For Python Developers
+
+If you're unfamiliar with the frontend technologies, see the **[Technology Primer](../technology-primer.md)** first. This document explains how the Python backend you'll work with connects to the desktop frontend.
+
+**Key concept**: The Python backend runs as an HTTP server, and the desktop frontend makes HTTP requests to it. You can develop and test the Python backend independently.
+
 ## Architecture
 
 ```mermaid

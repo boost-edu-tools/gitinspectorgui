@@ -2,6 +2,12 @@
 
 GitInspectorGUI HTTP API documentation.
 
+## For Python Developers
+
+This API is built with FastAPI and follows standard HTTP conventions. If you're unfamiliar with FastAPI, see the **[Technology Primer](../technology-primer.md)** first.
+
+**Key concept**: The frontend sends JSON requests to your Python backend via HTTP. You can test all endpoints directly with curl or Python requests.
+
 ## Configuration
 
 -   **Base URL**: `http://127.0.0.1:8080`
@@ -58,6 +64,18 @@ curl http://127.0.0.1:8080/health
     "file_formats": ["json"],
     "processes": 4,
     "legacy_engine": false
+}
+```
+
+**Python-focused example**:
+
+```json
+{
+    "input_fstrs": ["/home/user/my-python-project"],
+    "extensions": [".py"],
+    "ex_files": ["*/venv/*", "*/migrations/*", "*.pyc"],
+    "n_files": 50,
+    "processes": 2
 }
 ```
 
@@ -182,17 +200,70 @@ curl -X POST http://127.0.0.1:8080/api/execute_analysis \
 
 ```python
 import requests
+import json
 
+# Create a session for reusing connections
 client = requests.Session()
 client.timeout = 30
 
-# Health check
+# Health check - verify the server is running
 response = client.get("http://127.0.0.1:8080/health")
+if response.status_code == 200:
+    print("Server is healthy:", response.json()["status"])
 
-# Execute analysis
-settings = {"input_fstrs": ["/path/to/repo"], "file_formats": ["json"]}
+# Analyze a Python project
+settings = {
+    "input_fstrs": ["/home/user/my-django-project"],
+    "extensions": [".py"],  # Only analyze Python files
+    "ex_files": ["*/venv/*", "*/migrations/*", "*.pyc"],  # Exclude common Python dirs
+    "n_files": 100,
+    "file_formats": ["json"]
+}
+
+# Execute analysis with longer timeout for large repositories
 result = client.post("http://127.0.0.1:8080/api/execute_analysis",
                     json=settings, timeout=300)
+
+if result.status_code == 200:
+    data = result.json()
+    print(f"Analysis complete: {data['summary']['total_commits']} commits analyzed")
+    print(f"Top contributor: {data['repositories'][0]['authors'][0]['name']}")
+else:
+    print(f"Error: {result.status_code} - {result.text}")
+```
+
+**Testing your Python backend directly**:
+
+```python
+# Quick test script for development
+import requests
+
+def test_api():
+    base_url = "http://127.0.0.1:8080"
+
+    # Test health endpoint
+    health = requests.get(f"{base_url}/health")
+    print("Health check:", health.json())
+
+    # Test with a small repository
+    test_settings = {
+        "input_fstrs": ["/path/to/small/test/repo"],
+        "n_files": 10,
+        "file_formats": ["json"]
+    }
+
+    analysis = requests.post(f"{base_url}/api/execute_analysis",
+                           json=test_settings, timeout=60)
+
+    if analysis.status_code == 200:
+        print("Analysis successful!")
+        return analysis.json()
+    else:
+        print(f"Analysis failed: {analysis.text}")
+        return None
+
+if __name__ == "__main__":
+    result = test_api()
 ```
 
 ### Rust

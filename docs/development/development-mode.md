@@ -4,6 +4,12 @@
 
 Optimized development workflow with hot reloading, debugging, and fast iteration.
 
+## For Python Developers
+
+If you're unfamiliar with the frontend technologies, see the **[Technology Primer](../technology-primer.md)** and **[Python-Focused Development](python-focused-development.md)** guides first.
+
+**Key concept**: You can develop the Python backend independently by starting only the API server and testing with curl. The frontend integration is optional during development.
+
 ## Architecture
 
 ### Development vs Production
@@ -28,13 +34,30 @@ graph TB
 
 ### Start Development Environment
 
+**Option 1: Python Backend Only (Recommended for Python developers)**
+
 ```bash
-# Terminal 1: Start API server with auto-reload
+# Start only the Python API server for backend development
 python -m gigui.start_server --reload --log-level DEBUG
 
-# Terminal 2: Start frontend with hot reload
+# Test your changes with curl (in another terminal)
+curl http://127.0.0.1:8080/health
+```
+
+**Option 2: Full Development Environment**
+
+```bash
+# Terminal 1: Start Python API server with auto-reload
+python -m gigui.start_server --reload --log-level DEBUG
+
+# Terminal 2: Start desktop frontend with hot reload
 pnpm run tauri dev
 ```
+
+**What each option does**:
+
+-   **Option 1**: Only runs the Python backend, perfect for API development and testing
+-   **Option 2**: Runs both backend and frontend, needed for UI testing and integration
 
 ### Development Commands
 
