@@ -32,7 +32,6 @@ For developers contributing to GitInspectorGUI who need help with the modern dev
 -   **[Development Mode](development/development-mode.md)** - Local workflow
 -   **[Package Management (pnpm)](development/package-management-pnpm.md)** - Frontend dependencies
 -   **[Python Management (uv)](development/python-management-uv.md)** - Backend dependencies
--   **[Enhanced Settings](development/enhanced-settings.md)** - Configuration options
 -   **[Troubleshooting](development/troubleshooting.md)** - Common issues
 
 ### API

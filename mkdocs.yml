@@ -33,21 +33,6 @@ plugins:
           lang: en
     - mermaid2
 
-# Exclude problematic files with broken links
-exclude_docs: |
-    api/HTTP_API_REFERENCE.md
-    architecture/ARCHITECTURE_DIAGRAMS.md
-    architecture/ARCHITECTURE_PLAN_SUMMARY.md
-    archive/
-    ai-tools-old/
-    deployment/PRODUCTION_DEPLOYMENT_GUIDE.md
-    development/API_SIDECAR.md
-    development/DEVELOPMENT_MODE.md
-    development/ENHANCED_SETTINGS_GUIDE.md
-    implementation/
-    operations/rollback/
-    DOCUMENTATION_CLEANUP_PLAN.md
-
 markdown_extensions:
     - pymdownx.highlight:
           anchor_linenums: true
@@ -89,7 +74,6 @@ nav:
           - Design System Integration: development/design-system-integration.md
           - Python Package Management (uv): development/python-management-uv.md
           - Node.js Package Management (pnpm): development/package-management-pnpm.md
-          - Enhanced Settings: development/enhanced-settings.md
           - Troubleshooting: development/troubleshooting.md
     - AI Tools:
           - Overview: ai-tools/overview.md

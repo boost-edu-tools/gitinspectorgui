@@ -49,4 +49,3 @@ This confirms your development environment is properly configured.
 
 -   **[Python-Focused Development](../development/python-focused-development.md)** - Backend development workflow
 -   **[Development Mode](../development/development-mode.md)** - Development workflow details
--   **[Enhanced Settings](../development/enhanced-settings.md)** - Development configuration options

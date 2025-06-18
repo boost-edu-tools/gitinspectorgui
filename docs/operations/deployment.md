@@ -300,7 +300,6 @@ tauri signer sign -k ~/.tauri/myapp.key --password mypassword
 
 -   [ ] Run full test suite: `python -m pytest && pnpm test`
 -   [ ] Test in [Development Mode](../development/development-mode.md)
--   [ ] Verify [Enhanced Settings](../development/enhanced-settings.md) work correctly
 -   [ ] Test on all target platforms
 -   [ ] Verify Python API sidecar builds correctly
 -   [ ] Test auto-updater functionality (if enabled)
@@ -639,7 +638,6 @@ See [Documentation Deployment Guide](documentation-deployment.md) for details.
 1. **Development Phase**:
 
     - Use [Development Mode](../development/development-mode.md) for rapid iteration
-    - Test with [Enhanced Settings](../development/enhanced-settings.md)
     - Follow [Environment Setup](../development/environment-setup.md)
 
 2. **Pre-Release Testing**:
