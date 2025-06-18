@@ -108,17 +108,6 @@ curl -X POST http://127.0.0.1:8080/api/execute_analysis \
 
 ## Configuration
 
-### Environment Variables
-
-```bash
-# .env file
-GIGUI_DEBUG=true
-GIGUI_LOG_LEVEL=DEBUG
-GIGUI_API_PORT=8080
-GIGUI_AUTO_RELOAD=true
-GIGUI_CORS_ENABLED=true
-```
-
 ### VS Code Setup
 
 ```json
@@ -130,8 +119,7 @@ GIGUI_CORS_ENABLED=true
             "type": "python",
             "request": "launch",
             "module": "gigui.start_server",
-            "args": ["--reload", "--log-level", "DEBUG"],
-            "env": { "GIGUI_DEBUG": "true" }
+            "args": ["--host", "127.0.0.1", "--port", "8080"]
         }
     ]
 }

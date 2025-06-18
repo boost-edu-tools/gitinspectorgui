@@ -86,8 +86,7 @@ pkill -f "tauri dev"
 
 ```bash
 # Enable debug logging
-export GIGUI_DEBUG=true
-export GIGUI_LOG_LEVEL=DEBUG
+python -m gigui.start_server --log-level DEBUG
 
 # Verify VS Code extensions
 code --list-extensions | grep python
@@ -174,8 +173,7 @@ sudo pacman -S base-devel openssl pkgconf
 
 ```bash
 # Enable debug logging
-export GIGUI_LOG_LEVEL=DEBUG
-export RUST_LOG=debug
+python -m gigui.start_server --log-level DEBUG
 
 # Python API logs
 python -m gigui.start_server --reload

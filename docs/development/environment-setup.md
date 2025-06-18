@@ -34,17 +34,7 @@ uv sync
 pnpm install
 ```
 
-### 2. Environment Variables
-
-```bash
-# .env file
-GIGUI_DEBUG=true
-GIGUI_LOG_LEVEL=DEBUG
-GIGUI_API_HOST=127.0.0.1
-GIGUI_API_PORT=8080
-```
-
-### 3. VS Code Extensions
+### 2. VS Code Extensions
 
 ```json
 {

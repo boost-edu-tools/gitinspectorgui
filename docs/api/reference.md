@@ -227,8 +227,7 @@ curl http://127.0.0.1:8080/health  # Test connection
 **Debug Mode:**
 
 ```bash
-export GIGUI_LOG_LEVEL=DEBUG
-python -m gigui.start_server
+python -m gigui.start_server --log-level DEBUG
 ```
 
 ## Documentation

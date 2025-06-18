@@ -118,15 +118,16 @@ Application window should open and connect automatically.
 -   **Tauri** - Tauri development tools
 -   **ES7+ React/Redux/React-Native snippets** - React development
 
-### Environment Configuration
+### Server Configuration
 
-Create `.env` file:
+The server uses command-line arguments for configuration:
 
 ```bash
-GIGUI_DEBUG=true
-GIGUI_LOG_LEVEL=DEBUG
-GIGUI_API_HOST=127.0.0.1
-GIGUI_API_PORT=8080
+# Start server with custom host and port
+python -m gigui.start_server --host 127.0.0.1 --port 8080
+
+# Start with debug logging
+python -m gigui.start_server --log-level DEBUG
 ```
 
 ## Production Build
