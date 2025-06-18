@@ -2,6 +2,12 @@
 
 Modern desktop application for git repository analysis. Built with Tauri + React + TypeScript frontend and Python HTTP API backend.
 
+## New to This Technology Stack?
+
+If you're a Python developer unfamiliar with modern web/desktop development tools:
+
+-   **[Technology Primer](technology-primer.md)** - Understand Tauri, FastAPI, React, TypeScript, and other tools used in this project
+
 ## Demo
 
 -   **Live Demo** - Interactive demo available at the project root (`index.html`)
@@ -22,6 +28,7 @@ Modern desktop application for git repository analysis. Built with Tauri + React
 
 ### Development
 
+-   **[Python-Focused Development](development/python-focused-development.md)** - For Python developers working with this multi-stack project
 -   **[Environment Setup](development/environment-setup.md)** - Development configuration
 -   **[Development Mode](development/development-mode.md)** - Local workflow
 -   **[Package Management (pnpm)](development/package-management-pnpm.md)** - Frontend dependencies

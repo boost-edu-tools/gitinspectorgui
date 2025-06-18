@@ -1,52 +1,103 @@
 # First Analysis
 
+Run your first git repository analysis with GitInspectorGUI.
+
 ## Prerequisites
 
 -   GitInspectorGUI installed ([Installation Guide](installation.md))
 -   HTTP server and Tauri app running ([Quick Start](quick-start.md))
--   Git repository to analyze
+-   A git repository to analyze (any local git repository will work)
 
-## Quick Start
+## What GitInspectorGUI Does
 
-### 1. Start Application
+GitInspectorGUI analyzes git repositories to show:
+
+-   **Who wrote what code** (blame analysis)
+-   **How the code evolved over time** (change analysis)
+-   **Contribution patterns** and **file ownership**
+
+This is useful for understanding codebases, code reviews, and team dynamics.
+
+## Step-by-Step First Analysis
+
+### 1. Start the Application
+
+You need both the Python backend and the desktop frontend running:
 
 ```bash
-# Terminal 1: Start API server
+# Terminal 1: Start the Python API server (backend)
 python -m gigui.start_server
 
-# Terminal 2: Start frontend
+# Terminal 2: Start the desktop application (frontend)
 pnpm run tauri dev
 ```
 
-### 2. Configure Analysis
+**What happens**:
 
-1. **Repository Path** - Browse and select git repository
-2. **Analysis Options** - Enable blame and change analysis
-3. **Date Range** - Set analysis period (default: all history)
+-   The Python server starts analyzing git repositories when requested
+-   The desktop app provides the user interface
+-   They communicate via HTTP (the desktop app sends requests to the Python server)
+
+### 2. Configure Your Analysis
+
+In the desktop application window:
+
+1. **Repository Path** - Click "Browse" and select any git repository folder
+
+    - Try with a small repository first (under 1000 commits)
+    - The repository must be a valid git repository (has a `.git` folder)
+
+2. **Analysis Options** - Choose what to analyze:
+
+    - **Blame Analysis**: Shows who wrote each line of code
+    - **Change Analysis**: Shows how files changed over time
+    - Both are recommended for a complete picture
+
+3. **Date Range** - Set the time period to analyze:
+    - Default: All history (analyzes entire repository history)
+    - Custom: Set start/end dates to focus on specific periods
 
 ### 3. Execute Analysis
 
-1. Click **"Execute Analysis"**
-2. Monitor progress indicator
-3. Wait for results (30 seconds to several minutes)
+1. Click **"Execute Analysis"** button
+2. **Monitor progress** - You'll see a progress indicator
+3. **Wait for results** - Takes 30 seconds to several minutes depending on repository size
 
-## Understanding Results
+**What's happening behind the scenes**:
 
-### Blame Analysis
+-   The desktop app sends your settings to the Python server via HTTP
+-   The Python server runs git commands to analyze the repository
+-   Results are sent back as JSON and displayed in the interface
 
-Shows **who wrote what** in the codebase:
+## Understanding Your Results
 
--   **Lines of Code** - Author contribution counts
--   **File Ownership** - Primary contributors per file
--   **Recent Activity** - Current active contributors
+After analysis completes, you'll see several types of information:
 
-### Change Analysis
+### Blame Analysis Results
 
-Shows **what changed when**:
+**What it shows**: Who wrote what code in the repository
 
--   **Commit Frequency** - Change patterns over time
--   **File Hotspots** - Most frequently modified files
--   **Author Patterns** - Individual contribution timelines
+**Key metrics you'll see**:
+
+-   **Lines of Code per Author** - How many lines each person contributed
+-   **File Ownership** - Which person is the primary contributor to each file
+-   **Recent Activity** - Who has been actively contributing recently
+-   **Percentage Contributions** - Each author's share of the total codebase
+
+**Example**: "Alice wrote 45% of the code (1,234 lines), mostly in Python files"
+
+### Change Analysis Results
+
+**What it shows**: How the code evolved over time
+
+**Key metrics you'll see**:
+
+-   **Commit Frequency** - How often changes were made over time
+-   **File Hotspots** - Which files are modified most frequently (may need attention)
+-   **Author Activity Patterns** - When each person was most active
+-   **Change Trends** - Whether development is accelerating or slowing down
+
+**Example**: "src/main.py has 23 commits and is the most frequently changed file"
 
 ## Interactive Features
 

@@ -41,7 +41,6 @@ pnpm install
     "recommendations": [
         "ms-python.python",
         "rust-lang.rust-analyzer",
-        "tauri-apps.tauri-vscode",
         "bradlc.vscode-tailwindcss"
     ]
 }
