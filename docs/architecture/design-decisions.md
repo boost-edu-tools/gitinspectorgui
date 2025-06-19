@@ -63,7 +63,7 @@ async def execute_analysis(settings: Settings) -> AnalysisResult:
 #[command]
 pub async fn execute_analysis(settings: Settings) -> Result<AnalysisResult, String> {
     let response = reqwest::Client::new()
-        .post("http://127.0.0.1:8080/api/execute_analysis")
+        .post("http://127.0.0.1:8000/api/execute_analysis")
         .json(&settings)
         .timeout(Duration::from_secs(300))
         .send()

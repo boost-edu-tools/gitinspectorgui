@@ -14,7 +14,7 @@ After completing installation, verify everything works with these 3 steps:
 
 ```bash
 python -m gigui.start_server
-# Server runs at: http://127.0.0.1:8080
+# Server runs at: http://127.0.0.1:8000
 ```
 
 **What happens**: The FastAPI server starts and provides the git analysis API.
@@ -74,11 +74,11 @@ If something doesn't work:
 
 ```bash
 # Server won't start
-lsof -ti:8080 | xargs kill -9
+lsof -ti:8000 | xargs kill -9
 python -m gigui.start_server
 
 # Frontend connection issues
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 
 # Dependencies issues
 uv sync && pnpm install

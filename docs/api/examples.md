@@ -7,7 +7,7 @@ Practical examples for GitInspectorGUI HTTP API usage.
 ### Health Check
 
 ```bash
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 ```
 
 **Response:**
@@ -23,7 +23,7 @@ curl http://127.0.0.1:8080/health
 ### Basic Analysis
 
 ```bash
-curl -X POST http://127.0.0.1:8080/api/execute_analysis \
+curl -X POST http://127.0.0.1:8000/api/execute_analysis \
   -H "Content-Type: application/json" \
   -d '{"input_fstrs": ["/path/to/repo"], "n_files": 100}'
 ```
@@ -79,7 +79,7 @@ curl -X POST http://127.0.0.1:8080/api/execute_analysis \
 ```python
 import requests
 
-API_BASE = "http://127.0.0.1:8080"
+API_BASE = "http://127.0.0.1:8000"
 
 # Health check
 response = requests.get(f"{API_BASE}/health")
@@ -102,7 +102,7 @@ if response.status_code == 200:
 
 ```typescript
 class GitInspectorAPI {
-    private baseUrl = "http://127.0.0.1:8080";
+    private baseUrl = "http://127.0.0.1:8000";
 
     async healthCheck(): Promise<boolean> {
         const response = await fetch(`${this.baseUrl}/health`);
@@ -125,7 +125,7 @@ class GitInspectorAPI {
 
 ```bash
 #!/bin/bash
-API_BASE="http://127.0.0.1:8080"
+API_BASE="http://127.0.0.1:8000"
 
 # Health check
 curl -s "$API_BASE/health" | jq -r '.status'
@@ -142,13 +142,13 @@ curl -X POST "$API_BASE/api/execute_analysis" \
 ### Get Settings
 
 ```bash
-curl http://127.0.0.1:8080/api/settings
+curl http://127.0.0.1:8000/api/settings
 ```
 
 ### Update Settings
 
 ```bash
-curl -X POST http://127.0.0.1:8080/api/settings \
+curl -X POST http://127.0.0.1:8000/api/settings \
   -H "Content-Type: application/json" \
   -d '{"n_files": 200, "processes": 4}'
 ```
@@ -189,7 +189,7 @@ async def analyze_batch(repo_paths):
     async def analyze_repo(session, path):
         config = {"input_fstrs": [path], "n_files": 50}
         async with session.post(
-            "http://127.0.0.1:8080/api/execute_analysis",
+            "http://127.0.0.1:8000/api/execute_analysis",
             json=config
         ) as response:
             return await response.json() if response.status == 200 else None
@@ -211,7 +211,7 @@ def incremental_analysis(repo_path, days_back=30):
         "since": since_date,
         "n_files": 200
     }
-    return requests.post("http://127.0.0.1:8080/api/execute_analysis", json=config)
+    return requests.post("http://127.0.0.1:8000/api/execute_analysis", json=config)
 ```
 
 ## Related

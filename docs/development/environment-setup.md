@@ -45,7 +45,7 @@ For development server commands and workflows, see **[Development Workflow](deve
 
 ```bash
 # Custom host and port
-python -m gigui.start_server --host 127.0.0.1 --port 8080
+python -m gigui.start_server --host 127.0.0.1 --port 8000
 
 # Debug logging
 python -m gigui.start_server --log-level DEBUG
@@ -116,8 +116,8 @@ pnpm run test:coverage
 
 ### API Documentation
 
--   **Swagger UI**: `http://127.0.0.1:8080/docs`
--   **ReDoc**: `http://127.0.0.1:8080/redoc`
+-   **Swagger UI**: `http://127.0.0.1:8000/docs`
+-   **ReDoc**: `http://127.0.0.1:8000/redoc`
 
 ### Build Commands
 
@@ -136,8 +136,8 @@ mkdocs build
 ### Port Conflicts
 
 ```bash
-# Find and kill process on port 8080
-lsof -ti:8080 | xargs kill -9
+# Find and kill process on port 8000
+lsof -ti:8000 | xargs kill -9
 ```
 
 ### Python Issues

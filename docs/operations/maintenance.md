@@ -87,7 +87,7 @@ cp -r /path/to/gitinspectorgui /backup/location/
 
 ```bash
 # Check HTTP API
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 
 # Basic functionality test
 # 1. Start HTTP server

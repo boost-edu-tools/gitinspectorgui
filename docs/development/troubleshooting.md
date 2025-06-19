@@ -16,7 +16,7 @@ rustc --version   # 1.85+
 python -c "import gigui; print('OK')"
 
 # Check ports
-lsof -i :8080
+lsof -i :8000
 ```
 
 ## Installation Issues
@@ -53,7 +53,7 @@ cargo clean
 
 ```bash
 # Kill process on port 8080
-lsof -ti:8080 | xargs kill -9
+lsof -ti:8000 | xargs kill -9
 
 # Use different port
 python -m gigui.start_server --port 8081
@@ -65,7 +65,7 @@ For all server command options, see **[Development Workflow](development-workflo
 
 ```bash
 # Test API health
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 
 # Restart development server (see Development Workflow for all options)
 python -m gigui.start_server --reload
@@ -187,10 +187,10 @@ python -m gigui.start_server --reload
 
 ```bash
 # Health check
-curl -v http://127.0.0.1:8080/health
+curl -v http://127.0.0.1:8000/health
 
 # Settings
-curl -v http://127.0.0.1:8080/api/settings
+curl -v http://127.0.0.1:8000/api/settings
 
 # Test connectivity
 telnet 127.0.0.1 8080
@@ -237,7 +237,7 @@ rustc --version
 
 ```bash
 # Health monitoring
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 tail -f logs/api.log | grep -i warning
 ```
 

@@ -152,7 +152,7 @@ def validate_request(config):
 ### Health Check
 
 ```python
-def check_api_health(base_url="http://127.0.0.1:8080"):
+def check_api_health(base_url="http://127.0.0.1:8000"):
     try:
         response = requests.get(f"{base_url}/health", timeout=5)
         return response.status_code == 200 and response.json().get('status') == 'healthy'

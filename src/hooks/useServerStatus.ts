@@ -40,7 +40,7 @@ export function useServerStatus() {
         try {
             if (!isTauriAvailable()) {
                 // In browser mode, assume server is running if we can reach it via HTTP
-                const response = await fetch("http://127.0.0.1:8080/health");
+                const response = await fetch("http://127.0.0.1:8000/health");
                 if (response.ok) {
                     setStatus((prev) => ({
                         ...prev,

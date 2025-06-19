@@ -80,7 +80,7 @@ pnpm run tauri build
 python -m gigui.start_server --reload --log-level DEBUG
 
 # Test your changes with curl (in another terminal)
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 ```
 
 **Option 2: Full Development Environment**
@@ -109,7 +109,7 @@ Start by working on the Python backend in isolation:
 python -m gigui.start_server --reload --log-level DEBUG
 
 # Test your changes directly with curl
-curl -X POST http://127.0.0.1:8080/api/execute_analysis \
+curl -X POST http://127.0.0.1:8000/api/execute_analysis \
   -H "Content-Type: application/json" \
   -d '{"input_fstrs": ["/path/to/test/repo"], "n_files": 50}'
 ```
@@ -229,10 +229,10 @@ console.log("Store state:", store);
 python -m gigui.start_server --reload --log-level DEBUG
 
 # Test health endpoint
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 
 # Test analysis with a small repository
-curl -X POST http://127.0.0.1:8080/api/execute_analysis \
+curl -X POST http://127.0.0.1:8000/api/execute_analysis \
   -H "Content-Type: application/json" \
   -d '{
     "input_fstrs": ["/path/to/small/repo"],
@@ -258,8 +258,8 @@ python -m pytest --cov=gigui python/test_*.py
 
 ```bash
 # Test HTTP endpoints
-curl http://127.0.0.1:8080/health
-curl -X GET http://127.0.0.1:8080/api/settings
+curl http://127.0.0.1:8000/health
+curl -X GET http://127.0.0.1:8000/api/settings
 
 # Frontend testing
 pnpm run test
@@ -302,7 +302,7 @@ def execute_analysis(settings: Settings) -> AnalysisResult:
 3. **Test it**:
 
 ```bash
-curl -X POST http://127.0.0.1:8080/api/execute_analysis \
+curl -X POST http://127.0.0.1:8000/api/execute_analysis \
   -d '{"input_fstrs": ["/test/repo"], "include_complexity": true}'
 ```
 
@@ -456,7 +456,7 @@ python -m gigui.start_server --reload
 
 ```bash
 # Verify server running
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 
 # Check CORS settings
 export GIGUI_CORS_ENABLED=true
@@ -510,13 +510,13 @@ python -m gigui.start_server --reload --log-level DEBUG
 
 ```bash
 # Test API endpoints directly
-curl -v http://127.0.0.1:8080/health
-curl -v -X POST http://127.0.0.1:8080/api/execute_analysis \
+curl -v http://127.0.0.1:8000/health
+curl -v -X POST http://127.0.0.1:8000/api/execute_analysis \
   -H "Content-Type: application/json" \
   -d '{"input_fstrs": ["/test/repo"]}'
 
 # Use jq to format JSON responses
-curl -s http://127.0.0.1:8080/api/settings | jq '.'
+curl -s http://127.0.0.1:8000/api/settings | jq '.'
 ```
 
 ## Summary

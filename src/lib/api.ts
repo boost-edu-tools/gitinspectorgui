@@ -58,7 +58,7 @@ export async function executeAnalysis(
         } else {
             console.log("2. Using HTTP API in browser mode");
 
-            const url = "http://127.0.0.1:8080/api/execute_analysis";
+            const url = "http://127.0.0.1:8000/api/execute_analysis";
 
             // Use HTTP API in browser mode
             const response = await fetch(url, {

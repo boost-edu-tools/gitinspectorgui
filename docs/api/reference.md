@@ -10,7 +10,7 @@ This API is built with FastAPI and follows standard HTTP conventions. If you're 
 
 ## Configuration
 
--   **Base URL**: `http://127.0.0.1:8080`
+-   **Base URL**: `http://127.0.0.1:8000`
 -   **Content-Type**: `application/json`
 -   **Timeout**: 30s (300s for analysis)
 
@@ -46,7 +46,7 @@ This API is built with FastAPI and follows standard HTTP conventions. If you're 
 **Usage:**
 
 ```bash
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 ```
 
 ## Execute Analysis
@@ -104,7 +104,7 @@ curl http://127.0.0.1:8080/health
 **Usage:**
 
 ```bash
-curl -X POST http://127.0.0.1:8080/api/execute_analysis \
+curl -X POST http://127.0.0.1:8000/api/execute_analysis \
   -H "Content-Type: application/json" \
   -d '{"input_fstrs": ["/path/to/repo"], "file_formats": ["json"]}'
 ```
@@ -207,7 +207,7 @@ client = requests.Session()
 client.timeout = 30
 
 # Health check - verify the server is running
-response = client.get("http://127.0.0.1:8080/health")
+response = client.get("http://127.0.0.1:8000/health")
 if response.status_code == 200:
     print("Server is healthy:", response.json()["status"])
 
@@ -221,7 +221,7 @@ settings = {
 }
 
 # Execute analysis with longer timeout for large repositories
-result = client.post("http://127.0.0.1:8080/api/execute_analysis",
+result = client.post("http://127.0.0.1:8000/api/execute_analysis",
                     json=settings, timeout=300)
 
 if result.status_code == 200:
@@ -239,7 +239,7 @@ else:
 import requests
 
 def test_api():
-    base_url = "http://127.0.0.1:8080"
+    base_url = "http://127.0.0.1:8000"
 
     # Test health endpoint
     health = requests.get(f"{base_url}/health")
@@ -273,7 +273,7 @@ let client = reqwest::Client::new();
 let settings = json!({"input_fstrs": ["/path/to/repo"]});
 
 let response = client
-    .post("http://127.0.0.1:8080/api/execute_analysis")
+    .post("http://127.0.0.1:8000/api/execute_analysis")
     .json(&settings)
     .timeout(Duration::from_secs(300))
     .send()
@@ -286,7 +286,7 @@ let response = client
 
 ```bash
 python -m gigui.start_server  # Start server
-curl http://127.0.0.1:8080/health  # Test connection
+curl http://127.0.0.1:8000/health  # Test connection
 ```
 
 **Performance Issues:**
@@ -303,6 +303,6 @@ python -m gigui.start_server --log-level DEBUG
 
 ## Documentation
 
--   **Swagger UI**: `http://127.0.0.1:8080/docs`
--   **ReDoc**: `http://127.0.0.1:8080/redoc`
--   **OpenAPI JSON**: `http://127.0.0.1:8080/openapi.json`
+-   **Swagger UI**: `http://127.0.0.1:8000/docs`
+-   **ReDoc**: `http://127.0.0.1:8000/redoc`
+-   **OpenAPI JSON**: `http://127.0.0.1:8000/openapi.json`

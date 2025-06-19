@@ -52,7 +52,7 @@ First, let's verify the Python backend works independently:
 python -m gigui.start_server
 
 # In a new terminal, test the health endpoint
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 ```
 
 **Expected response:**
@@ -136,10 +136,10 @@ rustup update  # Update Rust toolchain
 
 ```bash
 # macOS/Linux
-lsof -ti:8080 | xargs kill -9
+lsof -ti:8000 | xargs kill -9
 
 # Windows
-netstat -ano | findstr :8080
+netstat -ano | findstr :8000
 taskkill /PID <PID> /F
 ```
 

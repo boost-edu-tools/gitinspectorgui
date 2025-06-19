@@ -7,7 +7,7 @@ use std::io::Read;
 use tauri::Manager;
 use std::sync::{Arc, Mutex};
 
-const API_BASE_URL: &str = "http://127.0.0.1:8080";
+const API_BASE_URL: &str = "http://127.0.0.1:8000";
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(300); // 5 minutes for analysis operations
 const MAX_RETRIES: u32 = 3;
 

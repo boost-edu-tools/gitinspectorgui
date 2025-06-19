@@ -52,10 +52,10 @@ You can also test the backend API directly:
 
 ```bash
 # Test health endpoint
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 
 # Test analysis endpoint
-curl -X POST http://127.0.0.1:8080/api/execute_analysis \
+curl -X POST http://127.0.0.1:8000/api/execute_analysis \
   -H "Content-Type: application/json" \
   -d '{
     "input_fstrs": ["/path/to/your/test/repo"],
@@ -96,10 +96,10 @@ curl -X POST http://127.0.0.1:8080/api/execute_analysis \
 
 ```bash
 # Verify backend is running
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 
 # Check for port conflicts
-lsof -i :8080
+lsof -i :8000
 ```
 
 **Analysis fails with repository errors**:

@@ -59,7 +59,7 @@ sequenceDiagram
     participant Python as Python Backend
 
     React->>Tauri: invoke("execute_analysis", settings)
-    Tauri->>Python: HTTP POST to localhost:8080/api/execute_analysis
+    Tauri->>Python: HTTP POST to localhost:8000/api/execute_analysis
     Python->>Python: Execute git analysis
     Python->>Tauri: JSON response with results
     Tauri->>React: Return analysis results
@@ -68,7 +68,7 @@ sequenceDiagram
 **Communication Flow:**
 
 1. **Frontend to Tauri**: Uses Tauri's `invoke()` function for type-safe communication
-2. **Tauri to Python**: HTTP requests to local FastAPI server on `localhost:8080`
+2. **Tauri to Python**: HTTP requests to local FastAPI server on `localhost:8000`
 3. **Python API**: FastAPI server handling analysis requests with JSON responses
 
 ## Build Process Steps
@@ -181,7 +181,8 @@ The main build script (`scripts/build-all-platforms.sh`) handles cross-platform 
 **Platform-Specific Targets:**
 
 === "Linux"
-```bash # x86_64 Linux
+
+````bash # x86_64 Linux
 build_target "x86_64-unknown-linux-gnu" "Linux-x64"
 
     # ARM64 Linux (if cross-compilation is set up)
@@ -220,19 +221,21 @@ build_target "x86_64-apple-darwin" "macOS-Intel"
 
 All build artifacts are organized in the `dist/releases/` directory:
 
-```
+````
+
 dist/releases/
-├── GitInspectorGUI_0.1.0_amd64.deb          # Linux Debian package
-├── GitInspectorGUI_0.1.0_amd64.AppImage     # Linux AppImage
-├── GitInspectorGUI_0.1.0_x86_64.rpm         # Linux RPM package
-├── GitInspectorGUI_0.1.0_x64.msi            # Windows installer
-├── GitInspectorGUI_0.1.0_x64_en-US.msi      # Windows localized installer
-├── GitInspectorGUI_0.1.0_x64-setup.exe      # Windows NSIS installer
-├── GitInspectorGUI_0.1.0_universal.dmg      # macOS disk image
-├── GitInspectorGUI-aarch64-apple-darwin.app.tar.gz  # macOS Apple Silicon
-├── GitInspectorGUI-x86_64-apple-darwin.app.tar.gz   # macOS Intel
-├── gitinspectorgui-0.5.0-py3-none-any.whl   # Python wheel
-└── checksums.sha256                          # Verification checksums
+├── GitInspectorGUI_0.1.0_amd64.deb # Linux Debian package
+├── GitInspectorGUI_0.1.0_amd64.AppImage # Linux AppImage
+├── GitInspectorGUI_0.1.0_x86_64.rpm # Linux RPM package
+├── GitInspectorGUI_0.1.0_x64.msi # Windows installer
+├── GitInspectorGUI_0.1.0_x64_en-US.msi # Windows localized installer
+├── GitInspectorGUI_0.1.0_x64-setup.exe # Windows NSIS installer
+├── GitInspectorGUI_0.1.0_universal.dmg # macOS disk image
+├── GitInspectorGUI-aarch64-apple-darwin.app.tar.gz # macOS Apple Silicon
+├── GitInspectorGUI-x86_64-apple-darwin.app.tar.gz # macOS Intel
+├── gitinspectorgui-0.5.0-py3-none-any.whl # Python wheel
+└── checksums.sha256 # Verification checksums
+
 ```
 
 ## Final Application Structure
@@ -240,25 +243,27 @@ dist/releases/
 The resulting desktop application contains all components in a unified package:
 
 ```
+
 GitInspectorGUI/
-├── gitinspectorgui                    # Main executable (Tauri)
+├── gitinspectorgui # Main executable (Tauri)
 ├── resources/
-│   ├── python/                        # Complete Python backend
-│   │   ├── gigui/                    # Python analysis engine
-│   │   ├── dist/
-│   │   │   └── gitinspector-api-sidecar  # Standalone Python executable
-│   │   ├── pyproject.toml            # Python project configuration
-│   │   └── ...                       # All Python source files
-│   └── frontend/                      # Built React app (embedded in Tauri)
-│       ├── index.html
-│       ├── assets/
-│       │   ├── index-[hash].js       # Compiled JavaScript
-│       │   ├── index-[hash].css      # Compiled CSS
-│       │   └── ...
-│       └── ...
-├── icons/                             # Application icons
-└── _up_                              # Tauri updater files (if enabled)
-```
+│ ├── python/ # Complete Python backend
+│ │ ├── gigui/ # Python analysis engine
+│ │ ├── dist/
+│ │ │ └── gitinspector-api-sidecar # Standalone Python executable
+│ │ ├── pyproject.toml # Python project configuration
+│ │ └── ... # All Python source files
+│ └── frontend/ # Built React app (embedded in Tauri)
+│ ├── index.html
+│ ├── assets/
+│ │ ├── index-[hash].js # Compiled JavaScript
+│ │ ├── index-[hash].css # Compiled CSS
+│ │ └── ...
+│ └── ...
+├── icons/ # Application icons
+└── _up_ # Tauri updater files (if enabled)
+
+````
 
 ## Key Integration Mechanisms
 
@@ -324,7 +329,7 @@ pnpm tauri:dev
 
 # Python development server
 cd python && uv run python dev_api.py
-```
+````
 
 ### Production Build
 

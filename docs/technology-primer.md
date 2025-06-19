@@ -211,7 +211,7 @@ uv run command        # Run command in the project environment
 
 ### Development Flow
 
-1. **Python Backend**: FastAPI server runs on `http://127.0.0.1:8080`
+1. **Python Backend**: FastAPI server runs on `http://127.0.0.1:8000`
 2. **Frontend Development**: Vite serves the React/TypeScript UI with hot reloading
 3. **Desktop Packaging**: Tauri wraps everything in a native desktop application
 4. **Package Management**: pnpm manages frontend dependencies, uv manages Python dependencies
