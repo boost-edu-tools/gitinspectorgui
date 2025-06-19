@@ -6,6 +6,10 @@ Development environment and tooling documentation for GitInspectorGUI contributo
 
 ## Quick Navigation
 
+### Try the Demo
+
+-   **[Interactive Demo](https://edu-boost.gitlab.io/gitinspectorgui/demo/)** - Try GitInspectorGUI in your browser without installation
+
 ### New to the Project?
 
 -   **[Technology Primer](technology-primer.md)** - Understanding the development tools
