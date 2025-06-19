@@ -132,7 +132,7 @@ uv sync  # Reinstall dependencies
 rustup update  # Update Rust toolchain
 ```
 
-**Port 8080 in use:**
+**Port 8000 in use:**
 
 ```bash
 # macOS/Linux

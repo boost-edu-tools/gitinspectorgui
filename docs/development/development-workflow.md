@@ -49,10 +49,10 @@ python -m gigui.start_server --reload
 python -m gigui.start_server --reload --log-level DEBUG
 
 # Custom host and port
-python -m gigui.start_server --host 127.0.0.1 --port 8081
+python -m gigui.start_server --host 127.0.0.1 --port 8001
 
 # Production mode
-python -m gigui.start_server --host 0.0.0.0 --port 8080
+python -m gigui.start_server --host 0.0.0.0 --port 8000
 ```
 
 **Frontend Development**:
@@ -404,7 +404,7 @@ The frontend will automatically connect to your Python server.
             "type": "python",
             "request": "launch",
             "module": "gigui.start_server",
-            "args": ["--host", "127.0.0.1", "--port", "8080"]
+            "args": ["--host", "127.0.0.1", "--port", "8000"]
         }
     ]
 }

@@ -184,7 +184,7 @@ impl Default for Settings {
             html_theme: "default".to_string(),
             html_enable_search: true,
             html_max_entries_per_page: 100,
-            server_port: 8080,
+            server_port: 8000,
             server_host: "localhost".to_string(),
             max_browser_tabs: 20,
             auto_open_browser: true,
@@ -593,8 +593,8 @@ async fn kill_processes_on_port(port: u16) -> Result<(), String> {
 pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String> {
     println!("🚀 Starting Python HTTP server...");
 
-    // First, kill any zombie processes on port 8080
-    kill_processes_on_port(8080).await?;
+    // First, kill any zombie processes on port 8000
+    kill_processes_on_port(8000).await?;
 
     // Check if server is already running after cleanup
     let client = create_http_client().await?;
@@ -666,13 +666,13 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
         let mut cmd = Command::new("python3");
         // Run as module to support relative imports
         cmd.args(["-m", "gigui.start_server"]);
-        cmd.args(["--host=127.0.0.1", "--port=8080"]);
-        println!("🚀 Command: python3 -m gigui.start_server --host=127.0.0.1 --port=8080");
+        cmd.args(["--host=127.0.0.1", "--port=8000"]);
+        println!("🚀 Command: python3 -m gigui.start_server --host=127.0.0.1 --port=8000");
         cmd
     } else {
         let mut cmd = Command::new(&sidecar_path);
-        cmd.args(["--host=127.0.0.1", "--port=8080"]);
-        println!("🚀 Command: {} --host=127.0.0.1 --port=8080", sidecar_path.display());
+        cmd.args(["--host=127.0.0.1", "--port=8000"]);
+        println!("🚀 Command: {} --host=127.0.0.1 --port=8000", sidecar_path.display());
         cmd
     };
 
@@ -750,7 +750,7 @@ pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String
                         }
                         return Err(format!("❌ Python server process exited. Exit status: {:?}, Error: {}", exit_status, error_output));
                     } else {
-                        return Err("❌ Python server process is running but not responding to health checks. Check if port 8080 is blocked or if there are permission issues.".to_string());
+                        return Err("❌ Python server process is running but not responding to health checks. Check if port 8000 is blocked or if there are permission issues.".to_string());
                     }
                 }
             }

@@ -52,11 +52,11 @@ cargo clean
 ### Server Won't Start
 
 ```bash
-# Kill process on port 8080
+# Kill process on port 8000
 lsof -ti:8000 | xargs kill -9
 
 # Use different port
-python -m gigui.start_server --port 8081
+python -m gigui.start_server --port 8001
 ```
 
 For all server command options, see **[Development Workflow](development-workflow.md#development-server-commands-single-source-of-truth)**.
@@ -193,7 +193,7 @@ curl -v http://127.0.0.1:8000/health
 curl -v http://127.0.0.1:8000/api/settings
 
 # Test connectivity
-telnet 127.0.0.1 8080
+telnet 127.0.0.1 8000
 ```
 
 ### Performance

@@ -180,7 +180,7 @@ export const defaultSettings: Settings = {
     html_theme: "default",
     html_enable_search: true,
     html_max_entries_per_page: 100,
-    server_port: 8080,
+    server_port: 8000,
     server_host: "localhost",
     max_browser_tabs: 20,
     auto_open_browser: true,

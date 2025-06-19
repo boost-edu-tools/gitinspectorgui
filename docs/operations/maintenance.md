@@ -32,7 +32,7 @@ cargo update
 
 ```bash
 # HTTP Server won't start
-lsof -ti:8080 | xargs kill -9
+lsof -ti:8000 | xargs kill -9
 python -m gigui.start_server
 
 # Tauri app issues
