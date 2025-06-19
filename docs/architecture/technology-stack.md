@@ -128,5 +128,4 @@ graph LR
 ## Related Documentation
 
 -   **[Development Environment](../development/environment-setup.md)** - Setup instructions
--   **[Package Management](../development/package-management-pnpm.md)** - Frontend dependencies
--   **[Python Management](../development/python-management-uv.md)** - Backend dependencies
+-   **[Package Management](../development/package-management.md)** - Frontend dependencies

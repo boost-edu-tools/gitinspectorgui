@@ -199,6 +199,6 @@ On macOS, you may need to allow the executable in System Preferences > Security 
 
 ## Related Documentation
 
--   **[Quick Start](quick-start.md)** - Get development environment running
--   **[Installation](installation.md)** - Detailed setup instructions
--   **[First Analysis](first-analysis.md)** - Test your setup
+-   **[Quick Start](03-quick-start.md)** - Get development environment running
+-   **[Installation](02-installation.md)** - Detailed setup instructions
+-   **[First Analysis](04-first-analysis.md)** - Test your setup

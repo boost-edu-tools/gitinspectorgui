@@ -9,8 +9,8 @@ Development environment and tooling documentation for GitInspectorGUI contributo
 ### New to the Project?
 
 -   **[Technology Primer](technology-primer.md)** - Understanding the development tools
--   **[Quick Start](getting-started/quick-start.md)** - Get running in 3 steps
--   **[Installation Guide](getting-started/installation.md)** - Detailed setup
+-   **[Quick Start](getting-started/03-quick-start.md)** - Get running in 3 steps
+-   **[Installation Guide](getting-started/02-installation.md)** - Detailed setup
 
 ### Development
 
@@ -23,7 +23,7 @@ Development environment and tooling documentation for GitInspectorGUI contributo
 ### Command Line Interface
 
 -   **[CLI Guide](getting-started/cli-guide.md)** - Complete command-line usage
--   **[First Analysis](getting-started/first-analysis.md)** - Test your setup
+-   **[First Analysis](getting-started/04-first-analysis.md)** - Test your setup
 
 ### API Development
 
