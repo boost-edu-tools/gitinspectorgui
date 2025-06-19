@@ -48,7 +48,7 @@ npm install -g pnpm
 ### macOS
 
 ```bash
-# Install Xcode command line tools (required for compiling)
+# Install Git as part of the Xcode command line tools
 xcode-select --install
 
 # Install uv (Python package manager)
@@ -59,6 +59,14 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Restart terminal to refresh PATH, then install pnpm
 npm install -g pnpm
+```
+
+**Alternative: Homebrew Installation**
+
+Instead of the manual installation steps above, users with Homebrew can choose to install all required tools with a single command:
+
+```bash
+brew install git uv rust pnpm
 ```
 
 ### Linux

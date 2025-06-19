@@ -839,7 +839,7 @@ def main():
             from gigui.http_server import start_server
 
             host = "127.0.0.1"
-            port = 8080
+            port = 8000
 
             # Parse optional host and port arguments
             if len(sys.argv) > 2:

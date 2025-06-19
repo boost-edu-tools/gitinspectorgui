@@ -8,7 +8,7 @@ Essential monitoring and logging for GitInspectorGUI.
 
 ```bash
 # Check server status
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8000/health
 ```
 
 **Response:**
@@ -25,10 +25,10 @@ curl http://127.0.0.1:8080/health
 
 ```bash
 # Performance stats
-curl http://127.0.0.1:8080/api/performance_stats
+curl http://127.0.0.1:8000/api/performance_stats
 
 # Engine info
-curl http://127.0.0.1:8080/api/engine_info
+curl http://127.0.0.1:8000/api/engine_info
 ```
 
 ## Logging
@@ -73,11 +73,11 @@ htop -p $(pgrep -f "gigui.start_server")
 
 ```bash
 # API server health
-curl -f http://127.0.0.1:8080/health || echo "Server down"
+curl -f http://127.0.0.1:8000/health || echo "Server down"
 
 # Port usage
-lsof -i :8080  # macOS/Linux
-netstat -an | findstr :8080  # Windows
+lsof -i :8000  # macOS/Linux
+netstat -an | findstr :8000  # Windows
 ```
 
 ### Performance Metrics
@@ -92,7 +92,7 @@ netstat -an | findstr :8080  # Windows
 
 **API Connection:**
 
--   Server not running on port 8080
+-   Server not running on port 8000
 -   Firewall blocking connections
 -   Port conflicts
 
@@ -142,7 +142,7 @@ ps aux | grep -E "(gigui|tauri)"
 
 ```bash
 #!/bin/bash
-if curl -f http://127.0.0.1:8080/health > /dev/null 2>&1; then
+if curl -f http://127.0.0.1:8000/health > /dev/null 2>&1; then
     echo "✅ API healthy"
 else
     echo "❌ API not responding"
