@@ -32,7 +32,7 @@ You can develop and test the Python backend **independently** of the frontend. T
 
 ## Development Environment
 
-**Prerequisites**: Complete the **[Getting Started Guide](../getting-started/01-prerequisites.md)** first.
+**Prerequisites**: Complete the **[Prerequisites](../getting-started/01-prerequisites.md)** first.
 
 ### Development Server Commands (Single Source of Truth)
 
