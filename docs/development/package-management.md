@@ -135,7 +135,7 @@ npm install -g pnpm
 
 ### Development Workflow
 
-For development server commands, see **[Development Workflow](development-workflow.md#development-server-commands-single-source-of-truth)**.
+For development server commands, see **[Development Commands](development-commands.md)**.
 
 ### Production Build
 

@@ -59,7 +59,7 @@ lsof -ti:8000 | xargs kill -9
 python -m gigui.start_server --port 8001
 ```
 
-For all server command options, see **[Development Workflow](development-workflow.md#development-server-commands-single-source-of-truth)**.
+For all server command options, see **[Development Commands](development-commands.md)**.
 
 ### Frontend Connection Issues
 

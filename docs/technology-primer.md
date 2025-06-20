@@ -279,7 +279,7 @@ Now that you understand the technology stack:
 
 1. **[Installation Guide](getting-started/02-installation.md)** - Set up all the tools
 2. **[Quick Start](getting-started/03-quick-start.md)** - Get everything running
-3. **[Development Mode](development/development-mode.md)** - Development workflow
+3. **[Development Commands](development/development-commands.md)** - Development workflow
 4. **[Architecture Overview](architecture/overview.md)** - Deeper technical details
 
 ## Common Questions

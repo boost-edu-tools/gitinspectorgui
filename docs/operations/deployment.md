@@ -41,7 +41,7 @@ gh release create v1.2.0 \
   dist/releases/*
 ```
 
-**⚠️ Prerequisites**: Ensure you have completed the [Environment Setup](../development/environment-setup.md) and tested in [Development Mode](../development/development-mode.md).
+**⚠️ Prerequisites**: Ensure you have completed the [Environment Setup](../development/environment-setup.md) and tested with [Development Commands](../development/development-commands.md).
 
 ---
 
@@ -299,7 +299,7 @@ tauri signer sign -k ~/.tauri/myapp.key --password mypassword
 **Quality Assurance:**
 
 -   [ ] Run full test suite: `python -m pytest && pnpm test`
--   [ ] Test in [Development Mode](../development/development-mode.md)
+-   [ ] Test with [Development Commands](../development/development-commands.md)
 -   [ ] Test on all target platforms
 -   [ ] Verify Python API sidecar builds correctly
 -   [ ] Test auto-updater functionality (if enabled)
@@ -308,7 +308,7 @@ tauri signer sign -k ~/.tauri/myapp.key --password mypassword
 
 -   [ ] Update API documentation if endpoints changed
 -   [ ] Update user guides if UI changed
--   [ ] Verify [Installation Guide](../getting-started/installation.md) is current
+-   [ ] Verify [Installation Guide](../getting-started/02-installation.md) is current
 
 ### 2. Automated Release Pipeline
 
@@ -637,7 +637,7 @@ See [Documentation Deployment Guide](documentation-deployment.md) for details.
 
 1. **Development Phase**:
 
-    - Use [Development Mode](../development/development-mode.md) for rapid iteration
+    - Use [Development Commands](../development/development-commands.md) for rapid iteration
     - Follow [Environment Setup](../development/environment-setup.md)
 
 2. **Pre-Release Testing**:
@@ -776,6 +776,6 @@ After successful deployment:
 1. **Monitor Release**: Track downloads and user feedback
 2. **Plan Updates**: Use [Version Management](#version-management) for future releases
 3. **Improve Process**: Refine CI/CD pipeline based on experience
-4. **Documentation**: Keep [Installation Guide](../getting-started/installation.md) updated
+4. **Documentation**: Keep [Installation Guide](../getting-started/02-installation.md) updated
 
 This distribution model aligns with GitInspectorGUI's desktop application architecture, modern CI/CD practices, and provides users with familiar installation experiences on each platform while supporting the project's AI-assisted development workflow.

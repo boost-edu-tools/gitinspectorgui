@@ -109,28 +109,34 @@ sequenceDiagram
 
 ## Development vs Production
 
-### Development Mode
+!!! info "Detailed Development Architecture"
+For comprehensive information about development setup, port usage, and multi-server architecture, see **[Development Architecture](../development/development-architecture.md)** and **[Development vs Production Comparison](../development/modes-comparison.md)**.
+
+### Development Mode (3 Servers)
 
 ```mermaid
 graph LR
-    A[Vite Dev Server] --> B[FastAPI Dev Server]
-    B --> C[Local Git Repos]
+    A[Vite Dev Server<br/>Port 5173] --> B[Tauri Dev Server<br/>Port 1420]
+    B --> C[FastAPI Server<br/>Port 8000]
+    C --> D[Local Git Repos]
 ```
 
--   Hot module replacement
--   Auto-reload on changes
--   Development debugging tools
+-   **3 separate servers** on ports 5173, 1420, 8000
+-   Hot module replacement and auto-reload
+-   Comprehensive debugging tools
+-   Independent service development
 
-### Production Build
+### Production Build (1 Server)
 
 ```mermaid
 graph LR
-    A[Tauri Desktop App] --> B[Embedded Python Server]
+    A[Tauri Desktop App<br/>Bundled Application] --> B[FastAPI Server<br/>Port 8000 Only]
     B --> C[User Repositories]
 ```
 
--   Compiled desktop application
--   Bundled Python backend
+-   **Single bundled application**
+-   Embedded Python backend (port 8000 only)
+-   Optimized performance
 -   Local-only communication
 
 ## Technology Rationale

@@ -65,7 +65,10 @@ nav:
           - First Analysis: getting-started/04-first-analysis.md
           - CLI Guide: getting-started/cli-guide.md
     - Development:
+          - Development Architecture: development/development-architecture.md
           - Development Workflow: development/development-workflow.md
+          - Development vs Production: development/modes-comparison.md
+          - Commands Reference: development/development-commands.md
           - Environment Setup: development/environment-setup.md
           - Package Management: development/package-management.md
           - Build Process: development/build-process.md
