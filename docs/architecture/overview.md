@@ -110,7 +110,7 @@ sequenceDiagram
 ## Development vs Production
 
 !!! info "Detailed Development Architecture"
-For comprehensive information about development setup, port usage, and multi-server architecture, see **[Development Architecture](../development/development-architecture.md)** and **[Development vs Production Comparison](../development/modes-comparison.md)**.
+For comprehensive information about development setup, port usage, and multi-server architecture, see **[Development Architecture](../development/development-architecture.md)** (which includes development vs production comparison).
 
 ### Development Mode (3 Servers)
 

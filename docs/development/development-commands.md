@@ -3,7 +3,31 @@
 Comprehensive reference for all GitInspectorGUI development commands, organized by service and use case.
 
 !!! tip "Architecture Context"
-For understanding the multi-server development setup, see **[Development Architecture](development-architecture.md)**. For mode comparison, see **[Development vs Production](modes-comparison.md)**.
+For understanding the multi-server development setup, see **[Development Architecture](development-architecture.md)**.
+
+## Quick Reference
+
+### Most Common Commands
+
+| Task                  | Command                                                   | Notes                             |
+| --------------------- | --------------------------------------------------------- | --------------------------------- |
+| **Start Development** | `pnpm dev`                                                | Starts all services (recommended) |
+| **Backend Only**      | `python -m gigui.start_server --reload --log-level DEBUG` | Python development                |
+| **Frontend Only**     | `pnpm dev:frontend`                                       | UI development                    |
+| **Desktop App**       | `pnpm tauri dev`                                          | Full integration testing          |
+| **Health Check**      | `curl http://127.0.0.1:8000/health`                       | Verify backend running            |
+| **API Docs**          | `open http://localhost:8000/docs`                         | Interactive API documentation     |
+| **Kill Processes**    | `pkill -f "gigui.start_server"`                           | Stop development servers          |
+| **Clean Build**       | `pnpm clean && rm -rf .venv node_modules`                 | Reset environment                 |
+| **Production Build**  | `pnpm tauri build`                                        | Create release build              |
+
+### Port Reference
+
+| Port     | Service          | Purpose             |
+| -------- | ---------------- | ------------------- |
+| **5173** | Vite Dev Server  | Frontend hot reload |
+| **1420** | Tauri Dev Server | Desktop app wrapper |
+| **8000** | FastAPI Server   | Python backend API  |
 
 ## Quick Start Commands
 

@@ -2,6 +2,21 @@
 
 This document provides a comprehensive overview of the GitInspectorGUI build process, explaining how the React frontend, Python FastAPI backend, and Tauri wrapper are integrated to create cross-platform desktop applications.
 
+## Table of Contents
+
+1. [Architecture Overview](#architecture-overview)
+2. [Component Integration](#component-integration)
+3. [Build Process Steps](#build-process-steps)
+4. [Cross-Platform Building](#cross-platform-building)
+5. [Build Artifacts](#build-artifacts)
+6. [Application Structure](#application-structure)
+7. [Build Configuration Files](#build-configuration-files)
+8. [Development vs Production](#development-vs-production-builds)
+9. [Build Optimization](#build-optimization)
+10. [Troubleshooting](#troubleshooting-build-issues)
+11. [Continuous Integration](#continuous-integration)
+12. [Next Steps](#next-steps)
+
 ## Architecture Overview
 
 GitInspectorGUI is a **Tauri-based desktop application** that combines three main components:
@@ -162,125 +177,159 @@ The Tauri configuration defines how all components are integrated:
 2. **Backend Integration**: `"../python": "./"` - Tauri bundles the entire Python directory
 3. **Build Hooks**: `beforeBuildCommand` ensures frontend is built before packaging
 
-### 5. Cross-Platform Build Execution
+### 5. Final Build Execution
+
+The final step combines all components using Tauri's build system:
+
+```bash
+# Complete build process
+pnpm tauri build
+
+# This executes:
+# 1. beforeBuildCommand: pnpm build (frontend)
+# 2. Tauri compilation with bundled resources
+# 3. Platform-specific packaging
+```
+
+## Cross-Platform Building
+
+### Build Script Usage
 
 The main build script (`scripts/build-all-platforms.sh`) handles cross-platform compilation:
 
-#### Current Platform Build
-
 ```bash
+# Current platform only
 ./scripts/build-all-platforms.sh --current
+
+# All supported platforms
+./scripts/build-all-platforms.sh --all
+
+# With clean build cache
+./scripts/build-all-platforms.sh --current --clean
 ```
 
-#### All Platforms Build
+### Platform-Specific Targets
+
+#### Linux Targets
 
 ```bash
-./scripts/build-all-platforms.sh --all
-```
-
-**Platform-Specific Targets:**
-
-=== "Linux"
-
-````bash # x86_64 Linux
+# x86_64 Linux
 build_target "x86_64-unknown-linux-gnu" "Linux-x64"
 
-    # ARM64 Linux (if cross-compilation is set up)
-    build_target "aarch64-unknown-linux-gnu" "Linux-ARM64"
-    ```
+# ARM64 Linux (if cross-compilation is set up)
+build_target "aarch64-unknown-linux-gnu" "Linux-ARM64"
+```
 
-    **Artifacts:**
-    - `.deb` packages (Debian/Ubuntu)
-    - `.AppImage` (Universal Linux)
-    - `.rpm` packages (Red Hat/Fedora)
+**Linux Artifacts:**
 
-=== "macOS"
-```bash # Intel macOS
+-   `.deb` packages (Debian/Ubuntu)
+-   `.AppImage` (Universal Linux)
+-   `.rpm` packages (Red Hat/Fedora)
+
+#### macOS Targets
+
+```bash
+# Intel macOS
 build_target "x86_64-apple-darwin" "macOS-Intel"
 
-    # Apple Silicon macOS
-    build_target "aarch64-apple-darwin" "macOS-Apple-Silicon"
-    ```
+# Apple Silicon macOS
+build_target "aarch64-apple-darwin" "macOS-Apple-Silicon"
+```
 
-    **Artifacts:**
-    - `.dmg` disk images
-    - `.app` application bundles
-    - `.app.tar.gz` compressed bundles
+**macOS Artifacts:**
 
-=== "Windows"
-`bash
-    # x86_64 Windows
-    build_target "x86_64-pc-windows-msvc" "Windows-x64"
-    `
+-   `.dmg` disk images
+-   `.app` application bundles
+-   `.app.tar.gz` compressed bundles
 
-    **Artifacts:**
-    - `.msi` installers
-    - `.exe` NSIS installers
+#### Windows Targets
 
-### 6. Build Artifacts Organization
+```bash
+# x86_64 Windows
+build_target "x86_64-pc-windows-msvc" "Windows-x64"
+```
+
+**Windows Artifacts:**
+
+-   `.msi` installers
+-   `.exe` NSIS installers
+
+## Build Artifacts
+
+### Artifact Organization
 
 All build artifacts are organized in the `dist/releases/` directory:
 
-````
-
+```
 dist/releases/
-├── GitInspectorGUI_0.1.0_amd64.deb # Linux Debian package
-├── GitInspectorGUI_0.1.0_amd64.AppImage # Linux AppImage
-├── GitInspectorGUI_0.1.0_x86_64.rpm # Linux RPM package
-├── GitInspectorGUI_0.1.0_x64.msi # Windows installer
-├── GitInspectorGUI_0.1.0_x64_en-US.msi # Windows localized installer
-├── GitInspectorGUI_0.1.0_x64-setup.exe # Windows NSIS installer
-├── GitInspectorGUI_0.1.0_universal.dmg # macOS disk image
-├── GitInspectorGUI-aarch64-apple-darwin.app.tar.gz # macOS Apple Silicon
-├── GitInspectorGUI-x86_64-apple-darwin.app.tar.gz # macOS Intel
-├── gitinspectorgui-0.5.0-py3-none-any.whl # Python wheel
-└── checksums.sha256 # Verification checksums
-
+├── GitInspectorGUI_0.1.0_amd64.deb           # Linux Debian package
+├── GitInspectorGUI_0.1.0_amd64.AppImage      # Linux AppImage
+├── GitInspectorGUI_0.1.0_x86_64.rpm          # Linux RPM package
+├── GitInspectorGUI_0.1.0_x64.msi             # Windows installer
+├── GitInspectorGUI_0.1.0_x64_en-US.msi       # Windows localized installer
+├── GitInspectorGUI_0.1.0_x64-setup.exe       # Windows NSIS installer
+├── GitInspectorGUI_0.1.0_universal.dmg       # macOS disk image
+├── GitInspectorGUI-aarch64-apple-darwin.app.tar.gz  # macOS Apple Silicon
+├── GitInspectorGUI-x86_64-apple-darwin.app.tar.gz   # macOS Intel
+├── gitinspectorgui-0.5.0-py3-none-any.whl    # Python wheel
+└── checksums.sha256                          # Verification checksums
 ```
 
-## Final Application Structure
+### Artifact Verification
+
+Each build includes checksums for integrity verification:
+
+```bash
+# Verify artifact integrity
+sha256sum -c checksums.sha256
+
+# Individual file verification
+sha256sum GitInspectorGUI_0.1.0_x64.msi
+```
+
+## Application Structure
+
+### Final Application Layout
 
 The resulting desktop application contains all components in a unified package:
 
 ```
-
 GitInspectorGUI/
-├── gitinspectorgui # Main executable (Tauri)
+├── gitinspectorgui                           # Main executable (Tauri)
 ├── resources/
-│ ├── python/ # Complete Python backend
-│ │ ├── gigui/ # Python analysis engine
-│ │ ├── dist/
-│ │ │ └── gitinspector-api-sidecar # Standalone Python executable
-│ │ ├── pyproject.toml # Python project configuration
-│ │ └── ... # All Python source files
-│ └── frontend/ # Built React app (embedded in Tauri)
-│ ├── index.html
-│ ├── assets/
-│ │ ├── index-[hash].js # Compiled JavaScript
-│ │ ├── index-[hash].css # Compiled CSS
-│ │ └── ...
-│ └── ...
-├── icons/ # Application icons
-└── _up_ # Tauri updater files (if enabled)
+│   ├── python/                               # Complete Python backend
+│   │   ├── gigui/                           # Python analysis engine
+│   │   ├── dist/
+│   │   │   └── gitinspector-api-sidecar     # Standalone Python executable
+│   │   ├── pyproject.toml                   # Python project configuration
+│   │   └── ...                              # All Python source files
+│   └── frontend/                            # Built React app (embedded in Tauri)
+│       ├── index.html
+│       ├── assets/
+│       │   ├── index-[hash].js              # Compiled JavaScript
+│       │   ├── index-[hash].css             # Compiled CSS
+│       │   └── ...
+│       └── ...
+├── icons/                                   # Application icons
+└── _up_                                     # Tauri updater files (if enabled)
+```
 
-````
+### Integration Mechanisms
 
-## Key Integration Mechanisms
-
-### 1. Resource Bundling
+#### Resource Bundling
 
 -   **Python Backend**: Bundled as resources via Tauri configuration
 -   **React Frontend**: Embedded directly into Tauri executable
 -   **Static Assets**: Icons, configuration files included in bundle
 
-### 2. Runtime Communication
+#### Runtime Communication
 
 -   **Tauri Commands**: Rust functions exposed to frontend via `invoke()`
 -   **HTTP API**: Python FastAPI server for analysis operations
 -   **JSON Protocol**: Structured data exchange between all layers
 -   **Type Safety**: TypeScript interfaces ensure type-safe communication
 
-### 3. Process Management
+#### Process Management
 
 -   **Main Process**: Tauri manages the desktop window and UI rendering
 -   **Background Process**: Python API server runs as needed for analysis
@@ -329,7 +378,7 @@ pnpm tauri:dev
 
 # Python development server
 cd python && uv run python dev_api.py
-````
+```
 
 ### Production Build
 

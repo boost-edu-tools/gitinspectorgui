@@ -51,60 +51,50 @@ cargo clean
 
 ### Server Won't Start
 
-```bash
-# Kill process on port 8000
-lsof -ti:8000 | xargs kill -9
+**Symptoms**: Server fails to start or port conflicts occur
 
-# Use different port
-python -m gigui.start_server --port 8001
-```
+**Solutions**:
 
-For all server command options, see **[Development Commands](development-commands.md)**.
+-   Kill processes on port 8000 (see [Port Management](development-commands.md#port-management))
+-   Use different port (see [Basic Server Commands](development-commands.md#basic-server-commands))
 
 ### Frontend Connection Issues
 
-```bash
-# Test API health
-curl http://127.0.0.1:8000/health
+**Symptoms**: Frontend cannot reach backend API
 
-# Restart development server (see Development Workflow for all options)
-python -m gigui.start_server --reload
-```
+**Solutions**:
+
+-   Test API health (see [Service Health Checks](development-commands.md#service-health-checks))
+-   Restart development server (see [Quick Start Commands](development-commands.md#quick-start-commands))
 
 ## Development Issues
 
 ### Hot Reload Not Working
 
-```bash
-# Restart with reload enabled (see Development Workflow for all options)
-python -m gigui.start_server --reload
+**Symptoms**: Changes not reflected automatically in development
 
-# Kill and restart servers
-pkill -f "gigui.start_server"
-pkill -f "tauri dev"
-```
+**Solutions**:
+
+-   Restart with reload enabled (see [Backend Debugging Commands](development-commands.md#backend-debugging-commands))
+-   Kill and restart servers (see [Troubleshooting Commands](development-commands.md#troubleshooting-commands))
 
 ### Debugging Issues
 
-```bash
-# Enable debug logging (see Development Workflow for all options)
-python -m gigui.start_server --log-level DEBUG
+**Symptoms**: Unable to debug or get detailed error information
 
-# Verify VS Code extensions
-code --list-extensions | grep python
-```
+**Solutions**:
+
+-   Enable debug logging (see [Backend Debugging Commands](development-commands.md#backend-debugging-commands))
+-   Verify VS Code extensions are installed
 
 ### Build Failures
 
-```bash
-# Clean artifacts
-rm -rf target/ dist/ node_modules/
+**Symptoms**: Build process fails or produces errors
 
-# Update dependencies
-pnpm update
-cargo update
-uv sync --upgrade
-```
+**Solutions**:
+
+-   Clean build artifacts (see [Cache Management](development-commands.md#cache-management))
+-   Update dependencies (see [Environment Reset](development-commands.md#environment-reset))
 
 ## Platform Issues
 

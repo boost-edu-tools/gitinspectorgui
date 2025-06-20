@@ -19,25 +19,17 @@ GitInspectorGUI uses a **multi-server development architecture** that enables in
 -   **Clear Separation**: HTTP API provides clean interface between layers
 -   **Flexible Testing**: Each service can be tested independently
 
+For detailed commands, see **[Development Commands](development-commands.md)**.
+
 ## Development Approaches
 
 ### 1. Full Stack Development
 
 **Best for**: UI features, integration testing, complete feature development
 
-```bash
-# Start all services
-pnpm dev
-
-# This provides:
-# - Frontend hot reload (React/TypeScript)
-# - Desktop app wrapper (Tauri)
-# - Backend auto-restart (Python)
-```
-
 **Workflow**:
 
-1. Start all development services
+1. Start all development services (see [Development Commands](development-commands.md#quick-start-commands))
 2. Make changes to any layer
 3. See immediate feedback across the stack
 4. Test integration between services
@@ -46,32 +38,16 @@ pnpm dev
 
 **Best for**: API development, data processing, Python-focused work
 
-```bash
-# Start only Python backend
-python -m gigui.start_server --reload --log-level DEBUG
-
-# Test with curl
-curl http://127.0.0.1:8000/health
-```
-
 **Workflow**:
 
 1. Focus on Python backend development
-2. Test API endpoints directly with curl
+2. Test API endpoints directly (see [API Testing Commands](development-commands.md#api-testing-commands))
 3. Iterate quickly without frontend overhead
 4. Integrate with frontend when ready
 
 ### 3. Frontend-Only Development
 
 **Best for**: UI/UX work, component development, styling
-
-```bash
-# Start frontend with mock data
-pnpm dev:frontend
-
-# Or with desktop wrapper
-pnpm tauri dev
-```
 
 **Workflow**:
 
@@ -103,39 +79,25 @@ pnpm tauri dev
 
 ### Direct API Testing
 
-```bash
-# Start server with debug logging
-python -m gigui.start_server --reload --log-level DEBUG
+For detailed API testing commands, see [API Testing Commands](development-commands.md#api-testing-commands).
 
-# Test health endpoint
-curl http://127.0.0.1:8000/health
+**Process**:
 
-# Test analysis with a small repository
-curl -X POST http://127.0.0.1:8000/api/execute_analysis \
-  -H "Content-Type: application/json" \
-  -d '{
-    "input_fstrs": ["/path/to/small/repo"],
-    "n_files": 10,
-    "file_formats": ["json"]
-  }' | jq '.'
-```
+1. Start server with debug logging
+2. Test health endpoint to verify connectivity
+3. Test analysis with a small repository
+4. Use formatted JSON output for readability
 
 ### Integration Testing
 
-```bash
-# Test HTTP endpoints
-curl http://127.0.0.1:8000/health
-curl -X GET http://127.0.0.1:8000/api/settings
+For complete testing commands, see [Integration Testing Commands](development-commands.md#integration-testing-commands).
 
-# Frontend testing
-pnpm run test
-pnpm run test:e2e
+**Process**:
 
-# Test the complete system
-python -m gigui.start_server --reload &
-pnpm run tauri dev
-# Use the GUI to test your changes
-```
+1. Test HTTP endpoints individually
+2. Run frontend tests in isolation
+3. Test the complete system integration
+4. Use the GUI to verify end-to-end functionality
 
 ## Frontend Integration
 
@@ -203,55 +165,23 @@ The frontend will automatically connect to your Python server.
 
 ## Troubleshooting
 
+For detailed troubleshooting commands, see [Troubleshooting Commands](development-commands.md#troubleshooting-commands) and [Troubleshooting Guide](troubleshooting.md).
+
 ### Common Issues
 
-**Server won't restart**
+**Server won't restart**: Kill existing processes and restart (see [Port Management](development-commands.md#port-management))
 
-```bash
-# Kill existing processes
-pkill -f "gigui.start_server"
-python -m gigui.start_server --reload
-```
+**Frontend connection issues**: Verify server is running and accessible (see [Service Health Checks](development-commands.md#service-health-checks))
 
-**Frontend connection issues**
+**Hot reload not working**: Clear caches and restart development environment (see [Cache Management](development-commands.md#cache-management))
 
-````bash
-# Verify server running
-curl http://127.0.0.1:8000/health
+### Debugging Process
 
-**Hot reload not working**
+1. **Server Debugging**: Start with maximum logging to identify issues
+2. **API Debugging**: Test endpoints directly to isolate problems
+3. **Integration Debugging**: Use formatted JSON responses for analysis
 
-```bash
-# Clear caches
-pnpm store prune
-rm -rf node_modules/.vite
-
-# Restart development
-pnpm run tauri dev
-````
-
-### Server Debugging
-
-```bash
-# Start with maximum logging
-python -m gigui.start_server --reload --log-level DEBUG
-
-# Check server logs for errors
-# Logs appear in the terminal where you started the server
-```
-
-### API Debugging
-
-```bash
-# Test API endpoints directly
-curl -v http://127.0.0.1:8000/health
-curl -v -X POST http://127.0.0.1:8000/api/execute_analysis \
-  -H "Content-Type: application/json" \
-  -d '{"input_fstrs": ["/test/repo"]}'
-
-# Use jq to format JSON responses
-curl -s http://127.0.0.1:8000/api/settings | jq '.'
-```
+For specific debugging commands, see [Backend Debugging Commands](development-commands.md#backend-debugging-commands).
 
 ## Related Documentation
 
