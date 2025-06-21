@@ -44,7 +44,7 @@ class TestUtilityFunctions(unittest.TestCase):
         self.assertEqual(divide_to_percentage(50, 100), 50.0)
         self.assertEqual(divide_to_percentage(25, 100), 25.0)
         self.assertEqual(divide_to_percentage(1, 3), 33.0)  # rounded
-        
+
         # Edge cases
         self.assertTrue(str(divide_to_percentage(0, 100)) == "nan")
         self.assertTrue(str(divide_to_percentage(100, 0)) == "nan")
@@ -57,7 +57,7 @@ class TestUtilityFunctions(unittest.TestCase):
         self.assertEqual(get_digit("5"), 5)
         self.assertEqual(get_digit("9"), 9)
         self.assertEqual(get_digit(7), 7)
-        
+
         # Invalid cases
         with self.assertRaises(Exception):
             get_digit("10")
@@ -73,7 +73,7 @@ class TestUtilityFunctions(unittest.TestCase):
         self.assertEqual(get_pos_number("10"), 10)
         self.assertEqual(get_pos_number("100"), 100)
         self.assertEqual(get_pos_number(50), 50)
-        
+
         # Invalid cases
         with self.assertRaises(Exception):
             get_pos_number("-1")
@@ -86,7 +86,7 @@ class TestUtilityFunctions(unittest.TestCase):
         self.assertEqual(get_pos_number_or_empty(""), 0)
         self.assertEqual(get_pos_number_or_empty("0"), 0)
         self.assertEqual(get_pos_number_or_empty("10"), 10)
-        
+
         # Invalid cases
         with self.assertRaises(Exception):
             get_pos_number_or_empty("-1")
@@ -96,11 +96,11 @@ class TestUtilityFunctions(unittest.TestCase):
         # Test prefix
         result = get_outfile_name(Keys.prefix, "report.html", "myrepo")
         self.assertEqual(result, "myrepo-report.html")
-        
+
         # Test postfix
         result = get_outfile_name(Keys.postfix, "report.html", "myrepo")
         self.assertEqual(result, "report.html-myrepo")
-        
+
         # Test no fix
         result = get_outfile_name(Keys.nofix, "report.html", "myrepo")
         self.assertEqual(result, "report.html")
@@ -110,14 +110,14 @@ class TestUtilityFunctions(unittest.TestCase):
         # With subfolder
         result = get_relative_fstr("/project/src/file.py", "/project")
         self.assertEqual(result, "src/file.py")
-        
+
         result = get_relative_fstr("/project/file.py", "/project")
         self.assertEqual(result, "file.py")
-        
+
         # Without subfolder match
         result = get_relative_fstr("/other/file.py", "/project")
         self.assertEqual(result, "//other/file.py")
-        
+
         # Empty subfolder
         result = get_relative_fstr("/project/file.py", "")
         self.assertEqual(result, "/project/file.py")
@@ -135,7 +135,7 @@ class TestUtilityFunctions(unittest.TestCase):
         # All hex
         result = non_hex_chars_in_list(["abc123", "DEF456"])
         self.assertEqual(result, [])
-        
+
         # Mixed
         result = non_hex_chars_in_list(["abc123", "xyz789"])
         self.assertEqual(set(result), {"x", "y", "z"})
@@ -146,16 +146,16 @@ class TestUtilityFunctions(unittest.TestCase):
         test_path = "folder/file.txt"
         posix_result = to_posix_fstr(test_path)
         self.assertEqual(posix_result, "folder/file.txt")
-        
+
         # Test system conversion
         system_result = to_system_fstr(test_path)
         self.assertIsInstance(system_result, str)
-        
+
         # Test list conversions
         test_paths = ["folder1/file1.txt", "folder2/file2.txt"]
         posix_results = to_posix_fstrs(test_paths)
         self.assertEqual(len(posix_results), 2)
-        
+
         system_results = to_system_fstrs(test_paths)
         self.assertEqual(len(system_results), 2)
 
@@ -171,17 +171,17 @@ class TestUtilityFunctions(unittest.TestCase):
         self.assertEqual(get_file_extension("file.txt"), "txt")
         self.assertEqual(get_file_extension("file.tar.gz"), "gz")
         self.assertEqual(get_file_extension("file"), "")
-        
+
         # Test bytes formatting
         self.assertEqual(format_bytes(1024), "1.0 KB")
         self.assertEqual(format_bytes(1048576), "1.0 MB")
         self.assertEqual(format_bytes(500), "500.0 B")
-        
+
         # Test safe division
         self.assertEqual(safe_divide(10, 2), 5.0)
         self.assertEqual(safe_divide(10, 0), 0.0)
         self.assertEqual(safe_divide(10, 0, -1), -1.0)
-        
+
         # Test string truncation
         self.assertEqual(truncate_string("hello world", 10), "hello w...")
         self.assertEqual(truncate_string("hello", 10), "hello")
@@ -194,7 +194,7 @@ class TestUtilityFunctions(unittest.TestCase):
             is_valid, error = validate_file_path(tmp_file.name)
             self.assertTrue(is_valid)
             self.assertEqual(error, "")
-        
+
         # Test with non-existent file
         is_valid, error = validate_file_path("/non/existent/file.txt")
         self.assertFalse(is_valid)
@@ -204,15 +204,15 @@ class TestUtilityFunctions(unittest.TestCase):
         """Test directory creation function."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             test_dir = Path(tmp_dir) / "new" / "nested" / "directory"
-            
+
             # Directory should not exist initially
             self.assertFalse(test_dir.exists())
-            
+
             # Create directory
             result = ensure_directory_exists(str(test_dir))
             self.assertTrue(result)
             self.assertTrue(test_dir.exists())
-            
+
             # Should work even if directory already exists
             result = ensure_directory_exists(str(test_dir))
             self.assertTrue(result)

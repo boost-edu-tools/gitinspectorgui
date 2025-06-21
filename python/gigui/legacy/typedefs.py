@@ -104,10 +104,12 @@ type FileRenameHistory = dict[FileStr, list[FileStr]]  # File rename tracking
 # - RepoData: Repository analysis data
 # - PersonsDB: Database of persons/authors
 
+
 # Core dataclass definitions migrated from legacy system
 @dataclass
 class CommitGroup:
     """Groups commits by author and file name."""
+
     fstr: FileStr
     author: Author
     insertions: int
@@ -115,51 +117,65 @@ class CommitGroup:
     date_sum: int
     shas: Set[SHA] = field(default_factory=set)
 
+
 @dataclass
 class SHADateNr:
     """SHA with date and number for sorting."""
+
     sha: SHA
     date: int
     nr: int
 
+
 @dataclass
 class IniRepo:
     """Initial repository configuration."""
+
     name: str
     location: str
+
 
 @dataclass
 class LineData:
     """Data for a single line in blame output."""
+
     line: str = ""
     is_comment: bool = False
     is_empty: bool = False
 
+
 @dataclass
 class Blame:
     """Blame information for a line of code."""
+
     author: Author = ""
     email: Email = ""
     sha: SHA = ""
     date: int = 0
     line_data: LineData = field(default_factory=lambda: LineData())
 
+
 @dataclass
 class CommentMarker:
     """Comment markers for different file types."""
+
     start: str | None = None
     end: str | None = None
     line: str | None = None
 
+
 @dataclass
 class LocalHostData:
     """Data for localhost server configuration."""
+
     name: str
     html: HtmlStr
     browser_id: BrowserID
 
+
 @dataclass
 class RunnerQueues:
     """Queues for task processing."""
+
     task: TaskQueue
     result: TaskQueue
