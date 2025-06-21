@@ -1,9 +1,9 @@
 """
 Utility functions for GitInspectorGUI.
 
-This module provides essential utility functions for path manipulation, 
+This module provides essential utility functions for path manipulation,
 percentage calculations, string formatting, and various helper functions.
-Migrated from the original gitinspectorgui-old codebase with enhanced 
+Migrated from the original gitinspectorgui-old codebase with enhanced
 type definitions and settings compatibility.
 """
 
@@ -19,15 +19,17 @@ from pathlib import Path
 from pstats import Stats
 from typing import Any
 
-from gigui.typedefs import FileStr
+from gigui.legacy.typedefs import FileStr
 
 # Constants
 STDOUT = True
 DEFAULT_WRAP_WIDTH = 88
 
+
 # Keys for compatibility with legacy system
 class Keys:
     """Key constants for configuration and settings."""
+
     prefix = "prefix"
     postfix = "postfix"
     nofix = "nofix"
@@ -44,10 +46,10 @@ def log(message: Any, text_color: str | None = None, end: str = "\n", flush: boo
 def open_file(fstr: FileStr) -> None:
     """
     Open a file using the system's default application.
-    
+
     Args:
         fstr: File path to open
-        
+
     Raises:
         RuntimeError: If the platform is not supported
     """
@@ -66,7 +68,7 @@ def open_file(fstr: FileStr) -> None:
 def log_end_time(start_time: float) -> None:
     """
     Output the amount of passed time since 'start_time'.
-    
+
     Args:
         start_time: Start time in seconds (from time.time())
     """
@@ -77,12 +79,12 @@ def log_end_time(start_time: float) -> None:
 def get_outfile_name(fix: str, outfile_base: str, repo_name: str) -> FileStr:
     """
     Generate output filename based on prefix/postfix configuration.
-    
+
     Args:
         fix: Type of fix to apply ("prefix", "postfix", or other)
         outfile_base: Base filename for output
         repo_name: Name of the repository
-        
+
     Returns:
         Generated filename with appropriate prefix/postfix
     """
@@ -99,30 +101,29 @@ def get_outfile_name(fix: str, outfile_base: str, repo_name: str) -> FileStr:
 def divide_to_percentage(dividend: int, divisor: int) -> float:
     """
     Calculate percentage from dividend and divisor.
-    
+
     Args:
         dividend: Numerator value
         divisor: Denominator value
-        
+
     Returns:
         Percentage value rounded to nearest integer, or NaN if invalid
     """
     if dividend and divisor:
         return round(dividend / divisor * 100)
-    else:
-        return float("NaN")
+    return float("NaN")
 
 
 def get_digit(arg: Any) -> int:
     """
     Validate and convert argument to single digit integer.
-    
+
     Args:
         arg: Value to convert and validate
-        
+
     Returns:
         Single digit integer (0-9)
-        
+
     Raises:
         argparse.ArgumentTypeError: If value is not a valid single digit
     """
@@ -130,8 +131,7 @@ def get_digit(arg: Any) -> int:
         arg = int(arg)
         if 0 <= arg < 10:
             return arg
-        else:
-            raise ValueError
+        raise ValueError
     except (TypeError, ValueError) as e:
         raise argparse.ArgumentTypeError(
             f"Invalid value '{arg}', use a single digit integer >= 0."
@@ -141,22 +141,21 @@ def get_digit(arg: Any) -> int:
 def get_pos_number(arg: Any) -> int:
     """
     Validate and convert argument to positive integer.
-    
+
     Args:
         arg: Value to convert and validate
-        
+
     Returns:
         Positive integer (>= 0)
-        
+
     Raises:
         argparse.ArgumentTypeError: If value is not a valid positive integer
     """
     try:
         arg = int(arg)
-        if 0 <= arg:
+        if arg >= 0:
             return arg
-        else:
-            raise ValueError
+        raise ValueError
     except (TypeError, ValueError) as e:
         raise argparse.ArgumentTypeError(
             f"Invalid value '{arg}', use a positive integer number."
@@ -166,13 +165,13 @@ def get_pos_number(arg: Any) -> int:
 def get_pos_number_or_empty(arg: Any) -> int:
     """
     Validate and convert argument to positive integer or handle empty string.
-    
+
     Args:
         arg: Value to convert and validate
-        
+
     Returns:
         Positive integer (>= 0) or 0 for empty string
-        
+
     Raises:
         argparse.ArgumentTypeError: If value is not valid
     """
@@ -180,10 +179,9 @@ def get_pos_number_or_empty(arg: Any) -> int:
         return 0
     try:
         arg = int(arg)
-        if 0 <= arg:
+        if arg >= 0:
             return arg
-        else:
-            raise ValueError
+        raise ValueError
     except (TypeError, ValueError) as e:
         raise argparse.ArgumentTypeError(
             f"Invalid value '{arg}', use a positive integer number or empty string \"\"."
@@ -193,11 +191,11 @@ def get_pos_number_or_empty(arg: Any) -> int:
 def get_relative_fstr(fstr: str, subfolder: str) -> str:
     """
     Get relative file path string based on subfolder.
-    
+
     Args:
         fstr: File path string
         subfolder: Subfolder to make path relative to
-        
+
     Returns:
         Relative file path string
     """
@@ -206,21 +204,18 @@ def get_relative_fstr(fstr: str, subfolder: str) -> str:
             relative_fstr = fstr[len(subfolder) :]
             if relative_fstr.startswith("/"):
                 return relative_fstr[1:]
-            else:
-                return relative_fstr
-        else:
-            return "/" + fstr
-    else:
-        return fstr
+            return relative_fstr
+        return "/" + fstr
+    return fstr
 
 
 def get_version() -> str:
     """
     Get version string from version.txt file.
-    
+
     Returns:
         Version string
-        
+
     Note:
         In the enhanced system, this looks for version.txt in the same directory
         as this module. If not found, returns a default version.
@@ -228,7 +223,7 @@ def get_version() -> str:
     try:
         my_dir = Path(__file__).resolve().parent
         version_file = my_dir / "version.txt"
-        with open(version_file, "r", encoding="utf-8") as file:
+        with open(version_file, encoding="utf-8") as file:
             version = file.read().strip()
         return version
     except FileNotFoundError:
@@ -239,11 +234,12 @@ def get_version() -> str:
 def out_profile(profiler: Profile | None, nr_lines: int) -> None:
     """
     Output profiling results.
-    
+
     Args:
         profiler: Profile object to analyze
         nr_lines: Number of lines to output (0 to disable, >100 to dump to file)
     """
+
     def log_profile(profile: Profile, sort: str) -> None:
         io_stream = StringIO()
         stats = Stats(profile, stream=io_stream).strip_dirs()
@@ -267,10 +263,10 @@ def out_profile(profiler: Profile | None, nr_lines: int) -> None:
 def non_hex_chars_in_list(s_list: list[str]) -> list[str]:
     """
     Find non-hexadecimal characters in a list of strings.
-    
+
     Args:
         s_list: List of strings to check
-        
+
     Returns:
         List of non-hexadecimal characters found
     """
@@ -282,26 +278,25 @@ def non_hex_chars_in_list(s_list: list[str]) -> list[str]:
 def to_posix_fstr(fstr: str) -> str:
     """
     Convert file path string to POSIX format.
-    
+
     Args:
         fstr: File path string
-        
+
     Returns:
         POSIX-formatted file path string
     """
     if not fstr:
         return fstr
-    else:
-        return Path(fstr).as_posix()
+    return Path(fstr).as_posix()
 
 
 def to_posix_fstrs(fstrs: list[str]) -> list[str]:
     """
     Convert list of file path strings to POSIX format.
-    
+
     Args:
         fstrs: List of file path strings
-        
+
     Returns:
         List of POSIX-formatted file path strings
     """
@@ -311,26 +306,25 @@ def to_posix_fstrs(fstrs: list[str]) -> list[str]:
 def to_system_fstr(fstr: FileStr) -> FileStr:
     """
     Convert file path string to system-specific format.
-    
+
     Args:
         fstr: File path string
-        
+
     Returns:
         System-specific file path string
     """
     if not fstr:
         return fstr
-    else:
-        return str(Path(fstr))
+    return str(Path(fstr))
 
 
 def to_system_fstrs(fstrs: list[str]) -> list[str]:
     """
     Convert list of file path strings to system-specific format.
-    
+
     Args:
         fstrs: List of file path strings
-        
+
     Returns:
         List of system-specific file path strings
     """
@@ -340,13 +334,13 @@ def to_system_fstrs(fstrs: list[str]) -> list[str]:
 def get_dir_matches(input_fstrs: list[FileStr]) -> list[FileStr]:
     """
     Get directory matches for input file patterns.
-    
+
     Normally, the input paths have already been expanded by the shell, but in case the
     wildcard were protected in quotes, we expand them here.
-    
+
     Args:
         input_fstrs: List of file path patterns
-        
+
     Returns:
         List of matching directory paths
     """
@@ -362,15 +356,15 @@ def get_dir_matches(input_fstrs: list[FileStr]) -> list[FileStr]:
 def get_posix_dir_matches_for(pattern: FileStr) -> list[FileStr]:
     """
     Return a list of posix directories that match the pattern and are not hidden.
-    
+
     The pattern is case insensitive.
     If the pattern is absolute, the search is done in the root directory.
     If the pattern is relative, the search is done in the current directory.
     The pattern can be posix or windows style.
-    
+
     Args:
         pattern: File path pattern to match
-        
+
     Returns:
         List of matching POSIX directory paths
     """
@@ -426,13 +420,13 @@ def get_posix_dir_matches_for(pattern: FileStr) -> list[FileStr]:
 def resolve_and_strip_input_fstrs(input_fstrs: list[FileStr]) -> list[FileStr]:
     """
     Resolve and strip input file path strings.
-    
+
     If the input _fstrs are not absolute, resolve them to absolute posix file strings.
     If an input_fstr item equals  `.`, it is replaced with the current working directory.
-    
+
     Args:
         input_fstrs: List of input file path strings
-        
+
     Returns:
         List of resolved absolute POSIX file path strings
     """
@@ -446,10 +440,10 @@ def resolve_and_strip_input_fstrs(input_fstrs: list[FileStr]) -> list[FileStr]:
 def strip_quotes(s: str) -> str:
     """
     Remove quotes from the string.
-    
+
     Args:
         s: String to strip quotes from
-        
+
     Returns:
         String with leading/trailing quotes removed
     """
@@ -459,7 +453,7 @@ def strip_quotes(s: str) -> str:
 def print_threads(message: str) -> None:
     """
     Print information about current threads for debugging.
-    
+
     Args:
         message: Message to display with thread information
     """
@@ -478,7 +472,7 @@ def sigint_handler(
 ) -> None:
     """
     Handle SIGINT signal.
-    
+
     Args:
         signum: Signal number
         frame: Current stack frame
@@ -490,15 +484,14 @@ def sigint_handler(
 def setup_sigint_handler(sigint_event: multiprocessingEvent | threading.Event) -> None:
     """
     Setup SIGINT signal handler.
-    
+
     Args:
         sigint_event: Event to set when signal is received
-        
+
     Note:
         Currently disabled in the enhanced system for compatibility.
         Signal handling can be enabled by uncommenting the signal.signal calls.
     """
-    pass
     # signal.signal(
     #     signal.SIGINT,
     #     lambda signum, frame: sigint_handler(
@@ -521,10 +514,10 @@ def setup_sigint_handler(sigint_event: multiprocessingEvent | threading.Event) -
 def validate_file_path(file_path: str) -> tuple[bool, str]:
     """
     Validate if a file path is valid and accessible.
-    
+
     Args:
         file_path: Path to validate
-        
+
     Returns:
         Tuple of (is_valid, error_message)
     """
@@ -542,10 +535,10 @@ def validate_file_path(file_path: str) -> tuple[bool, str]:
 def ensure_directory_exists(dir_path: str) -> bool:
     """
     Ensure a directory exists, creating it if necessary.
-    
+
     Args:
         dir_path: Directory path to ensure exists
-        
+
     Returns:
         True if directory exists or was created successfully
     """
@@ -559,42 +552,43 @@ def ensure_directory_exists(dir_path: str) -> bool:
 def get_file_extension(file_path: str) -> str:
     """
     Get file extension from file path.
-    
+
     Args:
         file_path: Path to get extension from
-        
+
     Returns:
         File extension (without dot) or empty string if no extension
     """
-    return Path(file_path).suffix.lstrip('.')
+    return Path(file_path).suffix.lstrip(".")
 
 
 def format_bytes(bytes_value: int) -> str:
     """
     Format bytes value into human-readable string.
-    
+
     Args:
         bytes_value: Number of bytes
-        
+
     Returns:
         Formatted string (e.g., "1.5 MB")
     """
-    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-        if bytes_value < 1024.0:
-            return f"{bytes_value:.1f} {unit}"
-        bytes_value /= 1024.0
-    return f"{bytes_value:.1f} PB"
+    value = float(bytes_value)
+    for unit in ["B", "KB", "MB", "GB", "TB"]:
+        if value < 1024.0:
+            return f"{value:.1f} {unit}"
+        value /= 1024.0
+    return f"{value:.1f} PB"
 
 
 def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> float:
     """
     Safely divide two numbers, returning default if denominator is zero.
-    
+
     Args:
         numerator: Numerator value
         denominator: Denominator value
         default: Default value to return if division by zero
-        
+
     Returns:
         Result of division or default value
     """
@@ -606,15 +600,15 @@ def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> f
 def truncate_string(text: str, max_length: int, suffix: str = "...") -> str:
     """
     Truncate string to maximum length with optional suffix.
-    
+
     Args:
         text: Text to truncate
         max_length: Maximum length including suffix
         suffix: Suffix to add when truncating
-        
+
     Returns:
         Truncated string
     """
     if len(text) <= max_length:
         return text
-    return text[:max_length - len(suffix)] + suffix
+    return text[: max_length - len(suffix)] + suffix

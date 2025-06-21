@@ -22,11 +22,11 @@ from dataclasses import asdict, dataclass
 from math import floor
 from pathlib import Path
 
-from gigui.api_types import (
+from gigui.api.types import (
     AnalysisResult,
     Settings,
 )
-from gigui.typedefs import SHA, Author, Email, FileStr
+from gigui.legacy.typedefs import SHA, Author, Email, FileStr
 
 # Configure logging for API operations
 logging.basicConfig(
@@ -44,7 +44,7 @@ DAYS_IN_MONTH = 30.44
 
 
 # Import legacy engine after api_types to avoid circular imports
-from gigui.legacy_engine import legacy_engine
+from gigui.core.legacy_engine import legacy_engine
 
 
 @dataclass
@@ -836,7 +836,7 @@ def main():
 
         elif command == "start_server":
             # Start the HTTP server
-            from gigui.http_server import start_server
+            from gigui.api.http_server import start_server
 
             host = "127.0.0.1"
             port = 8000

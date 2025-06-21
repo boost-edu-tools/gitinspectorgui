@@ -6,7 +6,7 @@ Entry point for GitInspectorGUI HTTP API server.
 import argparse
 import sys
 
-from .http_server import start_server
+from gigui.api.http_server import start_server
 
 
 def main():

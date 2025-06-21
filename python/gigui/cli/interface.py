@@ -8,7 +8,8 @@ import argparse
 import json
 import sys
 
-from .api import GitInspectorAPI, Settings
+from gigui.api.main import GitInspectorAPI
+from gigui.api.types import Settings
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -118,6 +119,9 @@ def main():
     args = parser.parse_args()
 
     # Create settings from command-line arguments
+    # Set view based on dynamic blame history flag
+    view = "dynamic-blame-history" if args.dynamic_blame_history else "auto"
+
     settings = Settings(
         input_fstrs=args.repositories,
         depth=args.depth,
@@ -130,8 +134,8 @@ def main():
         ex_messages=[],
         copy_move=args.copy_move,
         scaled_percentages=args.scaled_percentages,
-        blame_exclusions=args.blame_exclusions,
-        dynamic_blame_history=args.dynamic_blame_history,
+        blame_exclusions="show" if args.blame_exclusions else "hide",
+        view=view,
         dryrun=args.dry_run,
     )
 

@@ -14,8 +14,8 @@ from pathlib import Path
 # Add the current directory to Python path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
-from gigui.api import GitInspectorAPI
-from gigui.api_types import Settings
+from gigui.api.main import GitInspectorAPI
+from gigui.api.types import Settings
 
 
 def create_parser() -> argparse.ArgumentParser:

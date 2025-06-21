@@ -1,167 +1,182 @@
+"""
+Legacy API wrapper for GitInspectorGUI.
+
+This module provides a command-line interface that wraps the new GitInspectorAPI
+for backward compatibility with existing scripts and tools.
+"""
+
 import json
-import sys
 import logging
-from pathlib import Path
-from typing import Any, Dict, List
+import sys
+from dataclasses import asdict
+from typing import Any
 
-# --- Setup Python Path ---
-# This is a placeholder. In a real scenario, you'd ensure that the gigui modules
-# are installable or correctly added to sys.path.
-# For development, you might add the path to the old source.
-OLD_SRC_PATH = Path(__file__).resolve().parent.parent.parent / "gitinspectorgui-old" / "src"
-if OLD_SRC_PATH.exists() and str(OLD_SRC_PATH) not in sys.path:
-    sys.path.insert(0, str(OLD_SRC_PATH))
-# --- End Setup Python Path ---
-
-# Configure logging for legacy module imports
-logging.basicConfig(level=logging.INFO)
-
-try:
-    from gigui.args_settings import Args
-    from gigui.data import IniRepo
-    from gigui.repo_runner import RepoRunner
-    from gigui.runner_queues import RunnerQueues # For dummy queues
-    from gigui import shared as gigui_shared # To set shared.cli if necessary
-except ImportError as e:
-    # Fallback for local development if modules were copied directly
-    # This assumes api.py is in python/ and gigui modules are in python/gigui/
-    # Adjust as necessary based on your project structure.
-    try:
-        # This assumes api.py is in python/ and gigui modules are in python/gigui/
-        # If you copied the 'gigui' folder from 'gitinspectorgui-old/src/'
-        # into 'gitinspectorgui/python/', then this structure might work.
-        # You might need to adjust internal imports within the copied gigui modules.
-        sys.path.insert(0, str(Path(__file__).resolve().parent)) # Add 'python' dir to path
-        from gigui.args_settings import Args
-        from gigui.data import IniRepo
-        from gigui.repo_runner import RepoRunner
-        from gigui.runner_queues import RunnerQueues
-        from gigui import shared as gigui_shared
-    except ImportError:
-        print(json.dumps({"error": f"Failed to import gigui modules: {e}. Check PYTHONPATH or script location."}), file=sys.stderr)
-        sys.exit(1)
-
-# Configure logging for API operations
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def create_args_from_dict(settings_dict: Dict[str, Any]) -> Args:
+try:
+    from gigui.api.main import GitInspectorAPI
+    from gigui.api.types import AnalysisResult, Settings
+except ImportError as e:
+    print(
+        json.dumps(
+            {"error": f"Failed to import gigui modules: {e}. Check PYTHONPATH or script location."}
+        ),
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+
+def create_settings_from_dict(settings_dict: dict[str, Any]) -> Settings:
     """
-    Creates an Args object from a dictionary of settings.
+    Creates a Settings object from a dictionary of settings.
     """
-    args = Args()
-    for key, value in settings_dict.items():
-        if hasattr(args, key):
-            # Special handling for n_files, which might be "" in JSON but needs to be int
-            if key == "n_files" and isinstance(value, str):
-                try:
-                    args.n_files = int(value) if value else 0 # Or some default like Args.DEFAULT_N_FILES
-                except ValueError:
-                    args.n_files = 0 # Or default
-            else:
-                setattr(args, key, value)
-        else:
-            logger.warning(f"Unknown setting '{key}' in input JSON, ignoring.")
+    # Provide defaults for all required fields
+    defaults = {
+        "input_fstrs": [],
+        "include_files": [],
+        "ex_files": [],
+        "extensions": [
+            "c",
+            "cc",
+            "cif",
+            "cpp",
+            "glsl",
+            "h",
+            "hh",
+            "hpp",
+            "java",
+            "js",
+            "py",
+            "rb",
+            "sql",
+            "ts",
+        ],
+        "ex_authors": [],
+        "ex_emails": [],
+        "ex_revisions": [],
+        "ex_messages": [],
+        "file_formats": ["html"],
+        "ex_author_patterns": [],
+        "ex_email_patterns": [],
+        "ex_message_patterns": [],
+        "ex_file_patterns": [],
+        "depth": 0,
+        "subfolder": "",
+        "n_files": 0,
+        "since": "",
+        "until": "",
+        "outfile_base": "",
+        "fix": False,
+        "view": False,
+        "copy_move": False,
+        "scaled_percentages": False,
+        "blame_exclusions": False,
+        "blame_skip": False,
+        "show_renames": False,
+        "deletions": False,
+        "whitespace": False,
+        "empty_lines": False,
+        "comments": False,
+        "multithread": True,
+        "multicore": False,
+        "verbosity": 1,
+        "max_thread_workers": 4,
+        "git_log_chunk_size": 1000,
+        "blame_chunk_size": 100,
+        "max_core_workers": 2,
+        "memory_limit_mb": 512,
+        "enable_gc_optimization": True,
+        "max_file_size_kb": 1024,
+        "max_commit_count": 10000,
+        "follow_renames": True,
+        "ignore_merge_commits": False,
+        "ignore_revs_file": "",
+        "enable_ignore_revs": False,
+        "blame_follow_moves": True,
+        "blame_ignore_whitespace": False,
+        "blame_minimal_context": False,
+        "blame_show_email": True,
+        "output_encoding": "utf-8",
+        "date_format": "%Y-%m-%d",
+        "author_display_format": "name",
+        "line_number_format": "decimal",
+        "excel_max_rows": 65536,
+        "excel_abbreviate_names": False,
+        "excel_freeze_panes": True,
+        "html_theme": "default",
+        "html_enable_search": True,
+        "html_max_entries_per_page": 100,
+        "server_port": 8000,
+        "server_host": "127.0.0.1",
+        "max_browser_tabs": 5,
+        "auto_open_browser": False,
+        "dryrun": False,
+        "profile": False,
+        "debug_show_main_event_loop": False,
+        "debug_multiprocessing": False,
+        "debug_git_commands": False,
+        "log_git_output": False,
+        "gui_settings_full_path": "",
+        "col_percent": False,
+        "legacy_mode": False,
+        "preserve_legacy_output_format": False,
+    }
+
+    # Apply defaults for missing fields
+    for key, default_value in defaults.items():
+        if key not in settings_dict or settings_dict[key] is None:
+            settings_dict[key] = default_value
+
+    # Special handling for n_files, which might be "" in JSON but needs to be int
+    if "n_files" in settings_dict and isinstance(settings_dict["n_files"], str):
+        try:
+            settings_dict["n_files"] = (
+                int(settings_dict["n_files"]) if settings_dict["n_files"] else 0
+            )
+        except ValueError:
+            settings_dict["n_files"] = 0
 
     # Ensure input_fstrs is a list
-    if not isinstance(args.input_fstrs, list):
-        args.input_fstrs = []
+    if not isinstance(settings_dict["input_fstrs"], list):
+        settings_dict["input_fstrs"] = []
         logger.warning("'input_fstrs' was not a list or was missing, defaulting to empty list.")
 
-    # Default file_formats if not provided, as RepoRunner might expect it
-    if not args.file_formats:
-        args.file_formats = [] # No file generation, we want raw data
+    try:
+        settings = Settings(**settings_dict)
+        return settings
+    except Exception as e:
+        logger.error(f"Failed to create Settings object: {e}")
+        raise ValueError(f"Invalid settings: {e}") from e
 
-    return args
 
-def process_repository(repo_path_str: str, args: Args) -> Dict[str, Any]:
+def process_repositories(settings: Settings) -> dict[str, Any]:
     """
-    Processes a single repository and returns its analysis data.
+    Processes repositories using the new GitInspectorAPI.
     """
-    repo_path = Path(repo_path_str)
-    if not repo_path.exists() or not repo_path.is_dir():
-        return {"error": f"Repository path not found or not a directory: {repo_path_str}"}
-
-    # gigui modules might rely on shared.cli
-    # gigui_shared.cli = True # Set if logic within gigui depends on this flag
+    if not settings.input_fstrs:
+        return {"error": "No input repository paths provided in settings."}
 
     try:
-        ini_repo = IniRepo(location=str(repo_path.resolve()), args=args, name=repo_path.name)
-        
-        # RepoRunner expects queues, even if we don't use them for multicore processing here.
-        # For a synchronous API call, multicore is false.
-        queues = RunnerQueues(multicore=False) 
-        repo_runner = RepoRunner(ini_repo=ini_repo, queues=queues)
+        api = GitInspectorAPI()
 
-        logger.info(f"Starting analysis for repository: {repo_path_str}")
-        analysis_success = repo_runner.run_analysis()
+        logger.info(f"Starting analysis for {len(settings.input_fstrs)} repositories")
+        result = api.execute_analysis(settings)
 
-        if not analysis_success:
-            logger.warning(f"No statistics found or analysis failed for {repo_path_str}")
-            return {"repo_path": repo_path_str, "status": "no_stats_found_or_failed", "data": {}}
-
-        repo_data: Dict[str, Any] = {
-            "repo_name": repo_runner.name,
-            "repo_path": str(repo_runner.path),
-        }
-
-        # Extract statistical data
-        stats_data: Dict[str, List[Dict[str, Any]]] = {}
-
-        # Authors Stats
-        auth_headers = repo_runner.header_authors(html=False) # Get non-HTML specific headers
-        auth_rows = repo_runner.get_author_rows(html=False)
-        stats_data["authors_stats"] = [dict(zip(auth_headers, row)) for row in auth_rows]
-
-        # Authors-Files Stats
-        auth_files_headers = repo_runner.header_authors_files(html=False)
-        auth_files_rows = repo_runner.get_authors_files_rows(html=False)
-        stats_data["authors_files_stats"] = [dict(zip(auth_files_headers, row)) for row in auth_files_rows]
-        
-        # Files-Authors Stats
-        files_auth_headers = repo_runner.header_files_authors(html=False)
-        files_auth_rows = repo_runner.get_files_authors_rows(html=False)
-        stats_data["files_authors_stats"] = [dict(zip(files_auth_headers, row)) for row in files_auth_rows]
-
-        # Files Stats
-        files_headers = repo_runner.header_files() # html flag not present
-        files_rows = repo_runner.get_files_rows()
-        stats_data["files_stats"] = [dict(zip(files_headers, row)) for row in files_rows]
-        
-        repo_data["statistics"] = stats_data
-
-        # Extract Blame Data
-        if not args.blame_skip:
-            blame_data_by_file: Dict[str, List[Dict[str, Any]]] = {}
-            blame_headers = repo_runner.header_blames(args)
-            
-            # Ensure fstr2blames is populated and accessible
-            # The actual list of files with blame might be repo_runner.fstrs or keys of repo_runner.fstr2blames
-            files_for_blame = []
-            if hasattr(repo_runner, 'fstr2blames') and repo_runner.fstr2blames:
-                 files_for_blame = list(repo_runner.fstr2blames.keys())
-            elif hasattr(repo_runner, 'fstrs') and repo_runner.fstrs: # Fallback if fstr2blames isn't directly available/populated early
-                 files_for_blame = repo_runner.fstrs
-
-            if not files_for_blame:
-                logger.warning(f"No files found for blame processing in {repo_path_str}. 'fstr2blames' or 'fstrs' might be empty.")
-
-            for fstr in files_for_blame:
-                blame_rows, _ = repo_runner.get_fstr_blame_rows(fstr)
-                if blame_rows:
-                    blame_data_by_file[fstr] = [dict(zip(blame_headers, row)) for row in blame_rows]
-            repo_data["blame_data"] = blame_data_by_file
-        else:
-            repo_data["blame_data"] = "skipped"
-
-        logger.info(f"Successfully processed repository: {repo_path_str}")
-        return {"repo_path": repo_path_str, "status": "success", "data": repo_data}
+        if result.success:
+            logger.info(f"Successfully processed {len(result.repositories)} repositories")
+            return {"status": "success", "data": asdict(result)}
+        logger.error(f"Analysis failed: {result.error}")
+        return {"status": "error", "error_message": result.error}
 
     except Exception as e:
-        logger.error(f"Error processing repository {repo_path_str}: {e}", exc_info=True)
-        return {"repo_path": repo_path_str, "status": "error", "error_message": str(e)}
+        logger.error(f"Error processing repositories: {e}", exc_info=True)
+        return {"status": "error", "error_message": str(e)}
+
 
 def main():
+    """Main entry point for command-line usage."""
     # Read settings JSON from stdin
     try:
         input_json_str = sys.stdin.read()
@@ -176,25 +191,40 @@ def main():
         print(json.dumps({"error": f"Error reading from stdin: {e}"}), file=sys.stderr)
         sys.exit(1)
 
-    args = create_args_from_dict(settings_dict)
-    
-    if not args.input_fstrs:
-        print(json.dumps({"error": "No input repository paths ('input_fstrs') provided in settings."}), file=sys.stderr)
+    try:
+        settings = create_settings_from_dict(settings_dict)
+    except ValueError as e:
+        print(json.dumps({"error": str(e)}), file=sys.stderr)
         sys.exit(1)
 
-    all_results = []
-    for repo_path_str in args.input_fstrs:
-        result = process_repository(repo_path_str, args)
-        all_results.append(result)
+    if not settings.input_fstrs:
+        print(
+            json.dumps(
+                {"error": "No input repository paths ('input_fstrs') provided in settings."}
+            ),
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
-    # Output the aggregated results as JSON to stdout
+    result = process_repositories(settings)
+
+    # Output the results as JSON to stdout
     try:
-        output_json = json.dumps(all_results, indent=4)
+        output_json = json.dumps(result, indent=4)
         print(output_json)
     except TypeError as e:
-        # Fallback if complex objects are not serializable (should not happen with current structure)
-        print(json.dumps({"error": f"Failed to serialize results to JSON: {e}", "results_preview": str(all_results)[:500]}), file=sys.stderr)
+        # Fallback if complex objects are not serializable
+        print(
+            json.dumps(
+                {
+                    "error": f"Failed to serialize results to JSON: {e}",
+                    "results_preview": str(result)[:500],
+                }
+            ),
+            file=sys.stderr,
+        )
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

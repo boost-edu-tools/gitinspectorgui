@@ -12,7 +12,7 @@ import time
 from fnmatch import fnmatchcase
 from logging import getLogger
 
-from gigui.typedefs import Author, Email
+from gigui.legacy.typedefs import Author, Email
 
 SECONDS_IN_DAY = 60 * 60 * 24
 DAYS_IN_MONTH = 30.44
@@ -26,19 +26,19 @@ NOW = int(time.time())  # current time as Unix timestamp in seconds since epoch
 class Person:
     """
     Represents a person with multiple author names and email addresses.
-    
+
     This class handles sophisticated identity merging, allowing multiple
     author names and email addresses to be associated with the same person.
     It includes advanced normalization algorithms that prefer names with
     spaces and handle special characters appropriately.
-    
+
     Key Features:
     - Advanced author name normalization (preferring names with spaces)
     - Email pattern matching and merging
     - Filter pattern support for exclusions
     - Identity merging algorithms
     """
-    
+
     show_renames: bool
     ex_author_patterns: list[str] = []
     ex_email_patterns: list[str] = []
@@ -67,30 +67,27 @@ class Person:
     def find_filter_match(self, patterns: list[str], author_or_email: str):
         """
         Check if author or email matches any filter patterns.
-        
+
         Uses case-insensitive fnmatch pattern matching to determine
         if the given author or email should be excluded.
         """
         if (
             not self.filter_matched
             and not author_or_email == "*"
-            and any(
-                fnmatchcase(author_or_email.lower(), pattern.lower())
-                for pattern in patterns
-            )
+            and any(fnmatchcase(author_or_email.lower(), pattern.lower()) for pattern in patterns)
         ):
             self.filter_matched = True
 
     def merge(self, other: "Person") -> "Person":
         """
         Merge another person's identity into this person.
-        
+
         Combines author names, email addresses, and filter status.
         Handles special case where emails are empty strings.
-        
+
         Args:
             other: Another Person instance to merge
-            
+
         Returns:
             Self (for method chaining)
         """
@@ -123,12 +120,12 @@ class Person:
     def get_authors(self) -> list[Author]:
         """
         Get authors sorted by quality preference.
-        
+
         Implements sophisticated author name normalization:
         1. Top authors: Names with spaces and only alphanumeric/space characters
         2. Nice authors: Names with spaces but may have special characters
         3. Other authors: Single names or names with special characters
-        
+
         Returns:
             List of authors sorted by preference and length
         """
@@ -137,9 +134,7 @@ class Person:
 
         # top authors also do not have a period or comma in their name.
         top_authors = {
-            author
-            for author in nice_authors
-            if all(c.isalnum() or c.isspace() for c in author)
+            author for author in nice_authors if all(c.isalnum() or c.isspace() for c in author)
         }
 
         nice_authors = nice_authors - top_authors
@@ -158,26 +153,25 @@ class Person:
     def authors_str(self) -> str:
         """
         Get formatted string representation of authors.
-        
+
         Returns either all authors (if show_renames is True) or just
         the preferred author name.
         """
         if self.show_renames:
             authors = self.get_authors()
             return " | ".join(authors)
-        else:
-            return self.author
+        return self.author
 
     @property
     def emails_str(self) -> str:
         """
         Get formatted string representation of emails.
-        
+
         Implements intelligent email selection:
         - If only one email, return it
         - If show_renames is True, return all emails
         - Otherwise, prefer emails that contain parts of the author name
-        
+
         Returns:
             Formatted email string
         """
@@ -185,38 +179,32 @@ class Person:
         emails = sorted(emails, key=len)
         if len(emails) == 1:
             return emails[0]
-        elif self.show_renames:
+        if self.show_renames:
             return " | ".join(emails)
-        else:
-            email_list = list(self.emails)
-            name_parts = self.author.split()
-            name_parts = [part.lower() for part in name_parts if len(part) >= 3]
-            # If any part with size >= 3 of author name is in the email, use that email
-            nice_emails = [
-                email
-                for email in email_list
-                if any(part in email for part in name_parts)
-            ]
-            if nice_emails:
-                return nice_emails[0]
-            else:
-                return email_list[0]  # assume self.emails cannot be empty
+        email_list = list(self.emails)
+        name_parts = self.author.split()
+        name_parts = [part.lower() for part in name_parts if len(part) >= 3]
+        # If any part with size >= 3 of author name is in the email, use that email
+        nice_emails = [email for email in email_list if any(part in email for part in name_parts)]
+        if nice_emails:
+            return nice_emails[0]
+        return email_list[0]  # assume self.emails cannot be empty
 
 
 class PersonsDB(dict[Author | Email, Person]):
     """
     Database for managing collections of persons with identity merging.
-    
+
     This class provides sophisticated person identity management that can
     merge multiple author names and email addresses that belong to the same
     person. It handles various edge cases like empty authors/emails and
     provides efficient lookup and filtering capabilities.
-    
+
     The database stores found email addresses and usernames of users in the
     analyzed repositories and tries to merge the information if they seem to
     point to the same person. A person can have several usernames and/or
     several email addresses.
-    
+
     Key Features:
     - Automatic identity merging based on shared authors/emails
     - Handling of empty/None authors and emails
@@ -241,22 +229,22 @@ class PersonsDB(dict[Author | Email, Person]):
     def add_person(self, author: Author | None, email: Email | None) -> "Person":
         """
         Add a person to the database with sophisticated identity merging.
-        
+
         This method implements complex logic to handle various cases:
         - Empty authors with non-empty emails (logs warning)
         - Authors with unknown emails
         - Complete author/email pairs with potential merging
-        
+
         Args:
             author: Author name (can be None or empty)
             email: Email address (can be None or empty)
-            
+
         Returns:
             Person object (either existing or newly created)
         """
         author = "" if author is None else author
         email = "" if email is None else email
-        
+
         if author == "":
             if email != "":
                 logger.warning(
@@ -265,42 +253,37 @@ class PersonsDB(dict[Author | Email, Person]):
                 )
             if "" in self:
                 return self[""]
-            else:
-                person = Person("", "")
-                self[""] = person
-                return person
-        elif email == "":
+            person = Person("", "")
+            self[""] = person
+            return person
+        if email == "":
             person = self.add_author_with_unknown_email(author)
             return person
-        else:
-            # Both author and email are known
-            p_author = self.get(author)
-            p_email = self.get(email)
+        # Both author and email are known
+        p_author = self.get(author)
+        p_email = self.get(email)
 
-            if p_author is not None:
-                if p_email is not None:
-                    if p_author == p_email:
-                        return p_author  # existing person
-                    else:
-                        return p_author.merge(p_email)  # merge persons
-                else:
-                    # author exists, email is new
-                    p_author.merge(Person(author, email))
-                    self[email] = p_author
-                    return p_author
-            else:
-                if p_email is not None:
-                    p_email.merge(Person(author, email))
-                    self[author] = p_email
-                    return p_email
-                else:  # new person
-                    person = Person(author, email)
-                    self[author] = person
-                    self[email] = person
-                    return person
+        if p_author is not None:
+            if p_email is not None:
+                if p_author == p_email:
+                    return p_author  # existing person
+                return p_author.merge(p_email)  # merge persons
+            # author exists, email is new
+            p_author.merge(Person(author, email))
+            self[email] = p_author
+            return p_author
+        if p_email is not None:
+            p_email.merge(Person(author, email))
+            self[author] = p_email
+            return p_email
+        # new person
+        person = Person(author, email)
+        self[author] = person
+        self[email] = person
+        return person
 
     def __repr__(self):
-        return "\n".join(f"{key}:\n{repr(person)}" for key, person in self.items())
+        return "\n".join(f"{key}:\n{person!r}" for key, person in self.items())
 
     def __str__(self):
         return "\n".join(str(person) for person in self.persons)
@@ -320,9 +303,7 @@ class PersonsDB(dict[Author | Email, Person]):
     @property
     def filtered_persons(self) -> list["Person"]:
         """Get persons that are not filtered out."""
-        persons_set_filtered = {
-            person for person in self.persons if not person.filter_matched
-        }
+        persons_set_filtered = {person for person in self.persons if not person.filter_matched}
         return sorted(persons_set_filtered, key=lambda x: x.author)
 
     @property
@@ -338,32 +319,30 @@ class PersonsDB(dict[Author | Email, Person]):
     def add_author_with_unknown_email(self, author: Author) -> "Person":
         """
         Add an author with unknown email address.
-        
+
         Args:
             author: Author name
-            
+
         Returns:
             Person object (either existing or newly created)
         """
         if author in self:
             return self[author]
-        else:
-            person = Person(author, "")
-            self[author] = person
-            return person
+        person = Person(author, "")
+        self[author] = person
+        return person
 
     def get_filtered_author(self, author: Author | None) -> Author | None:
         """
         Get author name if not filtered out.
-        
+
         Args:
             author: Author name to check
-            
+
         Returns:
             Author name if not filtered, None otherwise
         """
         person = self[author]
         if person.filter_matched:
             return None
-        else:
-            return person.author
+        return person.author

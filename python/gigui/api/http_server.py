@@ -17,10 +17,10 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from .api import GitInspectorAPI
+from gigui.api.main import GitInspectorAPI
 
 # Import from existing types and API - no duplication
-from .api_types import AnalysisResult, Settings
+from gigui.api.types import AnalysisResult, Settings
 
 # Configure logging - now we can log freely!
 logging.basicConfig(
