@@ -177,16 +177,6 @@ build:
 
 ## Development Integration
 
-### With AI Tools
-
-These scripts integrate well with the project's [AI development ecosystem](../docs/ai-tools/overview.md):
-
--   **Claude.ai**: Research release strategies and best practices
--   **Roo Code**: Orchestrate complex release workflows
--   **Cline**: Make direct script modifications and fixes
-
-### With Development Mode
-
 Scripts work seamlessly with [Development Mode](../docs/development/development-mode.md):
 
 ```bash
@@ -248,4 +238,3 @@ When modifying scripts:
 -   [Deployment Guide](../docs/operations/deployment.md) - Complete deployment process
 -   [Development Mode](../docs/development/development-mode.md) - Development workflow
 -   [Environment Setup](../docs/development/environment-setup.md) - Initial setup
--   [AI Tools Overview](../docs/ai-tools/overview.md) - AI-assisted development

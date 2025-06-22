@@ -36,12 +36,6 @@ Development environment and tooling documentation for GitInspectorGUI contributo
 -   **[API Examples](api/examples.md)** - Usage patterns and code samples
 -   **[Error Handling](api/error-handling.md)** - Error codes and troubleshooting
 
-### AI-Assisted Development
-
--   **[AI Tools Overview](ai-tools/overview.md)** - Development ecosystem
--   **[Cline Guide](ai-tools/cline-guide.md)** - Direct coding assistance
--   **[Roo Code Guide](ai-tools/roo-code-guide.md)** - Multi-agent workflows
-
 ### Architecture & Operations
 
 -   **[System Overview](architecture/overview.md)** - System architecture

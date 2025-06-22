@@ -668,24 +668,6 @@ See [Documentation Deployment Guide](documentation-deployment.md) for details.
     - Track download statistics
     - Plan next iteration
 
-### AI-Assisted Development Integration
-
-This project uses a [three-tool AI ecosystem](../ai-tools/overview.md) for development:
-
-**For Release Management:**
-
--   **Claude.ai**: Research best practices, analyze release notes
--   **Roo Code**: Orchestrate complex release workflows
--   **Cline**: Make direct file updates and fixes
-
-**Recommended Workflow:**
-
-1. Use Claude.ai to research release strategies
-2. Use Roo Code Architect mode to plan release process
-3. Use Cline for direct file modifications and testing
-
----
-
 ## Distribution Best Practices
 
 ### Security
