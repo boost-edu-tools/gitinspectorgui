@@ -26,7 +26,7 @@ from gigui.api.types import (
     AnalysisResult,
     Settings,
 )
-from gigui.legacy.typedefs import SHA, Author, Email, FileStr
+from gigui.typedefs import SHA, Author, Email, FileStr
 
 # Configure logging for API operations
 logging.basicConfig(

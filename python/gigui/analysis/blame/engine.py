@@ -11,7 +11,7 @@ from logging import getLogger
 from gigui.analysis.blame.base import RepoBlameBase
 from gigui.analysis.blame.models import Blame, LineData
 from gigui.core.repository import BLAME_CHUNK_SIZE, MAX_THREAD_WORKERS
-from gigui.legacy.typedefs import SHA, Author, FileStr
+from gigui.typedefs import SHA, Author, FileStr
 
 logger = getLogger(__name__)
 
@@ -257,7 +257,7 @@ class RepoBlameHistory(RepoBlame):
             List of Blame objects for the file at the given commit
         """
         from gigui.analysis.blame.reader import BlameReader
-        from gigui.legacy.typedefs import BlameStr
+        from gigui.typedefs import BlameStr
 
         blame_lines: list[BlameStr]
         blame_lines, _ = self._get_git_blames_for(root_fstr, sha)

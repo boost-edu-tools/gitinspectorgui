@@ -12,7 +12,7 @@ from pathlib import Path
 
 from gigui.analysis.blame.models import Blame, LineData
 from gigui.core.repository import RepoBase
-from gigui.legacy.typedefs import OID, BlameStr, FileStr
+from gigui.typedefs import OID, BlameStr, FileStr
 
 
 class BlameReader:

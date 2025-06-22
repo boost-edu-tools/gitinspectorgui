@@ -11,7 +11,7 @@ from git import Repo as GitRepo
 
 from gigui.analysis.blame.models import Blame
 from gigui.core.repository import RepoBase
-from gigui.legacy.typedefs import SHA, Author, BlameStr, FileStr
+from gigui.typedefs import SHA, Author, BlameStr, FileStr
 
 
 class RepoBlameBase(RepoBase):

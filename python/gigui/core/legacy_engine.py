@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from gigui.analysis.performance.monitor import profiler
+from gigui.performance_monitor import profiler
 from gigui.api.types import (
     AnalysisResult,
     AuthorStat,
@@ -37,7 +37,7 @@ from gigui.api.types import (
 )
 from gigui.core.orchestrator import RepoData
 from gigui.core.statistics import IniRepo
-from gigui.utils.common import format_bytes, safe_divide, validate_file_path
+from gigui.common import format_bytes, safe_divide, validate_file_path
 
 logger = logging.getLogger(__name__)
 

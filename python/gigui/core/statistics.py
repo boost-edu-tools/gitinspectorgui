@@ -24,7 +24,7 @@ from math import floor
 from pathlib import Path
 
 from gigui.core.person_manager import Person
-from gigui.legacy.typedefs import (
+from gigui.typedefs import (
     SHA,
     AgeString,
     Author,

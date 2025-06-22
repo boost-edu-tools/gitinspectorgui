@@ -12,7 +12,7 @@ import time
 from fnmatch import fnmatchcase
 from logging import getLogger
 
-from gigui.legacy.typedefs import Author, Email
+from gigui.typedefs import Author, Email
 
 SECONDS_IN_DAY = 60 * 60 * 24
 DAYS_IN_MONTH = 30.44

@@ -8,7 +8,7 @@ line data and blame information with complete metadata.
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from gigui.legacy.typedefs import OID, SHA, Author, Email, FileStr
+from gigui.typedefs import OID, SHA, Author, Email, FileStr
 
 
 @dataclass

@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from gigui.utils import (
+from gigui import (
     divide_to_percentage,
     format_bytes,
     get_digit,

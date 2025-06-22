@@ -19,7 +19,7 @@ from pathlib import Path
 from pstats import Stats
 from typing import Any
 
-from gigui.legacy.typedefs import FileStr
+from gigui.typedefs import FileStr
 
 # Constants
 STDOUT = True

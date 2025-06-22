@@ -29,7 +29,7 @@ from typing import TypeVar
 from gigui.analysis.blame.engine import RepoBlameHistory
 from gigui.core.person_manager import PersonsDB
 from gigui.core.statistics import CommitGroup, FileStat, IniRepo, Person, PersonStat
-from gigui.legacy.typedefs import SHA, Author, FileStr, PercentageValue
+from gigui.typedefs import SHA, Author, FileStr, PercentageValue
 
 logger = getLogger(__name__)
 

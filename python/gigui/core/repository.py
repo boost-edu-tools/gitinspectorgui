@@ -34,7 +34,7 @@ from git import Repo as GitRepo
 
 from gigui.core.person_manager import PersonsDB
 from gigui.core.statistics import CommitGroup, FileStat, IniRepo
-from gigui.legacy.typedefs import (
+from gigui.typedefs import (
     OID,
     SHA,
     CommitGroupsDict,
