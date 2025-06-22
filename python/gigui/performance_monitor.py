@@ -4,17 +4,10 @@ Performance monitoring utilities for GitInspectorGUI analysis.
 
 import time
 import logging
+import psutil
 from contextlib import contextmanager
 from typing import Dict, Any, Optional
 from dataclasses import dataclass, field
-
-try:
-    import psutil
-
-    HAS_PSUTIL = True
-except ImportError:
-    HAS_PSUTIL = False
-    print("Warning: psutil not available, memory monitoring disabled")
 
 logger = logging.getLogger(__name__)
 
@@ -60,22 +53,17 @@ class PerformanceProfiler:
         if self.current_step:
             logger.warning(f"Starting step '{name}' while '{self.current_step}' is still active")
 
-        memory_mb = 0
-        if HAS_PSUTIL:
-            try:
-                memory_mb = psutil.Process().memory_info().rss / 1024 / 1024
-            except:
-                memory_mb = 0
+        try:
+            memory_mb = psutil.Process().memory_info().rss / 1024 / 1024
+        except:
+            memory_mb = 0
 
         self.steps[name] = PerformanceStep(
             name=name, start_time=time.time(), memory_before_mb=memory_mb
         )
         self.current_step = name
 
-        if HAS_PSUTIL:
-            logger.info(f"Started step: {name} (Memory: {memory_mb:.1f}MB)")
-        else:
-            logger.info(f"Started step: {name}")
+        logger.info(f"Started step: {name} (Memory: {memory_mb:.1f}MB)")
 
     def end_step(self, name: str):
         """End timing a specific step."""
@@ -86,25 +74,19 @@ class PerformanceProfiler:
         step = self.steps[name]
         step.end_time = time.time()
 
-        if HAS_PSUTIL:
-            try:
-                step.memory_after_mb = psutil.Process().memory_info().rss / 1024 / 1024
-            except:
-                step.memory_after_mb = step.memory_before_mb
-        else:
+        try:
+            step.memory_after_mb = psutil.Process().memory_info().rss / 1024 / 1024
+        except:
             step.memory_after_mb = step.memory_before_mb
 
         if self.current_step == name:
             self.current_step = None
 
-        if HAS_PSUTIL:
-            logger.info(
-                f"Completed step: {name} ({step.duration_ms:.1f}ms, "
-                f"Memory: {step.memory_after_mb:.1f}MB, "
-                f"Delta: {step.memory_delta_mb:+.1f}MB)"
-            )
-        else:
-            logger.info(f"Completed step: {name} ({step.duration_ms:.1f}ms)")
+        logger.info(
+            f"Completed step: {name} ({step.duration_ms:.1f}ms, "
+            f"Memory: {step.memory_after_mb:.1f}MB, "
+            f"Delta: {step.memory_delta_mb:+.1f}MB)"
+        )
 
     def get_summary(self) -> Dict[str, Any]:
         """Get performance summary."""

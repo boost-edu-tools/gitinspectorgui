@@ -43,8 +43,8 @@ DAYS_IN_YEAR = 365.25
 DAYS_IN_MONTH = 30.44
 
 
-# Import legacy engine after api_types to avoid circular imports
-from gigui.core.legacy_engine import legacy_engine
+# Import at module level
+from gigui.core.legacy_engine import LegacyEngineWrapper
 
 
 @dataclass
@@ -432,7 +432,7 @@ class GitInspectorAPI:
     Wrapper for enhanced performance and capabilities.
     """
 
-    def __init__(self):
+    def __init__(self, engine=None):
         """Initialize the API with legacy engine integration."""
         self.settings_file = Path.home() / ".gitinspectorgui" / "settings.json"
         self.settings_file.parent.mkdir(exist_ok=True)
@@ -440,10 +440,13 @@ class GitInspectorAPI:
         # Initialize performance tracking
         self._api_start_time = time.time()
         self._analysis_count = 0
+        
+        # Use dependency injection for the engine
+        self.engine = engine or LegacyEngineWrapper()
 
         logger.info("GitInspectorAPI initialized with Legacy Engine Wrapper integration")
         logger.info(
-            f"Legacy Engine capabilities: {len(legacy_engine.get_engine_info()['capabilities'])} features"
+            f"Legacy Engine capabilities: {len(self.engine.get_engine_info()['capabilities'])} features"
         )
 
     def get_settings(self) -> Settings:
@@ -539,7 +542,7 @@ class GitInspectorAPI:
         try:
             # Validate settings before delegating to legacy engine
             logger.debug("Validating settings with legacy engine")
-            is_valid, error_msg = legacy_engine.validate_settings(settings)
+            is_valid, error_msg = self.engine.validate_settings(settings)
             if not is_valid:
                 logger.error(f"Settings validation failed: {error_msg}")
                 return AnalysisResult(
@@ -620,7 +623,7 @@ class GitInspectorAPI:
             logger.info("=== DELEGATING TO LEGACY ENGINE WRAPPER ===")
             logger.debug("Calling legacy_engine.execute_analysis()")
 
-            result = legacy_engine.execute_analysis(settings)
+            result = self.engine.execute_analysis(settings)
 
             analysis_time = time.time() - start_time
             logger.info(f"Legacy engine analysis completed in {analysis_time:.2f} seconds")
@@ -684,7 +687,7 @@ class GitInspectorAPI:
         Returns:
             Dictionary with engine information and capabilities
         """
-        engine_info = legacy_engine.get_engine_info()
+        engine_info = self.engine.get_engine_info()
         engine_info["api_integration"] = {
             "version": "4.0.0",
             "integration_complete": True,
@@ -704,7 +707,7 @@ class GitInspectorAPI:
         Returns:
             Tuple of (is_valid, error_message)
         """
-        return legacy_engine.validate_settings(settings)
+        return self.engine.validate_settings(settings)
 
     def get_performance_stats(self) -> dict:
         """

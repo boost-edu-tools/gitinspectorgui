@@ -11,21 +11,13 @@ import sys
 from dataclasses import asdict
 from typing import Any
 
+# Import required modules
+from gigui.api.main import GitInspectorAPI
+from gigui.api.types import AnalysisResult, Settings
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-try:
-    from gigui.api.main import GitInspectorAPI
-    from gigui.api.types import AnalysisResult, Settings
-except ImportError as e:
-    print(
-        json.dumps(
-            {"error": f"Failed to import gigui modules: {e}. Check PYTHONPATH or script location."}
-        ),
-        file=sys.stderr,
-    )
-    sys.exit(1)
 
 
 def create_settings_from_dict(settings_dict: dict[str, Any]) -> Settings:

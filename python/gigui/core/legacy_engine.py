@@ -22,6 +22,7 @@ Classes:
 
 import logging
 import time
+import psutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -467,16 +468,8 @@ class PerformanceMonitor:
 
     def _get_memory_usage(self) -> float:
         """Get current memory usage in MB."""
-        try:
-            import psutil
-
-            process = psutil.Process()
-            return process.memory_info().rss / 1024 / 1024  # Convert to MB
-        except ImportError:
-            # Fallback if psutil not available
-            import resource
-
-            return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024  # Convert to MB
+        process = psutil.Process()
+        return process.memory_info().rss / 1024 / 1024  # Convert to MB
 
 
 class LegacyEngineWrapper:
