@@ -60,68 +60,15 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.ruff]
-line-length = 100
 target-version = "py313"
 
 [tool.ruff.lint]
-select = [
-    "E",
-    "F",
-    "W",
-    "I",
-    "N",
-    "UP",
-    "YTT",
-    "S",
-    "BLE",
-    "FBT",
-    "B",
-    "A",
-    "COM",
-    "C4",
-    "DTZ",
-    "T10",
-    "EM",
-    "EXE",
-    "FA",
-    "ISC",
-    "ICN",
-    "G",
-    "INP",
-    "PIE",
-    "T20",
-    "PYI",
-    "PT",
-    "Q",
-    "RSE",
-    "RET",
-    "SLF",
-    "SLOT",
-    "SIM",
-    "TID",
-    "TCH",
-    "INT",
-    "ARG",
-    "PTH",
-    "TD",
-    "FIX",
-    "ERA",
-    "PD",
-    "PGH",
-    "PL",
-    "TRY",
-    "FLY",
-    "NPY",
-    "AIR",
-    "PERF",
-    "FURB",
-    "LOG",
-    "RUF",
+select = ["ALL"]
+ignore = [
+    "E501",   # Line too long (handled by formatter)
+    "COM812", # Trailing comma missing (conflicts with formatter)
+    "COM819", # Trailing comma prohibited (conflicts with formatter)
+    "ISC001", # Single line implicit string concat (conflicts with formatter)
+    "Q",      # Quote style (do not care about this, formatter produces correct quotes)
+    # Add any other rules you want to ignore
 ]
-ignore = ["E501", "COM812", "ISC001"]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
