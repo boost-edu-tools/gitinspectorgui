@@ -8,6 +8,7 @@ and converting it into structured Blame and LineData objects.
 import copy
 import re
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
 
 from gigui.analysis.blame.models import Blame, LineData
@@ -164,8 +165,6 @@ class BlameReader:
         Returns:
             Tuple of (Blame object, next line index)
         """
-        from datetime import datetime
-
         b: Blame = Blame()
         b.oid = oid
         b.sha = self.repo.oid2sha[b.oid]
