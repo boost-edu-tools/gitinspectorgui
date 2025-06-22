@@ -12,10 +12,11 @@ from pathlib import Path
 # Add the gigui package to the path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from gigui.repo_data import RepoData, StatTables, divide_to_percentage
-from gigui.data import IniRepo, CommitGroup, FileStat, PersonStat
-from gigui.person_data import PersonsDB, Person
-from gigui.typedefs import SHA, Author, FileStr
+from gigui.common import divide_to_percentage
+from gigui.core.orchestrator import RepoData, StatTables
+from gigui.core.statistics import PersonStat, FileStat, CommitGroup
+from gigui.core.person_manager import PersonsDB, Person
+from gigui.typedefs import SHA, Author, FileStr, IniRepo
 
 
 def test_divide_to_percentage():
@@ -91,7 +92,7 @@ def test_repo_data_structure():
 
     # Create test repository configuration
     test_repo_path = Path("/tmp/test_repo")
-    ini_repo = IniRepo(name="test_repo", location=test_repo_path, args=None)
+    ini_repo = IniRepo(name="test_repo", location=str(test_repo_path))
 
     # Note: We can't fully test RepoData without a real git repository,
     # but we can test the initialization and structure

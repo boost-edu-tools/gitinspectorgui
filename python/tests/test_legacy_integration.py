@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from gigui.api import Settings, GitInspectorAPI
-from gigui.legacy_engine import legacy_engine
+from gigui.core.legacy_engine import legacy_engine
 
 
 def test_legacy_engine_integration():
@@ -47,7 +47,7 @@ def test_legacy_engine_as_api_replacement():
         settings = Settings(input_fstrs=[temp_dir], extensions=["py"], n_files=10)
 
         # Mock the RepoData to avoid actual git operations
-        with patch("gigui.legacy_engine.RepoData") as mock_repo_data_class:
+        with patch("gigui.core.legacy_engine.RepoData") as mock_repo_data_class:
             # Create a mock repo data with minimal structure
             mock_repo_data = Mock()
             mock_repo_data.path = Path(temp_dir)

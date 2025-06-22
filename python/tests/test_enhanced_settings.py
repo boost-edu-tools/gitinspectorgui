@@ -9,7 +9,8 @@ and pattern-based filtering capabilities.
 import json
 import tempfile
 from pathlib import Path
-from gigui.api import Settings, Person, GitInspectorAPI
+from gigui.api import Settings, GitInspectorAPI
+from gigui.core.person_manager import Person
 
 
 def test_basic_settings_creation():
@@ -192,7 +193,8 @@ def test_person_filtering():
     )
 
     # Configure Person class
-    Person.configure_from_settings(settings)
+    Person.ex_author_patterns = settings.ex_author_patterns + settings.ex_authors
+    Person.ex_email_patterns = settings.ex_email_patterns + settings.ex_emails
 
     # Test filtering
     test_cases = [
