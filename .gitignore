@@ -167,5 +167,9 @@ test-build/
 # VSCode settings
 .vscode/
 
-# Tauri backup file
-src-tauri/tauri.conf.json.backup
+# Backup files
+*.backup
+*~
+*.bak
+*.old
+*.tmp
