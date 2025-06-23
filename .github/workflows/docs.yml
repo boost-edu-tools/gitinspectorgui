@@ -57,9 +57,9 @@ jobs:
       - name: Test documentation build
         run: |
           # Make script executable
-          chmod +x ./scripts/test-docs-build-github.sh
+          chmod +x ./scripts/test-docs-build.sh
           # Run your comprehensive test script
-          ./scripts/test-docs-build-github.sh
+          ./scripts/test-docs-build.sh
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
