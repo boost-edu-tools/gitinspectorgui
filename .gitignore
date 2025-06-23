@@ -95,7 +95,6 @@ dist
 .cache/
 public
 
-
 # Serverless directories
 .serverless/
 
@@ -166,3 +165,6 @@ test-build/
 
 # VSCode settings
 .vscode/
+
+# Tauri backup file
+src-tauri/tauri.conf.json.backup
