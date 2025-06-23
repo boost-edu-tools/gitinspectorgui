@@ -166,3 +166,10 @@ test-build/
 *.bak
 *.old
 *.tmp
+
+# Temporarily ignore lock files
+# This is to prevent accidental commits of lock files during development.
+# Comment the following lines if you want to include lock files in your project.
+src-tauri/Cargo.lock
+pnpm-lock.yaml
+uv.lock
