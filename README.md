@@ -11,8 +11,8 @@ For the stable, production-ready version, please use the original GitInspectorGU
 
 ## 🚀 Quick Links
 
-- **📖 Documentation**: [edu-boost.gitlab.io/gitinspectorgui](https://edu-boost.gitlab.io/gitinspectorgui)
-- **🎮 Live Demo**: [edu-boost.gitlab.io/gitinspectorgui/demo](https://edu-boost.gitlab.io/gitinspectorgui/demo)
+- **📖 Documentation**: [davbeek.github.io/gitinspectorgui/](https://davbeek.github.io/gitinspectorgui/)
+- **🎮 Live Demo**: [davbeek.github.io/gitinspectorgui/demo](https://davbeek.github.io/gitinspectorgui/demo)
 
 ## ⚡ Quick Start
 
@@ -54,8 +54,8 @@ pnpm run tauri dev
 
 ## 📞 Support
 
-- **Documentation**: [Complete guides and API reference](https://edu-boost.gitlab.io/gitinspectorgui)
-- **Issues**: Use GitLab Issues for bug reports and feature requests
+- **Documentation**: [Complete guides and API reference](https://davbeek.github.io/gitinspectorgui/)
+- **Issues**: Use GitHub Issues for bug reports and feature requests
 
 ---
 
