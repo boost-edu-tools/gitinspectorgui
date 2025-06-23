@@ -1,7 +1,7 @@
 site_name: GitInspectorGUI Developer Documentation
 site_description: Developer documentation for GitInspectorGUI desktop application
-site_url: https://davbeek.github.io/gitinspectorgui
-# Note: Update URLs above when forking/moving this project
+site_url: https://boost-edu-tools.github.io/gitinspectorgui
+# Note: Updated URL after repository transfer to boost-edu-tools organization
 
 theme:
   name: material
@@ -57,7 +57,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Technology Primer: technology-primer.md
-  - Demo: https://edu-boost.gitlab.io/gitinspectorgui/demo/
+  - Demo: https://boost-edu-tools.github.io/gitinspectorgui/demo/
   - Getting Started:
       - Prerequisites: getting-started/01-prerequisites.md
       - Installation: getting-started/02-installation.md
@@ -92,10 +92,10 @@ nav:
       - Monitoring: operations/monitoring.md
       - Maintenance: operations/maintenance.md
 
-repo_url: https://gitlab.com/edu-boost/gitinspectorgui
-edit_uri: -/edit/main/docs/
+repo_url: https://github.com/boost-edu-tools/gitinspectorgui
+edit_uri: edit/main/docs/
 
 extra:
   social:
-    - icon: fontawesome/brands/gitlab
-      link: https://gitlab.com/edu-boost/gitinspectorgui
+    - icon: fontawesome/brands/github
+      link: https://github.com/boost-edu-tools/gitinspectorgui
