@@ -7,7 +7,7 @@ Modern desktop application for git repository analysis with Tauri + React + Type
 **This version of GitInspectorGUI is currently under development and not yet ready for production use.**
 
 For the stable, production-ready version, please use the original GitInspectorGUI which has been renamed and relocated to:
-[https://github.com/davbeek/gitinspectorgui-old](https://github.com/davbeek/gitinspectorgui-old)
+[https://github.com/boost-edu-tools/gitinspectorgui-old](https://github.com/boost-edu-tools/gitinspectorgui-old)
 
 ## 🚀 Quick Links
 
