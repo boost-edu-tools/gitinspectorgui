@@ -70,5 +70,7 @@ ignore = [
     "COM819", # Trailing comma prohibited (conflicts with formatter)
     "ISC001", # Single line implicit string concat (conflicts with formatter)
     "Q",      # Quote style (do not care about this, formatter produces correct quotes)
+    "D203",   # incorrect-blank-line-before-class (incompatible with D211)
+    "D213",   # multi-line-summary-second-line (incompatible with D212)
     # Add any other rules you want to ignore
 ]
