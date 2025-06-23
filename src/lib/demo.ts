@@ -1,15 +1,15 @@
 /**
- * Detects if the app is running in demo mode (on GitLab Pages)
+ * Detects if the app is running in demo mode (on GitHub Pages)
  */
 export function isDemoMode(): boolean {
-    // Check if we're running on GitLab Pages
+    // Check if we're running on GitHub Pages
     if (typeof window !== "undefined") {
         const hostname = window.location.hostname;
         const pathname = window.location.pathname;
 
-        // GitLab Pages detection - group pages or project pages
+        // GitHub Pages detection - group pages or project pages
         if (
-            hostname.includes("gitlab.io") &&
+            hostname.includes("github.io") &&
             (pathname.includes("/gitinspectorgui") ||
                 hostname.includes("gitinspectorgui"))
         ) {
@@ -25,11 +25,11 @@ export function isDemoMode(): boolean {
  */
 export function getBaseUrl(): string {
     if (isDemoMode()) {
-        // For group pages, use /gitinspectorgui as base
+        // For GitHub Pages organization site, use /gitinspectorgui as base
         if (window.location.pathname.includes("/gitinspectorgui")) {
             return "/gitinspectorgui";
         }
-        // For project pages, use root
+        // For GitHub Pages project site, use root
         return "";
     }
     return "";

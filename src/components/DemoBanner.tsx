@@ -26,7 +26,7 @@ export function DemoBanner() {
                         View Docs
                     </a>
                     <a
-                        href="https://gitlab.com/edu-boost/gitinspectorgui/-/releases"
+                        href="https://github.com/boost-edu-tools/gitinspectorgui/releases"
                         className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
                         target="_blank"
                         rel="noopener noreferrer"
