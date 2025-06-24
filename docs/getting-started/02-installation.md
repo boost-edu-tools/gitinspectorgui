@@ -41,7 +41,7 @@ source .venv/bin/activate
 
 On Windows:
 
-```bash
+```powershell
 .venv\Scripts\activate
 ```
 
