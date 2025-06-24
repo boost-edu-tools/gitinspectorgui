@@ -1,6 +1,8 @@
-# GitinspectorGUI documentation
+# GitinspectorGUI User Documentation
 
 Welcome to the GitinspectorGUI user documentation. This documentation provides information on how to use GitinspectorGUI, a tool for detailed quantitative analysis of Git repositories.
+
+**Note**: For developer documentation, see the Developer Home tab in the navigation bar above.
 
 ## Contents
 

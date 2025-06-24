@@ -2,7 +2,7 @@
 
 Development environment and tooling documentation for GitInspectorGUI contributors.
 
-**Note**: For application usage and features, see the main documentation at [gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
+**Note**: For application usage and features, see the [User Documentation](user-pandocs/index.md) tab in the navigation bar above, or visit [gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
 
 ## Quick Navigation
 
