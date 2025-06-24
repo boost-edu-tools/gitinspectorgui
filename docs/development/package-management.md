@@ -76,22 +76,16 @@ The JavaScript ecosystem prioritized convenience and rapid development, acceptin
     -   **JavaScript packages**: Mostly pure JavaScript, easily portable and duplicatable
     -   **Python packages**: Often include compiled extensions tied to specific Python versions and system architectures
 
-### Practical Impact
+    #### Practical Impact
 
-**JavaScript developers** can seamlessly work across multiple projects without thinking about dependency management.
+    **JavaScript developers** can seamlessly work across multiple projects without thinking about dependency management.
 
-**Python developers** must manually manage environments for each project, requiring:
+    **Python developers** must manually manage environments for each project, requiring:
 
--   Creating virtual environments (`python -m venv .venv`)
--   Activating environments (`source .venv/bin/activate`)
--   Remembering to switch environments when changing projects
--   Deactivating when done (`deactivate`)
-
-### Current State
-
-While tools like `uv` can speed up Python package installation and environment creation, the fundamental difference remains: JavaScript provides automatic dependency isolation, while Python requires manual virtual environment switching for proper project isolation.
-
-This architectural difference affects developer workflow, documentation complexity, and onboarding processes across the two ecosystems.
+    -   Creating virtual environments (`uv venv`)
+    -   Activating environments (`source .venv/bin/activate`)
+    -   Remembering to switch environments when changing projects
+    -   Deactivating when done (`deactivate`)
 
 ## Python Dependencies (uv)
 
