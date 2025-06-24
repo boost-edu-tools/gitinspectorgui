@@ -10,34 +10,85 @@ Set up the GitInspectorGUI development environment after installing prerequisite
 
 ### 1. Clone Repository
 
+Clone the repository and navigate to the project directory:
+
+On macOS/Linux:
+
 ```bash
 git clone https://gitlab.com/your-username/gitinspectorgui.git
 cd gitinspectorgui
 ```
 
-### 2. Install Dependencies
+On Windows:
 
-Now we'll install dependencies for both the Python backend and the React/TypeScript frontend:
-
-```bash
-# Install Python dependencies (backend)
-uv sync
-# This reads pyproject.toml and installs all Python packages needed for the FastAPI server
-
-# Install JavaScript/TypeScript dependencies (frontend)
-pnpm install
-# This reads package.json and installs all React/TypeScript packages needed for the UI
-
-# Install Tauri CLI globally (desktop app framework)
-pnpm add -g @tauri-apps/cli
-# This gives you the 'tauri' command for building desktop applications
+```powershell
+git clone https://gitlab.com/your-username/gitinspectorgui.git
+cd gitinspectorgui
 ```
 
-**What each command does**:
+> **Note for Windows users**: If you encounter any Git-related issues, ensure Git is properly installed and configured as described in the [Prerequisites](01-prerequisites.md) page. You may need to use Git Bash instead of PowerShell if you prefer a Unix-like terminal experience.
 
--   `uv sync`: Installs Python packages like FastAPI, GitPython, etc.
--   `pnpm install`: Installs React, TypeScript, Vite, and other frontend tools
--   `pnpm add -g @tauri-apps/cli`: Installs the Tauri command-line tool globally
+### 2. Install Dependencies
+
+Now we'll install dependencies for both the Python backend and the React/TypeScript frontend.
+
+#### Python Backend Setup
+
+First, create a Python virtual environment:
+
+```bash
+uv venv
+```
+
+This creates an isolated Python environment in the `.venv` directory.
+
+Next, activate the virtual environment:
+
+On macOS/Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+On Windows:
+
+```bash
+.venv\Scripts\activate
+```
+
+> **Note for Windows users**: If you get an execution policy error in PowerShell, run:
+>
+> ```powershell
+> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+> ```
+
+Now install the Python dependencies:
+
+```bash
+uv sync
+```
+
+This reads `pyproject.toml` and installs all Python packages needed for the FastAPI server.
+
+#### Frontend Setup
+
+Install JavaScript/TypeScript dependencies:
+
+```bash
+pnpm install
+```
+
+This reads `package.json` and installs all React/TypeScript packages needed for the UI.
+
+Install Tauri CLI globally:
+
+```bash
+pnpm add -g @tauri-apps/cli
+```
+
+This gives you the `tauri` command for building desktop applications.
+
+> **Note**: For more detailed information about package management in this project, including advanced usage of `uv` and `pnpm`, see the [Package Management documentation](../development/package-management.md).
 
 ## Verification
 
@@ -47,11 +98,15 @@ Let's test that everything is installed correctly by running each part of the sy
 
 First, let's verify the Python backend works independently:
 
-```bash
-# Start the FastAPI server
-python -m gigui.start_server
+1. Start the FastAPI server:
 
-# In a new terminal, test the health endpoint
+```bash
+python -m gigui.start_server
+```
+
+2. In a new terminal, test the health endpoint:
+
+```bash
 curl http://127.0.0.1:8000/health
 ```
 
@@ -79,6 +134,8 @@ Now let's test the complete desktop application:
 ```bash
 pnpm run tauri dev
 ```
+
+This command starts the development version of the desktop application.
 
 **What should happen**:
 
@@ -114,7 +171,7 @@ pnpm run tauri dev
 If using VS Code:
 
 1. `Ctrl+Shift+P` → "Python: Select Interpreter"
-2. Choose `.venv/bin/python` (created by `uv sync`)
+2. Choose `.venv/bin/python` (created by `uv venv`)
 
 ## Troubleshooting
 
@@ -122,31 +179,42 @@ If using VS Code:
 
 **Python module not found:**
 
+Reinstall dependencies:
+
 ```bash
-uv sync  # Reinstall dependencies
+uv sync
 ```
 
 **Rust compilation errors:**
 
+Update your Rust toolchain:
+
 ```bash
-rustup update  # Update Rust toolchain
+rustup update
 ```
 
 **Port 8000 in use:**
 
-```bash
-# macOS/Linux
-lsof -ti:8000 | xargs kill -9
+Free up the port:
 
-# Windows
+On macOS/Linux:
+
+```bash
+lsof -ti:8000 | xargs kill -9
+```
+
+On Windows:
+
+```bash
 netstat -ano | findstr :8000
 taskkill /PID <PID> /F
 ```
 
 **Node.js permissions:**
 
+Fix permission issues on macOS/Linux:
+
 ```bash
-# macOS/Linux
 sudo chown -R $(whoami) ~/.local/share/pnpm
 ```
 
