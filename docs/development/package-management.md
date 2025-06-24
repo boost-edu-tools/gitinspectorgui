@@ -295,26 +295,35 @@ pnpm install
 
 ### VS Code Setup
 
-**Python Environment:**
+#### Python Environment Selection
+
+When working with Python projects in VS Code, you need to select the correct Python interpreter:
 
 1. `Ctrl+Shift+P` → "Python: Select Interpreter"
-2. Choose `.venv/bin/python`
+2. Choose `.venv/bin/python` (or your project's virtual environment)
 
-**Task Configuration (.vscode/tasks.json):**
+VS Code handles Python environments differently from terminal-based workflows:
+
+-   **Auto-detection**: VS Code often automatically detects virtual environments in common locations (like `.venv/` folders)
+-   **Workspace memory**: Once selected, VS Code remembers the interpreter in workspace settings
+-   **Terminal integration**: When you open an integrated terminal after selecting a venv interpreter, VS Code usually auto-activates that environment
+
+**Best practice workflow:**
+
+1. Open your project in VS Code
+2. Select the Python interpreter (`Ctrl+Shift+P` → "Python: Select Interpreter")
+3. Choose your project's virtual environment
+4. VS Code will remember this choice and auto-activate the venv in new terminals
+
+You can also create a `.vscode/settings.json` file in your project root for team consistency:
 
 ```json
 {
-    "label": "Start Tauri Dev",
-    "type": "shell",
-    "command": "pnpm",
-    "args": ["run", "tauri", "dev"]
+    "python.pythonPath": ".venv/bin/python"
 }
 ```
 
-### PyCharm Setup
-
-1. File → Settings → Project → Python Interpreter
-2. Add → Existing Environment → `.venv/bin/python`
+This ensures the correct interpreter is automatically selected when anyone opens the project.
 
 ## CI/CD Integration
 
