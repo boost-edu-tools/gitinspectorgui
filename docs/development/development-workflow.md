@@ -186,6 +186,6 @@ For specific debugging commands, see [Backend Debugging Commands](development-co
 ## Related Documentation
 
 -   **[Environment Setup](environment-setup.md)** - Development configuration
--   **[Package Management](package-management.md)** - Dependencies and tools
+-   **[Package Management](package-management-overview.md)** - Dependencies and tools
 -   **[API Reference](../api/reference.md)** - Full API documentation
 -   **[Technology Primer](../technology-primer.md)** - Understanding the full stack when needed

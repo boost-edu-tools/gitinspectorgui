@@ -88,7 +88,7 @@ pnpm add -g @tauri-apps/cli
 
 This gives you the `tauri` command for building desktop applications.
 
-> **Note**: For more detailed information about package management in this project, including advanced usage of `uv` and `pnpm`, see the [Package Management documentation](../development/package-management.md).
+> **Note**: For more detailed information about package management in this project, including advanced usage of `uv` and `pnpm`, see the [Package Management documentation](../development/package-management-overview.md).
 
 ## Verification
 

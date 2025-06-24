@@ -128,4 +128,4 @@ graph LR
 ## Related Documentation
 
 -   **[Development Environment](../development/environment-setup.md)** - Setup instructions
--   **[Package Management](../development/package-management.md)** - Frontend dependencies
+-   **[Package Management](../development/package-management-overview.md)** - Frontend dependencies
