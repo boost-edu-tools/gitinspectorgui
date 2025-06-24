@@ -55,6 +55,30 @@ markdown_extensions:
     - md_in_html
 
 nav:
+    - User docs:
+          - Home: user-docs/index.md
+          - Overview: user-docs/overview.md
+          - Installation: user-docs/install.md
+          - GUI: user-docs/gui.md
+          - CLI: user-docs/cli.md
+          - Output: user-docs/output.md
+          - Examples: user-docs/examples.md
+          - Supported: user-docs/supported.md
+          - FAQ: user-docs/faq.md
+          - Development: user-docs/develop.md
+          - Issues: user-docs/issues.md
+    - User pandocs:
+          - Home: user-pandocs/index.md
+          - Overview: user-pandocs/overview.md
+          - Installation: user-pandocs/install.md
+          - GUI: user-pandocs/gui.md
+          - CLI: user-pandocs/cli.md
+          - Output: user-pandocs/output.md
+          - Examples: user-pandocs/examples.md
+          - Supported: user-pandocs/supported.md
+          - FAQ: user-pandocs/faq.md
+          - Development: user-pandocs/develop.md
+          - Issues: user-pandocs/issues.md
     - Home: index.md
     - Technology Primer: technology-primer.md
     - Demo: https://boost-edu-tools.github.io/gitinspectorgui/demo/
