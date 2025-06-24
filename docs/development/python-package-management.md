@@ -63,6 +63,28 @@ uv --version  # Should show uv 0.6.x+
 
 ## Development Workflow
 
+### Initial Setup
+
+Before installing dependencies or working with the project, you need to create and activate a virtual environment:
+
+```bash
+# Create a virtual environment in the .venv directory
+uv venv
+
+# Activate the virtual environment
+# On macOS/Linux:
+source .venv/bin/activate
+# On Windows:
+.venv\Scripts\activate
+
+```
+
+Your terminal prompt should now show `(.venv)` indicating the environment is active
+
+### Package Management
+
+Once your virtual environment is set up and activated, you can proceed with dependency management:
+
 ```bash
 # Install dependencies
 uv sync
