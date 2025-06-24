@@ -9,7 +9,7 @@ This guide covers Python package management in GitInspectorGUI using `uv`, a fas
 
 ## Overview
 
-GitInspectorGUI uses `uv` for Python package management. uv is a modern Python package manager that offers significant speed improvements over traditional tools like pip and virtualenv.
+GitInspectorGUI uses `uv` for Python package management. uv is a modern Python package manager that offers significant improvements over traditional tools, including speed enhancements, advanced dependency resolution, and a unified toolchain, among others.
 
 ## Benefits
 

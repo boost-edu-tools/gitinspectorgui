@@ -12,21 +12,10 @@ Set up the GitInspectorGUI development environment after installing prerequisite
 
 Clone the repository and navigate to the project directory:
 
-On macOS/Linux:
-
 ```bash
 git clone https://gitlab.com/your-username/gitinspectorgui.git
 cd gitinspectorgui
 ```
-
-On Windows:
-
-```powershell
-git clone https://gitlab.com/your-username/gitinspectorgui.git
-cd gitinspectorgui
-```
-
-> **Note for Windows users**: If you encounter any Git-related issues, ensure Git is properly installed and configured as described in the [Prerequisites](01-prerequisites.md) page. You may need to use Git Bash instead of PowerShell if you prefer a Unix-like terminal experience.
 
 ### 2. Install Dependencies
 
