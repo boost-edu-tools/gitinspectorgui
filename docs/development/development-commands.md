@@ -3,7 +3,8 @@
 Comprehensive reference for all GitInspectorGUI development commands, organized by service and use case.
 
 !!! tip "Architecture Context"
-For understanding the multi-server development setup, see **[Development Architecture](development-architecture.md)**.
+
+    For understanding the multi-server development setup, see **[Development Architecture](development-architecture.md)**.
 
 ## Quick Reference
 

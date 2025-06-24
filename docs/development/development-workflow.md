@@ -3,7 +3,8 @@
 High-level development workflows and processes for GitInspectorGUI, focusing on team collaboration and development patterns.
 
 !!! tip "Detailed Guides"
-For specific development tasks, see:
+
+    For specific development tasks, see:
 
 -   **[Commands Reference](development-commands.md)** - All development commands
 -   **[Development Architecture](development-architecture.md)** - System architecture
