@@ -6,8 +6,8 @@ High-level development workflows and processes for GitInspectorGUI, focusing on 
 
     For specific development tasks, see:
 
--   **[Commands Reference](development-commands.md)** - All development commands
--   **[Development Architecture](development-architecture.md)** - System architecture
+    -   **[Commands Reference](development-commands.md)** - All development commands
+    -   **[Development Architecture](development-architecture.md)** - System architecture
 
 ## Overview
 
