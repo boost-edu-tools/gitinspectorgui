@@ -70,13 +70,16 @@ Before installing dependencies or working with the project, you need to create a
 ```bash
 # Create a virtual environment in the .venv directory
 uv venv
+```
 
-# Activate the virtual environment
-# On macOS/Linux:
+```bash
+# Activate the virtual environment (macOS/Linux)
 source .venv/bin/activate
-# On Windows:
-.venv\Scripts\activate
+```
 
+```powershell
+# Activate the virtual environment (Windows)
+.venv\Scripts\activate
 ```
 
 Your terminal prompt should now show `(.venv)` indicating the environment is active

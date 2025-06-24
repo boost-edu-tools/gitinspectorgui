@@ -1,15 +1,15 @@
 # Package Management Overview
 
-This guide provides an overview of package management in GitInspectorGUI, which uses two different package managers for its backend and frontend components.
+This guide provides an overview of package management in GitInspectorGUI and explains the approach to managing dependencies across the project.
 
 ## Related Guides
 
 -   [Python Package Management](python-package-management.md) - Detailed guide for Python dependencies with uv
 -   [JavaScript Package Management](javascript-package-management.md) - Detailed guide for JavaScript/TypeScript dependencies with pnpm
 
-## Overview
+## Package Managers Used
 
-GitInspectorGUI uses two different package managers for its backend and frontend components:
+GitInspectorGUI uses separate package managers for its backend and frontend components:
 
 -   **Python backend**: Uses `uv` for fast Python package management and virtual environments
 -   **JavaScript/TypeScript frontend**: Uses `pnpm` for efficient Node.js package management
