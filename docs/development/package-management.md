@@ -59,24 +59,22 @@ The JavaScript ecosystem prioritized convenience and rapid development, acceptin
 
 ### Why the Difference?
 
-<details>
-<summary>Historical and technical background (click to expand)</summary>
+??? info "Historical and technical background"
 
-#### Historical Evolution
+    #### Historical Evolution
 
--   **JavaScript (2009)**: Built with npm from the start, designed for per-project dependency trees
--   **Python (1991)**: Predates modern package management; virtual environments were retrofitted later
+    -   **JavaScript (2009)**: Built with npm from the start, designed for per-project dependency trees
+    -   **Python (1991)**: Predates modern package management; virtual environments were retrofitted later
 
-#### Design Philosophy
+    #### Design Philosophy
 
--   **JavaScript**: "Move fast" culture accepts dependency duplication for convenience
--   **Python**: "Explicit is better than implicit" philosophy requires manual environment management
+    -   **JavaScript**: "Move fast" culture accepts dependency duplication for convenience
+    -   **Python**: "Explicit is better than implicit" philosophy requires manual environment management
 
-#### Technical Constraints
+    #### Technical Constraints
 
--   **JavaScript packages**: Mostly pure JavaScript, easily portable and duplicatable
--   **Python packages**: Often include compiled extensions tied to specific Python versions and system architectures
-</details>
+    -   **JavaScript packages**: Mostly pure JavaScript, easily portable and duplicatable
+    -   **Python packages**: Often include compiled extensions tied to specific Python versions and system architectures
 
 ### Practical Impact
 
