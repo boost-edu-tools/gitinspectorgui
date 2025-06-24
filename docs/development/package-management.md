@@ -93,8 +93,18 @@ The JavaScript ecosystem prioritized convenience and rapid development, acceptin
 
 -   **10-100x faster** than pip
 -   **Advanced dependency resolution**: Prevents conflicts between packages and their dependencies
--   **Improved virtual environment workflow**: Simplifies environment management with `uv run` prefix
--   **Unified toolchain**: Replaces pip, pip-tools, virtualenv in a single tool
+-   **Unified toolchain**: Replaces multiple Python tools and files:
+
+    -   pip (package installation)
+    -   pip-tools (dependency resolution)
+    -   virtualenv/venv (environment management)
+    -   build/setuptools (package building)
+    -   twine (package publishing)
+    -   setup.py/setup.cfg (package configuration)
+    -   requirements.txt files (dependency specification)
+
+    All consolidated into a single tool with pyproject.toml as the central configuration file
+
 -   **Lockfile support**: Reproducible builds with `uv.lock`
 
 ### Installation
@@ -114,7 +124,7 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 **Verify:**
 
 ```bash
-uv --version  # Should show uv 0.4.x+
+uv --version  # Should show uv 0.6.x+
 ```
 
 ### Commands
