@@ -55,19 +55,7 @@ markdown_extensions:
     - md_in_html
 
 nav:
-    - User docs:
-          - Home: user-docs/index.md
-          - Overview: user-docs/overview.md
-          - Installation: user-docs/install.md
-          - GUI: user-docs/gui.md
-          - CLI: user-docs/cli.md
-          - Output: user-docs/output.md
-          - Examples: user-docs/examples.md
-          - Supported: user-docs/supported.md
-          - FAQ: user-docs/faq.md
-          - Development: user-docs/develop.md
-          - Issues: user-docs/issues.md
-    - User pandocs:
+    - User Guide:
           - Home: user-pandocs/index.md
           - Overview: user-pandocs/overview.md
           - Installation: user-pandocs/install.md
