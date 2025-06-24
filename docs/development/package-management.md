@@ -1,23 +1,109 @@
 # Package Management
 
-Complete guide for managing dependencies in GitInspectorGUI development.
-
 ## Overview
 
-GitInspectorGUI uses modern package managers for optimal development experience:
+GitInspectorGUI uses two different package managers for its backend and frontend components:
 
--   **uv** - Fast Python package management (10-100x faster than pip)
--   **pnpm** - Efficient Node.js package management (2x faster than npm)
+-   **Python backend**: Uses `uv` for fast Python package management and virtual environments
+-   **JavaScript/TypeScript frontend**: Uses `pnpm` for efficient Node.js package management
+
+These package managers have different approaches to dependency management:
+
+-   **uv (Python)**: Focuses on speed and reproducibility while improving Python's virtual environment experience
+-   **pnpm (JavaScript)**: Emphasizes disk space efficiency and automatic dependency isolation
+
+The following sections explain how to use each package manager effectively in this project.
+
+## Package Management Philosophy: Python vs JavaScript
+
+> **Note**: This section explains how Python and JavaScript package managers evolved in different directions. If you're looking for practical commands, skip to the [Python Dependencies](#python-dependencies-uv) or [Frontend Dependencies](#frontend-dependencies-pnpm) sections.
+
+### Python: Manual Virtual Environment Management
+
+Python's approach requires explicit environment management:
+
+-   **Manual isolation**: Virtual environments must be created and activated manually
+-   **Activation required**: Each project switch requires sourcing the virtual environment
+-   **Explicit management**: Developers must remember to activate/deactivate environments
+
+```bash
+# Example of Python's manual environment management
+cd data-processor
+source .venv/bin/activate    # Manual step required
+python analyze.py            # Now uses data-processor's dependencies
+
+cd ../web-scraper
+source .venv/bin/activate    # Manual step required again
+python crawl.py              # Now uses web-scraper's dependencies
+```
+
+### JavaScript/Node.js: Automatic Project-Level Dependencies
+
+JavaScript achieved seamless dependency isolation through its design philosophy:
+
+-   **Automatic isolation**: Each project gets its own `node_modules` directory
+-   **Zero configuration**: Dependencies are isolated per project by default
+-   **Seamless switching**: Simply `cd` into any project and run commands normally
+-   **No activation required**: Package resolution happens automatically
+
+```bash
+# Example of JavaScript's automatic dependency isolation
+cd frontend-app
+npm start             # Automatically uses frontend-app's dependencies
+
+cd ../api-service
+npm test              # Automatically uses api-service's dependencies
+```
+
+The JavaScript ecosystem prioritized convenience and rapid development, accepting the overhead of duplicated dependencies across projects in exchange for zero-friction isolation.
+
+### Why the Difference?
+
+<details>
+<summary>Historical and technical background (click to expand)</summary>
+
+#### Historical Evolution
+
+-   **JavaScript (2009)**: Built with npm from the start, designed for per-project dependency trees
+-   **Python (1991)**: Predates modern package management; virtual environments were retrofitted later
+
+#### Design Philosophy
+
+-   **JavaScript**: "Move fast" culture accepts dependency duplication for convenience
+-   **Python**: "Explicit is better than implicit" philosophy requires manual environment management
+
+#### Technical Constraints
+
+-   **JavaScript packages**: Mostly pure JavaScript, easily portable and duplicatable
+-   **Python packages**: Often include compiled extensions tied to specific Python versions and system architectures
+</details>
+
+### Practical Impact
+
+**JavaScript developers** can seamlessly work across multiple projects without thinking about dependency management.
+
+**Python developers** must manually manage environments for each project, requiring:
+
+-   Creating virtual environments (`python -m venv .venv`)
+-   Activating environments (`source .venv/bin/activate`)
+-   Remembering to switch environments when changing projects
+-   Deactivating when done (`deactivate`)
+
+### Current State
+
+While tools like `uv` can speed up Python package installation and environment creation, the fundamental difference remains: JavaScript provides automatic dependency isolation, while Python requires manual virtual environment switching for proper project isolation.
+
+This architectural difference affects developer workflow, documentation complexity, and onboarding processes across the two ecosystems.
 
 ## Python Dependencies (uv)
 
 ### Benefits
 
 -   **10-100x faster** than pip
--   **Advanced dependency resolution** - prevents conflicts
--   **Automatic virtual environments** - no manual activation
--   **Unified toolchain** - replaces pip, pip-tools, virtualenv
--   **Lockfile support** - reproducible builds with `uv.lock`
+-   **Advanced dependency resolution**: Prevents conflicts between packages and their dependencies
+-   **Improved virtual environment workflow**: Simplifies environment management with `uv run` prefix
+-   **Unified toolchain**: Replaces pip, pip-tools, virtualenv in a single tool
+-   **Lockfile support**: Reproducible builds with `uv.lock`
 
 ### Installation
 
@@ -39,24 +125,17 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 uv --version  # Should show uv 0.4.x+
 ```
 
-### Project Setup
-
-```bash
-cd gitinspectorgui
-uv venv          # Create virtual environment
-uv sync          # Install dependencies
-```
-
 ### Commands
 
-| Command                      | Purpose                  |
-| ---------------------------- | ------------------------ |
-| `uv sync`                    | Install all dependencies |
-| `uv add package`             | Add dependency           |
-| `uv add --group dev package` | Add dev dependency       |
-| `uv remove package`          | Remove dependency        |
-| `uv pip list`                | List packages            |
-| `uv sync --upgrade`          | Update all packages      |
+| Command                      | Purpose                                      |
+| ---------------------------- | -------------------------------------------- |
+| `uv venv`                    | Create virtual environment                   |
+| `uv sync`                    | Install all dependencies from pyproject.toml |
+| `uv add package`             | Add dependency                               |
+| `uv add --group dev package` | Add dev dependency                           |
+| `uv remove package`          | Remove dependency                            |
+| `uv pip list`                | List installed packages                      |
+| `uv sync --upgrade`          | Update all packages                          |
 
 ### Development Workflow
 
@@ -89,6 +168,7 @@ source ~/.zshrc   # macOS
 **Environment Issues:**
 
 ```bash
+# Clean reinstall of virtual environment
 rm -rf .venv
 uv venv
 uv sync
@@ -97,13 +177,36 @@ uv sync
 **Port Conflicts:**
 
 ```bash
+# Change port for services like mkdocs
 mkdocs serve --dev-addr=127.0.0.1:8001
-# or
+
+# Or find and kill process using a port
 lsof -i :8000
 kill -9 <PID>
 ```
 
+**Package Conflicts:**
+
+```bash
+# View dependency tree to identify conflicts
+uv pip list
+
+# Reinstall with clean environment
+rm -rf .venv
+uv venv
+uv sync
+```
+
 ## Frontend Dependencies (pnpm)
+
+### Benefits
+
+-   **2x faster** than npm installs
+-   **Disk space efficient**: Uses a shared dependency storage to avoid duplication
+-   **Stricter security**: Better dependency resolution to prevent "phantom dependencies"
+-   **Monorepo support**: Workspace management for projects with multiple packages
+
+> **Note**: A "monorepo" is a single repository containing multiple related projects with their own dependencies.
 
 ### Installation
 
@@ -115,27 +218,34 @@ corepack enable
 npm install -g pnpm
 ```
 
-### Benefits
-
--   **2x faster** than npm installs
--   **Disk space efficient** - shared dependency storage
--   **Stricter security** - better dependency resolution
--   **Monorepo support** - workspace management
-
 ### Commands
 
-| Command                | Purpose              |
-| ---------------------- | -------------------- |
-| `pnpm install`         | Install dependencies |
-| `pnpm run tauri dev`   | Start development    |
-| `pnpm run tauri build` | Build production     |
-| `pnpm test`            | Run tests            |
-| `pnpm update`          | Update dependencies  |
-| `pnpm audit`           | Security audit       |
+| Command                | Purpose                            |
+| ---------------------- | ---------------------------------- |
+| `pnpm install`         | Install all dependencies           |
+| `pnpm add package`     | Add a dependency                   |
+| `pnpm add -D package`  | Add a dev dependency               |
+| `pnpm remove package`  | Remove a dependency                |
+| `pnpm run tauri dev`   | Start development server           |
+| `pnpm run tauri build` | Build production application       |
+| `pnpm test`            | Run tests                          |
+| `pnpm update`          | Update dependencies                |
+| `pnpm audit`           | Run security audit on dependencies |
 
 ### Development Workflow
 
-For development server commands, see **[Development Commands](development-commands.md)**.
+```bash
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm run tauri dev
+
+# Run tests
+pnpm test
+```
+
+For more detailed development commands, see **[Development Commands](development-commands.md)**.
 
 ### Production Build
 
@@ -148,21 +258,33 @@ pnpm run tauri build
 **Command Not Found:**
 
 ```bash
+# Enable pnpm through corepack
 corepack enable
-# or
+
+# Or install globally
 npm install -g pnpm
 ```
 
 **Permission Issues:**
 
 ```bash
+# Fix permission issues with pnpm store
 sudo chown -R $(whoami) ~/.local/share/pnpm
 ```
 
 **Cache Issues:**
 
 ```bash
+# Clean pnpm cache and reinstall
 pnpm store prune
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
+```
+
+**Dependency Resolution Issues:**
+
+```bash
+# Reinstall with clean lockfile
 rm -rf node_modules pnpm-lock.yaml
 pnpm install
 ```
@@ -205,6 +327,8 @@ pnpm install
 -   Uses `pnpm install --frozen-lockfile` in CI
 -   Lock file: `pnpm-lock.yaml` (commit to version control)
 -   All build scripts use pnpm commands
+
+> **Note**: "Frozen lockfile" means dependencies are installed exactly as specified in the lock file, ensuring consistent builds across environments.
 
 ### Example CI Configuration
 
@@ -262,6 +386,8 @@ cargo update
 
 ### Clean Reinstall
 
+If you encounter any issues with dependencies, a clean reinstall often helps:
+
 ```bash
 # Clean Python environment
 rm -rf .venv
@@ -293,8 +419,17 @@ pnpm install
 -   **Review updates** before applying to catch breaking changes
 -   **Use lock files** to ensure consistent dependency versions
 
+## Glossary
+
+-   **Dependency resolution**: The process of determining which versions of packages to install that satisfy all requirements without conflicts.
+-   **Lock file**: A file that records the exact versions of all dependencies, ensuring reproducible builds.
+-   **Monorepo**: A single repository containing multiple related projects with their own dependencies.
+-   **Virtual environment**: An isolated Python environment with its own installed packages.
+-   **Phantom dependencies**: Dependencies that are used but not explicitly declared in package.json.
+
 ## Related Documentation
 
 -   **[Development Workflow](development-workflow.md)** - Core development patterns
 -   **[Environment Setup](environment-setup.md)** - Development configuration
+-   **[Development Commands](development-commands.md)** - Common commands reference
 -   **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
