@@ -3,8 +3,7 @@
 # Lines 263, 276, 286: Required for usage messages to stderr
 # Lines 155, 165, 295: Error messages to stderr
 # ruff: noqa: T201
-"""
-API module for GitInspectorGUI backend.
+"""API module for GitInspectorGUI backend.
 
 This module provides a JSON API interface for the Tauri frontend to communicate
 with the Python backend for git repository analysis using the sophisticated
@@ -32,7 +31,10 @@ from gigui.typedefs import SHA, Author, Email, FileStr
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(), logging.FileHandler("gitinspector_api.log", mode="a")],
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler("gitinspector_api.log", mode="a"),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -63,7 +65,9 @@ class Stat:
     """Statistics for commits, insertions, deletions, and blame data."""
 
     def __init__(self) -> None:
-        self.shas: set[SHA] = set()  # Use to calculate the number of commits as len(shas)
+        self.shas: set[SHA] = (
+            set()
+        )  # Use to calculate the number of commits as len(shas)
         self.insertions: int = 0
         self.deletions: int = 0
         self.date_sum: int = 0  # Sum of Unix timestamps in seconds
@@ -227,8 +231,7 @@ class Person:
 
 
 class GitRepository:
-    """
-    DEPRECATED: Simple Git repository wrapper for basic operations.
+    """DEPRECATED: Simple Git repository wrapper for basic operations.
 
     This class is maintained for backward compatibility but is no longer used
     in the main analysis workflow. The Legacy Engine Wrapper now handles all
@@ -238,7 +241,9 @@ class GitRepository:
     def __init__(self, path: str):
         self.path = Path(path)
         self.name = self.path.name
-        logger.warning("GitRepository class is deprecated. Use Legacy Engine Wrapper instead.")
+        logger.warning(
+            "GitRepository class is deprecated. Use Legacy Engine Wrapper instead."
+        )
 
     def is_git_repository(self) -> bool:
         """Check if the path is a git repository."""
@@ -246,7 +251,9 @@ class GitRepository:
 
     def get_tracked_files(self) -> list[FileStr]:
         """DEPRECATED: Get list of tracked files in the repository."""
-        logger.warning("get_tracked_files is deprecated. Use Legacy Engine Wrapper for analysis.")
+        logger.warning(
+            "get_tracked_files is deprecated. Use Legacy Engine Wrapper for analysis."
+        )
         import subprocess
 
         try:
@@ -267,12 +274,18 @@ class GitRepository:
                 return files[:50]  # Limit to first 50 files for demo
             return []
 
-        except (subprocess.TimeoutExpired, subprocess.SubprocessError, FileNotFoundError):
+        except (
+            subprocess.TimeoutExpired,
+            subprocess.SubprocessError,
+            FileNotFoundError,
+        ):
             return []
 
     def get_commit_count(self) -> int:
         """DEPRECATED: Get total number of commits in the repository."""
-        logger.warning("get_commit_count is deprecated. Use Legacy Engine Wrapper for analysis.")
+        logger.warning(
+            "get_commit_count is deprecated. Use Legacy Engine Wrapper for analysis."
+        )
         import subprocess
 
         try:
@@ -302,7 +315,9 @@ class GitRepository:
 
     def get_authors(self) -> list[str]:
         """DEPRECATED: Get list of authors who have committed to this repository."""
-        logger.warning("get_authors is deprecated. Use Legacy Engine Wrapper for analysis.")
+        logger.warning(
+            "get_authors is deprecated. Use Legacy Engine Wrapper for analysis."
+        )
         import subprocess
 
         try:
@@ -320,17 +335,27 @@ class GitRepository:
 
             if result.returncode == 0:
                 authors = list(
-                    set(line.strip() for line in result.stdout.split("\n") if line.strip())
+                    set(
+                        line.strip()
+                        for line in result.stdout.split("\n")
+                        if line.strip()
+                    )
                 )
                 return authors[:10]  # Limit to first 10 authors for demo
             return []
 
-        except (subprocess.TimeoutExpired, subprocess.SubprocessError, FileNotFoundError):
+        except (
+            subprocess.TimeoutExpired,
+            subprocess.SubprocessError,
+            FileNotFoundError,
+        ):
             return []
 
     def get_author_stats(self) -> dict[str, dict]:
         """DEPRECATED: Get detailed statistics for each author."""
-        logger.warning("get_author_stats is deprecated. Use Legacy Engine Wrapper for analysis.")
+        logger.warning(
+            "get_author_stats is deprecated. Use Legacy Engine Wrapper for analysis."
+        )
         import subprocess
 
         try:
@@ -395,13 +420,17 @@ class GitRepository:
                             continue
 
             # Convert sets to counts and calculate percentages
-            total_commits = sum(len(stats["commits"]) for stats in author_stats.values())
+            total_commits = sum(
+                len(stats["commits"]) for stats in author_stats.values()
+            )
 
             for author, stats in author_stats.items():
                 stats["commit_count"] = len(stats["commits"])
                 stats["file_count"] = len(stats["files"])
                 stats["percentage"] = (
-                    (stats["commit_count"] / total_commits * 100) if total_commits > 0 else 0
+                    (stats["commit_count"] / total_commits * 100)
+                    if total_commits > 0
+                    else 0
                 )
 
                 # Calculate age from oldest commit
@@ -423,8 +452,7 @@ class GitRepository:
 
 
 class GitInspectorAPI:
-    """
-    Main API class for git repository analysis.
+    """Main API class for git repository analysis.
 
     PHASE 4 COMPLETION: This API class now integrates with the sophisticated
     legacy analysis engine while maintaining the existing API contract for
@@ -440,11 +468,13 @@ class GitInspectorAPI:
         # Initialize performance tracking
         self._api_start_time = time.time()
         self._analysis_count = 0
-        
+
         # Use dependency injection for the engine
         self.engine = engine or LegacyEngineWrapper()
 
-        logger.info("GitInspectorAPI initialized with Legacy Engine Wrapper integration")
+        logger.info(
+            "GitInspectorAPI initialized with Legacy Engine Wrapper integration"
+        )
         logger.info(
             f"Legacy Engine capabilities: {len(self.engine.get_engine_info()['capabilities'])} features"
         )
@@ -477,7 +507,7 @@ class GitInspectorAPI:
 
         try:
             # Validate settings before saving
-            is_valid, error_msg = legacy_engine.validate_settings(settings)
+            is_valid, error_msg = self.engine.validate_settings(settings)
             if not is_valid:
                 logger.warning(f"Saving potentially invalid settings: {error_msg}")
 
@@ -497,8 +527,7 @@ class GitInspectorAPI:
             raise
 
     def execute_analysis(self, settings: Settings) -> AnalysisResult:
-        """
-        Execute git repository analysis using the sophisticated legacy engine.
+        """Execute git repository analysis using the sophisticated legacy engine.
 
         PHASE 4 COMPLETION: This method now uses the Legacy Engine Wrapper to provide
         sophisticated analysis while maintaining the existing API contract for the frontend.
@@ -517,6 +546,7 @@ class GitInspectorAPI:
 
         Returns:
             AnalysisResult compatible with current GUI frontend
+
         """
         # Configure logging level based on debug settings
         if getattr(settings, "debug_logging", False):
@@ -533,8 +563,12 @@ class GitInspectorAPI:
         logger.debug("Analysis settings received:")
         logger.debug(f"  - Repositories: {settings.input_fstrs}")
         logger.debug(f"  - Debug logging: {getattr(settings, 'debug_logging', False)}")
-        logger.debug(f"  - Debug API calls: {getattr(settings, 'debug_api_calls', False)}")
-        logger.debug(f"  - Debug analysis flow: {getattr(settings, 'debug_analysis_flow', False)}")
+        logger.debug(
+            f"  - Debug API calls: {getattr(settings, 'debug_api_calls', False)}"
+        )
+        logger.debug(
+            f"  - Debug analysis flow: {getattr(settings, 'debug_analysis_flow', False)}"
+        )
         logger.debug(f"  - Verbosity: {settings.verbosity}")
         logger.debug(f"  - Extensions: {settings.extensions}")
         logger.debug(f"  - Multithread: {settings.multithread}")
@@ -546,7 +580,9 @@ class GitInspectorAPI:
             if not is_valid:
                 logger.error(f"Settings validation failed: {error_msg}")
                 return AnalysisResult(
-                    repositories=[], success=False, error=f"Settings validation failed: {error_msg}"
+                    repositories=[],
+                    success=False,
+                    error=f"Settings validation failed: {error_msg}",
                 )
             logger.debug("Settings validation passed")
 
@@ -626,7 +662,9 @@ class GitInspectorAPI:
             result = self.engine.execute_analysis(settings)
 
             analysis_time = time.time() - start_time
-            logger.info(f"Legacy engine analysis completed in {analysis_time:.2f} seconds")
+            logger.info(
+                f"Legacy engine analysis completed in {analysis_time:.2f} seconds"
+            )
 
             # Update analysis count for performance tracking
             self._analysis_count += 1
@@ -644,7 +682,9 @@ class GitInspectorAPI:
                     logger.debug(f"Repository {i + 1}:")
                     logger.debug(f"  - Name: {repo.name}")
                     logger.debug(f"  - Path: {repo.path}")
-                    logger.debug(f"  - Authors: {len(repo.authors) if repo.authors else 0}")
+                    logger.debug(
+                        f"  - Authors: {len(repo.authors) if repo.authors else 0}"
+                    )
                     logger.debug(f"  - Files: {len(repo.files) if repo.files else 0}")
                     logger.debug(
                         f"  - Blame entries: {len(repo.blame_data) if repo.blame_data else 0}"
@@ -667,7 +707,9 @@ class GitInspectorAPI:
 
         except Exception as e:
             analysis_time = time.time() - start_time
-            logger.error(f"API analysis execution failed after {analysis_time:.2f} seconds: {e}")
+            logger.error(
+                f"API analysis execution failed after {analysis_time:.2f} seconds: {e}"
+            )
             logger.error(f"Exception type: {type(e).__name__}")
             logger.error(f"Exception details: {e!s}")
 
@@ -677,15 +719,17 @@ class GitInspectorAPI:
             logger.error(f"Stack trace:\n{traceback.format_exc()}")
 
             return AnalysisResult(
-                repositories=[], success=False, error=f"API analysis execution failed: {e}"
+                repositories=[],
+                success=False,
+                error=f"API analysis execution failed: {e}",
             )
 
     def get_engine_info(self) -> dict:
-        """
-        Get information about the analysis engine capabilities.
+        """Get information about the analysis engine capabilities.
 
         Returns:
             Dictionary with engine information and capabilities
+
         """
         engine_info = self.engine.get_engine_info()
         engine_info["api_integration"] = {
@@ -698,23 +742,23 @@ class GitInspectorAPI:
         return engine_info
 
     def validate_settings(self, settings: Settings) -> tuple[bool, str]:
-        """
-        Validate settings for analysis compatibility.
+        """Validate settings for analysis compatibility.
 
         Args:
             settings: Settings to validate
 
         Returns:
             Tuple of (is_valid, error_message)
+
         """
         return self.engine.validate_settings(settings)
 
     def get_performance_stats(self) -> dict:
-        """
-        Get API performance statistics.
+        """Get API performance statistics.
 
         Returns:
             Dictionary with performance metrics
+
         """
         uptime = time.time() - self._api_start_time
         return {
@@ -745,7 +789,10 @@ def main():
 
         elif command == "save_settings":
             if len(sys.argv) < 3:
-                print("Usage: python api.py save_settings <settings_json>", file=sys.stderr)
+                print(
+                    "Usage: python api.py save_settings <settings_json>",
+                    file=sys.stderr,
+                )
                 sys.exit(1)
 
             settings_data = json.loads(sys.argv[2])
@@ -792,7 +839,10 @@ def main():
 
         elif command == "execute_analysis":
             if len(sys.argv) < 3:
-                print("Usage: python api.py execute_analysis <settings_json>", file=sys.stderr)
+                print(
+                    "Usage: python api.py execute_analysis <settings_json>",
+                    file=sys.stderr,
+                )
                 sys.exit(1)
 
             settings_data = json.loads(sys.argv[2])
@@ -837,30 +887,37 @@ def main():
             result = api.execute_analysis(settings)
             print(json.dumps(asdict(result)))
 
-        elif command == "start_server":
-            # Start the HTTP server
-            from gigui.api.http_server import start_server
+        elif command == "get_engine_info":
+            engine_info = api.get_engine_info()
+            print(json.dumps(engine_info))
 
-            host = "127.0.0.1"
-            port = 8000
+        elif command == "get_performance_stats":
+            stats = api.get_performance_stats()
+            print(json.dumps(stats))
 
-            # Parse optional host and port arguments
-            if len(sys.argv) > 2:
-                for arg in sys.argv[2:]:
-                    if arg.startswith("--host="):
-                        host = arg.split("=", 1)[1]
-                    elif arg.startswith("--port="):
-                        port = int(arg.split("=", 1)[1])
-
-            print(f"Starting HTTP server on {host}:{port}", file=sys.stderr)
-            start_server(host=host, port=port)
+        elif command == "health_check":
+            try:
+                engine_info = api.get_engine_info()
+                health_status = {
+                    "status": "healthy",
+                    "version": "2.0.0-pyo3",
+                    "backend": "PyO3",
+                    "engine_active": True,
+                }
+                print(json.dumps(health_status))
+            except Exception as e:
+                error_result = {"status": "unhealthy", "error": str(e)}
+                print(json.dumps(error_result))
 
         else:
             print(f"Unknown command: {command}", file=sys.stderr)
             sys.exit(1)
 
     except (json.JSONDecodeError, TypeError, ValueError, KeyError) as e:
-        error_result = {"success": False, "error": f"Command error ({type(e).__name__}): {e}"}
+        error_result = {
+            "success": False,
+            "error": f"Command error ({type(e).__name__}): {e}",
+        }
         print(json.dumps(error_result))
         sys.exit(1)
 

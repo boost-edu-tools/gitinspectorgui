@@ -2,14 +2,14 @@ import { useServerStatus } from "@/hooks/useServerStatus";
 import { Button } from "@/components/ui/button";
 import {
     RefreshCw,
-    Server,
+    Cpu,
     AlertCircle,
     CheckCircle,
     Loader2,
 } from "lucide-react";
 
 export function ServerStatus() {
-    const { status, startServer, refresh } = useServerStatus();
+    const { status, refresh } = useServerStatus();
 
     const getStatusIcon = () => {
         if (status.isStarting) {
@@ -23,12 +23,12 @@ export function ServerStatus() {
 
     const getStatusText = () => {
         if (status.isStarting) {
-            return "Starting server...";
+            return "Checking backend...";
         }
         if (status.isRunning) {
-            return "Server running";
+            return "PyO3 backend ready";
         }
-        return "Server not running";
+        return "Backend not available";
     };
 
     const getStatusColor = () => {
@@ -45,10 +45,8 @@ export function ServerStatus() {
         <div className="p-4 bg-muted/50 rounded-lg border">
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                    <Server className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">
-                        Python API Server
-                    </span>
+                    <Cpu className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Python Backend</span>
                 </div>
                 <div className="flex items-center gap-2">
                     {getStatusIcon()}
@@ -64,26 +62,26 @@ export function ServerStatus() {
                 </div>
             )}
 
-            <div className="flex gap-2">
-                {!status.isRunning && !status.isStarting && (
-                    <Button
-                        onClick={startServer}
-                        size="sm"
-                        variant="outline"
-                        className="flex-1"
-                    >
-                        <Server className="w-3 h-3 mr-1" />
-                        Start Server
-                    </Button>
-                )}
+            {status.engineInfo && status.isRunning && (
+                <div className="mb-3 p-2 bg-green-50 border border-green-200 rounded text-sm text-green-800">
+                    <div className="font-medium">{status.engineInfo.name}</div>
+                    <div className="text-xs text-green-600">
+                        Version: {status.engineInfo.version} | Backend:{" "}
+                        {status.engineInfo.backend}
+                    </div>
+                </div>
+            )}
 
+            <div className="flex gap-2">
                 <Button
                     onClick={refresh}
                     size="sm"
                     variant="outline"
                     disabled={status.isStarting}
+                    className="flex-1"
                 >
-                    <RefreshCw className="w-3 h-3" />
+                    <RefreshCw className="w-3 h-3 mr-1" />
+                    Check Status
                 </Button>
             </div>
 

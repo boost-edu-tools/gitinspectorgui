@@ -1,0 +1,9 @@
+[package]
+name = "pyo3-minimal-test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+pyo3 = { version = "0.22", features = ["auto-initialize"] }
+env_logger = "0.11"
+log = "0.4"

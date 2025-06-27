@@ -3,9 +3,13 @@ import { useState, useEffect, useCallback } from "react";
 // Check if Tauri APIs are available
 const isTauriAvailable = () => {
     try {
+        // In Tauri v2, check for the presence of the Tauri context
         return (
             typeof window !== "undefined" &&
-            (window as any).__TAURI__ !== undefined
+            ((window as any).__TAURI__ !== undefined ||
+                (window as any).__TAURI_INTERNALS__ !== undefined ||
+                // Also check if we can access Tauri APIs directly
+                typeof (window as any).__TAURI_INVOKE__ === "function")
         );
     } catch {
         return false;
@@ -14,11 +18,12 @@ const isTauriAvailable = () => {
 
 // Dynamically import Tauri invoke only if available
 const getTauriInvoke = async () => {
-    if (!isTauriAvailable()) {
+    try {
+        const { invoke } = await import("@tauri-apps/api/core");
+        return invoke;
+    } catch (error) {
         throw new Error("Tauri APIs not available");
     }
-    const { invoke } = await import("@tauri-apps/api/core");
-    return invoke;
 };
 
 export interface ServerStatus {
@@ -26,6 +31,7 @@ export interface ServerStatus {
     isStarting: boolean;
     error: string | null;
     lastChecked: Date | null;
+    engineInfo?: any;
 }
 
 export function useServerStatus() {
@@ -38,39 +44,36 @@ export function useServerStatus() {
 
     const checkServerHealth = useCallback(async () => {
         try {
-            if (!isTauriAvailable()) {
-                // In browser mode, assume server is running if we can reach it via HTTP
-                const response = await fetch("http://127.0.0.1:8000/health");
-                if (response.ok) {
-                    setStatus((prev) => ({
-                        ...prev,
-                        isRunning: true,
-                        error: null,
-                        lastChecked: new Date(),
-                    }));
-                    return true;
-                } else {
-                    throw new Error("Server not responding");
-                }
-            } else {
-                const invoke = await getTauriInvoke();
-                await invoke("health_check");
-                setStatus((prev) => ({
-                    ...prev,
-                    isRunning: true,
-                    error: null,
-                    lastChecked: new Date(),
-                }));
-                return true;
-            }
+            // Try to directly use Tauri invoke - if it works, we're in desktop mode
+            const invoke = await getTauriInvoke();
+            const healthResult = await invoke("health_check");
+            const engineInfo = await invoke("get_engine_info");
+
+            setStatus((prev) => ({
+                ...prev,
+                isRunning: true,
+                error: null,
+                lastChecked: new Date(),
+                engineInfo,
+            }));
+            return true;
         } catch (error) {
+            // If Tauri invoke fails, we're either in browser mode or there's an actual error
+            const errorMessage =
+                error instanceof Error ? error.message : "Unknown error";
+
+            // Check if this is a "Tauri not available" error vs a backend error
+            const isTauriError =
+                errorMessage.includes("Tauri APIs not available") ||
+                errorMessage.includes("Cannot resolve") ||
+                errorMessage.includes("__TAURI__");
+
             setStatus((prev) => ({
                 ...prev,
                 isRunning: false,
-                error:
-                    error instanceof Error
-                        ? error.message
-                        : "Server not responding",
+                error: isTauriError
+                    ? "PyO3 backend only available in desktop app"
+                    : `PyO3 backend error: ${errorMessage}`,
                 lastChecked: new Date(),
             }));
             return false;
@@ -78,44 +81,27 @@ export function useServerStatus() {
     }, []);
 
     const startServer = useCallback(async () => {
+        // With PyO3, there's no separate server to start
+        // The Python backend is embedded in the Tauri app
         setStatus((prev) => ({ ...prev, isStarting: true, error: null }));
 
         try {
-            if (!isTauriAvailable()) {
-                // In browser mode, we can't start the server directly
-                setStatus((prev) => ({
-                    ...prev,
-                    isStarting: false,
-                    isRunning: false,
-                    error: "Cannot start server from browser mode. Please start the server manually.",
-                }));
-                return false;
-            } else {
-                const invoke = await getTauriInvoke();
-                await invoke("start_python_server");
+            // Just check if the PyO3 backend is working
+            const isHealthy = await checkServerHealth();
 
-                // Wait a moment for server to fully start
-                await new Promise((resolve) => setTimeout(resolve, 2000));
+            setStatus((prev) => ({
+                ...prev,
+                isStarting: false,
+                isRunning: isHealthy,
+                error: isHealthy ? null : "PyO3 backend is not available",
+            }));
 
-                // Check if server is actually running
-                const isHealthy = await checkServerHealth();
-
-                setStatus((prev) => ({
-                    ...prev,
-                    isStarting: false,
-                    isRunning: isHealthy,
-                    error: isHealthy
-                        ? null
-                        : "Server started but not responding to health checks",
-                }));
-
-                return isHealthy;
-            }
+            return isHealthy;
         } catch (error) {
             const errorMessage =
                 error instanceof Error
                     ? error.message
-                    : "Failed to start server";
+                    : "PyO3 backend check failed";
             setStatus((prev) => ({
                 ...prev,
                 isStarting: false,
@@ -126,11 +112,11 @@ export function useServerStatus() {
         }
     }, [checkServerHealth]);
 
-    // Check server status on mount and periodically
+    // Check backend status on mount and periodically
     useEffect(() => {
         checkServerHealth();
 
-        const interval = setInterval(checkServerHealth, 10000); // Check every 10 seconds
+        const interval = setInterval(checkServerHealth, 30000); // Check every 30 seconds (less frequent since it's embedded)
 
         return () => clearInterval(interval);
     }, [checkServerHealth]);

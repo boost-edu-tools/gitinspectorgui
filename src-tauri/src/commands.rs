@@ -1,15 +1,5 @@
 use serde::{Deserialize, Serialize};
 use tauri::command;
-use reqwest;
-use std::time::Duration;
-use std::process::{Command, Stdio, Child};
-use std::io::Read;
-use tauri::Manager;
-use std::sync::{Arc, Mutex};
-
-const API_BASE_URL: &str = "http://127.0.0.1:8000";
-const REQUEST_TIMEOUT: Duration = Duration::from_secs(300); // 5 minutes for analysis operations
-const MAX_RETRIES: u32 = 3;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Settings {
@@ -257,536 +247,187 @@ pub struct BlameEntry {
     pub content: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct EngineInfo {
-    pub version: String,
-    pub capabilities: Vec<String>,
-    pub supported_formats: Vec<String>,
-}
+use pyo3::prelude::*;
+use std::sync::Mutex;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PerformanceStats {
-    pub total_requests: u64,
-    pub average_response_time: f64,
-    pub last_analysis_duration: Option<f64>,
-}
+// Global Python interpreter state
+static PYTHON_INITIALIZED: Mutex<bool> = Mutex::new(false);
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct HealthStatus {
-    pub status: String,
-    pub version: String,
-    pub timestamp: String,
-    pub api_info: EngineInfo,
-}
+// Helper function to call Python functions with PyO3
+async fn call_python_function(
+    function_name: &str,
+    args: Option<&str>,
+) -> Result<String, String> {
+    // Ensure Python is initialized
+    {
+        let mut initialized = PYTHON_INITIALIZED.lock().unwrap();
+        if !*initialized {
+            // Set up Python environment variables based on our debugging findings
+            // These paths are critical for PyO3 to find the Python standard library
+            let python_home = "/Users/dvbeek/.local/share/uv/python/cpython-3.13.2-macos-aarch64-none";
+            let python_stdlib = "/Users/dvbeek/.local/share/uv/python/cpython-3.13.2-macos-aarch64-none/lib/python3.13";
+            let venv_site_packages = "/Users/dvbeek/1-repos/github-boost/gitinspectorgui/.venv/lib/python3.13/site-packages";
+            let project_python = "/Users/dvbeek/1-repos/github-boost/gitinspectorgui/python";
 
-// HTTP client helper functions
-async fn create_http_client() -> Result<reqwest::Client, String> {
-    reqwest::Client::builder()
-        .timeout(REQUEST_TIMEOUT)
-        .build()
-        .map_err(|e| format!("Failed to create HTTP client: {}", e))
-}
+            std::env::set_var("PYTHONHOME", python_home);
+            let python_path = format!("{}:{}:{}:{}", python_stdlib, venv_site_packages, project_python, python_stdlib);
+            std::env::set_var("PYTHONPATH", &python_path);
 
-async fn make_request_with_retry<T, R>(
-    _client: &reqwest::Client,
-    request_builder: impl Fn() -> reqwest::RequestBuilder,
-    operation_name: &str,
-) -> Result<R, String>
-where
-    T: for<'de> Deserialize<'de>,
-    R: From<T>,
-{
-    let mut last_error = String::new();
-
-    for attempt in 1..=MAX_RETRIES {
-        match request_builder()
-            .send()
-            .await
-        {
-            Ok(response) => {
-                if response.status().is_success() {
-                    match response.json::<T>().await {
-                        Ok(data) => return Ok(R::from(data)),
-                        Err(e) => {
-                            last_error = format!("Failed to parse response: {}", e);
-                            println!("Attempt {}/{} failed for {}: {}", attempt, MAX_RETRIES, operation_name, last_error);
-                        }
-                    }
-                } else {
-                    let status = response.status();
-                    let error_text = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
-                    last_error = format!("HTTP {} - {}", status, error_text);
-                    println!("Attempt {}/{} failed for {}: {}", attempt, MAX_RETRIES, operation_name, last_error);
-                }
-            }
-            Err(e) => {
-                last_error = format!("Request failed: {}", e);
-                println!("Attempt {}/{} failed for {}: {}", attempt, MAX_RETRIES, operation_name, last_error);
-            }
-        }
-
-        if attempt < MAX_RETRIES {
-            tokio::time::sleep(Duration::from_millis(1000 * attempt as u64)).await;
+            pyo3::prepare_freethreaded_python();
+            *initialized = true;
         }
     }
 
-    Err(format!("{} failed after {} attempts. Last error: {}", operation_name, MAX_RETRIES, last_error))
+    Python::with_gil(|py| {
+        // Initialize Python path
+        let sys = py.import_bound("sys")
+            .map_err(|e| format!("Failed to import sys: {}", e))?;
+        let path = sys.getattr("path")
+            .map_err(|e| format!("Failed to get sys.path: {}", e))?;
+
+        // Add both Python directories to the path
+        // 1. The bridge module is in src-tauri/python/
+        let bridge_python_dir = std::env::current_dir()
+            .map_err(|e| format!("Failed to get current dir: {}", e))?
+            .join("src-tauri")
+            .join("python");
+
+        path.call_method1("insert", (0, bridge_python_dir.to_string_lossy().as_ref()))
+            .map_err(|e| format!("Failed to add bridge python dir to sys.path: {}", e))?;
+
+        // 2. The main gigui package is in python/
+        let main_python_dir = std::env::current_dir()
+            .map_err(|e| format!("Failed to get current dir: {}", e))?
+            .join("python");
+
+        path.call_method1("insert", (0, main_python_dir.to_string_lossy().as_ref()))
+            .map_err(|e| format!("Failed to add main python dir to sys.path: {}", e))?;
+
+        // Import our main module
+        let module = py.import_bound("main")
+            .map_err(|e| format!("Failed to import main module: {}", e))?;
+
+        let function = module.getattr(function_name)
+            .map_err(|e| format!("Function '{}' not found: {}", function_name, e))?;
+
+        let result = match args {
+            Some(args_str) => {
+                function.call1((args_str,))
+                    .map_err(|e| format!("Python function call failed: {}", e))?
+            }
+            None => {
+                function.call0()
+                    .map_err(|e| format!("Python function call failed: {}", e))?
+            }
+        };
+
+        let result_str: String = result.extract()
+            .map_err(|e| format!("Failed to extract result as string: {}", e))?;
+
+        Ok(result_str)
+    })
 }
 
-// Tauri command implementations
 #[command]
-pub async fn execute_analysis(_app: tauri::AppHandle, mut settings: Settings) -> Result<AnalysisResult, String> {
-    println!("Executing analysis with settings: {:?}", settings);
+pub async fn execute_analysis(
+    mut settings: Settings,
+) -> Result<AnalysisResult, String> {
+    println!("Executing analysis with PyO3");
 
-    // Convert relative paths to absolute paths to fix the path resolution issue
+    // Convert relative paths to absolute paths (same logic as before)
     let mut absolute_paths = Vec::new();
     for path in &settings.input_fstrs {
         let absolute_path = if std::path::Path::new(path).is_absolute() {
             path.clone()
         } else {
-            // Convert relative path to absolute path
             match std::env::current_dir() {
                 Ok(current_dir) => {
                     let full_path = current_dir.join(path);
                     match full_path.canonicalize() {
                         Ok(canonical_path) => canonical_path.to_string_lossy().to_string(),
-                        Err(_) => {
-                            // If canonicalize fails, just use the joined path
-                            full_path.to_string_lossy().to_string()
-                        }
+                        Err(_) => full_path.to_string_lossy().to_string(),
                     }
                 }
-                Err(_) => path.clone(), // Fallback to original path if current_dir fails
+                Err(_) => path.clone(),
             }
         };
         absolute_paths.push(absolute_path);
-        println!("Converted path '{}' to absolute path '{}'", path, absolute_paths.last().unwrap());
     }
-
-    // Update settings with absolute paths
     settings.input_fstrs = absolute_paths;
 
-    let client = create_http_client().await?;
+    // Serialize settings to JSON
+    let settings_json = serde_json::to_string(&settings)
+        .map_err(|e| format!("Failed to serialize settings: {}", e))?;
 
-    make_request_with_retry::<AnalysisResult, AnalysisResult>(
-        &client,
-        || client.post(&format!("{}/api/execute_analysis", API_BASE_URL))
-            .json(&settings),
-        "Analysis execution"
-    ).await
+    // Call Python function
+    let result_json = call_python_function("execute_analysis", Some(&settings_json)).await?;
+
+    // Deserialize result
+    let result: AnalysisResult = serde_json::from_str(&result_json)
+        .map_err(|e| format!("Failed to deserialize analysis result: {}", e))?;
+
+    Ok(result)
 }
 
 #[command]
-pub async fn get_settings(_app: tauri::AppHandle) -> Result<Settings, String> {
-    let client = create_http_client().await?;
+pub async fn get_settings() -> Result<Settings, String> {
+    let result_json = call_python_function("get_settings", None).await?;
 
-    make_request_with_retry::<Settings, Settings>(
-        &client,
-        || client.get(&format!("{}/api/settings", API_BASE_URL)),
-        "Get settings"
-    ).await
+    let settings: Settings = serde_json::from_str(&result_json)
+        .map_err(|e| format!("Failed to deserialize settings: {}", e))?;
+
+    Ok(settings)
 }
 
 #[command]
-pub async fn save_settings(_app: tauri::AppHandle, settings: Settings) -> Result<(), String> {
-    println!("Saving settings: {:?}", settings);
+pub async fn save_settings(settings: Settings) -> Result<(), String> {
+    let settings_json = serde_json::to_string(&settings)
+        .map_err(|e| format!("Failed to serialize settings: {}", e))?;
 
-    let client = create_http_client().await?;
+    let result_json = call_python_function("save_settings", Some(&settings_json)).await?;
 
     #[derive(Deserialize)]
     struct SaveResponse {
         success: bool,
-        message: String,
+        error: Option<String>,
     }
 
-    let response: SaveResponse = make_request_with_retry::<SaveResponse, SaveResponse>(
-        &client,
-        || client.post(&format!("{}/api/settings", API_BASE_URL))
-            .json(&settings),
-        "Save settings"
-    ).await?;
+    let response: SaveResponse = serde_json::from_str(&result_json)
+        .map_err(|e| format!("Failed to deserialize save response: {}", e))?;
 
     if response.success {
         Ok(())
     } else {
-        Err(format!("Failed to save settings: {}", response.message))
+        Err(response.error.unwrap_or_else(|| "Unknown error saving settings".to_string()))
     }
 }
 
 #[command]
-pub async fn get_engine_info(_app: tauri::AppHandle) -> Result<EngineInfo, String> {
-    let client = create_http_client().await?;
+pub async fn get_engine_info() -> Result<serde_json::Value, String> {
+    let result_json = call_python_function("get_engine_info", None).await?;
 
-    make_request_with_retry::<EngineInfo, EngineInfo>(
-        &client,
-        || client.get(&format!("{}/api/engine_info", API_BASE_URL)),
-        "Get engine info"
-    ).await
+    let engine_info: serde_json::Value = serde_json::from_str(&result_json)
+        .map_err(|e| format!("Failed to deserialize engine info: {}", e))?;
+
+    Ok(engine_info)
 }
 
 #[command]
-pub async fn get_performance_stats(_app: tauri::AppHandle) -> Result<PerformanceStats, String> {
-    let client = create_http_client().await?;
+pub async fn get_performance_stats() -> Result<serde_json::Value, String> {
+    let result_json = call_python_function("get_performance_stats", None).await?;
 
-    make_request_with_retry::<PerformanceStats, PerformanceStats>(
-        &client,
-        || client.get(&format!("{}/api/performance_stats", API_BASE_URL)),
-        "Get performance stats"
-    ).await
+    let stats: serde_json::Value = serde_json::from_str(&result_json)
+        .map_err(|e| format!("Failed to deserialize performance stats: {}", e))?;
+
+    Ok(stats)
 }
 
 #[command]
-pub async fn health_check(_app: tauri::AppHandle) -> Result<HealthStatus, String> {
-    let client = create_http_client().await?;
+pub async fn health_check() -> Result<serde_json::Value, String> {
+    let result_json = call_python_function("health_check", None).await?;
 
-    make_request_with_retry::<HealthStatus, HealthStatus>(
-        &client,
-        || client.get(&format!("{}/health", API_BASE_URL)),
-        "Health check"
-    ).await
-}
+    let health_status: serde_json::Value = serde_json::from_str(&result_json)
+        .map_err(|e| format!("Failed to deserialize health status: {}", e))?;
 
-// Type alias for the server process state
-type ServerProcess = Arc<Mutex<Option<Child>>>;
-
-// Helper function to kill processes on a specific port
-async fn kill_processes_on_port(port: u16) -> Result<(), String> {
-    println!("🔍 Checking for processes on port {}...", port);
-
-    #[cfg(target_os = "macos")]
-    {
-        // Use lsof to find processes on the port
-        match Command::new("lsof")
-            .args(["-ti", &format!(":{}", port)])
-            .output()
-        {
-            Ok(output) => {
-                let pids_str = String::from_utf8_lossy(&output.stdout);
-                let pids: Vec<&str> = pids_str.trim().split('\n').filter(|s| !s.is_empty()).collect();
-
-                if pids.is_empty() {
-                    println!("✅ No processes found on port {}", port);
-                    return Ok(());
-                }
-
-                println!("🎯 Found {} process(es) on port {}: {:?}", pids.len(), port, pids);
-
-                for pid in pids {
-                    if let Ok(pid_num) = pid.parse::<u32>() {
-                        println!("💀 Killing process with PID: {}", pid_num);
-                        match Command::new("kill")
-                            .args(["-9", pid])
-                            .output()
-                        {
-                            Ok(_) => println!("✅ Successfully killed PID {}", pid_num),
-                            Err(e) => println!("⚠️  Failed to kill PID {}: {}", pid_num, e),
-                        }
-                    }
-                }
-
-                // Wait a moment for processes to die
-                tokio::time::sleep(Duration::from_millis(500)).await;
-                println!("✅ Port {} cleanup completed", port);
-            }
-            Err(e) => {
-                println!("⚠️  Failed to check port {}: {}", port, e);
-                // Don't return error, just continue - lsof might not be available
-            }
-        }
-    }
-
-    #[cfg(target_os = "windows")]
-    {
-        // Use netstat to find processes on the port
-        match Command::new("netstat")
-            .args(["-ano"])
-            .output()
-        {
-            Ok(output) => {
-                let output_str = String::from_utf8_lossy(&output.stdout);
-                let mut pids_to_kill = Vec::new();
-
-                for line in output_str.lines() {
-                    if line.contains(&format!(":{}", port)) && line.contains("LISTENING") {
-                        let parts: Vec<&str> = line.split_whitespace().collect();
-                        if let Some(pid_str) = parts.last() {
-                            if let Ok(pid) = pid_str.parse::<u32>() {
-                                pids_to_kill.push(pid);
-                            }
-                        }
-                    }
-                }
-
-                if pids_to_kill.is_empty() {
-                    println!("✅ No processes found on port {}", port);
-                    return Ok(());
-                }
-
-                println!("🎯 Found {} process(es) on port {}: {:?}", pids_to_kill.len(), port, pids_to_kill);
-
-                for pid in pids_to_kill {
-                    println!("💀 Killing process with PID: {}", pid);
-                    match Command::new("taskkill")
-                        .args(["/F", "/PID", &pid.to_string()])
-                        .output()
-                    {
-                        Ok(_) => println!("✅ Successfully killed PID {}", pid),
-                        Err(e) => println!("⚠️  Failed to kill PID {}: {}", pid, e),
-                    }
-                }
-
-                // Wait a moment for processes to die
-                tokio::time::sleep(Duration::from_millis(500)).await;
-                println!("✅ Port {} cleanup completed", port);
-            }
-            Err(e) => {
-                println!("⚠️  Failed to check port {}: {}", port, e);
-            }
-        }
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-        // Use lsof to find processes on the port (similar to macOS)
-        match Command::new("lsof")
-            .args(["-ti", &format!(":{}", port)])
-            .output()
-        {
-            Ok(output) => {
-                let pids_str = String::from_utf8_lossy(&output.stdout);
-                let pids: Vec<&str> = pids_str.trim().split('\n').filter(|s| !s.is_empty()).collect();
-
-                if pids.is_empty() {
-                    println!("✅ No processes found on port {}", port);
-                    return Ok(());
-                }
-
-                println!("🎯 Found {} process(es) on port {}: {:?}", pids.len(), port, pids);
-
-                for pid in pids {
-                    if let Ok(pid_num) = pid.parse::<u32>() {
-                        println!("💀 Killing process with PID: {}", pid_num);
-                        match Command::new("kill")
-                            .args(["-9", pid])
-                            .output()
-                        {
-                            Ok(_) => println!("✅ Successfully killed PID {}", pid_num),
-                            Err(e) => println!("⚠️  Failed to kill PID {}: {}", pid_num, e),
-                        }
-                    }
-                }
-
-                // Wait a moment for processes to die
-                tokio::time::sleep(Duration::from_millis(500)).await;
-                println!("✅ Port {} cleanup completed", port);
-            }
-            Err(e) => {
-                println!("⚠️  Failed to check port {}: {}", port, e);
-            }
-        }
-    }
-
-    Ok(())
-}
-
-#[command]
-pub async fn start_python_server(app: tauri::AppHandle) -> Result<String, String> {
-    println!("🚀 Starting Python HTTP server...");
-
-    // First, kill any zombie processes on port 8000
-    kill_processes_on_port(8000).await?;
-
-    // Check if server is already running after cleanup
-    let client = create_http_client().await?;
-    if let Ok(response) = client.get(&format!("{}/health", API_BASE_URL)).send().await {
-        if response.status().is_success() {
-            println!("✅ Python server is already running");
-            return Ok("Python HTTP server is already running".to_string());
-        }
-    }
-
-    // Get the resource directory path
-    let resource_dir = app.path().resource_dir()
-        .map_err(|e| format!("Failed to get resource directory: {}", e))?;
-
-    println!("📁 Resource directory: {}", resource_dir.display());
-
-    // Try multiple possible paths for the Python sidecar
-    // Prioritize Python script over executable since we know it works
-    let possible_paths = vec![
-        // Python files are bundled directly in resource directory (PRIORITIZE THIS)
-        resource_dir.join("gigui").join("start_server.py"),
-        // For development, try the source directory
-        resource_dir.parent().unwrap_or(&resource_dir).join("python").join("gigui").join("start_server.py"),
-        // Executables (lower priority since they have argument parsing issues)
-        resource_dir.join("dist").join("gitinspector-api-sidecar"),
-        resource_dir.join("gitinspector-api-sidecar"),
-        resource_dir.join("bin").join("gitinspector-api-sidecar"),
-    ];
-
-    println!("🔍 Searching for Python sidecar in paths:");
-    for path in &possible_paths {
-        let exists = path.exists();
-        println!("  {} - {}", if exists { "✅" } else { "❌" }, path.display());
-    }
-
-    let mut sidecar_path = None;
-    for path in possible_paths {
-        if path.exists() {
-            sidecar_path = Some(path);
-            break;
-        }
-    }
-
-    let sidecar_path = sidecar_path.ok_or_else(|| {
-        format!("❌ Python sidecar not found in any expected location. Resource dir: {}", resource_dir.display())
-    })?;
-
-    println!("✅ Found Python sidecar at: {}", sidecar_path.display());
-
-    // Determine if we're using a Python script or executable
-    let is_python_script = sidecar_path.extension().map_or(false, |ext| ext == "py");
-    println!("🐍 Is Python script: {}", is_python_script);
-
-    // Check if python3 is available
-    if is_python_script {
-        match Command::new("python3").arg("--version").output() {
-            Ok(output) => {
-                let version = String::from_utf8_lossy(&output.stdout);
-                println!("🐍 Python3 version: {}", version.trim());
-            }
-            Err(e) => {
-                return Err(format!("❌ Python3 not found or not executable: {}", e));
-            }
-        }
-    }
-
-    // Start the HTTP server
-    let mut cmd = if is_python_script {
-        let mut cmd = Command::new("python3");
-        // Run as module to support relative imports
-        cmd.args(["-m", "gigui.start_server"]);
-        cmd.args(["--host=127.0.0.1", "--port=8000"]);
-        println!("🚀 Command: python3 -m gigui.start_server --host=127.0.0.1 --port=8000");
-        cmd
-    } else {
-        let mut cmd = Command::new(&sidecar_path);
-        cmd.args(["--host=127.0.0.1", "--port=8000"]);
-        println!("🚀 Command: {} --host=127.0.0.1 --port=8000", sidecar_path.display());
-        cmd
-    };
-
-    cmd.current_dir(&resource_dir)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped());
-
-    println!("📂 Working directory: {}", resource_dir.display());
-
-    match cmd.spawn() {
-        Ok(mut child) => {
-            let child_id = child.id();
-            println!("🎯 Python HTTP server started with PID: {}", child_id);
-
-            // Check if process exits immediately
-            tokio::time::sleep(Duration::from_millis(500)).await;
-            if let Ok(Some(exit_status)) = child.try_wait() {
-                // Process exited immediately, get error output
-                let mut error_output = String::new();
-                if let Some(mut stderr) = child.stderr.take() {
-                    let _ = stderr.read_to_string(&mut error_output);
-                }
-                let mut stdout_output = String::new();
-                if let Some(mut stdout) = child.stdout.take() {
-                    let _ = stdout.read_to_string(&mut stdout_output);
-                }
-                return Err(format!("❌ Python server exited immediately. Exit status: {:?}\nSTDERR: {}\nSTDOUT: {}",
-                    exit_status, error_output, stdout_output));
-            }
-
-            // Store the process handle for later cleanup
-            let server_process: tauri::State<ServerProcess> = app.state();
-            if let Ok(mut process) = server_process.lock() {
-                *process = Some(child);
-            }
-
-            // Wait longer for server to start (especially for Python scripts)
-            let wait_time = if is_python_script { 8000 } else { 3000 };
-            println!("⏳ Waiting {}ms for server to start...", wait_time);
-            tokio::time::sleep(Duration::from_millis(wait_time)).await;
-
-            // Check if the server is responding
-            let mut attempts = 0;
-            let max_attempts = 15;
-
-            println!("🔄 Starting health checks...");
-            while attempts < max_attempts {
-                match client.get(&format!("{}/health", API_BASE_URL)).send().await {
-                    Ok(response) if response.status().is_success() => {
-                        println!("✅ Python HTTP server is responding!");
-                        return Ok("Python HTTP server started successfully".to_string());
-                    }
-                    Ok(response) => {
-                        println!("⚠️  Server responded with status: {}, attempt {}/{}", response.status(), attempts + 1, max_attempts);
-                    }
-                    Err(e) => {
-                        println!("❌ Health check failed, attempt {}/{}: {}", attempts + 1, max_attempts, e);
-                    }
-                }
-
-                attempts += 1;
-                if attempts < max_attempts {
-                    tokio::time::sleep(Duration::from_millis(1000)).await;
-                }
-            }
-
-            // Final check if process is still running
-            let server_process: tauri::State<ServerProcess> = app.state();
-            if let Ok(mut process) = server_process.lock() {
-                if let Some(ref mut child) = process.as_mut() {
-                    if let Ok(Some(exit_status)) = child.try_wait() {
-                        let mut error_output = String::new();
-                        if let Some(mut stderr) = child.stderr.take() {
-                            let _ = stderr.read_to_string(&mut error_output);
-                        }
-                        return Err(format!("❌ Python server process exited. Exit status: {:?}, Error: {}", exit_status, error_output));
-                    } else {
-                        return Err("❌ Python server process is running but not responding to health checks. Check if port 8000 is blocked or if there are permission issues.".to_string());
-                    }
-                }
-            }
-
-            Err("❌ Failed to access server process state".to_string())
-        }
-        Err(e) => {
-            Err(format!("❌ Failed to spawn Python process: {}", e))
-        }
-    }
-}
-
-#[command]
-pub async fn stop_python_server(app: tauri::AppHandle) -> Result<String, String> {
-    println!("Stopping Python HTTP server...");
-
-    let server_process: tauri::State<ServerProcess> = app.state();
-    let result = {
-        if let Ok(mut process) = server_process.lock() {
-            if let Some(mut child) = process.take() {
-                match child.kill() {
-                    Ok(_) => {
-                        let _ = child.wait(); // Wait for the process to actually terminate
-                        println!("Python server stopped successfully");
-                        Ok("Python HTTP server stopped successfully".to_string())
-                    }
-                    Err(e) => {
-                        Err(format!("Failed to stop Python server: {}", e))
-                    }
-                }
-            } else {
-                Ok("No Python server process to stop".to_string())
-            }
-        } else {
-            Err("Failed to access server process state".to_string())
-        }
-    };
-    result
+    Ok(health_status)
 }

@@ -1,11 +1,9 @@
-"""
-GitInspectorGUI - Modern git repository analysis tool.
+"""GitInspectorGUI - Modern git repository analysis tool.
 
 This package provides the core Python backend for analyzing git repositories,
 extracting statistics, and generating blame analysis data.
 """
 
-from gigui.api.http_server import app, start_server
 from gigui.api.main import GitInspectorAPI
 from gigui.api.types import (
     AnalysisResult,
@@ -62,9 +60,6 @@ __all__ = [
     "GitInspectorAPI",
     "RepositoryResult",
     "Settings",
-    "app",
-    "start_server",
-    
     # Utility functions
     "Keys",
     "divide_to_percentage",
