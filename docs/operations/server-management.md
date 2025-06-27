@@ -1,191 +1,355 @@
-# Server Management
+# Application Management
 
-This guide helps you manage the multiple servers in the GitInspectorGUI full stack application and resolve common issues with old servers preventing new ones from starting.
+GitInspectorGUI uses a single-process PyO3 architecture with embedded Python. This guide covers application lifecycle management and troubleshooting.
 
-## The Problem
+## Architecture Overview
 
-The GitInspectorGUI application uses multiple servers:
+The GitInspectorGUI application uses a **single-process architecture** with embedded Python via PyO3:
 
--   **Vite** (port 5173) - Frontend development server
--   **Tauri** (port 1420) - Desktop application development server
--   **FastAPI** (port 8000) - Python backend API
--   **MkDocs** (port 8080) - Documentation server
+-   **Tauri Desktop Application** - Single process containing all components
+-   **Embedded Python Engine** - Python interpreter embedded within Tauri via PyO3
+-   **No Network Communication** - Direct function calls between Rust and Python
 
-Common issues include:
+## Development vs Production
 
--   Old servers still running on ports, preventing new ones from starting
--   Cached processes interfering with fresh development
--   Multiple instances of the same server running
--   Port conflicts between different development sessions
-
-## Server Manager Script
-
-Use the `scripts/server-manager.sh` script to manage all servers:
+### Development Mode
 
 ```bash
-# Show help and available commands
-./scripts/server-manager.sh help
-
-# Check status of all servers
-./scripts/server-manager.sh status
-
-# Kill all running servers
-./scripts/server-manager.sh kill-all
-
-# Clean start (kill servers + clear caches)
-./scripts/server-manager.sh clean
-
-# Start development servers with clean slate
-./scripts/server-manager.sh start-dev
-
-# Kill process on specific port
-./scripts/server-manager.sh kill-port 5173
-```
-
-## Common Workflows
-
-### Starting Fresh Development Session
-
-```bash
-# Clean everything and start fresh
-./scripts/server-manager.sh clean
-./scripts/server-manager.sh start-dev
-```
-
-### Side-by-Side Testing with Old App
-
-```bash
-# Check for conflicts with old app (Werkzeug server)
-./scripts/server-manager.sh check-conflicts
-
-# Start new app with alternative ports (preserves old app)
-./scripts/server-manager.sh start-alt
-
-# Or kill only new app servers (preserve old app)
-./scripts/server-manager.sh kill-new-only
-```
-
-### Troubleshooting Port Conflicts
-
-```bash
-# Check what's running on common ports
-./scripts/server-manager.sh ports
-
-# Check specific server status
-./scripts/server-manager.sh status
-
-# Kill specific port if needed
-./scripts/server-manager.sh kill-port 8000
-```
-
-### Quick Server Restart
-
-```bash
-# Kill all servers but keep caches
-./scripts/server-manager.sh kill-all
-
-# Then start normally
+# Single command starts everything
 pnpm run tauri dev
 ```
 
-## Manual Server Management
+**What this starts:**
 
-If you prefer manual control:
+-   Tauri desktop application with embedded Python
+-   Vite development server for frontend hot reloading
+-   PyO3 bindings for direct Python integration
 
-### Check What's Running on Ports
-
-```bash
-# Check specific port
-lsof -i :5173
-
-# Check all common development ports
-lsof -i :5173 -i :8000 -i :1420 -i :8080
-```
-
-### Kill Processes by Port
+### Production Mode
 
 ```bash
-# Kill process on specific port
-kill -9 $(lsof -ti:5173)
-
-# Kill multiple ports
-kill -9 $(lsof -ti:5173,8000,1420,8080)
+# Build single executable
+pnpm run tauri build
 ```
 
-### Kill Processes by Name
+**What this creates:**
+
+-   Single desktop application executable
+-   Embedded Python interpreter
+-   All dependencies bundled
+
+## Application Lifecycle
+
+### Starting the Application
+
+**Development:**
 
 ```bash
-# Kill Node.js development processes
-pkill -f "vite"
-pkill -f "tauri dev"
+# Start development environment
+pnpm run tauri dev
 
-# Kill Python API processes
-pkill -f "uvicorn"
-pkill -f "dev_api.py"
+# Expected output:
+# - Tauri application window opens
+# - Python analysis engine is ready
+# - Frontend hot reloading enabled
 ```
 
-## Development Mode Integration
-
-The server manager works with the existing development mode script:
+**Production:**
 
 ```bash
-# Enable development mode (uses Python script instead of sidecar)
-./scripts/dev-mode.sh enable
-
-# Clean start with development mode
-./scripts/server-manager.sh clean
-./scripts/dev-mode.sh dev
+# Run built application (example paths)
+# Windows: ./target/release/gitinspectorgui.exe
+# macOS: ./target/release/bundle/macos/GitInspectorGUI.app
+# Linux: ./target/release/gitinspectorgui
 ```
 
-## Monitoring Logs
+### Stopping the Application
 
-When using `start-dev`, logs are written to `/tmp/`:
+**Development:**
+
+-   Close the Tauri application window, or
+-   Press `Ctrl+C` in the terminal running `pnpm run tauri dev`
+
+**Production:**
+
+-   Close the application window
+-   Application terminates cleanly with embedded Python
+
+## Troubleshooting
+
+### Application Won't Start
+
+**Check Python Dependencies:**
 
 ```bash
-# Monitor API logs
-tail -f /tmp/gitinspector-api.log
+# Verify Python environment
+cd python
+uv sync
 
-# Monitor all logs
-tail -f /tmp/gitinspector-*.log
+# Test Python modules directly
+python -c "from gigui.analysis import execute_analysis; print('Python modules OK')"
 ```
 
-## Port Reference
+**Check Rust/Tauri Dependencies:**
 
-### Default Ports (New App)
+```bash
+# Verify Rust toolchain
+rustc --version
+cargo --version
 
-| Port | Service | Purpose                        |
-| ---- | ------- | ------------------------------ |
-| 5173 | Vite    | Frontend development server    |
-| 1420 | Tauri   | Desktop app development server |
-| 8000 | FastAPI | Python backend API             |
-| 8080 | MkDocs  | Documentation server           |
+# Clean and rebuild
+cd src-tauri
+cargo clean
+cargo build
+```
 
-### Alternative Ports (Side-by-Side Mode)
+**Check Node.js Dependencies:**
 
-| Port | Service | Purpose                     |
-| ---- | ------- | --------------------------- |
-| 5174 | Vite    | Frontend development server |
-| 8001 | FastAPI | Python backend API          |
-| 8081 | MkDocs  | Documentation server        |
+```bash
+# Verify frontend dependencies
+pnpm install
+pnpm run build
+```
 
-### Old App Ports (Typically Used)
+### Application Crashes
 
-| Port | Service  | Purpose                    |
-| ---- | -------- | -------------------------- |
-| 5000 | Werkzeug | Flask development server   |
-| 8000 | Various  | API server (conflicts!)    |
-| 8080 | Various  | Documentation (conflicts!) |
+**Check Logs:**
 
-**Note**: Ports 8000 and 8080 may conflict between old and new apps. Use `check-conflicts` and `start-alt` commands for side-by-side testing.
+```bash
+# Development mode logs appear in terminal
+pnpm run tauri dev
 
-## Troubleshooting Tips
+# Production logs (platform-specific locations):
+# Windows: %APPDATA%/com.gitinspectorgui.app/logs/
+# macOS: ~/Library/Logs/com.gitinspectorgui.app/
+# Linux: ~/.local/share/com.gitinspectorgui.app/logs/
+```
 
-1. **Always check status first**: `./scripts/server-manager.sh status`
-2. **Use clean start for persistent issues**: `./scripts/server-manager.sh clean`
-3. **Check logs for errors**: `tail -f /tmp/gitinspector-*.log`
-4. **Verify ports are free**: `./scripts/server-manager.sh ports`
-5. **Kill specific problematic processes**: `./scripts/server-manager.sh kill-port <port>`
+**Common Crash Causes:**
 
-## Integration with IDE
+1. **Python Import Errors** - Missing Python modules or incorrect module structure
+2. **PyO3 Binding Issues** - Incompatible Python/Rust versions
+3. **Memory Issues** - Large repository analysis exceeding available memory
+4. **File Permission Issues** - Cannot access git repositories
 
-You can add these commands to your IDE's task runner or create keyboard shortcuts for common operations like clean start.
+### Python Integration Issues
+
+**Test Python Functions Independently:**
+
+```bash
+cd python
+python -c "
+from gigui.analysis import execute_analysis, Settings
+settings = Settings(input_fstrs=['.'], n_files=10)
+try:
+    result = execute_analysis(settings)
+    print('Python analysis OK')
+except Exception as e:
+    print(f'Python error: {e}')
+"
+```
+
+**Check PyO3 Integration:**
+
+```bash
+# Rebuild with PyO3 debug info
+cd src-tauri
+cargo build --features pyo3/auto-initialize
+```
+
+### Performance Issues
+
+**Monitor Resource Usage:**
+
+```bash
+# Check memory usage (Unix-like systems)
+ps aux | grep gitinspectorgui
+
+# Check CPU usage
+top -p $(pgrep gitinspectorgui)
+```
+
+**Optimize Analysis Settings:**
+
+-   Reduce `n_files` parameter for large repositories
+-   Use `ex_files` to exclude unnecessary files
+-   Limit `processes` to available CPU cores
+
+### File Access Issues
+
+**Check Repository Permissions:**
+
+```bash
+# Verify git repository access
+cd /path/to/repository
+git status
+
+# Check file permissions
+ls -la .git/
+```
+
+**Common Permission Issues:**
+
+-   Repository on network drive with limited access
+-   Git repository corrupted or incomplete
+-   Insufficient permissions to read git objects
+
+## Application Configuration
+
+### Python Environment
+
+**Location:** `python/pyproject.toml`
+
+```toml
+[project]
+dependencies = [
+    "gitpython>=3.1.40",
+    "pydantic>=2.5.0",
+    # ... other dependencies
+]
+```
+
+### Tauri Configuration
+
+**Location:** `src-tauri/tauri.conf.json`
+
+```json
+{
+    "build": {
+        "beforeBuildCommand": "pnpm run build",
+        "beforeDevCommand": "pnpm run dev",
+        "devPath": "http://localhost:5173",
+        "distDir": "../dist"
+    }
+}
+```
+
+### PyO3 Configuration
+
+**Location:** `src-tauri/Cargo.toml`
+
+```toml
+[dependencies]
+pyo3 = { version = "0.20", features = ["auto-initialize"] }
+```
+
+## Maintenance Tasks
+
+### Update Dependencies
+
+**Python Dependencies:**
+
+```bash
+cd python
+uv sync --upgrade
+```
+
+**Rust Dependencies:**
+
+```bash
+cd src-tauri
+cargo update
+```
+
+**Node.js Dependencies:**
+
+```bash
+pnpm update
+```
+
+### Clean Build Artifacts
+
+**Complete Clean:**
+
+```bash
+# Clean all build artifacts
+rm -rf target/
+rm -rf dist/
+rm -rf node_modules/
+cd python && rm -rf .venv/
+cd src-tauri && cargo clean
+```
+
+**Rebuild Everything:**
+
+```bash
+# Reinstall dependencies and rebuild
+pnpm install
+cd python && uv sync
+cd ../src-tauri && cargo build
+pnpm run tauri dev
+```
+
+### Backup and Restore
+
+**Important Files to Backup:**
+
+-   `python/` - Python analysis engine
+-   `src/` - Frontend source code
+-   `src-tauri/src/` - Rust integration code
+-   Configuration files: `package.json`, `pyproject.toml`, `Cargo.toml`
+
+**Settings and Data:**
+
+-   User settings are stored in platform-specific locations
+-   No database or persistent server state to backup
+
+## Monitoring
+
+### Application Health
+
+**Check Application Status:**
+
+```bash
+# Development mode - check terminal output
+pnpm run tauri dev
+
+# Look for:
+# ✓ Python modules loaded successfully
+# ✓ Tauri application started
+# ✓ Frontend connected
+```
+
+**Performance Monitoring:**
+
+-   Monitor memory usage during large repository analysis
+-   Check CPU usage with multiple repositories
+-   Watch for Python exception logs
+
+### Error Tracking
+
+**Log Locations:**
+
+-   **Development:** Terminal output from `pnpm run tauri dev`
+-   **Production:** Platform-specific application log directories
+
+**Key Error Patterns:**
+
+-   `PyO3 Error:` - Python integration issues
+-   `Tauri Error:` - Desktop application issues
+-   `Analysis Error:` - Git repository analysis problems
+
+## Best Practices
+
+### Development Workflow
+
+1. **Always test Python functions independently** before running in Tauri
+2. **Use development mode** for rapid iteration
+3. **Monitor terminal output** for PyO3 integration issues
+4. **Clean rebuild** when switching between development and production
+
+### Production Deployment
+
+1. **Test thoroughly in development mode** before building
+2. **Verify all dependencies** are included in build
+3. **Test on target platforms** before distribution
+4. **Include error reporting** for production issues
+
+### Troubleshooting Approach
+
+1. **Isolate the problem** - Test Python, Rust, and frontend separately
+2. **Check logs first** - Most issues are logged with clear error messages
+3. **Verify dependencies** - Ensure all required packages are installed
+4. **Clean rebuild** - Many issues resolve with a clean build
+
+This single-process architecture eliminates the complexity of managing multiple servers while providing robust desktop application functionality with embedded Python analysis capabilities.
