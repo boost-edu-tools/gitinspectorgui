@@ -4,7 +4,9 @@ Practical examples for GitInspectorGUI PyO3 Python function implementation.
 
 ## Overview
 
-This document shows how to implement the required Python functions that will be called directly from Rust via PyO3. No HTTP requests or network communication is involved.
+This document shows how to implement the required Python functions that will be called directly from Rust via PyO3. No HTTP requests or network communication is involved - these are direct function calls within a single process.
+
+**Implementation Focus**: These examples show direct Python function implementations - no HTTP endpoints or network code needed. For PyO3 integration details, see [Design Decisions](../architecture/design-decisions.md).
 
 ## Basic Analysis Function
 

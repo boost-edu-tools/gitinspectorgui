@@ -11,9 +11,9 @@ If you're unfamiliar with the technologies used, see the **[Technology Primer](.
 **Development environment components**:
 
 -   **Frontend**: Tauri (desktop framework) + React (UI library) + TypeScript (typed JavaScript) + Vite (build tool)
--   **Backend**: Python + FastAPI (modern web framework)
+-   **Backend**: Python analysis engine embedded via PyO3 (Rust-Python bindings)
 -   **Package Management**: uv (fast Python package manager), pnpm (fast JavaScript package manager)
--   **Build System**: Cargo (Rust compiler), Vite (frontend bundler)
+-   **Build System**: Cargo (Rust compiler with PyO3), Vite (frontend bundler)
 
 ## Development Configuration
 
@@ -41,68 +41,109 @@ If using VS Code:
 
 For development server commands and workflows, see **[Development Workflow](development-workflow.md)**.
 
-### API Server Configuration
+### Single-Process Development
+
+GitInspectorGUI uses a single-process architecture with embedded Python:
 
 ```bash
-# Custom host and port
-python -m gigui.start_server --host 127.0.0.1 --port 8000
-
-# Debug logging
-python -m gigui.start_server --log-level DEBUG
-
-# Development mode with auto-reload
-python -m gigui.start_server --reload --log-level DEBUG
-```
-
-### Frontend Configuration
-
-```bash
-# Development with hot reload
+# Start complete development environment
 pnpm run tauri dev
 
-# With custom Tauri config
-pnpm run tauri dev -- --config src-tauri/tauri.conf.dev.json
+# This starts:
+# - Vite dev server for frontend hot reload
+# - Tauri application with embedded Python via PyO3
+# - Direct PyO3 function calls (no separate server)
+```
+
+### Development Modes
+
+```bash
+# Complete development environment (recommended)
+pnpm run tauri dev
 
 # Frontend only (without desktop wrapper)
 pnpm run dev
+
+# Note: Python changes require restarting the desktop app
+# since Python is embedded via PyO3
 ```
 
 ## Debugging
 
-### Python API
+### PyO3 Integration Debugging
 
 ```json
 {
-    "name": "Debug API Server",
-    "type": "python",
+    "name": "Debug Tauri with PyO3",
+    "type": "lldb",
     "request": "launch",
-    "module": "gigui.start_server",
-    "args": ["--reload", "--log-level", "DEBUG"]
+    "program": "${workspaceFolder}/src-tauri/target/debug/gitinspectorgui",
+    "args": [],
+    "cwd": "${workspaceFolder}",
+    "env": {
+        "RUST_LOG": "debug",
+        "RUST_BACKTRACE": "1"
+    }
 }
 ```
 
-### Frontend
+### Python Code Debugging
+
+Since Python is embedded via PyO3, debugging requires different approaches:
+
+```python
+# Add logging to Python code
+import logging
+logger = logging.getLogger(__name__)
+
+def execute_analysis(settings):
+    logger.info(f"Starting analysis with settings: {settings}")
+    # Your analysis code here
+    logger.info("Analysis completed")
+```
+
+### Frontend Debugging
 
 -   **DevTools**: Right-click → "Inspect Element"
 -   **Console**: Use `console.log()` for debugging
--   **Breakpoints**: Set in VS Code or browser
+-   **Breakpoints**: Set in VS Code or browser DevTools
+
+### PyO3 Error Debugging
+
+```bash
+# Enable PyO3 debug logging
+RUST_LOG=pyo3=debug pnpm run tauri dev
+
+# Check for Python import issues
+python -c "from gigui.analysis import execute_analysis; print('OK')"
+```
 
 ## Testing
 
-### Python
+### Python Unit Tests
 
 ```bash
-# All tests
-python -m pytest
+# All Python tests
+cd python && python -m pytest
 
 # With coverage
-python -m pytest --cov=gigui
+cd python && python -m pytest --cov=gigui
 
-# Specific file
-python -m pytest python/test_api.py
+# Specific test file
+cd python && python -m pytest tests/test_analysis.py
 ```
 
-### Frontend
+### PyO3 Integration Tests
+
+```bash
+# Test PyO3 bindings
+cd src-tauri && cargo test
+
+# Test with Python integration
+cd src-tauri && cargo test --features python-tests
+```
+
+### Frontend Tests
 
 ```bash
 # React tests
@@ -114,61 +155,145 @@ pnpm run test:coverage
 
 ## Tools
 
-### API Documentation
+### Development Tools
 
--   **Swagger UI**: `http://127.0.0.1:8000/docs`
--   **ReDoc**: `http://127.0.0.1:8000/redoc`
+-   **Tauri DevTools**: Built into development mode
+-   **React DevTools**: Available in browser inspector
+-   **Rust Analyzer**: VS Code extension for Rust development
+-   **Python Debugger**: VS Code Python extension
 
 ### Build Commands
 
 ```bash
-# Development
+# Development (single command for everything)
 pnpm run tauri dev
 
-# Production
-pnpm run tauri build
-python -m build
-mkdocs build
+# Production builds
+pnpm run tauri build    # Desktop application
+cd python && uv build  # Python CLI package
+mkdocs build           # Documentation
+```
+
+## Performance Monitoring
+
+### PyO3 Performance
+
+```rust
+// Add timing to Rust code
+use std::time::Instant;
+
+#[tauri::command]
+pub async fn execute_analysis_command(settings: Settings) -> Result<AnalysisResult, String> {
+    let start = Instant::now();
+    let result = execute_analysis(settings)?;
+    let duration = start.elapsed();
+    println!("Analysis took: {:?}", duration);
+    Ok(result)
+}
+```
+
+### Python Performance
+
+```python
+import time
+import logging
+
+logger = logging.getLogger(__name__)
+
+def execute_analysis(settings):
+    start_time = time.time()
+    # Your analysis code here
+    duration = time.time() - start_time
+    logger.info(f"Analysis completed in {duration:.2f} seconds")
 ```
 
 ## Troubleshooting
 
-### Port Conflicts
+### PyO3 Compilation Issues
 
 ```bash
-# Find and kill process on port 8000
-lsof -ti:8000 | xargs kill -9
+# Check Python development headers
+python -c "import sysconfig; print(sysconfig.get_path('include'))"
+
+# Rebuild PyO3 bindings
+cd src-tauri && cargo clean && cargo build
 ```
 
-### Python Issues
+### Python Environment Issues
 
 ```bash
-# Reinstall dependencies
+# Reinstall Python dependencies
 uv sync
 
-# Check Python path
-python -c "import sys; print(sys.path)"
+# Check Python module imports
+python -c "import gigui; print('OK')"
+
+# Verify virtual environment
+which python
 ```
 
-### Node.js Issues
+### Frontend Issues
 
 ```bash
-# Clear and reinstall
+# Clear and reinstall frontend dependencies
 rm -rf node_modules pnpm-lock.yaml
 pnpm install
 ```
 
-### Rust Issues
+### Rust/Tauri Issues
 
 ```bash
-# Update and clean
+# Update Rust toolchain
 rustup update
-cargo clean
+
+# Clean Rust build cache
+cd src-tauri && cargo clean
+
+# Rebuild everything
+pnpm run tauri build
 ```
 
-## Related
+### Memory Issues
 
--   **[Development Workflow](development-workflow.md)** - Development workflow
+```bash
+# Monitor memory usage during development
+top -p $(pgrep gitinspectorgui)
+
+# Check for Python memory leaks
+python -c "import tracemalloc; tracemalloc.start()"
+```
+
+## Environment Variables
+
+### Development Environment
+
+```bash
+# Enable debug logging
+export RUST_LOG=debug
+export RUST_BACKTRACE=1
+
+# PyO3 specific debugging
+export PYTHONPATH="${PWD}/python"
+export RUST_LOG=pyo3=debug
+
+# Start development with debug info
+pnpm run tauri dev
+```
+
+### Production Environment
+
+```bash
+# Optimized builds
+export CARGO_PROFILE_RELEASE_LTO=true
+export CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
+
+# Build optimized release
+pnpm run tauri build
+```
+
+## Related Documentation
+
+-   **[Development Workflow](development-workflow.md)** - Development patterns and best practices
 -   **[Package Management](package-management-overview.md)** - Dependencies and tools
--   **[Troubleshooting](troubleshooting.md)** - Common issues
--   **[API Reference](../api/reference.md)** - API documentation
+-   **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
+-   **[PyO3 Integration](../architecture/design-decisions.md)** - PyO3 architecture details

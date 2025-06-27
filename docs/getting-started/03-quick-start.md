@@ -1,6 +1,6 @@
 # Quick Start
 
-Get GitInspectorGUI development environment running in 1 step.
+Get GitInspectorGUI development environment running in one command.
 
 **Prerequisites**: Complete **[Prerequisites](01-prerequisites.md)** and **[Installation](02-installation.md)** first.
 

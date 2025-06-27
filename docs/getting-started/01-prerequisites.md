@@ -8,9 +8,9 @@ GitInspectorGUI uses multiple technologies working together. If you're unfamilia
 
 **What you'll be installing**:
 
--   **Python 3.13+** - Backend API server (FastAPI + GitPython)
+-   **Python 3.8+** - Analysis engine (embedded via PyO3)
 -   **Node.js 22+** - Frontend build tools (React + TypeScript + Vite)
--   **Rust 1.85+** - Desktop framework (Tauri)
+-   **Rust 1.63+** - Desktop framework (Tauri + PyO3)
 -   **Git 2.45+** - Repository analysis (you probably already have this)
 -   **Modern package managers** - uv (Python), pnpm (Node.js) for faster development
 
@@ -19,9 +19,9 @@ GitInspectorGUI uses multiple technologies working together. If you're unfamilia
 ### Minimum Requirements
 
 -   **OS**: Windows 11+, macOS 15+, Ubuntu 24.04+ LTS
--   **Python**: 3.13+ (for the backend API server)
+-   **Python**: 3.8+ (for the embedded analysis engine)
 -   **Node.js**: 22.0+ (for the frontend build tools)
--   **Rust**: 1.85+ (for the Tauri desktop framework)
+-   **Rust**: 1.63+ (for the Tauri desktop framework with PyO3)
 -   **Git**: 2.45+ (for repository analysis)
 
 ## Installation by Platform
@@ -98,9 +98,9 @@ After installation, verify all tools are working:
 
 ```bash
 # Check versions
-python --version    # Should show 3.13+
+python --version    # Should show 3.8+
 node --version      # Should show 22.0+
-rustc --version     # Should show 1.85+
+rustc --version     # Should show 1.63+
 git --version       # Should show 2.45+
 
 # Check package managers
@@ -111,10 +111,10 @@ pnpm --version      # Should show 9.x+
 ## What Each Tool Does
 
 -   **Git**: Version control (you probably already have this)
--   **Python + uv**: Backend API server with fast package management
+-   **Python + uv**: Analysis engine embedded via PyO3 with fast package management
 -   **Node.js + pnpm**: Frontend build tools with efficient package management
--   **Rust**: Required for Tauri desktop framework
--   **Build tools**: Compilers needed for native development
+-   **Rust**: Required for Tauri desktop framework and PyO3 integration
+-   **Build tools**: Compilers needed for native development and PyO3 compilation
 
 ## Next Steps
 

@@ -2,7 +2,7 @@
 
 Set up the GitInspectorGUI development environment after installing prerequisites.
 
-**Prerequisites**: Complete **[Prerequisites](01-prerequisites.md)** first - you need Python 3.13+, Node.js 22+, Rust 1.85+, and package managers installed.
+**Prerequisites**: Complete **[Prerequisites](01-prerequisites.md)** first - you need Python 3.8+, Node.js 22+, Rust 1.63+, and package managers installed.
 
 **Note**: This is for setting up the development environment. For application usage, see [gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
 
@@ -57,7 +57,7 @@ Now install the Python dependencies:
 uv sync
 ```
 
-This reads `pyproject.toml` and installs all Python packages needed for the embedded Python analysis engine.
+This reads `pyproject.toml` and installs all Python packages needed for the analysis engine that will be embedded via PyO3.
 
 #### Frontend Setup
 
@@ -191,6 +191,6 @@ After successful installation:
 
 ## Summary
 
-GitInspectorGUI installation sets up Python backend dependencies,
-React/TypeScript frontend tools, and Tauri desktop framework integration. The
-verification steps ensure all components work together correctly.
+GitInspectorGUI installation sets up Python analysis engine dependencies,
+React/TypeScript frontend tools, and Tauri desktop framework with PyO3 integration. The
+verification steps ensure all components work together correctly in a single process.

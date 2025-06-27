@@ -4,7 +4,9 @@ Error handling patterns for GitInspectorGUI PyO3 Python integration.
 
 ## Overview
 
-With PyO3 integration, errors are handled through native Python exceptions that are automatically converted to Rust error types. No HTTP status codes or network errors are involved.
+With PyO3 integration, errors are handled through native Python exceptions that are automatically converted to Rust error types. No HTTP status codes or network errors are involved - this is direct function call error handling within a single process.
+
+**Error Flow**: Python exceptions are automatically converted to Rust error types by PyO3. For architecture details, see [PyO3 Integration](../architecture/design-decisions.md).
 
 ## Error Types
 

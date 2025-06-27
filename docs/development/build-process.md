@@ -1,6 +1,6 @@
 # Build Process
 
-This document provides a comprehensive overview of the GitInspectorGUI build process, explaining how the React frontend, Python FastAPI backend, and Tauri wrapper are integrated to create cross-platform desktop applications.
+This document provides a comprehensive overview of the GitInspectorGUI build process, explaining how the React frontend and embedded Python backend are integrated via PyO3 to create cross-platform desktop applications.
 
 ## Table of Contents
 
@@ -19,24 +19,24 @@ This document provides a comprehensive overview of the GitInspectorGUI build pro
 
 ## Architecture Overview
 
-GitInspectorGUI is a **Tauri-based desktop application** that combines three main components:
+GitInspectorGUI is a **Tauri-based desktop application** with PyO3 embedded Python that combines three main components:
 
 -   **React + TypeScript frontend** (UI layer)
--   **Rust Tauri wrapper** (native desktop shell)
--   **Python FastAPI backend** (git analysis engine)
+-   **Rust Tauri wrapper** (native desktop shell with PyO3 integration)
+-   **Embedded Python backend** (git analysis engine via PyO3)
 
 ```mermaid
 graph TB
-    subgraph "Desktop Application"
-        A[React Frontend<br/>TypeScript + Vite] --> B[Tauri Rust Shell<br/>Native Window Manager]
-        B --> C[Python Backend<br/>FastAPI + GitPython]
+    subgraph "Desktop Application - Single Process"
+        A[React Frontend<br/>TypeScript + Vite] --> B[Tauri Rust Shell<br/>PyO3 Integration]
+        B --> C[Embedded Python<br/>Analysis Engine]
     end
 
     subgraph "Build Artifacts"
         D[Windows .msi/.exe]
         E[macOS .dmg/.app]
         F[Linux .deb/.AppImage/.rpm]
-        G[Python Wheel]
+        G[Python CLI Package]
     end
 
     A --> D
@@ -55,36 +55,41 @@ The React frontend is built using Vite and embedded directly into the Tauri appl
 -   **Output**: `dist/` directory with compiled React app
 -   **Integration**: Tauri configuration `frontendDist: "../dist"` embeds the built app
 
-### Backend Integration
+### PyO3 Backend Integration
 
-The Python backend is packaged as both a bundled resource and standalone executable:
+The Python backend is embedded directly into the Rust Tauri application via PyO3:
 
--   **Bundled Resource**: Entire `python/` directory included in app resources
--   **Standalone Executable**: PyInstaller creates `gitinspector-api-sidecar` binary
--   **Integration**: Tauri configuration `resources: {"../python": "./"}` bundles Python code
+-   **Embedded Python**: Python interpreter embedded in Rust binary via PyO3
+-   **Direct Function Calls**: No separate process or HTTP communication
+-   **Python Code Bundling**: Python source code bundled as Tauri resources
+-   **CLI Package**: Separate Python wheel for command-line usage
 
 ### Communication Architecture
 
-The components communicate through a well-defined API layer:
+The components communicate through direct PyO3 function calls:
 
 ```mermaid
 sequenceDiagram
     participant React as React Frontend
     participant Tauri as Tauri Rust Layer
-    participant Python as Python Backend
+    participant PyO3 as PyO3 Bindings
+    participant Python as Python Engine
 
     React->>Tauri: invoke("execute_analysis", settings)
-    Tauri->>Python: HTTP POST to localhost:8000/api/execute_analysis
+    Tauri->>PyO3: Direct function call
+    PyO3->>Python: Python function execution
     Python->>Python: Execute git analysis
-    Python->>Tauri: JSON response with results
-    Tauri->>React: Return analysis results
+    Python-->>PyO3: Return analysis results
+    PyO3-->>Tauri: Convert to Rust types
+    Tauri-->>React: Return analysis results
 ```
 
 **Communication Flow:**
 
 1. **Frontend to Tauri**: Uses Tauri's `invoke()` function for type-safe communication
-2. **Tauri to Python**: HTTP requests to local FastAPI server on `localhost:8000`
-3. **Python API**: FastAPI server handling analysis requests with JSON responses
+2. **Tauri to PyO3**: Direct Rust function calls to PyO3 bindings
+3. **PyO3 to Python**: Direct Python function invocation via embedded interpreter
+4. **Error Handling**: Native PyResult<T> and PyErr propagation
 
 ## Build Process Steps
 
@@ -96,45 +101,36 @@ The build process begins by installing all required dependencies:
 # Frontend dependencies (React, TypeScript, Vite)
 pnpm install
 
-# Python dependencies (FastAPI, GitPython, etc.)
-uv sync
+# Python dependencies for CLI package
+cd python && uv sync
 
 # Tauri CLI (if not present)
 pnpm add -g @tauri-apps/cli
 ```
 
-### 2. Python Backend Build
+### 2. Python CLI Package Build
 
-The Python backend is built as a standalone executable using PyInstaller:
+The Python CLI package is built separately for command-line usage:
 
 **Key Files:**
 
--   `python/build-api-sidecar.sh` - Build script
--   `python/api-sidecar.spec` - PyInstaller configuration
--   `python/gigui/api.py` - Main API entry point
+-   `python/pyproject.toml` - Python project configuration
+-   `python/gigui/` - Python analysis engine
+-   `python/gitinspectorcli_main.py` - CLI entry point
 
 **Build Process:**
 
 ```bash
 cd python
-uv run pyinstaller api-sidecar.spec --clean --noconfirm
-# Creates: dist/gitinspector-api-sidecar (executable)
-```
-
-The PyInstaller spec creates a **single-file executable** that includes:
-
--   FastAPI server
--   Git analysis engine (legacy engine wrapper)
--   All Python dependencies
--   Command-line interface for JSON communication
-
-**Python Package Build:**
-
-```bash
-cd python
 uv build
-# Creates: dist/*.whl (Python wheel for distribution)
+# Creates: dist/*.whl (Python wheel for CLI distribution)
 ```
+
+The Python package provides:
+
+-   Command-line interface for git analysis
+-   Python library for programmatic usage
+-   Same analysis engine used in desktop app
 
 ### 3. React Frontend Build
 
@@ -151,35 +147,31 @@ pnpm run build  # Runs: tsc && vite build
 -   `vite.config.ts` - Vite build configuration
 -   `tsconfig.json` - TypeScript compilation settings
 
-### 4. Tauri Integration & Packaging
+### 4. PyO3 Integration & Tauri Build
 
-The Tauri configuration defines how all components are integrated:
+The Tauri build process integrates all components via PyO3:
 
-**Key Configuration (`src-tauri/tauri.conf.json`):**
+**Key Configuration (`src-tauri/Cargo.toml`):**
 
-```json
-{
-    "build": {
-        "beforeBuildCommand": "pnpm build",
-        "frontendDist": "../dist"
-    },
-    "bundle": {
-        "resources": {
-            "../python": "./"
-        }
-    }
-}
+```toml
+[dependencies]
+pyo3 = { version = "0.20", features = ["auto-initialize"] }
+tauri = { version = "2.0", features = ["shell-open"] }
+
+[build-dependencies]
+tauri-build = { version = "2.0" }
 ```
 
 **Critical Integration Points:**
 
 1. **Frontend Integration**: `frontendDist: "../dist"` - Tauri embeds the built React app
-2. **Backend Integration**: `"../python": "./"` - Tauri bundles the entire Python directory
-3. **Build Hooks**: `beforeBuildCommand` ensures frontend is built before packaging
+2. **Python Integration**: PyO3 embeds Python interpreter directly in Rust binary
+3. **Python Code Bundling**: Python source bundled as Tauri resources
+4. **Build Hooks**: `beforeBuildCommand` ensures frontend is built before packaging
 
 ### 5. Final Build Execution
 
-The final step combines all components using Tauri's build system:
+The final step combines all components using Tauri's build system with PyO3:
 
 ```bash
 # Complete build process
@@ -187,25 +179,26 @@ pnpm tauri build
 
 # This executes:
 # 1. beforeBuildCommand: pnpm build (frontend)
-# 2. Tauri compilation with bundled resources
-# 3. Platform-specific packaging
+# 2. PyO3 compilation with embedded Python
+# 3. Tauri compilation with bundled resources
+# 4. Platform-specific packaging
 ```
 
 ## Cross-Platform Building
 
 ### Build Script Usage
 
-The main build script (`scripts/build-all-platforms.sh`) handles cross-platform compilation:
+The main build script (`scripts/build-gui-all-platforms.sh`) handles cross-platform compilation:
 
 ```bash
 # Current platform only
-./scripts/build-all-platforms.sh --current
+./scripts/build-gui-all-platforms.sh --current
 
 # All supported platforms
-./scripts/build-all-platforms.sh --all
+./scripts/build-gui-all-platforms.sh --all
 
 # With clean build cache
-./scripts/build-all-platforms.sh --current --clean
+./scripts/build-gui-all-platforms.sh --current --clean
 ```
 
 ### Platform-Specific Targets
@@ -271,7 +264,7 @@ dist/releases/
 ├── GitInspectorGUI_0.1.0_universal.dmg       # macOS disk image
 ├── GitInspectorGUI-aarch64-apple-darwin.app.tar.gz  # macOS Apple Silicon
 ├── GitInspectorGUI-x86_64-apple-darwin.app.tar.gz   # macOS Intel
-├── gitinspectorgui-0.5.0-py3-none-any.whl    # Python wheel
+├── gitinspectorgui-0.5.0-py3-none-any.whl    # Python CLI wheel
 └── checksums.sha256                          # Verification checksums
 ```
 
@@ -295,12 +288,10 @@ The resulting desktop application contains all components in a unified package:
 
 ```
 GitInspectorGUI/
-├── gitinspectorgui                           # Main executable (Tauri)
+├── gitinspectorgui                           # Main executable (Tauri + PyO3)
 ├── resources/
-│   ├── python/                               # Complete Python backend
+│   ├── python/                               # Python source code (bundled)
 │   │   ├── gigui/                           # Python analysis engine
-│   │   ├── dist/
-│   │   │   └── gitinspector-api-sidecar     # Standalone Python executable
 │   │   ├── pyproject.toml                   # Python project configuration
 │   │   └── ...                              # All Python source files
 │   └── frontend/                            # Built React app (embedded in Tauri)
@@ -316,24 +307,31 @@ GitInspectorGUI/
 
 ### Integration Mechanisms
 
+#### PyO3 Embedding
+
+-   **Embedded Python**: Python interpreter embedded directly in Rust binary
+-   **Direct Function Calls**: No IPC overhead, direct memory access
+-   **Python Code Access**: Python source bundled as Tauri resources
+-   **GIL Management**: Automatic Global Interpreter Lock handling
+
 #### Resource Bundling
 
--   **Python Backend**: Bundled as resources via Tauri configuration
+-   **Python Source**: Bundled as resources via Tauri configuration
 -   **React Frontend**: Embedded directly into Tauri executable
 -   **Static Assets**: Icons, configuration files included in bundle
 
 #### Runtime Communication
 
 -   **Tauri Commands**: Rust functions exposed to frontend via `invoke()`
--   **HTTP API**: Python FastAPI server for analysis operations
--   **JSON Protocol**: Structured data exchange between all layers
--   **Type Safety**: TypeScript interfaces ensure type-safe communication
+-   **PyO3 Integration**: Direct Python function calls from Rust
+-   **Type Safety**: PyResult<T> and PyErr for error handling
+-   **Memory Management**: Automatic Python object lifecycle management
 
 #### Process Management
 
--   **Main Process**: Tauri manages the desktop window and UI rendering
--   **Background Process**: Python API server runs as needed for analysis
--   **Sidecar Process**: Standalone Python executable for CLI operations
+-   **Single Process**: All components run within one Tauri application
+-   **Embedded Python**: Python interpreter runs within main process
+-   **No Background Processes**: No separate server or sidecar processes
 -   **Auto-updater**: Built-in update mechanism for seamless updates
 
 ## Build Configuration Files
@@ -346,22 +344,27 @@ GitInspectorGUI/
 -   `tailwind.config.js` - Tailwind CSS configuration
 -   `postcss.config.js` - PostCSS processing
 
-### Backend Configuration
+### PyO3 Configuration
 
--   `pyproject.toml` - Python project and dependencies
--   `python/api-sidecar.spec` - PyInstaller executable specification
--   `python/build-api-sidecar.sh` - Python build script
+-   `src-tauri/Cargo.toml` - Rust and PyO3 dependencies
+-   `src-tauri/build.rs` - Rust build script
+-   `src-tauri/src/main.rs` - PyO3 integration code
+-   `src-tauri/src/commands.rs` - Tauri commands with PyO3 calls
+
+### Python Configuration
+
+-   `pyproject.toml` - Python project and dependencies (CLI package)
+-   `python/gigui/` - Python analysis engine source code
 
 ### Tauri Configuration
 
 -   `src-tauri/tauri.conf.json` - Main Tauri configuration
 -   `src-tauri/tauri.conf.dev.json` - Development-specific configuration
--   `src-tauri/Cargo.toml` - Rust dependencies
--   `src-tauri/build.rs` - Rust build script
 
 ### Build Scripts
 
--   `scripts/build-all-platforms.sh` - Main cross-platform build script
+-   `scripts/build-gui-all-platforms.sh` - Main cross-platform build script
+-   `scripts/build-cli-all-platforms.sh` - CLI package build script
 -   `scripts/prepare-release.sh` - Release preparation automation
 -   `scripts/test-release.sh` - Release testing automation
 
@@ -370,27 +373,26 @@ GitInspectorGUI/
 ### Development Build
 
 ```bash
-# Frontend development server
-pnpm dev
+# Frontend development server with PyO3 backend
+pnpm run tauri dev
 
-# Tauri development mode
-pnpm tauri:dev
-
-# Python development server
-cd python && uv run python dev_api.py
+# This starts:
+# 1. Vite dev server for frontend hot reload
+# 2. Tauri application with embedded Python via PyO3
+# 3. Direct PyO3 function calls (no separate server)
 ```
 
 ### Production Build
 
 ```bash
 # Complete production build
-./scripts/build-all-platforms.sh --current
+./scripts/build-gui-all-platforms.sh --current
 
 # With clean build cache
-./scripts/build-all-platforms.sh --current --clean
+./scripts/build-gui-all-platforms.sh --current --clean
 
 # Verbose output for debugging
-./scripts/build-all-platforms.sh --current --verbose
+./scripts/build-gui-all-platforms.sh --current --verbose
 ```
 
 ## Build Optimization
@@ -398,16 +400,23 @@ cd python && uv run python dev_api.py
 ### Performance Optimizations
 
 -   **Frontend**: Vite's optimized bundling with tree-shaking
--   **Backend**: PyInstaller single-file executable with minimal dependencies
+-   **PyO3**: Direct function calls with zero IPC overhead
 -   **Tauri**: Rust's zero-cost abstractions and optimized compilation
--   **Assets**: Automatic compression and optimization
+-   **Python**: Embedded interpreter with optimized module loading
 
 ### Size Optimizations
 
 -   **Frontend**: Code splitting and lazy loading
--   **Backend**: Excluded unnecessary Python packages in PyInstaller spec
+-   **Python**: Only necessary Python modules bundled
 -   **Bundle**: Resource compression and deduplication
 -   **Icons**: Multiple resolutions for different platforms
+
+### PyO3-Specific Optimizations
+
+-   **GIL Management**: Efficient Global Interpreter Lock usage
+-   **Memory Management**: Automatic Python object cleanup
+-   **Type Conversion**: Optimized Python ↔ Rust type conversion
+-   **Error Handling**: Native error propagation without serialization
 
 ## Troubleshooting Build Issues
 
@@ -424,25 +433,39 @@ pnpm install
 pnpm run build --verbose
 ```
 
-#### Python Build Failures
-
-```bash
-# Clear Python cache and rebuild
-rm -rf python/dist python/build
-cd python && uv build
-
-# PyInstaller issues
-cd python && uv run pyinstaller api-sidecar.spec --clean --noconfirm
-```
-
-#### Tauri Build Failures
+#### PyO3 Build Failures
 
 ```bash
 # Clear Rust build cache
 rm -rf src-tauri/target
 
+# Check PyO3 Python compatibility
+python --version  # Should be 3.8+
+
 # Rebuild with verbose output
-cargo tauri build --verbose
+cd src-tauri && cargo build --verbose
+```
+
+#### Python Integration Issues
+
+```bash
+# Test Python modules independently
+cd python
+python -c "from gigui.analysis import execute_analysis; print('OK')"
+
+# Check Python environment
+uv sync
+```
+
+#### Tauri Build Failures
+
+```bash
+# Clear all caches
+rm -rf src-tauri/target dist node_modules
+
+# Full clean rebuild
+pnpm install
+pnpm run tauri build --verbose
 ```
 
 ### Platform-Specific Issues
@@ -450,20 +473,51 @@ cargo tauri build --verbose
 #### Linux
 
 -   Ensure required system libraries are installed
--   Check AppImage FUSE requirements
--   Verify package manager compatibility
+-   Check Python development headers: `python3-dev`
+-   Verify PyO3 compilation requirements
 
 #### macOS
 
 -   Code signing requirements for distribution
--   Notarization for App Store distribution
--   Universal binary considerations
+-   Python framework compatibility
+-   Universal binary considerations for PyO3
 
 #### Windows
 
 -   Visual Studio Build Tools requirements
--   Windows SDK compatibility
--   Antivirus false positives
+-   Python installation compatibility
+-   PyO3 Windows-specific compilation
+
+### PyO3-Specific Issues
+
+#### Python Version Compatibility
+
+```bash
+# Check Python version (3.8+ required)
+python --version
+
+# Verify PyO3 can find Python
+RUST_LOG=pyo3=debug cargo build
+```
+
+#### GIL and Threading Issues
+
+```bash
+# Debug GIL-related issues
+RUST_LOG=pyo3=debug pnpm run tauri dev
+
+# Check for deadlocks or performance issues
+```
+
+#### Memory Issues
+
+```bash
+# Monitor memory usage during build
+top -p $(pgrep cargo)
+
+# Check for memory leaks in Python integration
+valgrind --tool=memcheck ./target/debug/gitinspectorgui
+```
 
 ## Continuous Integration
 
@@ -471,7 +525,7 @@ The build process is automated through GitLab CI/CD:
 
 -   **Automated Builds**: Triggered on commits and tags
 -   **Multi-Platform**: Builds for all supported platforms
--   **Testing**: Automated testing of build artifacts
+-   **PyO3 Testing**: Automated testing of Python integration
 -   **Release**: Automatic release creation and artifact upload
 
 See the [Operations documentation](../operations/deployment.md) for detailed CI/CD configuration.
@@ -481,9 +535,23 @@ See the [Operations documentation](../operations/deployment.md) for detailed CI/
 After successful build:
 
 1. **Test the Applications**: Use `./scripts/test-release.sh`
-2. **Create Release Tag**: `git tag vX.Y.Z && git push origin vX.Y.Z`
-3. **Upload to Releases**: `glab release create vX.Y.Z dist/releases/*`
-4. **Update Auto-updater**: Configure update endpoints
-5. **Publish Python Package**: `cd python && uv publish`
+2. **Test PyO3 Integration**: Verify Python functions work correctly
+3. **Create Release Tag**: `git tag vX.Y.Z && git push origin vX.Y.Z`
+4. **Upload to Releases**: `glab release create vX.Y.Z dist/releases/*`
+5. **Update Auto-updater**: Configure update endpoints
+6. **Publish Python CLI**: `cd python && uv publish`
 
 For version management, use `./scripts/prepare-release.sh X.Y.Z` to prepare version updates across all components.
+
+## PyO3 Build Architecture Summary
+
+The PyO3 build architecture provides:
+
+-   **Single Process**: All components embedded in one Tauri application
+-   **Direct Integration**: Python functions called directly from Rust
+-   **Simplified Deployment**: No separate server processes to manage
+-   **Better Performance**: Zero IPC overhead with direct function calls
+-   **Type Safety**: PyO3 provides safe Python-Rust integration
+-   **Cross-Platform**: Consistent architecture across all platforms
+
+This architecture eliminates the complexity of multi-process coordination while maintaining all the functionality of the original system.

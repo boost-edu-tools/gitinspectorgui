@@ -4,7 +4,9 @@ GitInspectorGUI Python API specification for developers implementing analysis fu
 
 ## Overview
 
-This document specifies the Python functions you need to implement for GitInspectorGUI. The Rust-Python integration is already handled automatically - you just need to implement these Python functions according to the specifications below.
+This document specifies the Python functions you need to implement for GitInspectorGUI. The PyO3 integration between Rust and Python is already handled automatically - you just need to implement these Python functions according to the specifications below.
+
+**Integration Note**: These functions are called directly from Rust via PyO3 - no HTTP requests involved. See [PyO3 Architecture](../architecture/design-decisions.md) for technical details.
 
 ## Core Functions
 
