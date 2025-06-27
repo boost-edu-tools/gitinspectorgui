@@ -16,8 +16,8 @@ graph TB
         C --> D[TypeScript Code]
     end
 
-    subgraph "Backend Services"
-        E[FastAPI Server] --> F[Git Analysis]
+    subgraph "Backend Integration"
+        E[PyO3 Bindings] --> F[Git Analysis]
         F --> G[Python Logic]
     end
 
@@ -25,40 +25,49 @@ graph TB
         H[Vite Build Tool] --> B
         I[pnpm Package Manager] --> C
         J[Rust Compiler] --> A
-        K[uv Package Manager] --> E
+        K[uv Package Manager] --> G
     end
 
-    A -->|HTTP Requests| E
+    A -->|Direct calls| E
 ```
 
 ## Core Technologies
 
-### FastAPI (Python Web Framework)
+### PyO3 (Python-Rust Integration)
 
-**What it is**: A modern Python web framework for building HTTP APIs.
+**What it is**: A Rust crate that provides bindings for the Python interpreter, allowing Rust applications to execute Python code directly.
 
 **Why we use it**:
 
--   Automatic API documentation generation
--   Built-in request/response validation
--   Async support for better performance
--   Type hints integration
+-   Direct function calls between Rust and Python (no IPC overhead)
+-   Embedded Python interpreter within Rust applications
+-   Type-safe Python object handling with smart pointers
+-   Native error propagation and handling
+-   Single process deployment simplicity
 
-**Think of it as**: A more modern version of Flask with automatic documentation and better type safety.
+**Think of it as**: A bridge that embeds a Python interpreter directly inside a Rust application, allowing Rust code to call Python functions as if they were native Rust functions.
 
-**Key files**: `python/gigui/http_server.py`, `python/gigui/api.py`
+**Key characteristics**:
+
+-   Uses Python's C API through safe Rust abstractions
+-   Manages Python's Global Interpreter Lock (GIL) automatically
+-   Provides smart pointers (Py<T>, Bound<'py, T>) for Python objects
+-   Handles Python/Rust type conversions seamlessly
+
+**Key files**: `src-tauri/src/main.rs` (PyO3 integration), `Cargo.toml` (PyO3 dependencies)
 
 **Example**:
 
-```python
-from fastapi import FastAPI
+```rust
+use pyo3::prelude::*;
 
-app = FastAPI()
-
-@app.post("/api/execute_analysis")
-async def execute_analysis(settings: Settings) -> AnalysisResult:
-    # Your analysis logic here
-    return result
+fn call_analysis(settings: &Settings) -> PyResult<AnalysisResult> {
+    Python::with_gil(|py| {
+        let analysis_module = py.import("gitinspector_engine")?;
+        let result = analysis_module.getattr("execute_analysis")?.call1((settings,))?;
+        result.extract::<AnalysisResult>()
+    })
+}
 ```
 
 ### Tauri (Desktop Application Framework)
@@ -211,10 +220,10 @@ uv run command        # Run command in the project environment
 
 ### Development Flow
 
-1. **Python Backend**: FastAPI server runs on `http://127.0.0.1:8000`
-2. **Frontend Development**: Vite serves the React/TypeScript UI with hot reloading
-3. **Desktop Packaging**: Tauri wraps everything in a native desktop application
-4. **Package Management**: pnpm manages frontend dependencies, uv manages Python dependencies
+1. **Python Analysis Engine**: Embedded directly in Tauri via PyO3
+2. **Frontend Development**: Vite serves the React/TypeScript UI with hot reloading in Tauri
+3. **Integration Layer**: PyO3 handles all Python-Rust communication
+4. **Desktop Application**: Single process containing all components
 
 ### Communication Flow
 
@@ -222,28 +231,29 @@ uv run command        # Run command in the project environment
 sequenceDiagram
     participant UI as React UI
     participant Tauri as Tauri Runtime
-    participant API as FastAPI Server
-    participant Git as Git Analysis
+    participant PyO3 as PyO3 Bindings
+    participant Python as Python Engine
 
     UI->>Tauri: User clicks "Analyze"
-    Tauri->>API: HTTP POST /api/execute_analysis
-    API->>Git: Run git analysis
-    Git-->>API: Analysis results
-    API-->>Tauri: JSON response
-    Tauri-->>UI: Display results
+    Tauri->>PyO3: invoke() Tauri command
+    PyO3->>Python: Direct function call
+    Python->>Python: Execute git analysis
+    Python-->>PyO3: Return analysis results
+    PyO3-->>Tauri: Convert to Rust types
+    Tauri-->>UI: Return results to frontend
 ```
 
 ### File Structure Logic
 
 ```
-├── python/                 # Python backend (FastAPI server)
+├── python/                 # Python analysis engine (embedded via PyO3)
 │   ├── gigui/             # Main Python package
 │   └── pyproject.toml     # Python dependencies (managed by uv)
 ├── src/                   # React/TypeScript frontend
 │   ├── components/        # React components
 │   └── lib/              # Utility functions
-├── src-tauri/            # Tauri desktop application
-│   ├── src/              # Rust code (minimal)
+├── src-tauri/            # Tauri desktop application with PyO3 integration
+│   ├── src/              # Rust code with PyO3 bindings
 │   └── tauri.conf.json   # Desktop app configuration
 ├── package.json          # Frontend dependencies (managed by pnpm)
 └── vite.config.ts        # Build tool configuration
@@ -254,24 +264,23 @@ sequenceDiagram
 ### Starting Development
 
 ```bash
-# Terminal 1: Start Python API server
-python -m gigui.start_server --reload
-
-# Terminal 2: Start frontend with hot reloading
+# Single command starts everything - no separate server needed
 pnpm run tauri dev
 ```
 
+This command starts the development version of the desktop application with embedded Python analysis engine.
+
 ### Making Changes
 
--   **Python changes**: Server auto-restarts (thanks to `--reload` flag)
+-   **Python changes**: Require application restart (embedded Python)
 -   **Frontend changes**: UI updates instantly (thanks to Vite hot reloading)
 -   **Rust changes**: Tauri rebuilds and restarts the desktop app
 
 ### Testing
 
--   **Python API**: Test directly with curl or Python requests
+-   **Python Analysis**: Test via the desktop application interface
 -   **Frontend**: Use browser developer tools (available in Tauri)
--   **Integration**: Test the complete desktop application
+-   **Integration**: Test the complete desktop application with embedded Python
 
 ## Next Steps
 
@@ -285,13 +294,16 @@ Now that you understand the technology stack:
 ## Common Questions
 
 **Q: Why not just use Python for everything?**
-A: Desktop UI development in Python (tkinter, PyQt) is more limited than modern web technologies. This approach gives us a rich, modern UI while keeping the core logic in Python.
+A: Desktop UI development in Python (tkinter, PyQt) is more limited than modern web technologies. This approach gives us a rich, modern UI while keeping the core logic in Python via PyO3 integration.
 
 **Q: Why Tauri instead of Electron?**
 A: Tauri produces smaller, faster applications with better security. The trade-off is learning some Rust concepts, but Tauri handles most of the complexity.
 
 **Q: Do I need to learn all these technologies?**
-A: No. Focus on the Python backend where your expertise lies. Use AI tools to help with frontend changes, and treat the other technologies as tools that "just work" once configured.
+A: No. Focus on the Python analysis logic where your expertise lies. PyO3 handles the integration automatically, and you can use AI tools to help with frontend changes.
 
 **Q: What if something breaks in the frontend/Rust parts?**
-A: The architecture is designed so you can test and develop the Python API independently. Most issues can be resolved by restarting the development servers or using AI tools for frontend fixes.
+A: The architecture is designed so you can develop and test the Python analysis logic independently. Most issues can be resolved by restarting the desktop application or using AI tools for frontend fixes.
+
+**Q: How does PyO3 affect Python development?**
+A: You write normal Python code. PyO3 handles calling your Python functions from Rust automatically. The main difference is that Python changes require restarting the desktop application instead of just reloading a web server.

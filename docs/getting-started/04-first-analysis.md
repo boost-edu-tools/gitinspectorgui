@@ -10,21 +10,19 @@ Test your GitInspectorGUI development setup with a repository analysis.
 
 ### 1. Start the Development Environment
 
-You need both the Python backend and the desktop frontend running:
+You only need one command to start everything:
 
 ```bash
-# Terminal 1: Start the Python API server (backend)
-python -m gigui.start_server --reload --log-level DEBUG
-
-# Terminal 2: Start the desktop application (frontend)
+# Start the complete development environment
 pnpm run tauri dev
 ```
 
 **What happens**:
 
--   The Python server starts and listens for analysis requests
--   The desktop app provides the user interface
--   They communicate via HTTP (the desktop app sends requests to the Python server)
+-   Vite builds the React/TypeScript frontend
+-   Tauri compiles the Rust wrapper with PyO3 integration
+-   Python analysis engine is embedded directly in the application
+-   Desktop app opens with fully integrated Python functionality
 
 ### 2. Test with Repository Analysis
 
@@ -46,61 +44,43 @@ pnpm run tauri dev
     - Verify file analysis shows correctly
     - Ensure no error messages appear
 
-### 3. Test API Directly (Optional)
+### 3. Test Different Repository Types
 
-You can also test the backend API directly:
+Test with different types of repositories to verify functionality:
 
-```bash
-# Test health endpoint
-curl http://127.0.0.1:8000/health
+-   **Small repository**: Quick test with minimal files
+-   **Large repository**: Test performance with many files
+-   **Multi-language repository**: Verify language detection
+-   **Repository with complex history**: Test blame analysis
 
-# Test analysis endpoint
-curl -X POST http://127.0.0.1:8000/api/execute_analysis \
-  -H "Content-Type: application/json" \
-  -d '{
-    "input_fstrs": ["/path/to/your/test/repo"],
-    "n_files": 10,
-    "file_formats": ["json"]
-  }' | jq '.'
-```
-
-**Expected**: JSON response with repository analysis data.
+All testing is done through the desktop GUI since Python is embedded.
 
 ## What This Tests
 
-### Backend Functionality
+### Python Integration
 
 -   Python environment is correctly configured
--   FastAPI server can start and handle requests
+-   PyO3 bindings work correctly
 -   Git analysis engine works with real repositories
--   JSON serialization and API responses work
+-   Python-Rust type conversion functions properly
 
 ### Frontend Integration
 
 -   React/TypeScript compilation works
 -   Tauri desktop wrapper functions correctly
--   HTTP communication between frontend and backend
+-   Direct communication between frontend and embedded Python
 -   UI displays analysis results properly
 
 ### Complete System
 
--   All components work together
--   Development hot-reload functions
+-   All components work together in a single process
+-   Development hot-reload functions for frontend changes
 -   Error handling displays correctly
+-   PyO3 integration is stable and performant
 
 ## Troubleshooting
 
 ### Common Issues
-
-**GUI shows connection errors**:
-
-```bash
-# Verify backend is running
-curl http://127.0.0.1:8000/health
-
-# Check for port conflicts
-lsof -i :8000
-```
 
 **Analysis fails with repository errors**:
 
@@ -120,7 +100,7 @@ rm -rf node_modules pnpm-lock.yaml
 pnpm install
 ```
 
-**Python server errors**:
+**Python integration errors**:
 
 ```bash
 # Check Python environment
@@ -128,13 +108,16 @@ python -c "import gigui; print('OK')"
 
 # Reinstall Python dependencies
 uv sync
+
+# Clear Tauri cache
+rm -rf src-tauri/target/debug
 ```
 
 ### Getting Debug Information
 
-1. **Backend logs**: Check the terminal where you started `python -m gigui.start_server`
+1. **Application logs**: Check the terminal where you started `pnpm run tauri dev`
 2. **Frontend logs**: Right-click in the desktop app → "Inspect" → "Console" tab
-3. **API testing**: Use curl commands to test backend directly
+3. **Python debugging**: Add print statements to Python code and restart the app
 
 ## Next Steps
 

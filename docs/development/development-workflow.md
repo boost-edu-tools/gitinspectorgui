@@ -11,40 +11,40 @@ High-level development workflows and processes for GitInspectorGUI, focusing on 
 
 ## Overview
 
-GitInspectorGUI uses a **multi-server development architecture** that enables independent frontend and backend development through a clean HTTP API boundary.
+GitInspectorGUI uses a **single-process PyO3 architecture** that embeds Python directly within the Tauri desktop application for optimal performance and simplicity.
 
 **Key Benefits**:
 
--   **Independent Development**: Backend and frontend can be developed separately
--   **Fast Iteration**: Hot reloading and auto-restart for all services
--   **Clear Separation**: HTTP API provides clean interface between layers
--   **Flexible Testing**: Each service can be tested independently
+-   **Simplified Development**: Single command starts complete environment
+-   **Fast Iteration**: Frontend hot reloading with embedded Python
+-   **Direct Integration**: PyO3 provides direct Python-Rust function calls
+-   **Single Process**: No network overhead or server management
 
 For detailed commands, see **[Development Commands](development-commands.md)**.
 
 ## Development Approaches
 
-### 1. Full Stack Development
+### 1. Complete Application Development
 
 **Best for**: UI features, integration testing, complete feature development
 
 **Workflow**:
 
-1. Start all development services (see [Development Commands](development-commands.md#quick-start-commands))
-2. Make changes to any layer
-3. See immediate feedback across the stack
-4. Test integration between services
+1. Start development environment: `pnpm run tauri dev`
+2. Make changes to any layer (Python, Rust, or frontend)
+3. See immediate feedback for frontend changes
+4. Restart application for Python/Rust changes
 
-### 2. Backend-Only Development
+### 2. Python-Focused Development
 
-**Best for**: API development, data processing, Python-focused work
+**Best for**: Analysis algorithms, data processing, Python-focused work
 
 **Workflow**:
 
-1. Focus on Python backend development
-2. Test API endpoints directly (see [API Testing Commands](development-commands.md#api-testing-commands))
-3. Iterate quickly without frontend overhead
-4. Integrate with frontend when ready
+1. Develop Python functions independently
+2. Test Python logic with unit tests
+3. Integrate with PyO3 interface when ready
+4. Test through desktop application
 
 ### 3. Frontend-Only Development
 
@@ -52,18 +52,18 @@ For detailed commands, see **[Development Commands](development-commands.md)**.
 
 **Workflow**:
 
-1. Use mock data or existing API
-2. Focus on user interface development
-3. Iterate on design and user experience
-4. Connect to real backend when ready
+1. Use mock data or demo mode
+2. Start frontend only: `pnpm run dev`
+3. Focus on user interface development
+4. Integrate with embedded Python when ready
 
 ## Hot Reloading
 
 ### Python Changes
 
--   **Auto-restart** - Server detects file changes and restarts
--   **Preserved connections** - Existing HTTP connections maintained
--   **Instant feedback** - Changes visible immediately
+-   **Manual restart required** - Python is embedded, so app must be restarted
+-   **Fast restart** - Single process restart is quick
+-   **No connection loss** - No separate server to reconnect to
 
 ### Frontend Changes
 
@@ -75,6 +75,7 @@ For detailed commands, see **[Development Commands](development-commands.md)**.
 
 -   **Auto-recompile** - Cargo rebuilds on file changes
 -   **Full restart** - Tauri app restarts completely
+-   **PyO3 integration** - Python bindings are recompiled automatically
 
 ## Debugging & Testing
 

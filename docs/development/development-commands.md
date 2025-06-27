@@ -10,17 +10,13 @@ Comprehensive reference for all GitInspectorGUI development commands, organized 
 
 ### Most Common Commands
 
-| Task                  | Command                                                   | Notes                             |
-| --------------------- | --------------------------------------------------------- | --------------------------------- |
-| **Start Development** | `pnpm dev`                                                | Starts all services (recommended) |
-| **Backend Only**      | `python -m gigui.start_server --reload --log-level DEBUG` | Python development                |
-| **Frontend Only**     | `pnpm dev:frontend`                                       | UI development                    |
-| **Desktop App**       | `pnpm tauri dev`                                          | Full integration testing          |
-| **Health Check**      | `curl http://127.0.0.1:8000/health`                       | Verify backend running            |
-| **API Docs**          | `open http://localhost:8000/docs`                         | Interactive API documentation     |
-| **Kill Processes**    | `pkill -f "gigui.start_server"`                           | Stop development servers          |
-| **Clean Build**       | `pnpm clean && rm -rf .venv node_modules`                 | Reset environment                 |
-| **Production Build**  | `pnpm tauri build`                                        | Create release build              |
+| Task                  | Command                                   | Notes                       |
+| --------------------- | ----------------------------------------- | --------------------------- |
+| **Start Development** | `pnpm run tauri dev`                      | Starts complete application |
+| **Frontend Only**     | `pnpm dev:frontend`                       | UI development              |
+| **Desktop App**       | `pnpm run tauri dev`                      | Full integration testing    |
+| **Clean Build**       | `pnpm clean && rm -rf .venv node_modules` | Reset environment           |
+| **Production Build**  | `pnpm tauri build`                        | Create release build        |
 
 ### Port Reference
 
@@ -28,57 +24,34 @@ Comprehensive reference for all GitInspectorGUI development commands, organized 
 | -------- | ---------------- | ------------------- |
 | **5173** | Vite Dev Server  | Frontend hot reload |
 | **1420** | Tauri Dev Server | Desktop app wrapper |
-| **8000** | FastAPI Server   | Python backend API  |
 
 ## Quick Start Commands
 
-### Start All Services (Recommended)
+### Start Development (Recommended)
 
 ```bash
 # Start complete development environment
-pnpm dev
+pnpm run tauri dev
 
 # This starts:
 # - Vite dev server (port 5173)
 # - Tauri dev server (port 1420)
-# - FastAPI server (port 8000)
+# - Embedded Python analysis engine via PyO3
 ```
 
 ### Start Individual Services
 
 ```bash
-# Backend only (Python developers)
-python -m gigui.start_server --reload --log-level DEBUG
-
 # Frontend only (UI developers)
 pnpm dev:frontend
 
-# Desktop app (full integration)
-pnpm tauri dev
+# Desktop app with embedded Python (full integration)
+pnpm run tauri dev
 ```
 
-## Python Backend Commands
+## Python Development Commands
 
-### Basic Server Commands
-
-```bash
-# Basic development server
-python -m gigui.start_server
-
-# Development with auto-reload (recommended)
-python -m gigui.start_server --reload
-
-# Development with debug logging
-python -m gigui.start_server --reload --log-level DEBUG
-
-# Custom host and port
-python -m gigui.start_server --host 127.0.0.1 --port 8001
-
-# Production mode
-python -m gigui.start_server --host 0.0.0.0 --port 8000
-```
-
-### Backend Testing Commands
+### Python Testing Commands
 
 ```bash
 # Run Python tests
@@ -89,30 +62,19 @@ python -m pytest python/test_api.py::test_execute_analysis -v
 
 # Run with coverage
 python -m pytest --cov=gigui python/test_*.py
-
-# Test health endpoint
-curl http://127.0.0.1:8000/health
-
-# Test analysis endpoint
-curl -X POST http://127.0.0.1:8000/api/execute_analysis \
-  -H "Content-Type: application/json" \
-  -d '{"input_fstrs": ["/path/to/test/repo"], "n_files": 10}'
 ```
 
-### Backend Debugging Commands
+### Python Debugging Commands
 
 ```bash
-# Start with Python debugger support
-python -m debugpy --listen 5678 --wait-for-client -m gigui.start_server
-
-# Start with IDE debugging using uvicorn
-uvicorn gigui.api:app --reload --host 0.0.0.0 --port 8000
+# Start with Python debugger support (within Tauri)
+# Note: Python runs embedded in Tauri via PyO3
+# Debug by adding breakpoints in Python code and restarting Tauri
 
 # Start with maximum logging
-python -m gigui.start_server --reload --log-level DEBUG
-
-# Watch specific directories only
-python -m gigui.start_server --reload --reload-dir python/gigui
+# Set environment variable before starting Tauri
+export GIGUI_LOG_LEVEL=DEBUG
+pnpm run tauri dev
 ```
 
 ## Frontend Commands
@@ -175,30 +137,23 @@ pnpm type-check
 ### Combined Workflows
 
 ```bash
-# Option 1: All services at once (recommended)
-pnpm dev
+# Start complete development environment (recommended)
+pnpm run tauri dev
 
-# Option 2: Manual startup sequence
-# Terminal 1: Backend
-python -m gigui.start_server --reload --log-level DEBUG
-
-# Terminal 2: Frontend + Desktop
-pnpm tauri dev
+# This single command starts:
+# - Vite dev server for frontend hot reload
+# - Tauri desktop wrapper
+# - Embedded Python analysis engine via PyO3
 ```
 
 ### Integration Testing Commands
 
 ```bash
 # Test complete system
-python -m gigui.start_server --reload &
-pnpm tauri dev
+pnpm run tauri dev
 
-# Test HTTP endpoints
-curl http://127.0.0.1:8000/health
-curl -X GET http://127.0.0.1:8000/api/settings
-
-# Test with formatted JSON output
-curl -s http://127.0.0.1:8000/api/settings | jq '.'
+# Test the desktop application interface
+# All testing is done through the GUI since Python is embedded
 ```
 
 ## Build and Production Commands
@@ -271,15 +226,12 @@ ruff format python/
 # Check what's using development ports
 lsof -i :5173  # Vite
 lsof -i :1420  # Tauri
-lsof -i :8000  # FastAPI
 
 # Kill processes on specific ports
 kill -9 $(lsof -t -i:5173)
 kill -9 $(lsof -t -i:1420)
-kill -9 $(lsof -t -i:8000)
 
 # Kill all development processes
-pkill -f "gigui.start_server"
 pkill -f "vite"
 pkill -f "tauri"
 ```
@@ -322,37 +274,6 @@ uv venv && uv sync
 pnpm install
 ```
 
-## Performance Optimization Commands
-
-### Development Performance
-
-```bash
-# Skip validation checks for faster startup
-export GIGUI_SKIP_VALIDATION=true
-
-# Reduce logging overhead
-python -m gigui.start_server --reload --log-level INFO
-
-# Optimize Node memory usage
-export NODE_OPTIONS="--max-old-space-size=4096"
-
-# Monitor development performance
-pnpm dev:monitor
-```
-
-### Build Performance
-
-```bash
-# Parallel builds
-pnpm build --parallel
-
-# Build with performance analysis
-pnpm build --analyze
-
-# Optimize bundle size
-pnpm build --minify
-```
-
 ## Environment Information Commands
 
 ### System Check
@@ -375,52 +296,26 @@ env | grep GIGUI
 ### Service Health Checks
 
 ```bash
-# Verify all services are running
-curl http://localhost:8000/health     # Backend
+# Verify development services are running
 curl http://localhost:5173           # Frontend (returns HTML)
 curl http://localhost:1420           # Tauri (returns HTML)
 
 # Check service logs
-# Backend logs appear in terminal where server was started
+# Python logs appear in Tauri terminal output
 # Frontend logs in browser console (F12)
 # Tauri logs in terminal and app console
 ```
 
-## API Testing Commands
+## Application Testing
 
-### Direct API Testing
-
-```bash
-# Health check
-curl http://127.0.0.1:8000/health
-
-# Get settings
-curl http://127.0.0.1:8000/api/settings
-
-# Execute analysis
-curl -X POST http://127.0.0.1:8000/api/execute_analysis \
-  -H "Content-Type: application/json" \
-  -d '{
-    "input_fstrs": ["/path/to/test/repo"],
-    "n_files": 10,
-    "file_formats": ["json"]
-  }'
-
-# Test with verbose output
-curl -v -X POST http://127.0.0.1:8000/api/execute_analysis \
-  -H "Content-Type: application/json" \
-  -d '{"input_fstrs": ["/test/repo"]}'
-```
-
-### API Documentation Access
+### Desktop Application Testing
 
 ```bash
-# Open interactive API docs
-open http://localhost:8000/docs      # Swagger UI
-open http://localhost:8000/redoc     # Alternative docs
+# Test complete system via desktop application
+pnpm run tauri dev
 
-# Or access via curl
-curl http://localhost:8000/openapi.json | jq '.'
+# All testing is done through the GUI interface since Python is embedded
+# Use the application interface to test analysis functionality
 ```
 
 ## Development Workflow Commands
@@ -429,7 +324,7 @@ curl http://localhost:8000/openapi.json | jq '.'
 
 ```bash
 # 1. Start development environment
-pnpm dev
+pnpm run tauri dev
 
 # 2. In separate terminals, run tests as needed
 pnpm test:watch                      # Frontend tests
@@ -439,7 +334,7 @@ python -m pytest --watch python/    # Backend tests (if supported)
 pnpm lint:fix && pnpm type-check && pnpm test
 
 # 4. Build and test production version
-pnpm build && pnpm preview
+pnpm build && pnpm tauri build --debug
 ```
 
 ### Git Integration Commands
@@ -462,20 +357,18 @@ pnpm tauri build --debug
 
 ```bash
 # Add to your ~/.bashrc or ~/.zshrc
-alias gig-dev="pnpm dev"
-alias gig-backend="python -m gigui.start_server --reload --log-level DEBUG"
-alias gig-test="curl http://127.0.0.1:8000/health"
+alias gig-dev="pnpm run tauri dev"
 alias gig-clean="pnpm clean && rm -rf .venv node_modules"
 alias gig-reset="gig-clean && uv venv && uv sync && pnpm install"
+alias gig-build="pnpm tauri build"
 ```
 
 ### Package.json Scripts Reference
 
 ```bash
 # Available pnpm scripts (check package.json for complete list)
-pnpm dev              # Start all development services
+pnpm run tauri dev    # Start complete development environment
 pnpm dev:frontend     # Frontend only
-pnpm dev:backend      # Backend only
 pnpm build            # Production build
 pnpm test             # Run tests
 pnpm lint             # Lint code

@@ -1,12 +1,12 @@
 # System Architecture Overview
 
-Modern HTTP API architecture with Tauri desktop frontend and Python backend.
+Modern PyO3-based architecture with Tauri desktop frontend and embedded Python backend.
 
 ## For Python Developers
 
-If you're unfamiliar with the frontend technologies, see the **[Technology Primer](../technology-primer.md)** first. This document explains how the Python backend you'll work with connects to the desktop frontend.
+If you're unfamiliar with the frontend technologies, see the **[Technology Primer](../technology-primer.md)** first. This document explains how the Python backend you'll work with integrates directly into the desktop application.
 
-**Key concept**: The Python backend runs as an HTTP server, and the desktop frontend makes HTTP requests to it. You can develop and test the Python backend independently.
+**Key concept**: The Python backend runs embedded within the Tauri application via PyO3 bindings, enabling direct function calls without network communication. You can develop and test the Python analysis logic independently.
 
 ## Architecture
 
@@ -18,9 +18,9 @@ graph TB
         C[Zustand State]
     end
 
-    subgraph "Backend"
-        D[FastAPI Server]
-        E[Git Analysis Engine]
+    subgraph "Backend Integration"
+        D[PyO3 Rust Bindings]
+        E[Python Analysis Engine]
         F[Legacy Integration]
     end
 
@@ -31,8 +31,8 @@ graph TB
 
     A --> B
     B --> C
-    B -->|HTTP| D
-    D --> E
+    B -->|Direct calls| D
+    D -->|Python bindings| E
     E --> F
     F --> G
     D --> H
@@ -51,38 +51,44 @@ graph TB
 
 ### Backend Stack
 
--   **FastAPI** - Modern Python web framework
--   **Pydantic** - Data validation
--   **Uvicorn** - ASGI server
+-   **PyO3** - Rust bindings for Python interpreter
+-   **Python Analysis Engine** - Git analysis and data processing
+-   **Pydantic** - Data validation and type safety
 -   **GitPython** - Git operations
 -   **Legacy Engine** - Sophisticated analysis algorithms
 
-## API Design
+## Integration Design
 
-### Key Endpoints
+### Key Functions
 
--   `GET /health` - Server health check
--   `POST /api/execute_analysis` - Repository analysis
--   `GET/POST /api/settings` - Settings management
--   `GET /api/engine_info` - Engine capabilities
+-   `execute_analysis()` - Repository analysis via PyO3
+-   `get_settings()` / `save_settings()` - Settings management
+-   `get_engine_info()` - Engine capabilities
+-   `get_performance_stats()` - Performance monitoring
 
 ### Communication
 
--   **Protocol** - HTTP/JSON
--   **Validation** - Pydantic models
--   **Error handling** - Standard HTTP status codes
--   **Documentation** - Auto-generated OpenAPI
+-   **Protocol** - Direct Python function calls via PyO3
+-   **Validation** - Pydantic models for type safety
+-   **Error handling** - PyResult<T> and PyErr types
+-   **GIL Management** - Automatic Global Interpreter Lock handling
 
 ## Data Flow
 
 ```mermaid
 sequenceDiagram
-    Frontend->>API: POST /api/execute_analysis
-    API->>Engine: analyze_repository()
-    Engine->>Git: git commands
-    Git-->>Engine: repository data
-    Engine-->>API: processed results
-    API-->>Frontend: JSON response
+    participant UI as React UI
+    participant Tauri as Tauri Runtime
+    participant PyO3 as PyO3 Bindings
+    participant Python as Python Engine
+
+    UI->>Tauri: User clicks "Analyze"
+    Tauri->>PyO3: invoke() Tauri command
+    PyO3->>Python: Direct function call
+    Python->>Python: Execute git analysis
+    Python-->>PyO3: Return analysis results
+    PyO3-->>Tauri: Convert to Rust types
+    Tauri-->>UI: Return results to frontend
 ```
 
 ## Design Principles
@@ -91,72 +97,73 @@ sequenceDiagram
 
 -   **Frontend** - UI, state management, visualization
 -   **Backend** - Git analysis, data processing, persistence
--   **Communication** - Clean HTTP API boundary
+-   **Communication** - Direct PyO3 function call boundary
 
 ### Performance
 
--   **Async operations** - Non-blocking I/O
+-   **Direct integration** - No IPC overhead via PyO3
 -   **Parallel processing** - Multi-threaded analysis
 -   **Efficient data structures** - Memory optimization
 -   **Caching** - Result and operation caching
 
 ### Reliability
 
--   **Error handling** - Comprehensive error types
--   **Input validation** - Type-safe requests
+-   **Error handling** - PyResult<T> and PyErr types
+-   **Input validation** - Type-safe Python objects
 -   **Logging** - Structured logging with levels
--   **Health monitoring** - Performance metrics
+-   **Performance monitoring** - Application-level metrics
 
 ## Development vs Production
 
 !!! info "Detailed Development Architecture"
 
-    For comprehensive information about development setup, port usage, and multi-server architecture, see **[Development Architecture](../development/development-architecture.md)** (which includes development vs production comparison).
+    For comprehensive information about development setup and PyO3 integration patterns, see **[Development Architecture](../development/development-architecture.md)**.
 
-### Development Mode (3 Servers)
+### Development Mode
 
 ```mermaid
 graph LR
     A[Vite Dev Server<br/>Port 5173] --> B[Tauri Dev Server<br/>Port 1420]
-    B --> C[FastAPI Server<br/>Port 8000]
+    B --> C[Embedded Python<br/>via PyO3]
     C --> D[Local Git Repos]
 ```
 
--   **3 separate servers** on ports 5173, 1420, 8000
--   Hot module replacement and auto-reload
--   Comprehensive debugging tools
--   Independent service development
+-   **Single process** with embedded Python via PyO3
+-   Hot module replacement for frontend changes
+-   Python code changes require application restart
+-   Direct function call debugging
+-   Comprehensive development tools
 
-### Production Build (1 Server)
+### Production Build
 
 ```mermaid
 graph LR
-    A[Tauri Desktop App<br/>Bundled Application] --> B[FastAPI Server<br/>Port 8000 Only]
+    A[Tauri Desktop App<br/>Single Binary] --> B[Embedded Python<br/>via PyO3]
     B --> C[User Repositories]
 ```
 
--   **Single bundled application**
--   Embedded Python backend (port 8000 only)
--   Optimized performance
--   Local-only communication
+-   **Single bundled application** with embedded Python interpreter
+-   No network communication required
+-   Optimized performance with direct function calls
+-   Cross-platform deployment
 
 ## Technology Rationale
 
-### Why HTTP API?
+### Why PyO3 Direct Integration?
 
-**Previous stdout-based IPC issues:**
+**Previous HTTP API limitations:**
 
--   Fragile JSON parsing
--   Mixed output streams
--   Limited debugging
--   Process management complexity
+-   Network communication overhead
+-   Complex error handling across HTTP boundary
+-   Separate process management
+-   JSON serialization/deserialization costs
 
-**HTTP API benefits:**
+**PyO3 integration benefits:**
 
--   Standard protocol with tooling
--   Robust error handling
--   Easy testing and debugging
--   Clean separation of concerns
+-   Zero IPC overhead with direct function calls
+-   Native error propagation via PyResult<T>
+-   Single process deployment simplicity
+-   Type-safe Python object handling
 
 ### Stack Choices
 
@@ -167,12 +174,12 @@ graph LR
 -   Rich ecosystem
 -   Modern development experience
 
-**FastAPI + Python:**
+**PyO3 + Python:**
 
 -   Excellent git libraries
 -   Fast development
--   Strong typing
--   Automatic documentation
+-   Direct Rust-Python integration
+-   Embedded Python interpreter
 
 ## Performance Architecture
 
@@ -198,12 +205,13 @@ graph LR
 -   **Structured** - JSON format for analysis
 -   **Destinations** - Console (dev), files (prod)
 
-### Health Checks
+### Application Monitoring
 
--   **Basic health** - `/health` endpoint
--   **Performance metrics** - Request times, memory usage
--   **Error tracking** - Failure rates and types
+-   **Performance metrics** - Function call times, memory usage
+-   **Error tracking** - PyErr exception handling and logging
+-   **Python integration** - GIL usage and PyO3 performance
+-   **Application health** - Desktop app responsiveness
 
 ## Summary
 
-HTTP-based architecture provides robust, maintainable foundation with clean separation between desktop frontend and analysis backend. Designed for performance, reliability, and future extensibility.
+PyO3-based architecture provides robust, maintainable foundation with direct integration between desktop frontend and embedded Python backend. Designed for performance, reliability, and simplified deployment with zero network overhead.

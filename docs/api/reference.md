@@ -1,308 +1,281 @@
-# HTTP API Reference
+# Python API Reference
 
-GitInspectorGUI HTTP API documentation.
+GitInspectorGUI Python API specification for developers implementing analysis functions.
 
-## For Python Developers
+## Overview
 
-This API is built with FastAPI and follows standard HTTP conventions. If you're unfamiliar with FastAPI, see the **[Technology Primer](../technology-primer.md)** first.
+This document specifies the Python functions you need to implement for GitInspectorGUI. The Rust-Python integration is already handled automatically - you just need to implement these Python functions according to the specifications below.
 
-**Key concept**: The frontend sends JSON requests to your Python backend via HTTP. You can test all endpoints directly with curl or Python requests.
+## Core Functions
 
-## Configuration
-
--   **Base URL**: `http://127.0.0.1:8000`
--   **Content-Type**: `application/json`
--   **Timeout**: 30s (300s for analysis)
-
-## Endpoints
-
-| Endpoint                 | Method   | Purpose             | Response Time |
-| ------------------------ | -------- | ------------------- | ------------- |
-| `/health`                | GET      | Health check        | ~50ms         |
-| `/api/execute_analysis`  | POST     | Repository analysis | 10s-300s      |
-| `/api/settings`          | GET/POST | Settings management | ~100ms        |
-| `/api/engine_info`       | GET      | Engine capabilities | ~50ms         |
-| `/api/performance_stats` | GET      | Performance metrics | ~30ms         |
-
-## Health Check
-
-### `GET /health`
-
-**Response:**
-
-```json
-{
-    "status": "healthy",
-    "version": "1.0.0",
-    "timestamp": "2025-06-02T15:00:00.000Z",
-    "api_info": {
-        "engine_version": "2.1.0",
-        "supported_formats": ["json", "xml", "html"],
-        "legacy_engine_available": true
-    }
-}
-```
-
-**Usage:**
-
-```bash
-curl http://127.0.0.1:8000/health
-```
+| Function             | Purpose             | Required |
+| -------------------- | ------------------- | -------- |
+| `execute_analysis()` | Repository analysis | Yes      |
+| `get_settings()`     | Get settings        | Yes      |
+| `save_settings()`    | Save settings       | Yes      |
+| `get_engine_info()`  | Engine capabilities | Optional |
 
 ## Execute Analysis
 
-### `POST /api/execute_analysis`
+### `execute_analysis(settings: Settings) -> Dict[str, Any]`
 
-**Key Request Fields:**
+Main analysis function that processes git repositories.
 
-```json
-{
-    "input_fstrs": ["/path/to/repository"],
-    "n_files": 100,
-    "ex_files": ["*.log", "*.tmp"],
-    "extensions": [".py", ".js", ".ts"],
-    "file_formats": ["json"],
-    "processes": 4,
-    "legacy_engine": false
-}
+**Parameters:**
+
+```python
+@dataclass
+class Settings:
+    input_fstrs: List[str]              # Repository paths
+    n_files: int = 100                  # Max files to analyze
+    ex_files: List[str] = None          # Files to exclude
+    extensions: List[str] = None        # File extensions to include
+    file_formats: List[str] = None      # Output formats
+    processes: int = 4                  # Number of processes
+    legacy_engine: bool = False         # Use legacy analysis
 ```
 
-**Python-focused example**:
+**Returns:**
 
-```json
-{
-    "input_fstrs": ["/home/user/my-python-project"],
-    "extensions": [".py"],
-    "ex_files": ["*/venv/*", "*/migrations/*", "*.pyc"],
-    "n_files": 50,
-    "processes": 2
-}
-```
-
-**Response:**
-
-```json
+```python
 {
     "repositories": [
         {
-            "name": "repo-name",
-            "path": "/path/to/repo",
-            "commit_count": 1234,
-            "author_count": 15,
-            "authors": [{ "name": "...", "commits": 100 }],
-            "files": [{ "name": "...", "lines": 500 }]
+            "name": str,
+            "path": str,
+            "commit_count": int,
+            "author_count": int,
+            "authors": [...],
+            "files": [...]
         }
     ],
     "summary": {
-        "total_repositories": 1,
-        "total_commits": 1234,
-        "analysis_duration": 15.2
+        "total_repositories": int,
+        "total_commits": int,
+        "analysis_duration": float
     }
 }
 ```
 
-**Usage:**
+**Example Implementation:**
 
-```bash
-curl -X POST http://127.0.0.1:8000/api/execute_analysis \
-  -H "Content-Type: application/json" \
-  -d '{"input_fstrs": ["/path/to/repo"], "file_formats": ["json"]}'
+```python
+def execute_analysis(settings: Settings) -> Dict[str, Any]:
+    """Execute repository analysis with given settings."""
+
+    # Validate input
+    if not settings.input_fstrs:
+        raise ValidationError("No repositories specified")
+
+    # Perform analysis
+    results = []
+    for repo_path in settings.input_fstrs:
+        repo_data = analyze_repository(repo_path, settings)
+        results.append(repo_data)
+
+    return {
+        "repositories": results,
+        "summary": {
+            "total_repositories": len(results),
+            "total_commits": sum(r["commit_count"] for r in results),
+            "analysis_duration": time.time() - start_time
+        }
+    }
 ```
 
 ## Settings Management
 
-### `GET /api/settings`
+### `get_settings() -> Dict[str, Any]`
 
-**Response:**
+Get current application settings.
 
-```json
+**Returns:**
+
+```python
 {
     "input_fstrs": [],
     "n_files": 100,
     "file_formats": ["json"],
     "processes": 1,
-    "legacy_engine": false
+    "legacy_engine": False
 }
 ```
 
-### `POST /api/settings`
+### `save_settings(settings: Settings) -> bool`
 
-**Request:** Same as GET response
-**Response:**
+Save application settings.
 
-```json
-{
-    "success": true,
-    "message": "Settings saved successfully"
-}
-```
+**Parameters:** Settings object (same as execute_analysis)
+**Returns:** `True` if successful, `False` otherwise
 
 ## Engine Information
 
-### `GET /api/engine_info`
+### `get_engine_info() -> Dict[str, Any]` (Optional)
 
-**Response:**
+Get information about the analysis engine capabilities.
 
-```json
+**Returns:**
+
+```python
 {
     "engine_version": "2.1.0",
     "supported_formats": ["json", "xml", "html", "csv"],
-    "legacy_engine_available": true,
+    "legacy_engine_available": True,
     "features": {
-        "blame_analysis": true,
-        "rename_detection": true,
-        "performance_monitoring": true
-    }
-}
-```
-
-## Performance Statistics
-
-### `GET /api/performance_stats`
-
-**Response:**
-
-```json
-{
-    "uptime_seconds": 3600,
-    "total_requests": 1247,
-    "average_response_time": 0.3,
-    "endpoints": {
-        "/api/execute_analysis": {
-            "requests": 45,
-            "avg_response_time": 15.2
-        }
+        "blame_analysis": True,
+        "rename_detection": True
     }
 }
 ```
 
 ## Error Handling
 
-**Error Format:**
-
-```json
-{
-    "error": "Error category",
-    "message": "Detailed description",
-    "timestamp": "2025-06-02T15:00:00.000Z"
-}
-```
-
-**Status Codes:**
-
--   `200` - Success
--   `400` - Invalid input/validation failed
--   `500` - Server error
-
-## Client Examples
-
-### Python
+Define these exception classes in your Python code:
 
 ```python
-import requests
-import json
+class AnalysisError(Exception):
+    """Raised when analysis fails"""
+    pass
 
-# Create a session for reusing connections
-client = requests.Session()
-client.timeout = 30
+class ValidationError(Exception):
+    """Raised when input validation fails"""
+    pass
 
-# Health check - verify the server is running
-response = client.get("http://127.0.0.1:8000/health")
-if response.status_code == 200:
-    print("Server is healthy:", response.json()["status"])
-
-# Analyze a Python project
-settings = {
-    "input_fstrs": ["/home/user/my-django-project"],
-    "extensions": [".py"],  # Only analyze Python files
-    "ex_files": ["*/venv/*", "*/migrations/*", "*.pyc"],  # Exclude common Python dirs
-    "n_files": 100,
-    "file_formats": ["json"]
-}
-
-# Execute analysis with longer timeout for large repositories
-result = client.post("http://127.0.0.1:8000/api/execute_analysis",
-                    json=settings, timeout=300)
-
-if result.status_code == 200:
-    data = result.json()
-    print(f"Analysis complete: {data['summary']['total_commits']} commits analyzed")
-    print(f"Top contributor: {data['repositories'][0]['authors'][0]['name']}")
-else:
-    print(f"Error: {result.status_code} - {result.text}")
+class RepositoryError(Exception):
+    """Raised when repository access fails"""
+    pass
 ```
 
-**Testing your Python backend directly**:
+**Error Handling Example:**
 
 ```python
-# Quick test script for development
-import requests
+def execute_analysis(settings: Settings) -> Dict[str, Any]:
+    try:
+        # Validate settings
+        if not settings.input_fstrs:
+            raise ValidationError("No repositories specified")
 
-def test_api():
-    base_url = "http://127.0.0.1:8000"
+        # Check repository access
+        for repo_path in settings.input_fstrs:
+            if not os.path.exists(repo_path):
+                raise RepositoryError(f"Repository not found: {repo_path}")
 
-    # Test health endpoint
-    health = requests.get(f"{base_url}/health")
-    print("Health check:", health.json())
+        # Perform analysis
+        return perform_git_analysis(settings)
 
-    # Test with a small repository
-    test_settings = {
-        "input_fstrs": ["/path/to/small/test/repo"],
-        "n_files": 10,
-        "file_formats": ["json"]
-    }
+    except Exception as e:
+        logging.error(f"Analysis failed: {e}")
+        raise AnalysisError(f"Analysis execution failed: {e}")
+```
 
-    analysis = requests.post(f"{base_url}/api/execute_analysis",
-                           json=test_settings, timeout=60)
+## Module Structure
 
-    if analysis.status_code == 200:
-        print("Analysis successful!")
-        return analysis.json()
-    else:
-        print(f"Analysis failed: {analysis.text}")
-        return None
+**Why this matters:** The Rust-Python integration is configured to import specific Python modules and functions. If your code isn't organized exactly as shown below, the desktop application won't be able to find your functions and will fail with import errors.
+
+**The Problem:** PyO3 (the Rust-Python bridge) needs to know exactly where to find your Python functions. The Rust code is hardcoded to import from `gigui.analysis` and call specific function names.
+
+**What happens if you get it wrong:**
+
+-   Import errors when the desktop app starts
+-   "Module not found" or "Function not found" runtime errors
+-   The analysis button won't work
+
+**Required Structure:**
+
+```python
+# gigui/analysis/__init__.py
+# This file MUST export these exact function names
+from .main import execute_analysis, get_settings, save_settings, get_engine_info
+
+# gigui/analysis/main.py
+# This file MUST contain these exact function names
+from typing import List, Dict, Any
+from dataclasses import dataclass
+import logging
+
+@dataclass
+class Settings:
+    input_fstrs: List[str]
+    n_files: int = 100
+    ex_files: List[str] = None
+    extensions: List[str] = None
+    file_formats: List[str] = None
+    processes: int = 4
+    legacy_engine: bool = False
+
+def execute_analysis(settings: Settings) -> Dict[str, Any]:
+    # Your implementation here
+    pass
+
+def get_settings() -> Dict[str, Any]:
+    # Your implementation here
+    pass
+
+def save_settings(settings: Settings) -> bool:
+    # Your implementation here
+    pass
+
+def get_engine_info() -> Dict[str, Any]:
+    # Your implementation here
+    pass
+```
+
+**Critical Requirements:**
+
+-   Module path must be exactly `gigui.analysis`
+-   Function names must match exactly (case-sensitive)
+-   Function signatures must match the specifications above
+-   The `__init__.py` file must export all required functions
+
+## Testing Your Functions
+
+Test your Python functions independently:
+
+```python
+# test_analysis.py
+from gigui.analysis import execute_analysis, Settings
+
+def test_basic_analysis():
+    settings = Settings(
+        input_fstrs=["/path/to/test/repo"],
+        n_files=10
+    )
+
+    result = execute_analysis(settings)
+
+    assert "repositories" in result
+    assert "summary" in result
+    assert len(result["repositories"]) > 0
 
 if __name__ == "__main__":
-    result = test_api()
+    test_basic_analysis()
+    print("Analysis function works!")
 ```
 
-### Rust
+## Debugging
 
-```rust
-let client = reqwest::Client::new();
-let settings = json!({"input_fstrs": ["/path/to/repo"]});
+Add logging to your functions for debugging:
 
-let response = client
-    .post("http://127.0.0.1:8000/api/execute_analysis")
-    .json(&settings)
-    .timeout(Duration::from_secs(300))
-    .send()
-    .await?;
+```python
+import logging
+
+def execute_analysis(settings: Settings) -> Dict[str, Any]:
+    logging.info(f"Starting analysis with {len(settings.input_fstrs)} repositories")
+
+    try:
+        # Your analysis logic
+        result = perform_analysis(settings)
+        logging.info("Analysis completed successfully")
+        return result
+
+    except Exception as e:
+        logging.error(f"Analysis failed: {e}")
+        raise
 ```
 
-## Troubleshooting
+## Related Documentation
 
-**Connection Issues:**
-
-```bash
-python -m gigui.start_server  # Start server
-curl http://127.0.0.1:8000/health  # Test connection
-```
-
-**Performance Issues:**
-
--   Reduce `n_files` setting
--   Use `ex_files` to exclude large files
--   Adjust `processes` count
-
-**Debug Mode:**
-
-```bash
-python -m gigui.start_server --log-level DEBUG
-```
-
-## Documentation
-
--   **Swagger UI**: `http://127.0.0.1:8000/docs`
--   **ReDoc**: `http://127.0.0.1:8000/redoc`
--   **OpenAPI JSON**: `http://127.0.0.1:8000/openapi.json`
+-   **[Technology Primer](../technology-primer.md)** - Understanding the overall architecture
+-   **[Development Workflow](../development/development-workflow.md)** - Development patterns
+-   **[Error Handling](error-handling.md)** - Comprehensive error handling patterns
+-   **[Examples](examples.md)** - More detailed implementation examples

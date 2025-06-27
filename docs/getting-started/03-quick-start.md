@@ -1,41 +1,33 @@
 # Quick Start
 
-Get GitInspectorGUI development environment running in 3 steps.
+Get GitInspectorGUI development environment running in 1 step.
 
 **Prerequisites**: Complete **[Prerequisites](01-prerequisites.md)** and **[Installation](02-installation.md)** first.
 
 **Note**: This is for the development environment. For application usage, see [gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
 
-## 3-Step Verification
+## Single-Step Verification
 
-After completing installation, verify everything works with these 3 steps:
+After completing installation, verify everything works with this single step:
 
-### 1. Start Python Backend
-
-```bash
-python -m gigui.start_server
-# Server runs at: http://127.0.0.1:8000
-```
-
-**What happens**: The FastAPI server starts and provides the git analysis API.
-
-### 2. Start Desktop Frontend
+### Start Development Environment
 
 ```bash
-# In a new terminal
 pnpm run tauri dev
 ```
 
 **What happens**:
 
 -   Vite builds the React/TypeScript frontend
--   Tauri compiles the Rust wrapper
--   Desktop app opens and connects to the Python server
+-   Tauri compiles the Rust wrapper with PyO3 integration
+-   Python analysis engine is embedded directly in the application
+-   Desktop app opens with fully integrated Python functionality
 
-### 3. Verify Integration
+### Verify Integration
 
--   Desktop app connects automatically to Python server
--   Test with sample repository analysis
+-   Desktop app opens with GitInspectorGUI interface
+-   Python analysis engine is ready for use (no separate server needed)
+-   Test with sample repository analysis through the GUI
 -   Check that results are displayed properly
 
 ## Development Commands Reference
@@ -43,14 +35,14 @@ pnpm run tauri dev
 For ongoing development, use these commands:
 
 ```bash
-# Backend with auto-reload (for Python development)
-python -m gigui.start_server --reload --log-level DEBUG
-
-# Frontend with hot reload (for UI development)
+# Complete development environment (recommended)
 pnpm run tauri dev
 
 # Frontend only (without desktop wrapper)
 pnpm run dev
+
+# Note: Python changes require restarting the desktop app
+# since Python is embedded via PyO3
 ```
 
 ## Next Steps
@@ -73,13 +65,15 @@ If something doesn't work:
 **Quick fixes**:
 
 ```bash
-# Server won't start
-lsof -ti:8000 | xargs kill -9
-python -m gigui.start_server
-
-# Frontend connection issues
-curl http://127.0.0.1:8000/health
+# Desktop app won't start
+pnpm clean
+pnpm install
+pnpm run tauri dev
 
 # Dependencies issues
 uv sync && pnpm install
+
+# Clear development cache
+rm -rf node_modules/.vite
+rm -rf src-tauri/target/debug
 ```

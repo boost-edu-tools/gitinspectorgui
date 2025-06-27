@@ -57,7 +57,7 @@ Now install the Python dependencies:
 uv sync
 ```
 
-This reads `pyproject.toml` and installs all Python packages needed for the FastAPI server.
+This reads `pyproject.toml` and installs all Python packages needed for the embedded Python analysis engine.
 
 #### Frontend Setup
 
@@ -81,64 +81,37 @@ This gives you the `tauri` command for building desktop applications.
 
 ## Verification
 
-Let's test that everything is installed correctly by running each part of the system:
+Let's test that everything is installed correctly by running the complete system:
 
-### Test Python API (Backend)
+### Test PyO3 Integration (Complete System)
 
-First, let's verify the Python backend works independently:
-
-1. Start the FastAPI server:
-
-```bash
-python -m gigui.start_server
-```
-
-2. In a new terminal, test the health endpoint:
-
-```bash
-curl http://127.0.0.1:8000/health
-```
-
-**Expected response:**
-
-```json
-{
-    "status": "healthy",
-    "version": "1.0.0",
-    "timestamp": "2025-01-01T12:00:00Z"
-}
-```
-
-**What this tests**:
-
--   Python environment is working
--   FastAPI server can start
--   HTTP endpoints are responding
--   All Python dependencies are installed correctly
-
-### Test Tauri Application (Complete System)
-
-Now let's test the complete desktop application:
+Test the complete desktop application with embedded Python:
 
 ```bash
 pnpm run tauri dev
 ```
 
-This command starts the development version of the desktop application.
+This command starts the development version of the desktop application with embedded Python analysis engine.
 
 **What should happen**:
 
 -   Vite builds the React/TypeScript frontend
--   Tauri compiles the Rust wrapper
+-   Tauri compiles the Rust wrapper with PyO3 integration
 -   A desktop window opens showing the GitInspectorGUI interface
--   The frontend automatically connects to the Python API server
+-   Python analysis engine is embedded and ready for use
 
 **What this tests**:
 
+-   Python environment is working
+-   PyO3 Python integration is working
+-   React frontend communicates with Rust backend
+-   Python analysis engine is accessible via PyO3 bindings
+-   All dependencies are installed correctly
 -   Node.js and pnpm are working
 -   React/TypeScript compilation works
 -   Rust and Tauri are working
--   Frontend-backend communication works
+
+**Expected behavior**: The GitInspectorGUI desktop application opens with a functional interface ready for repository analysis.
 
 ## Development Environment Setup
 
@@ -182,21 +155,15 @@ Update your Rust toolchain:
 rustup update
 ```
 
-**Port 8000 in use:**
+**Tauri development issues:**
 
-Free up the port:
-
-On macOS/Linux:
+If the desktop application fails to start, try:
 
 ```bash
-lsof -ti:8000 | xargs kill -9
-```
-
-On Windows:
-
-```bash
-netstat -ano | findstr :8000
-taskkill /PID <PID> /F
+# Clean and rebuild
+pnpm clean
+pnpm install
+pnpm run tauri dev
 ```
 
 **Node.js permissions:**
