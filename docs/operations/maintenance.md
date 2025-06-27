@@ -1,6 +1,6 @@
 # Maintenance Guide
 
-Essential maintenance procedures for GitInspectorGUI.
+Essential maintenance procedures for GitInspectorGUI desktop application with embedded Python analysis engine.
 
 ## Updates
 
@@ -28,16 +28,20 @@ cargo update
 
 ## Troubleshooting
 
-### Service Issues
+### Application Issues
 
 ```bash
-# HTTP Server won't start
-lsof -ti:8000 | xargs kill -9
-python -m gigui.start_server
+# Desktop app won't start
+# Check if another instance is running
+ps aux | grep gitinspectorgui
 
 # Tauri app issues
 rm -rf node_modules
 pnpm install
+
+# Python analysis engine issues
+uv sync
+python -c "import gigui.analysis; print('Python engine OK')"
 ```
 
 ### Performance Issues
@@ -49,18 +53,19 @@ pnpm install
 
 ### Locations
 
--   **API**: Console output from `python -m gigui.start_server`
--   **Frontend**: Browser DevTools Console
+-   **Python Analysis**: Embedded in desktop app logs
+-   **Frontend**: Browser DevTools Console (in development)
 -   **Tauri**: Terminal output from `pnpm run tauri dev`
+-   **Desktop App**: System logs (varies by platform)
 
 ### Analysis
 
 ```bash
-# Check for errors
-grep -i error /path/to/logs
+# Check for errors in development
+pnpm run tauri dev 2>&1 | grep -i error
 
-# Monitor real-time
-tail -f /path/to/logfile
+# Monitor real-time during development
+pnpm run tauri dev
 ```
 
 ## Backup
@@ -83,17 +88,17 @@ cp -r /path/to/gitinspectorgui /backup/location/
 
 ## Health Checks
 
-### API Health
+### Application Health
 
 ```bash
-# Check HTTP API
-curl http://127.0.0.1:8000/health
+# Test Python analysis engine
+python -c "from gigui.analysis import execute_analysis; print('Analysis engine OK')"
 
 # Basic functionality test
-# 1. Start HTTP server
-# 2. Start Tauri app
-# 3. Load test repository
-# 4. Run small analysis
+# 1. Start desktop app: pnpm run tauri dev
+# 2. Load test repository
+# 3. Run small analysis
+# 4. Verify results display
 ```
 
 ### System Requirements
