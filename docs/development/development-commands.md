@@ -329,7 +329,7 @@ env | grep PYTHONPATH
 
 ```bash
 # Verify development services are running
-curl http://localhost:5173           # Frontend (returns HTML)
+curl http://localhost:5173           # Frontend dev server (returns HTML)
 
 # Check that desktop app is running
 ps aux | grep gitinspectorgui

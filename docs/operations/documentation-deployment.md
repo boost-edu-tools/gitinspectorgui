@@ -27,11 +27,11 @@ python3 -m http.server 8080 --directory public
 
 ### Verification Checklist
 
-- All pages load correctly
-- Navigation works properly
-- Mermaid diagrams render
-- Search functionality works
-- Mobile responsiveness
+-   All pages load correctly
+-   Navigation works properly
+-   Mermaid diagrams render
+-   Search functionality works
+-   Mobile responsiveness
 
 ## GitLab Pages Deployment
 
@@ -84,15 +84,15 @@ project/
 
 **Build fails:**
 
-- Check CI/CD → Pipelines logs
-- Verify MkDocs configuration
-- Check for broken links
+-   Check CI/CD → Pipelines logs
+-   Verify MkDocs configuration
+-   Check for broken links
 
 **Documentation not updating:**
 
-- Verify pipeline completed successfully
-- Clear browser cache
-- Wait for CDN propagation
+-   Verify pipeline completed successfully
+-   Clear browser cache
+-   Wait for CDN propagation
 
 ### Local Issues
 
@@ -134,7 +134,7 @@ mkdocs --version
 # Start development server
 mkdocs serve
 
-# Open: http://127.0.0.1:8000
+# Open: http://127.0.0.1:8000 (MkDocs dev server)
 ```
 
 ## CI/CD Pipeline Details
@@ -143,45 +143,45 @@ mkdocs serve
 
 ```yaml
 pages:
-  stage: deploy
-  image: python:3.13
-  script:
-    - pip install -e .[dev]
-    - mkdocs build --site-dir public
-  artifacts:
-    paths:
-      - public
-  only:
-    - main
+    stage: deploy
+    image: python:3.13
+    script:
+        - pip install -e .[dev]
+        - mkdocs build --site-dir public
+    artifacts:
+        paths:
+            - public
+    only:
+        - main
 ```
 
 ### Pipeline Triggers
 
-- **Automatic** - Push to main branch
-- **Manual** - Retry from GitLab UI
-- **Scheduled** - Optional scheduled builds
+-   **Automatic** - Push to main branch
+-   **Manual** - Retry from GitLab UI
+-   **Scheduled** - Optional scheduled builds
 
 ## Safety Features
 
-- **Default disabled** - CI/CD requires explicit enablement
-- **Local validation** - Test script prevents broken deployments
-- **Isolated builds** - Virtual environments prevent conflicts
-- **Rollback capability** - Failed builds don't affect live site
+-   **Default disabled** - CI/CD requires explicit enablement
+-   **Local validation** - Test script prevents broken deployments
+-   **Isolated builds** - Virtual environments prevent conflicts
+-   **Rollback capability** - Failed builds don't affect live site
 
 ## Monitoring
 
 ### Pipeline Status
 
-- Navigate to **CI/CD** → **Pipelines**
-- Monitor job progress and logs
-- Check deployment status
+-   Navigate to **CI/CD** → **Pipelines**
+-   Monitor job progress and logs
+-   Check deployment status
 
 ### Site Health
 
-- Verify site accessibility
-- Test navigation and search
-- Check mobile responsiveness
-- Validate external links
+-   Verify site accessibility
+-   Test navigation and search
+-   Check mobile responsiveness
+-   Validate external links
 
 ## Summary
 

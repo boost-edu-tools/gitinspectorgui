@@ -2,7 +2,7 @@
 
 ## Overview
 
-GitInspectorGUI is a Tauri-based desktop application with a Python FastAPI HTTP server backend that gets distributed as platform-specific installers and packages. This guide covers the complete release process from development to distribution, including build automation, testing, and deployment strategies.
+GitInspectorGUI is a Tauri-based desktop application with embedded Python analysis engine via PyO3 that gets distributed as platform-specific installers and packages. This guide covers the complete release process from development to distribution, including build automation, testing, and deployment strategies.
 
 ## Table of Contents
 
@@ -93,7 +93,7 @@ uv sync
 # 2. Build frontend assets
 pnpm run build
 
-# 3. Build Python FastAPI server
+# 3. Build Python analysis engine
 cd python && uv build
 
 # 4. Build Tauri application

@@ -7,7 +7,7 @@ Complete guide for GitInspectorGUI command-line interface usage.
 GitInspectorGUI provides both standalone executables and Python module access for command-line analysis. The CLI serves dual purposes:
 
 -   **CLI Mode**: Traditional command-line interface with argparse options
--   **API Mode**: FastAPI server for GUI integration
+-   **Desktop Integration**: Embedded Python engine for GUI integration
 -   **JSON Output**: Compatible with programmatic integration
 
 ## Installation Methods

@@ -91,7 +91,7 @@ nav:
                 - Demo-Based Development: development/advanced/demo-based-development.md
                 - Design System Integration: development/advanced/design-system-integration.md
     - API Reference:
-          - HTTP API Reference: api/reference.md
+          - Python API Reference: api/reference.md
           - Examples: api/examples.md
           - Error Handling: api/error-handling.md
     - Architecture:
