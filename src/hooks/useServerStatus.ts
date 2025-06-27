@@ -1,21 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 
-// Check if Tauri APIs are available
-const isTauriAvailable = () => {
-    try {
-        // In Tauri v2, check for the presence of the Tauri context
-        return (
-            typeof window !== "undefined" &&
-            ((window as any).__TAURI__ !== undefined ||
-                (window as any).__TAURI_INTERNALS__ !== undefined ||
-                // Also check if we can access Tauri APIs directly
-                typeof (window as any).__TAURI_INVOKE__ === "function")
-        );
-    } catch {
-        return false;
-    }
-};
-
 // Dynamically import Tauri invoke only if available
 const getTauriInvoke = async () => {
     try {
@@ -46,7 +30,7 @@ export function useServerStatus() {
         try {
             // Try to directly use Tauri invoke - if it works, we're in desktop mode
             const invoke = await getTauriInvoke();
-            const healthResult = await invoke("health_check");
+            await invoke("health_check");
             const engineInfo = await invoke("get_engine_info");
 
             setStatus((prev) => ({
