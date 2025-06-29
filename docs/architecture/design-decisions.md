@@ -1,6 +1,6 @@
 # Architecture Design Decisions
 
-## IPC Evolution: stdout → HTTP → PyO3 Direct Integration
+## IPC Evolution: stdout → HTTP → Plugin-Based Integration
 
 ### Previous Issues with stdout Communication
 
@@ -16,13 +16,13 @@
 -   **Error boundary** - HTTP status codes vs native exceptions
 -   **Development complexity** - Multiple processes to coordinate
 
-### Current PyO3 Direct Integration
+### Current Plugin-Based Integration
 
 ```mermaid
 graph TB
-    A[Tauri Frontend] -->|invoke()| B[Tauri Rust Backend]
-    B -->|Direct calls| C[PyO3 Bindings]
-    C -->|Python functions| D[Python Analysis Engine]
+    A[Tauri Frontend] -->|callFunction()| B[tauri-plugin-python API]
+    B -->|Plugin calls| C[Tauri Plugin]
+    C -->|PyO3 bindings| D[Python Analysis Engine]
     D -->|Native objects| C
     C -->|Rust types| B
     B -->|JSON| A
@@ -31,22 +31,22 @@ graph TB
     D --> E
 ```
 
-## PyO3 Direct Integration Architecture
+## Plugin-Based Architecture
 
 ### Key Benefits
 
 #### Performance
 
--   **Zero IPC overhead** - Direct function calls between Rust and Python
--   **Native memory access** - No serialization between Rust and Python
--   **Embedded interpreter** - Python runs within the same process
+-   **Zero IPC overhead** - Direct function calls through plugin layer
+-   **Native memory access** - No serialization between components
+-   **Embedded interpreter** - Python runs within the same process via PyO3
 -   **Type-safe conversion** - Automatic Python ↔ Rust type conversion
 
 #### Development
 
 -   **Single process** - Simplified debugging and development
 -   **Integrated logging** - Python logging works seamlessly with Rust
--   **Native error handling** - PyResult<T> and PyErr for proper error propagation
+-   **Plugin error handling** - Automatic error conversion and propagation
 -   **Hot reload** - Frontend changes don't require backend restart
 
 #### Deployment
@@ -58,91 +58,126 @@ graph TB
 
 ## Implementation
 
-### PyO3 Integration (Rust)
+### Plugin Integration (Rust)
 
 ```rust
-use pyo3::prelude::*;
-use pyo3::types::PyDict;
+use tauri_plugin_python::{init_and_register, PythonExt};
 
-#[pyfunction]
-fn execute_analysis(settings: Settings) -> PyResult<AnalysisResult> {
-    Python::with_gil(|py| {
-        // Import Python analysis module
-        let analysis_module = py.import("gigui.analysis")?;
-
-        // Convert Rust settings to Python object
-        let py_settings = settings.to_python(py)?;
-
-        // Call Python function directly
-        let result = analysis_module
-            .getattr("execute_analysis")?
-            .call1((py_settings,))?;
-
-        // Convert Python result back to Rust
-        result.extract::<AnalysisResult>()
-    })
-}
-
-#[tauri::command]
-pub async fn execute_analysis_command(settings: Settings) -> Result<AnalysisResult, String> {
-    execute_analysis(settings)
-        .map_err(|e| format!("Analysis failed: {}", e))
+fn main() {
+    tauri::Builder::default()
+        .plugin(init_and_register(vec![
+            "health_check".into(),
+            "get_engine_info".into(),
+            "execute_analysis".into(),
+            "get_settings".into(),
+            "save_settings".into(),
+            "get_blame_data".into(),
+        ]))
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
 ```
 
-### Python Analysis Engine
+### Python Entry Point
 
 ```python
-from pydantic import BaseModel
-from typing import List, Optional
+import sys
+import json
 import logging
+from pathlib import Path
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class Settings(BaseModel):
-    input_fstrs: List[str]
-    n_files: int
-    exclude_patterns: Optional[List[str]] = None
+# Handle embedded Python environment
+try:
+    project_root = Path(__file__).parent.parent.parent
+except NameError:
+    # Fallback for embedded Python environments
+    project_root = Path.cwd()
 
-class AnalysisResult(BaseModel):
-    files: List[dict]
-    authors: List[dict]
-    blame_data: dict
-    performance_stats: dict
+# Add Python modules to path
+python_path = project_root / "python"
+if python_path.exists():
+    sys.path.insert(0, str(python_path))
 
-def execute_analysis(settings: Settings) -> AnalysisResult:
-    """
-    Main analysis function called directly from Rust via PyO3.
+# Import analysis engine
+from gigui.api.main import GitInspectorAPI
 
-    Args:
-        settings: Analysis configuration
+# Initialize API
+api = GitInspectorAPI()
 
-    Returns:
-        AnalysisResult: Complete analysis results
+def health_check():
+    """Check if the Python backend is healthy."""
+    return {"status": "healthy", "message": "Python backend is running"}
 
-    Raises:
-        ValueError: Invalid settings or repository
-        RuntimeError: Git operation failures
-    """
+def get_engine_info():
+    """Get information about the analysis engine."""
+    return {
+        "name": "GitInspectorGUI Analysis Engine",
+        "version": "1.0.0",
+        "backend": "tauri-plugin-python"
+    }
+
+def execute_analysis(settings_json):
+    """Execute repository analysis."""
     try:
-        logger.info(f"Starting analysis with {len(settings.input_fstrs)} repositories")
+        settings = json.loads(settings_json)
+        logger.info(f"Starting analysis with settings: {settings}")
 
-        # Perform git analysis
-        api = GitInspectorAPI()
         result = api.execute_analysis(settings)
-
         logger.info("Analysis completed successfully")
-        return result
 
+        return json.dumps(result)
     except Exception as e:
         logger.error(f"Analysis failed: {e}")
-        raise RuntimeError(f"Analysis execution failed: {e}") from e
+        raise
+
+def get_settings():
+    """Get current analysis settings."""
+    try:
+        settings = api.get_settings()
+        return json.dumps(settings)
+    except Exception as e:
+        logger.error(f"Failed to get settings: {e}")
+        raise
+
+def save_settings(settings_json):
+    """Save analysis settings."""
+    try:
+        settings = json.loads(settings_json)
+        api.save_settings(settings)
+        return json.dumps({"status": "success"})
+    except Exception as e:
+        logger.error(f"Failed to save settings: {e}")
+        raise
+
+def get_blame_data(settings_json):
+    """Get blame data for repositories."""
+    try:
+        settings = json.loads(settings_json)
+        result = api.get_blame_data(settings)
+        return json.dumps(result)
+    except Exception as e:
+        logger.error(f"Failed to get blame data: {e}")
+        raise
+
+# Register functions with the plugin
+_tauri_plugin_functions = [
+    health_check,
+    get_engine_info,
+    execute_analysis,
+    get_settings,
+    save_settings,
+    get_blame_data,
+]
 ```
 
-### Tauri Frontend Integration
+### Frontend Integration
 
 ```typescript
-import { invoke } from "@tauri-apps/api/core";
+import { callFunction } from "tauri-plugin-python-api";
 
 interface Settings {
     input_fstrs: string[];
@@ -161,355 +196,326 @@ export async function executeAnalysis(
     settings: Settings
 ): Promise<AnalysisResult> {
     try {
-        const result = await invoke<AnalysisResult>(
-            "execute_analysis_command",
-            {
-                settings,
-            }
-        );
-        return result;
+        const settingsJson = JSON.stringify(settings);
+        const resultJson = await callFunction("execute_analysis", [settingsJson]);
+        return JSON.parse(resultJson);
     } catch (error) {
         console.error("Analysis failed:", error);
         throw new Error(`Analysis failed: ${error}`);
+    }
+}
+
+export async function healthCheck(): Promise<any> {
+    try {
+        return await callFunction("health_check", []);
+    } catch (error) {
+        console.error("Health check failed:", error);
+        throw new Error(`Health check failed: ${error}`);
+    }
+}
+
+export async function getEngineInfo(): Promise<any> {
+    try {
+        return await callFunction("get_engine_info", []);
+    } catch (error) {
+        console.error("Failed to get engine info:", error);
+        throw new Error(`Failed to get engine info: ${error}`);
     }
 }
 ```
 
 ## Error Handling
 
-### PyO3 Error Propagation
+### Plugin Error Propagation
 
-```rust
-use pyo3::exceptions::PyRuntimeError;
-
-#[pyfunction]
-fn execute_analysis(settings: Settings) -> PyResult<AnalysisResult> {
-    Python::with_gil(|py| {
-        match perform_analysis(py, settings) {
-            Ok(result) => Ok(result),
-            Err(e) => {
-                // Convert Rust errors to Python exceptions
-                Err(PyRuntimeError::new_err(format!("Analysis failed: {}", e)))
-            }
-        }
-    })
-}
-
-// Error conversion from Python to Rust
-impl From<PyErr> for AnalysisError {
-    fn from(err: PyErr) -> Self {
-        AnalysisError::PythonError(err.to_string())
-    }
-}
-```
-
-### Python Exception Handling
+The tauri-plugin-python automatically handles error conversion between Python exceptions and JavaScript errors:
 
 ```python
-class AnalysisError(Exception):
-    """Base exception for analysis operations."""
-    pass
-
-class RepositoryError(AnalysisError):
-    """Repository access or validation errors."""
-    pass
-
-class GitOperationError(AnalysisError):
-    """Git command execution errors."""
-    pass
-
-def execute_analysis(settings: Settings) -> AnalysisResult:
+def execute_analysis(settings_json):
+    """Execute repository analysis with proper error handling."""
     try:
+        settings = json.loads(settings_json)
+
         # Validate repository access
-        if not validate_repositories(settings.input_fstrs):
-            raise RepositoryError("Invalid or inaccessible repositories")
+        if not validate_repositories(settings.get('input_fstrs', [])):
+            raise ValueError("Invalid or inaccessible repositories")
 
         # Perform analysis
-        return perform_git_analysis(settings)
+        return json.dumps(perform_git_analysis(settings))
 
-    except GitOperationError as e:
-        logger.error(f"Git operation failed: {e}")
-        raise  # Re-raise for PyO3 to handle
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON settings: {e}")
+        raise ValueError(f"Invalid settings format: {e}")
 
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        raise AnalysisError(f"Analysis failed: {e}") from e
+        logger.error(f"Analysis failed: {e}")
+        raise RuntimeError(f"Analysis execution failed: {e}")
+```
+
+### Frontend Error Handling
+
+```typescript
+export async function executeAnalysis(settings: Settings): Promise<AnalysisResult> {
+    try {
+        const settingsJson = JSON.stringify(settings);
+        const resultJson = await callFunction("execute_analysis", [settingsJson]);
+        return JSON.parse(resultJson);
+    } catch (error) {
+        // Plugin automatically converts Python exceptions to JavaScript errors
+        if (error instanceof Error) {
+            if (error.message.includes("Invalid or inaccessible repositories")) {
+                throw new Error("Repository validation failed. Please check your repository paths.");
+            }
+            if (error.message.includes("Invalid settings format")) {
+                throw new Error("Settings validation failed. Please check your configuration.");
+            }
+        }
+        throw new Error(`Analysis failed: ${error}`);
+    }
+}
 ```
 
 ## Type Safety and Conversion
 
-### Rust ↔ Python Type Mapping
+### JSON-Based Communication
 
-```rust
-use pyo3::prelude::*;
-use serde::{Deserialize, Serialize};
+The plugin uses JSON for type-safe communication between frontend and Python:
 
-#[derive(Debug, Serialize, Deserialize)]
-#[pyclass]
-pub struct Settings {
-    #[pyo3(get, set)]
-    pub input_fstrs: Vec<String>,
+```python
+from pydantic import BaseModel
+from typing import List, Optional
+import json
 
-    #[pyo3(get, set)]
-    pub n_files: usize,
+class Settings(BaseModel):
+    input_fstrs: List[str]
+    n_files: int
+    exclude_patterns: Optional[List[str]] = None
 
-    #[pyo3(get, set)]
-    pub exclude_patterns: Option<Vec<String>>,
-}
+class AnalysisResult(BaseModel):
+    files: List[dict]
+    authors: List[dict]
+    blame_data: dict
+    performance_stats: dict
 
-#[pymethods]
-impl Settings {
-    #[new]
-    fn new(input_fstrs: Vec<String>, n_files: usize, exclude_patterns: Option<Vec<String>>) -> Self {
-        Settings {
-            input_fstrs,
-            n_files,
-            exclude_patterns,
-        }
-    }
+def execute_analysis(settings_json: str) -> str:
+    """Type-safe analysis execution with JSON serialization."""
+    # Parse and validate input
+    settings_dict = json.loads(settings_json)
+    settings = Settings(**settings_dict)
 
-    fn __repr__(&self) -> String {
-        format!("Settings(input_fstrs={:?}, n_files={})", self.input_fstrs, self.n_files)
-    }
-}
+    # Perform analysis
+    result = perform_git_analysis(settings)
 
-// Automatic conversion traits
-impl FromPyObject<'_> for Settings {
-    fn extract(obj: &PyAny) -> PyResult<Self> {
-        Ok(Settings {
-            input_fstrs: obj.getattr("input_fstrs")?.extract()?,
-            n_files: obj.getattr("n_files")?.extract()?,
-            exclude_patterns: obj.getattr("exclude_patterns")?.extract()?,
-        })
-    }
-}
+    # Validate and serialize output
+    analysis_result = AnalysisResult(**result)
+    return analysis_result.model_dump_json()
 ```
 
-### GIL Management
+### TypeScript Type Definitions
 
-```rust
-use pyo3::prelude::*;
-
-// Efficient GIL usage patterns
-fn batch_analysis(repositories: Vec<String>) -> PyResult<Vec<AnalysisResult>> {
-    Python::with_gil(|py| {
-        let analysis_module = py.import("gigui.analysis")?;
-        let mut results = Vec::new();
-
-        for repo in repositories {
-            // GIL is held for the entire batch
-            let result = analysis_module
-                .getattr("analyze_repository")?
-                .call1((repo,))?
-                .extract::<AnalysisResult>()?;
-            results.push(result);
-        }
-
-        Ok(results)
-    })
+```typescript
+interface EngineInfo {
+    name: string;
+    version: string;
+    backend: string;
 }
 
-// For long-running operations, consider releasing GIL
-fn long_running_analysis() -> PyResult<AnalysisResult> {
-    Python::with_gil(|py| {
-        let analysis_module = py.import("gigui.analysis")?;
+interface HealthStatus {
+    status: "healthy" | "error";
+    message: string;
+}
 
-        // Release GIL for CPU-intensive work
-        py.allow_threads(|| {
-            // Perform non-Python work here
-            std::thread::sleep(std::time::Duration::from_secs(1));
-        });
+interface Settings {
+    input_fstrs: string[];
+    n_files: number;
+    exclude_patterns?: string[];
+}
 
-        // Re-acquire GIL for Python operations
-        let result = analysis_module
-            .getattr("execute_analysis")?
-            .call0()?
-            .extract::<AnalysisResult>()?;
-
-        Ok(result)
-    })
+interface AnalysisResult {
+    files: FileData[];
+    authors: AuthorData[];
+    blame_data: BlameData;
+    performance_stats: PerformanceStats;
 }
 ```
 
 ## Performance Considerations
 
-### Memory Management
+### Plugin Overhead
 
-```rust
-use pyo3::prelude::*;
+The tauri-plugin-python provides minimal overhead while maintaining the performance benefits of PyO3:
 
-// Efficient Python object handling
-fn process_large_dataset(data: Vec<String>) -> PyResult<Vec<ProcessedData>> {
-    Python::with_gil(|py| {
-        let processor = py.import("gigui.processor")?;
-        let mut results = Vec::with_capacity(data.len());
+```python
+def batch_analysis(repositories: List[str]) -> str:
+    """Efficient batch processing through plugin."""
+    results = []
 
-        for item in data {
-            // Create Python string efficiently
-            let py_item = PyString::new(py, &item);
+    for repo in repositories:
+        try:
+            # Each repository analysis is optimized
+            result = analyze_single_repository(repo)
+            results.append(result)
+        except Exception as e:
+            logger.warning(f"Skipping repository {repo}: {e}")
+            continue
 
-            // Process and extract result
-            let result = processor
-                .getattr("process_item")?
-                .call1((py_item,))?
-                .extract::<ProcessedData>()?;
-
-            results.push(result);
-
-            // Python objects are automatically cleaned up
-            // when they go out of scope
-        }
-
-        Ok(results)
-    })
-}
+    return json.dumps({"results": results, "processed": len(results)})
 ```
 
-### Async Integration
+### Memory Management
 
-```rust
-use tokio;
-use pyo3::prelude::*;
+```python
+import gc
+import logging
 
-#[tauri::command]
-pub async fn async_analysis(settings: Settings) -> Result<AnalysisResult, String> {
-    // Run PyO3 code in blocking thread pool
-    let result = tokio::task::spawn_blocking(move || {
-        execute_analysis(settings)
-    }).await;
+def execute_analysis(settings_json: str) -> str:
+    """Memory-efficient analysis execution."""
+    try:
+        settings = json.loads(settings_json)
 
-    match result {
-        Ok(Ok(analysis_result)) => Ok(analysis_result),
-        Ok(Err(py_err)) => Err(format!("Python error: {}", py_err)),
-        Err(join_err) => Err(format!("Task error: {}", join_err)),
-    }
-}
+        # Process repositories efficiently
+        result = process_repositories_streaming(settings)
+
+        # Explicit cleanup for large datasets
+        gc.collect()
+
+        return json.dumps(result)
+
+    except Exception as e:
+        # Ensure cleanup on error
+        gc.collect()
+        raise
 ```
 
 ## Testing Strategy
 
-### Unit Testing Python Functions
+### Plugin Integration Testing
 
 ```python
 import pytest
-from gigui.analysis import execute_analysis, Settings
+import json
+from unittest.mock import patch
 
-def test_execute_analysis_basic():
-    """Test basic analysis functionality."""
-    settings = Settings(
-        input_fstrs=["."],
-        n_files=10
-    )
+def test_health_check():
+    """Test plugin health check function."""
+    result = health_check()
+    assert result["status"] == "healthy"
+    assert "message" in result
 
-    result = execute_analysis(settings)
-
-    assert result.files is not None
-    assert result.authors is not None
-    assert len(result.files) <= 10
-
-def test_execute_analysis_error_handling():
-    """Test error handling for invalid repositories."""
-    settings = Settings(
-        input_fstrs=["/nonexistent/path"],
-        n_files=10
-    )
-
-    with pytest.raises(RepositoryError):
-        execute_analysis(settings)
-```
-
-### Integration Testing PyO3
-
-```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use pyo3::prepare_freethreaded_python;
-
-    #[test]
-    fn test_pyo3_integration() {
-        prepare_freethreaded_python();
-
-        let settings = Settings {
-            input_fstrs: vec![".".to_string()],
-            n_files: 5,
-            exclude_patterns: None,
-        };
-
-        let result = execute_analysis(settings);
-        assert!(result.is_ok());
-
-        let analysis_result = result.unwrap();
-        assert!(!analysis_result.files.is_empty());
+def test_execute_analysis_valid_input():
+    """Test analysis with valid settings."""
+    settings = {
+        "input_fstrs": ["."],
+        "n_files": 10
     }
 
-    #[test]
-    fn test_error_propagation() {
-        prepare_freethreaded_python();
+    result_json = execute_analysis(json.dumps(settings))
+    result = json.loads(result_json)
 
-        let settings = Settings {
-            input_fstrs: vec!["/nonexistent".to_string()],
-            n_files: 5,
-            exclude_patterns: None,
-        };
+    assert "files" in result
+    assert "authors" in result
+    assert isinstance(result["files"], list)
 
-        let result = execute_analysis(settings);
-        assert!(result.is_err());
-    }
-}
+def test_execute_analysis_invalid_json():
+    """Test error handling for invalid JSON."""
+    with pytest.raises(ValueError, match="Invalid settings format"):
+        execute_analysis("invalid json")
 ```
 
-## Migration Benefits
+### Frontend Integration Testing
 
-### From HTTP to PyO3
+```typescript
+import { describe, it, expect, vi } from 'vitest';
+import { executeAnalysis, healthCheck } from './api';
 
-| Aspect             | HTTP Architecture              | PyO3 Architecture            |
+// Mock the plugin
+vi.mock('tauri-plugin-python-api', () => ({
+    callFunction: vi.fn(),
+}));
+
+describe('Plugin API Integration', () => {
+    it('should execute analysis successfully', async () => {
+        const mockResult = JSON.stringify({
+            files: [],
+            authors: [],
+            blame_data: {},
+            performance_stats: {}
+        });
+
+        vi.mocked(callFunction).mockResolvedValue(mockResult);
+
+        const settings = {
+            input_fstrs: ['.'],
+            n_files: 10
+        };
+
+        const result = await executeAnalysis(settings);
+        expect(result.files).toBeDefined();
+        expect(result.authors).toBeDefined();
+    });
+
+    it('should handle health check', async () => {
+        const mockHealth = { status: 'healthy', message: 'OK' };
+        vi.mocked(callFunction).mockResolvedValue(mockHealth);
+
+        const result = await healthCheck();
+        expect(result.status).toBe('healthy');
+    });
+});
+```
+
+## Architecture Benefits
+
+### Plugin-Based Advantages
+
+| Aspect             | Previous Approaches            | Plugin Architecture          |
 | ------------------ | ------------------------------ | ---------------------------- |
-| **Performance**    | Network serialization overhead | Direct function calls        |
-| **Error Handling** | HTTP status codes + JSON       | Native PyResult<T> and PyErr |
+| **Performance**    | Network/IPC overhead           | Direct function calls        |
+| **Error Handling** | HTTP status codes + JSON       | Automatic error conversion   |
 | **Development**    | Multiple processes to debug    | Single process debugging     |
 | **Deployment**     | Server + client coordination   | Single executable            |
-| **Type Safety**    | JSON schema validation         | Compile-time type checking   |
+| **Type Safety**    | Manual JSON validation         | Plugin-managed conversion    |
 | **Memory Usage**   | Separate process overhead      | Shared memory space          |
 | **Startup Time**   | Server startup + connection    | Embedded interpreter         |
 | **Testing**        | HTTP mocking required          | Direct function testing      |
 
-### Architectural Advantages
+### Key Architectural Advantages
 
-1. **Simplified Architecture**: Single process eliminates IPC complexity
+1. **Simplified Integration**: Plugin handles all PyO3 complexity automatically
 2. **Better Performance**: Zero network overhead with direct function calls
-3. **Type Safety**: Compile-time guarantees for Python-Rust interface
+3. **Automatic Error Handling**: Plugin converts Python exceptions to JavaScript errors
 4. **Easier Debugging**: All components in same process with integrated logging
-5. **Reduced Dependencies**: No HTTP server framework required
-6. **Better Error Handling**: Native exception propagation vs HTTP error codes
+5. **Reduced Boilerplate**: No manual PyO3 binding code required
+6. **Modern API**: Clean `callFunction()` interface for frontend integration
 
 ## Future Extensions
 
 ### Potential Enhancements
 
--   **Async Python Support**: Integration with Python asyncio
--   **Parallel Processing**: Multi-threaded analysis with GIL management
--   **Plugin System**: Dynamic Python module loading
--   **Performance Monitoring**: PyO3-specific metrics and profiling
+-   **Async Python Support**: Integration with Python asyncio through plugin
+-   **Parallel Processing**: Multi-threaded analysis with automatic GIL management
+-   **Plugin System**: Dynamic Python module loading via plugin configuration
+-   **Performance Monitoring**: Plugin-specific metrics and profiling
 -   **Memory Optimization**: Advanced Python object lifecycle management
 
 ### Scalability Considerations
 
--   **Large Repositories**: Streaming analysis results
+-   **Large Repositories**: Streaming analysis results through plugin
 -   **Memory Management**: Efficient Python object cleanup
--   **GIL Optimization**: Strategic GIL release for CPU-intensive operations
 -   **Error Recovery**: Robust error handling for long-running operations
+-   **Plugin Configuration**: Advanced plugin settings for optimization
 
 ## Summary
 
-PyO3 direct integration provides a robust, high-performance architecture that eliminates the complexity of HTTP-based IPC while maintaining type safety and excellent error handling. The embedded Python approach simplifies deployment and development while providing better performance than network-based communication.
+The tauri-plugin-python architecture provides a robust, high-performance solution that eliminates the complexity of manual PyO3 integration while maintaining all performance benefits. The plugin approach simplifies development and deployment while providing better performance than network-based communication.
 
 Key advantages:
 
--   **Zero IPC overhead** with direct function calls
--   **Native error propagation** via PyResult<T> and PyErr
+-   **Zero integration overhead** with plugin-managed PyO3 bindings
+-   **Automatic error conversion** between Python and JavaScript
 -   **Single process simplicity** for development and deployment
--   **Type-safe integration** between Rust and Python
+-   **Type-safe communication** through JSON serialization
 -   **Integrated logging and debugging** capabilities
+-   **Modern API design** with clean function call interface
 
-This architecture provides a solid foundation for future enhancements while maintaining the flexibility and power of the Python analysis engine.
+This architecture provides a solid foundation for future enhancements while maintaining the flexibility and power of the Python analysis engine through a simplified, plugin-based interface.

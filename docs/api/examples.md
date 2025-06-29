@@ -1,441 +1,681 @@
-# PyO3 Integration Examples
+# Plugin Integration Examples
 
-Practical examples for GitInspectorGUI PyO3 Python function implementation.
+Practical examples for GitInspectorGUI tauri-plugin-python function implementation.
 
 ## Overview
 
-This document shows how to implement the required Python functions that will be called directly from Rust via PyO3. No HTTP requests or network communication is involved - these are direct function calls within a single process.
+This document shows how to implement the required Python functions that will be called directly from the frontend via tauri-plugin-python. The plugin handles all communication between JavaScript and Python automatically.
 
-**Implementation Focus**: These examples show direct Python function implementations - no HTTP endpoints or network code needed. For PyO3 integration details, see [Design Decisions](../architecture/design-decisions.md).
+**Implementation Focus**: These examples show direct Python function implementations using the plugin's function registration system. For plugin architecture details, see [Design Decisions](../architecture/design-decisions.md).
 
-## Basic Analysis Function
+## Python Function Implementation
 
-### Python Implementation
+### Entry Point Structure
 
 ```python
-# gigui/analysis/main.py
-from typing import Dict, Any, List
-from dataclasses import dataclass
+# src-tauri/src-python/main.py
+"""GitInspectorGUI Analysis Engine - Plugin Integration."""
+
+import sys
+import json
 import logging
-import time
+from pathlib import Path
 
-@dataclass
-class Settings:
-    input_fstrs: List[str]
-    n_files: int = 100
-    ex_files: List[str] = None
-    extensions: List[str] = None
-    file_formats: List[str] = None
-    processes: int = 4
-    legacy_engine: bool = False
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def execute_analysis(settings: Settings) -> Dict[str, Any]:
-    """Execute repository analysis with given settings."""
-    logging.info(f"Starting analysis of {len(settings.input_fstrs)} repositories")
+# Handle embedded Python environment
+try:
+    project_root = Path(__file__).parent.parent.parent
+except NameError:
+    # Fallback for embedded Python environments
+    project_root = Path.cwd()
 
-    start_time = time.time()
-    results = []
+# Add Python modules to path
+python_path = project_root / "python"
+if python_path.exists():
+    sys.path.insert(0, str(python_path))
 
-    for repo_path in settings.input_fstrs:
-        try:
-            repo_data = analyze_single_repository(repo_path, settings)
-            results.append(repo_data)
-        except Exception as e:
-            logging.error(f"Failed to analyze {repo_path}: {e}")
-            raise AnalysisError(f"Repository analysis failed: {e}")
+# Import analysis engine
+from gigui.api.main import GitInspectorAPI
 
-    return {
-        "repositories": results,
-        "summary": {
-            "total_repositories": len(results),
-            "total_commits": sum(r.get("commit_count", 0) for r in results),
-            "analysis_duration": time.time() - start_time
-        }
-    }
-
-def analyze_single_repository(repo_path: str, settings: Settings) -> Dict[str, Any]:
-    """Analyze a single repository."""
-    # Your git analysis logic here
-    return {
-        "name": repo_path.split("/")[-1],
-        "path": repo_path,
-        "commit_count": 150,
-        "author_count": 5,
-        "authors": [
-            {"name": "Alice", "commits": 75, "lines": 2500},
-            {"name": "Bob", "commits": 45, "lines": 1800},
-        ],
-        "files": [
-            {"name": "main.py", "lines": 200, "author": "Alice"},
-            {"name": "utils.py", "lines": 150, "author": "Bob"},
-        ]
-    }
+# Initialize API
+api = GitInspectorAPI()
 ```
 
-## Settings Management
-
-### Get Settings
+### Core Analysis Functions
 
 ```python
-def get_settings() -> Dict[str, Any]:
-    """Get current application settings."""
-    # Load from file or return defaults
-    return {
-        "input_fstrs": [],
-        "n_files": 100,
-        "file_formats": ["json"],
-        "processes": 1,
-        "legacy_engine": False,
-        "ex_files": [],
-        "extensions": [".py", ".js", ".ts"]
-    }
-```
-
-### Save Settings
-
-```python
-def save_settings(settings: Settings) -> bool:
-    """Save application settings."""
+def health_check():
+    """Check if the Python backend is healthy."""
     try:
-        # Save settings to file or database
-        settings_dict = {
-            "input_fstrs": settings.input_fstrs,
-            "n_files": settings.n_files,
-            "file_formats": settings.file_formats,
-            "processes": settings.processes,
-            "legacy_engine": settings.legacy_engine
+        # Verify API is accessible
+        api_status = api.get_status() if hasattr(api, 'get_status') else "ready"
+
+        return {
+            "status": "healthy",
+            "message": "Python backend is running",
+            "api_status": api_status,
+            "backend": "tauri-plugin-python"
+        }
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {
+            "status": "error",
+            "message": f"Backend error: {str(e)}",
+            "backend": "tauri-plugin-python"
         }
 
-        # Your save logic here
-        logging.info("Settings saved successfully")
-        return True
-
+def get_engine_info():
+    """Get information about the analysis engine."""
+    try:
+        return {
+            "name": "GitInspectorGUI Analysis Engine",
+            "version": "1.0.0",
+            "backend": "tauri-plugin-python",
+            "python_version": sys.version,
+            "capabilities": [
+                "repository_analysis",
+                "blame_data",
+                "author_statistics",
+                "file_analysis",
+                "settings_management"
+            ]
+        }
     except Exception as e:
-        logging.error(f"Failed to save settings: {e}")
-        return False
+        logger.error(f"Failed to get engine info: {e}")
+        raise RuntimeError(f"Engine info retrieval failed: {e}")
+
+def execute_analysis(settings_json):
+    """Execute repository analysis."""
+    try:
+        settings = json.loads(settings_json)
+        logger.info(f"Starting analysis with settings: {settings}")
+
+        # Validate settings
+        if not settings.get('input_fstrs'):
+            raise ValueError("No repositories specified for analysis")
+
+        # Execute analysis through API
+        result = api.execute_analysis(settings)
+        logger.info("Analysis completed successfully")
+
+        return json.dumps(result)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON settings: {e}")
+        raise ValueError(f"Invalid settings format: {e}")
+    except Exception as e:
+        logger.error(f"Analysis failed: {e}")
+        raise RuntimeError(f"Analysis execution failed: {e}")
+
+def get_settings():
+    """Get current analysis settings."""
+    try:
+        settings = api.get_settings()
+        return json.dumps(settings)
+    except Exception as e:
+        logger.error(f"Failed to get settings: {e}")
+        raise RuntimeError(f"Settings retrieval failed: {e}")
+
+def save_settings(settings_json):
+    """Save analysis settings."""
+    try:
+        settings = json.loads(settings_json)
+        api.save_settings(settings)
+        return json.dumps({"status": "success", "message": "Settings saved successfully"})
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON settings: {e}")
+        raise ValueError(f"Invalid settings format: {e}")
+    except Exception as e:
+        logger.error(f"Failed to save settings: {e}")
+        raise RuntimeError(f"Settings save failed: {e}")
+
+def get_blame_data(settings_json):
+    """Get blame data for repositories."""
+    try:
+        settings = json.loads(settings_json)
+        logger.info(f"Getting blame data with settings: {settings}")
+
+        result = api.get_blame_data(settings)
+        logger.info("Blame data retrieval completed")
+
+        return json.dumps(result)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON settings: {e}")
+        raise ValueError(f"Invalid settings format: {e}")
+    except Exception as e:
+        logger.error(f"Failed to get blame data: {e}")
+        raise RuntimeError(f"Blame data retrieval failed: {e}")
+
+# Register functions with the plugin
+_tauri_plugin_functions = [
+    health_check,
+    get_engine_info,
+    execute_analysis,
+    get_settings,
+    save_settings,
+    get_blame_data,
+]
 ```
 
-## Engine Information
+## Frontend Integration
 
-```python
-def get_engine_info() -> Dict[str, Any]:
-    """Get information about the analysis engine capabilities."""
-    return {
-        "engine_version": "2.1.0",
-        "supported_formats": ["json", "xml", "html", "csv"],
-        "legacy_engine_available": True,
-        "features": {
-            "blame_analysis": True,
-            "rename_detection": True,
-            "multi_threading": True,
-            "large_repository_support": True
-        },
-        "git_version": "2.40.0",
-        "python_version": "3.13.0"
+### API Layer Implementation
+
+```typescript
+// src/lib/api.ts
+import { callFunction } from "tauri-plugin-python-api";
+
+export interface Settings {
+    input_fstrs: string[];
+    n_files: number;
+    exclude_patterns?: string[];
+    extensions?: string[];
+    since?: string;
+    until?: string;
+}
+
+export interface AnalysisResult {
+    files: FileData[];
+    authors: AuthorData[];
+    blame_data: BlameData;
+    performance_stats: PerformanceStats;
+}
+
+export interface HealthStatus {
+    status: "healthy" | "error";
+    message: string;
+    api_status?: string;
+    backend: string;
+}
+
+export interface EngineInfo {
+    name: string;
+    version: string;
+    backend: string;
+    python_version: string;
+    capabilities: string[];
+}
+
+export async function healthCheck(): Promise<HealthStatus> {
+    try {
+        return await callFunction("health_check", []);
+    } catch (error) {
+        console.error("Health check failed:", error);
+        throw new Error(`Plugin backend is not available: ${error}`);
     }
+}
+
+export async function getEngineInfo(): Promise<EngineInfo> {
+    try {
+        return await callFunction("get_engine_info", []);
+    } catch (error) {
+        console.error("Failed to get engine info:", error);
+        throw new Error(`Failed to get engine info: ${error}`);
+    }
+}
+
+export async function executeAnalysis(settings: Settings): Promise<AnalysisResult> {
+    try {
+        const settingsJson = JSON.stringify(settings);
+        const resultJson = await callFunction("execute_analysis", [settingsJson]);
+        return JSON.parse(resultJson);
+    } catch (error) {
+        console.error("Analysis failed:", error);
+
+        // Handle specific error types
+        if (error instanceof Error) {
+            if (error.message.includes("No repositories specified")) {
+                throw new Error("Please select at least one repository for analysis.");
+            }
+            if (error.message.includes("Invalid settings format")) {
+                throw new Error("Settings validation failed. Please check your configuration.");
+            }
+            if (error.message.includes("Git command not found")) {
+                throw new Error("Git is not installed or not in PATH. Please install Git and try again.");
+            }
+        }
+
+        throw new Error(`Analysis failed: ${error}`);
+    }
+}
+
+export async function getSettings(): Promise<Settings> {
+    try {
+        const settingsJson = await callFunction("get_settings", []);
+        return JSON.parse(settingsJson);
+    } catch (error) {
+        console.error("Failed to get settings:", error);
+        throw new Error(`Failed to load settings: ${error}`);
+    }
+}
+
+export async function saveSettings(settings: Settings): Promise<void> {
+    try {
+        const settingsJson = JSON.stringify(settings);
+        const result = await callFunction("save_settings", [settingsJson]);
+        const response = JSON.parse(result);
+
+        if (response.status !== "success") {
+            throw new Error(response.message || "Failed to save settings");
+        }
+    } catch (error) {
+        console.error("Failed to save settings:", error);
+        throw new Error(`Failed to save settings: ${error}`);
+    }
+}
+
+export async function getBlameData(settings: Settings): Promise<any> {
+    try {
+        const settingsJson = JSON.stringify(settings);
+        const resultJson = await callFunction("get_blame_data", [settingsJson]);
+        return JSON.parse(resultJson);
+    } catch (error) {
+        console.error("Failed to get blame data:", error);
+        throw new Error(`Failed to get blame data: ${error}`);
+    }
+}
 ```
 
-## Error Handling Examples
+### React Component Integration
 
-### Custom Exception Classes
+```typescript
+// src/components/AnalysisComponent.tsx
+import React, { useState } from 'react';
+import { executeAnalysis, type Settings, type AnalysisResult } from '../lib/api';
 
-```python
-class AnalysisError(Exception):
-    """Raised when analysis fails."""
-    pass
+export function AnalysisComponent() {
+    const [settings, setSettings] = useState<Settings>({
+        input_fstrs: [],
+        n_files: 100
+    });
+    const [result, setResult] = useState<AnalysisResult | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-class ValidationError(Exception):
-    """Raised when input validation fails."""
-    pass
+    const handleAnalysis = async () => {
+        setLoading(true);
+        setError(null);
 
-class RepositoryError(Exception):
-    """Raised when repository access fails."""
-    pass
-```
+        try {
+            const analysisResult = await executeAnalysis(settings);
+            setResult(analysisResult);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Analysis failed');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-### Robust Error Handling
+    return (
+        <div className="analysis-component">
+            <div className="settings-section">
+                <h3>Analysis Settings</h3>
+                <input
+                    type="number"
+                    value={settings.n_files}
+                    onChange={(e) => setSettings({
+                        ...settings,
+                        n_files: parseInt(e.target.value) || 100
+                    })}
+                    placeholder="Number of files"
+                />
+                <button
+                    onClick={handleAnalysis}
+                    disabled={loading || settings.input_fstrs.length === 0}
+                >
+                    {loading ? 'Analyzing...' : 'Start Analysis'}
+                </button>
+            </div>
 
-```python
-def execute_analysis(settings: Settings) -> Dict[str, Any]:
-    """Execute analysis with comprehensive error handling."""
-    try:
-        # Validate inputs
-        if not settings.input_fstrs:
-            raise ValidationError("No repositories specified")
+            {error && (
+                <div className="error-section">
+                    <p className="error-message">{error}</p>
+                </div>
+            )}
 
-        # Check repository access
-        for repo_path in settings.input_fstrs:
-            if not os.path.exists(repo_path):
-                raise RepositoryError(f"Repository not found: {repo_path}")
-
-            if not os.path.isdir(os.path.join(repo_path, ".git")):
-                raise RepositoryError(f"Not a git repository: {repo_path}")
-
-        # Perform analysis
-        return perform_git_analysis(settings)
-
-    except ValidationError as e:
-        logging.error(f"Validation error: {e}")
-        raise
-    except RepositoryError as e:
-        logging.error(f"Repository error: {e}")
-        raise
-    except Exception as e:
-        logging.error(f"Unexpected error during analysis: {e}")
-        raise AnalysisError(f"Analysis execution failed: {e}")
-```
-
-## Testing Your Functions
-
-### Unit Testing
-
-```python
-# test_analysis.py
-import pytest
-from gigui.analysis import execute_analysis, get_settings, save_settings, Settings
-
-def test_execute_analysis_basic():
-    """Test basic analysis functionality."""
-    settings = Settings(
-        input_fstrs=["/path/to/test/repo"],
-        n_files=10
-    )
-
-    result = execute_analysis(settings)
-
-    assert "repositories" in result
-    assert "summary" in result
-    assert len(result["repositories"]) == 1
-    assert result["summary"]["total_repositories"] == 1
-
-def test_settings_management():
-    """Test settings get/save functionality."""
-    # Test get settings
-    settings_dict = get_settings()
-    assert isinstance(settings_dict, dict)
-    assert "n_files" in settings_dict
-
-    # Test save settings
-    settings = Settings(input_fstrs=["/test"], n_files=50)
-    success = save_settings(settings)
-    assert success is True
-
-def test_error_handling():
-    """Test error handling for invalid inputs."""
-    settings = Settings(input_fstrs=[])  # Empty repositories
-
-    with pytest.raises(ValidationError):
-        execute_analysis(settings)
-
-if __name__ == "__main__":
-    pytest.main([__file__])
-```
-
-### Integration Testing
-
-```python
-# test_integration.py
-def test_complete_workflow():
-    """Test complete analysis workflow."""
-    # Create test repository
-    test_repo = create_test_repository()
-
-    try:
-        # Configure settings
-        settings = Settings(
-            input_fstrs=[test_repo],
-            n_files=100,
-            file_formats=["json"]
-        )
-
-        # Execute analysis
-        result = execute_analysis(settings)
-
-        # Verify results
-        assert result["repositories"]
-        assert result["summary"]["total_repositories"] > 0
-
-        # Test settings persistence
-        save_success = save_settings(settings)
-        assert save_success
-
-        loaded_settings = get_settings()
-        assert loaded_settings["n_files"] == 100
-
-    finally:
-        # Cleanup test repository
-        cleanup_test_repository(test_repo)
+            {result && (
+                <div className="results-section">
+                    <h3>Analysis Results</h3>
+                    <p>Files analyzed: {result.files.length}</p>
+                    <p>Authors found: {result.authors.length}</p>
+                </div>
+            )}
+        </div>
+    );
+}
 ```
 
 ## Advanced Examples
 
-### Large Repository Handling
+### Batch Processing
 
 ```python
-def execute_analysis_large_repo(settings: Settings) -> Dict[str, Any]:
-    """Handle large repositories with progress tracking."""
-    total_repos = len(settings.input_fstrs)
-    results = []
+def batch_analysis(repositories_json):
+    """Process multiple repositories efficiently."""
+    try:
+        repositories = json.loads(repositories_json)
+        results = []
 
-    for i, repo_path in enumerate(settings.input_fstrs):
-        logging.info(f"Processing repository {i+1}/{total_repos}: {repo_path}")
+        for repo_config in repositories:
+            try:
+                repo_result = api.execute_analysis(repo_config)
+                results.append({
+                    "repository": repo_config.get("name", "unknown"),
+                    "status": "success",
+                    "data": repo_result
+                })
+            except Exception as e:
+                logger.warning(f"Repository analysis failed: {e}")
+                results.append({
+                    "repository": repo_config.get("name", "unknown"),
+                    "status": "error",
+                    "error": str(e)
+                })
 
-        # Process in chunks for large repositories
-        if is_large_repository(repo_path):
-            repo_data = analyze_large_repository(repo_path, settings)
-        else:
-            repo_data = analyze_single_repository(repo_path, settings)
+        return json.dumps({
+            "results": results,
+            "summary": {
+                "total": len(repositories),
+                "successful": len([r for r in results if r["status"] == "success"]),
+                "failed": len([r for r in results if r["status"] == "error"])
+            }
+        })
+    except Exception as e:
+        logger.error(f"Batch analysis failed: {e}")
+        raise RuntimeError(f"Batch analysis failed: {e}")
 
-        results.append(repo_data)
-
-        # Progress callback (if needed)
-        progress = (i + 1) / total_repos * 100
-        logging.info(f"Progress: {progress:.1f}%")
-
-    return format_analysis_results(results)
+# Add to function registry
+_tauri_plugin_functions.append(batch_analysis)
 ```
 
-### Parallel Processing
+### Streaming Results
 
 ```python
-from concurrent.futures import ThreadPoolExecutor
-import multiprocessing
+def stream_analysis_progress(settings_json):
+    """Stream analysis progress updates."""
+    try:
+        settings = json.loads(settings_json)
 
-def execute_analysis_parallel(settings: Settings) -> Dict[str, Any]:
-    """Execute analysis with parallel processing."""
-    max_workers = min(settings.processes, multiprocessing.cpu_count())
-
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Submit all repository analysis tasks
-        futures = {
-            executor.submit(analyze_single_repository, repo_path, settings): repo_path
-            for repo_path in settings.input_fstrs
+        # Initialize progress tracking
+        progress = {
+            "stage": "initialization",
+            "progress": 0,
+            "message": "Starting analysis..."
         }
 
-        results = []
-        for future in futures:
-            try:
-                repo_data = future.result(timeout=300)  # 5 minute timeout
-                results.append(repo_data)
-            except Exception as e:
-                repo_path = futures[future]
-                logging.error(f"Failed to analyze {repo_path}: {e}")
-                raise AnalysisError(f"Parallel analysis failed for {repo_path}: {e}")
+        # Simulate progress updates (in real implementation, this would be integrated with the analysis engine)
+        stages = [
+            ("repository_scan", 20, "Scanning repositories..."),
+            ("file_analysis", 50, "Analyzing files..."),
+            ("author_analysis", 75, "Processing authors..."),
+            ("blame_analysis", 90, "Generating blame data..."),
+            ("completion", 100, "Analysis complete")
+        ]
 
-    return format_analysis_results(results)
+        results = []
+        for stage, progress_pct, message in stages:
+            progress.update({
+                "stage": stage,
+                "progress": progress_pct,
+                "message": message
+            })
+            results.append(progress.copy())
+
+        # Add final result
+        final_result = api.execute_analysis(settings)
+        results.append({
+            "stage": "result",
+            "progress": 100,
+            "message": "Analysis complete",
+            "data": final_result
+        })
+
+        return json.dumps(results)
+    except Exception as e:
+        logger.error(f"Streaming analysis failed: {e}")
+        raise RuntimeError(f"Streaming analysis failed: {e}")
 ```
 
-## Debugging and Logging
-
-### Comprehensive Logging
+### Configuration Validation
 
 ```python
-import logging
-import sys
+def validate_configuration(config_json):
+    """Validate analysis configuration."""
+    try:
+        config = json.loads(config_json)
+        errors = []
+        warnings = []
 
-def setup_logging():
-    """Configure logging for analysis functions."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler('analysis.log')
-        ]
-    )
+        # Validate repositories
+        repositories = config.get('input_fstrs', [])
+        if not repositories:
+            errors.append("No repositories specified")
+        else:
+            for repo in repositories:
+                if not os.path.exists(repo):
+                    errors.append(f"Repository not found: {repo}")
+                elif not os.path.isdir(repo):
+                    errors.append(f"Repository path is not a directory: {repo}")
+                elif not os.path.exists(os.path.join(repo, '.git')):
+                    warnings.append(f"Directory is not a git repository: {repo}")
 
-def execute_analysis_with_logging(settings: Settings) -> Dict[str, Any]:
-    """Execute analysis with detailed logging."""
-    setup_logging()
-    logger = logging.getLogger(__name__)
+        # Validate numeric settings
+        n_files = config.get('n_files', 0)
+        if n_files <= 0:
+            errors.append("Number of files must be positive")
+        elif n_files > 10000:
+            warnings.append("Large number of files may impact performance")
 
-    logger.info(f"Starting analysis with settings: {settings}")
-    logger.info(f"Repositories to analyze: {len(settings.input_fstrs)}")
+        # Validate file extensions
+        extensions = config.get('extensions', [])
+        for ext in extensions:
+            if not ext.startswith('.'):
+                errors.append(f"File extension must start with '.': {ext}")
 
-    start_time = time.time()
+        return json.dumps({
+            "valid": len(errors) == 0,
+            "errors": errors,
+            "warnings": warnings,
+            "config": config
+        })
+    except json.JSONDecodeError as e:
+        return json.dumps({
+            "valid": False,
+            "errors": [f"Invalid JSON: {e}"],
+            "warnings": [],
+            "config": None
+        })
+    except Exception as e:
+        logger.error(f"Configuration validation failed: {e}")
+        raise RuntimeError(f"Configuration validation failed: {e}")
+
+# Add to function registry
+_tauri_plugin_functions.extend([stream_analysis_progress, validate_configuration])
+```
+
+## Testing Examples
+
+### Python Function Testing
+
+```python
+# tests/test_plugin_functions.py
+import pytest
+import json
+from unittest.mock import patch, MagicMock
+
+def test_health_check():
+    """Test health check function."""
+    result = health_check()
+
+    assert result["status"] == "healthy"
+    assert result["backend"] == "tauri-plugin-python"
+    assert "message" in result
+
+def test_execute_analysis_valid_input():
+    """Test analysis with valid settings."""
+    settings = {
+        "input_fstrs": ["."],
+        "n_files": 10
+    }
+
+    with patch.object(api, 'execute_analysis') as mock_analysis:
+        mock_analysis.return_value = {
+            "files": [],
+            "authors": [],
+            "blame_data": {},
+            "performance_stats": {}
+        }
+
+        result_json = execute_analysis(json.dumps(settings))
+        result = json.loads(result_json)
+
+        assert "files" in result
+        assert "authors" in result
+        mock_analysis.assert_called_once_with(settings)
+
+def test_execute_analysis_invalid_json():
+    """Test error handling for invalid JSON."""
+    with pytest.raises(ValueError, match="Invalid settings format"):
+        execute_analysis("invalid json")
+
+def test_execute_analysis_no_repositories():
+    """Test error handling for missing repositories."""
+    settings = {"input_fstrs": [], "n_files": 10}
+
+    with pytest.raises(ValueError, match="No repositories specified"):
+        execute_analysis(json.dumps(settings))
+```
+
+### Frontend Integration Testing
+
+```typescript
+// src/lib/__tests__/api.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { executeAnalysis, healthCheck, getEngineInfo } from '../api';
+
+// Mock the plugin
+vi.mock('tauri-plugin-python-api', () => ({
+    callFunction: vi.fn(),
+}));
+
+import { callFunction } from 'tauri-plugin-python-api';
+
+describe('Plugin API Integration', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('should execute analysis successfully', async () => {
+        const mockResult = JSON.stringify({
+            files: [],
+            authors: [],
+            blame_data: {},
+            performance_stats: {}
+        });
+
+        vi.mocked(callFunction).mockResolvedValue(mockResult);
+
+        const settings = {
+            input_fstrs: ['.'],
+            n_files: 10
+        };
+
+        const result = await executeAnalysis(settings);
+
+        expect(callFunction).toHaveBeenCalledWith('execute_analysis', [JSON.stringify(settings)]);
+        expect(result.files).toBeDefined();
+        expect(result.authors).toBeDefined();
+    });
+
+    it('should handle health check', async () => {
+        const mockHealth = {
+            status: 'healthy',
+            message: 'Python backend is running',
+            backend: 'tauri-plugin-python'
+        };
+
+        vi.mocked(callFunction).mockResolvedValue(mockHealth);
+
+        const result = await healthCheck();
+
+        expect(callFunction).toHaveBeenCalledWith('health_check', []);
+        expect(result.status).toBe('healthy');
+        expect(result.backend).toBe('tauri-plugin-python');
+    });
+
+    it('should get engine info', async () => {
+        const mockInfo = {
+            name: 'GitInspectorGUI Analysis Engine',
+            version: '1.0.0',
+            backend: 'tauri-plugin-python',
+            python_version: '3.11.0',
+            capabilities: ['repository_analysis']
+        };
+
+        vi.mocked(callFunction).mockResolvedValue(mockInfo);
+
+        const result = await getEngineInfo();
+
+        expect(callFunction).toHaveBeenCalledWith('get_engine_info', []);
+        expect(result.name).toBe('GitInspectorGUI Analysis Engine');
+        expect(result.backend).toBe('tauri-plugin-python');
+    });
+
+    it('should handle analysis errors', async () => {
+        const mockError = new Error('No repositories specified');
+        vi.mocked(callFunction).mockRejectedValue(mockError);
+
+        const settings = { input_fstrs: [], n_files: 10 };
+
+        await expect(executeAnalysis(settings)).rejects.toThrow('Please select at least one repository');
+    });
+});
+```
+
+## Best Practices
+
+### Function Implementation Guidelines
+
+1. **Always use JSON for data exchange** between frontend and Python
+2. **Implement comprehensive error handling** with specific exception types
+3. **Log important operations** for debugging and monitoring
+4. **Validate inputs early** to provide clear error messages
+5. **Use type hints** in Python for better code documentation
+6. **Return consistent data structures** for predictable frontend integration
+7. **Handle edge cases gracefully** (empty inputs, missing files, etc.)
+
+### Performance Considerations
+
+```python
+def optimized_analysis(settings_json):
+    """Optimized analysis implementation."""
+    import gc
 
     try:
+        settings = json.loads(settings_json)
+
+        # Process in batches for large datasets
+        batch_size = 100
+        repositories = settings.get('input_fstrs', [])
+
         results = []
-        for repo_path in settings.input_fstrs:
-            logger.info(f"Analyzing repository: {repo_path}")
-            repo_start = time.time()
+        for i in range(0, len(repositories), batch_size):
+            batch = repositories[i:i + batch_size]
+            batch_result = process_repository_batch(batch, settings)
+            results.extend(batch_result)
 
-            repo_data = analyze_single_repository(repo_path, settings)
+            # Explicit garbage collection for large datasets
+            gc.collect()
 
-            repo_duration = time.time() - repo_start
-            logger.info(f"Repository {repo_path} analyzed in {repo_duration:.2f}s")
-
-            results.append(repo_data)
-
-        total_duration = time.time() - start_time
-        logger.info(f"Analysis completed in {total_duration:.2f}s")
-
-        return format_analysis_results(results)
-
+        return json.dumps({
+            "repositories": results,
+            "total_processed": len(results)
+        })
     except Exception as e:
-        logger.error(f"Analysis failed: {e}", exc_info=True)
+        gc.collect()  # Cleanup on error
         raise
 ```
 
-## Module Organization
-
-### Complete Module Structure
-
-```python
-# gigui/analysis/__init__.py
-"""GitInspectorGUI Analysis Engine - PyO3 Integration."""
-
-from .main import execute_analysis, get_settings, save_settings, get_engine_info
-from .exceptions import AnalysisError, ValidationError, RepositoryError
-
-__all__ = [
-    'execute_analysis',
-    'get_settings',
-    'save_settings',
-    'get_engine_info',
-    'AnalysisError',
-    'ValidationError',
-    'RepositoryError'
-]
-
-# gigui/analysis/main.py
-"""Main analysis functions called by PyO3."""
-
-from .core import GitAnalyzer
-from .settings import SettingsManager
-from .exceptions import AnalysisError, ValidationError, RepositoryError
-
-# All the functions shown above...
-
-# gigui/analysis/core.py
-"""Core git analysis functionality."""
-
-class GitAnalyzer:
-    """Git repository analysis engine."""
-
-    def __init__(self, settings):
-        self.settings = settings
-
-    def analyze_repository(self, repo_path):
-        """Analyze a single repository."""
-        # Implementation details...
-        pass
-
-# gigui/analysis/settings.py
-"""Settings management."""
-
-class SettingsManager:
-    """Manage application settings."""
-
-    @staticmethod
-    def load_settings():
-        """Load settings from storage."""
-        pass
-
-    @staticmethod
-    def save_settings(settings):
-        """Save settings to storage."""
-        pass
-```
-
-This PyO3 integration approach provides direct function calls without any network overhead, making the application faster and simpler to deploy.
+This plugin integration approach provides seamless Python-JavaScript communication through tauri-plugin-python, eliminating the complexity of manual integration while maintaining high performance and excellent error handling.

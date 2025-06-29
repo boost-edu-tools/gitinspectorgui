@@ -1,12 +1,12 @@
-# PyO3 Error Handling
+# Plugin Error Handling
 
-Error handling patterns for GitInspectorGUI PyO3 Python integration.
+Error handling patterns for GitInspectorGUI tauri-plugin-python integration.
 
 ## Overview
 
-With PyO3 integration, errors are handled through native Python exceptions that are automatically converted to Rust error types. No HTTP status codes or network errors are involved - this is direct function call error handling within a single process.
+With tauri-plugin-python integration, errors are handled through automatic conversion between Python exceptions and JavaScript errors. The plugin manages all error conversion, eliminating the need for manual error handling code.
 
-**Error Flow**: Python exceptions are automatically converted to Rust error types by PyO3. For architecture details, see [PyO3 Integration](../architecture/design-decisions.md).
+**Error Flow**: Python exceptions are automatically converted to JavaScript errors by tauri-plugin-python. For architecture details, see [Plugin Architecture](../architecture/design-decisions.md).
 
 ## Error Types
 
@@ -19,18 +19,19 @@ With PyO3 integration, errors are handled through native Python exceptions that 
 | `RepositoryError`    | Repository access failure  | Git repository not found       |
 | `ConfigurationError` | Configuration issues       | Invalid configuration data     |
 
-### PyO3 Error Conversion
+### Plugin Error Conversion
 
-PyO3 automatically converts Python exceptions to Rust `PyErr` types:
+The tauri-plugin-python automatically converts Python exceptions to JavaScript errors:
 
-```rust
-// Rust side - PyO3 handles conversion automatically
-fn call_python_analysis() -> PyResult<AnalysisResult> {
-    Python::with_gil(|py| {
-        let analysis_module = py.import("gigui.analysis")?;
-        let result = analysis_module.getattr("execute_analysis")?.call1((settings,))?;
-        result.extract::<AnalysisResult>()
-    })
+```typescript
+// Frontend side - Plugin handles conversion automatically
+try {
+    const result = await callFunction("execute_analysis", [settingsJson]);
+    return JSON.parse(result);
+} catch (error) {
+    // Python exceptions are automatically converted to JavaScript errors
+    console.error("Analysis failed:", error.message);
+    throw error;
 }
 ```
 
@@ -80,27 +81,33 @@ class ConfigurationError(Exception):
 ### Input Validation
 
 ```python
-def execute_analysis(settings: Settings) -> Dict[str, Any]:
+def execute_analysis(settings_json: str) -> str:
     """Execute analysis with comprehensive input validation."""
 
+    try:
+        settings = json.loads(settings_json)
+    except json.JSONDecodeError as e:
+        raise ValidationError(f"Invalid JSON settings: {e}")
+
     # Validate required fields
-    if not settings.input_fstrs:
+    if not settings.get('input_fstrs'):
         raise ValidationError(
             "No repositories specified",
             field="input_fstrs",
-            value=settings.input_fstrs
+            value=settings.get('input_fstrs')
         )
 
-    if settings.n_files <= 0:
+    if settings.get('n_files', 0) <= 0:
         raise ValidationError(
             "Number of files must be positive",
             field="n_files",
-            value=settings.n_files
+            value=settings.get('n_files')
         )
 
     # Validate file extensions
-    if settings.extensions:
-        for ext in settings.extensions:
+    extensions = settings.get('extensions', [])
+    if extensions:
+        for ext in extensions:
             if not ext.startswith('.'):
                 raise ValidationError(
                     f"File extension must start with '.': {ext}",
@@ -109,7 +116,8 @@ def execute_analysis(settings: Settings) -> Dict[str, Any]:
                 )
 
     # Continue with analysis...
-    return perform_analysis(settings)
+    result = perform_analysis(settings)
+    return json.dumps(result)
 ```
 
 ### Repository Access Validation
@@ -171,7 +179,7 @@ def validate_repository(repo_path: str) -> None:
 ### Analysis Error Handling
 
 ```python
-def analyze_single_repository(repo_path: str, settings: Settings) -> Dict[str, Any]:
+def analyze_single_repository(repo_path: str, settings: dict) -> dict:
     """Analyze repository with comprehensive error handling."""
 
     try:
@@ -209,6 +217,99 @@ def analyze_single_repository(repo_path: str, settings: Settings) -> Dict[str, A
             f"Unexpected error during analysis: {str(e)}",
             repository_path=repo_path
         )
+```
+
+## Frontend Error Handling
+
+### Plugin Error Processing
+
+```typescript
+export async function executeAnalysis(settings: Settings): Promise<AnalysisResult> {
+    try {
+        const settingsJson = JSON.stringify(settings);
+        const resultJson = await callFunction("execute_analysis", [settingsJson]);
+        return JSON.parse(resultJson);
+    } catch (error) {
+        // Plugin automatically converts Python exceptions to JavaScript errors
+        if (error instanceof Error) {
+            // Handle specific error types based on message content
+            if (error.message.includes("Invalid or inaccessible repositories")) {
+                throw new Error("Repository validation failed. Please check your repository paths.");
+            }
+            if (error.message.includes("Invalid JSON settings")) {
+                throw new Error("Settings validation failed. Please check your configuration.");
+            }
+            if (error.message.includes("Git command not found")) {
+                throw new Error("Git is not installed or not in PATH. Please install Git and try again.");
+            }
+            if (error.message.includes("Permission denied")) {
+                throw new Error("Permission denied. Please check file permissions for the repository.");
+            }
+        }
+        throw new Error(`Analysis failed: ${error}`);
+    }
+}
+
+export async function healthCheck(): Promise<HealthStatus> {
+    try {
+        return await callFunction("health_check", []);
+    } catch (error) {
+        throw new Error(`Plugin backend is not available: ${error}`);
+    }
+}
+
+export async function getSettings(): Promise<Settings> {
+    try {
+        const settingsJson = await callFunction("get_settings", []);
+        return JSON.parse(settingsJson);
+    } catch (error) {
+        throw new Error(`Failed to load settings: ${error}`);
+    }
+}
+```
+
+### Error Recovery Strategies
+
+```typescript
+interface RetryOptions {
+    maxRetries: number;
+    delay: number;
+    backoffFactor: number;
+}
+
+async function retryOperation<T>(
+    operation: () => Promise<T>,
+    options: RetryOptions = { maxRetries: 3, delay: 1000, backoffFactor: 2 }
+): Promise<T> {
+    let lastError: Error;
+
+    for (let attempt = 0; attempt <= options.maxRetries; attempt++) {
+        try {
+            return await operation();
+        } catch (error) {
+            lastError = error as Error;
+
+            if (attempt === options.maxRetries) {
+                break;
+            }
+
+            // Wait before retry with exponential backoff
+            const waitTime = options.delay * Math.pow(options.backoffFactor, attempt);
+            console.warn(`Attempt ${attempt + 1} failed: ${error}. Retrying in ${waitTime}ms...`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
+    }
+
+    throw new Error(`Operation failed after ${options.maxRetries + 1} attempts: ${lastError.message}`);
+}
+
+export async function executeAnalysisWithRetry(settings: Settings): Promise<AnalysisResult> {
+    return retryOperation(() => executeAnalysis(settings), {
+        maxRetries: 2,
+        delay: 1000,
+        backoffFactor: 2
+    });
+}
 ```
 
 ## Error Recovery Strategies
@@ -268,13 +369,14 @@ def robust_git_operation(repo_path: str, git_command: list) -> str:
 ### Partial Failure Handling
 
 ```python
-def execute_analysis_with_partial_failures(settings: Settings) -> Dict[str, Any]:
+def execute_analysis_with_partial_failures(settings_json: str) -> str:
     """Execute analysis allowing partial failures."""
 
+    settings = json.loads(settings_json)
     successful_results = []
     failed_repositories = []
 
-    for repo_path in settings.input_fstrs:
+    for repo_path in settings.get('input_fstrs', []):
         try:
             repo_data = analyze_single_repository(repo_path, settings)
             successful_results.append(repo_data)
@@ -296,16 +398,18 @@ def execute_analysis_with_partial_failures(settings: Settings) -> Dict[str, Any]
             })
 
     # Return results even if some repositories failed
-    return {
+    result = {
         "repositories": successful_results,
         "failed_repositories": failed_repositories,
         "summary": {
-            "total_requested": len(settings.input_fstrs),
+            "total_requested": len(settings.get('input_fstrs', [])),
             "successful": len(successful_results),
             "failed": len(failed_repositories),
-            "success_rate": len(successful_results) / len(settings.input_fstrs) * 100
+            "success_rate": len(successful_results) / len(settings.get('input_fstrs', [])) * 100 if settings.get('input_fstrs') else 0
         }
     }
+
+    return json.dumps(result)
 ```
 
 ## Logging and Debugging
@@ -350,28 +454,28 @@ def log_error_details(error: Exception, context: dict = None):
 
     logging.error(f"Analysis error: {error_info}")
 
-def execute_analysis_with_logging(settings: Settings) -> Dict[str, Any]:
+def execute_analysis_with_logging(settings_json: str) -> str:
     """Execute analysis with comprehensive error logging."""
 
     setup_error_logging()
 
     try:
-        return execute_analysis(settings)
+        return execute_analysis(settings_json)
 
     except ValidationError as e:
-        log_error_details(e, {"settings": settings.__dict__})
+        log_error_details(e, {"settings_json": settings_json})
         raise
 
     except RepositoryError as e:
-        log_error_details(e, {"settings": settings.__dict__})
+        log_error_details(e, {"settings_json": settings_json})
         raise
 
     except AnalysisError as e:
-        log_error_details(e, {"settings": settings.__dict__})
+        log_error_details(e, {"settings_json": settings_json})
         raise
 
     except Exception as e:
-        log_error_details(e, {"settings": settings.__dict__})
+        log_error_details(e, {"settings_json": settings_json})
         raise AnalysisError(f"Unexpected error: {str(e)}")
 ```
 
@@ -383,18 +487,19 @@ def execute_analysis_with_logging(settings: Settings) -> Dict[str, Any]:
 import pytest
 import tempfile
 import os
+import json
 
 def test_validation_errors():
     """Test validation error handling."""
 
     # Test empty repositories
     with pytest.raises(ValidationError) as exc_info:
-        execute_analysis(Settings(input_fstrs=[]))
+        execute_analysis(json.dumps({"input_fstrs": []}))
     assert "No repositories specified" in str(exc_info.value)
 
     # Test invalid n_files
     with pytest.raises(ValidationError) as exc_info:
-        execute_analysis(Settings(input_fstrs=["/test"], n_files=0))
+        execute_analysis(json.dumps({"input_fstrs": ["/test"], "n_files": 0}))
     assert "must be positive" in str(exc_info.value)
 
 def test_repository_errors():
@@ -424,6 +529,45 @@ def test_analysis_errors():
         assert "corrupted or inaccessible" in str(exc_info.value)
 ```
 
+### Frontend Error Testing
+
+```typescript
+import { describe, it, expect, vi } from 'vitest';
+import { executeAnalysis, healthCheck } from './api';
+
+// Mock the plugin
+vi.mock('tauri-plugin-python-api', () => ({
+    callFunction: vi.fn(),
+}));
+
+describe('Plugin Error Handling', () => {
+    it('should handle validation errors', async () => {
+        const mockError = new Error('No repositories specified');
+        vi.mocked(callFunction).mockRejectedValue(mockError);
+
+        const settings = { input_fstrs: [], n_files: 10 };
+
+        await expect(executeAnalysis(settings)).rejects.toThrow('Repository validation failed');
+    });
+
+    it('should handle repository errors', async () => {
+        const mockError = new Error('Repository path does not exist');
+        vi.mocked(callFunction).mockRejectedValue(mockError);
+
+        const settings = { input_fstrs: ['/nonexistent'], n_files: 10 };
+
+        await expect(executeAnalysis(settings)).rejects.toThrow('Repository validation failed');
+    });
+
+    it('should handle plugin unavailable', async () => {
+        const mockError = new Error('Plugin not available');
+        vi.mocked(callFunction).mockRejectedValue(mockError);
+
+        await expect(healthCheck()).rejects.toThrow('Plugin backend is not available');
+    });
+});
+```
+
 ## Best Practices
 
 ### Error Handling Guidelines
@@ -435,6 +579,7 @@ def test_analysis_errors():
 5. **Handle partial failures gracefully** when processing multiple repositories
 6. **Validate inputs early** to catch errors before expensive operations
 7. **Provide clear error messages** that help users understand what went wrong
+8. **Use JSON serialization** for consistent data exchange with the plugin
 
 ### Error Message Guidelines
 
@@ -459,4 +604,4 @@ raise ValidationError(
 raise ValidationError("Invalid extension")
 ```
 
-This PyO3 error handling approach provides robust error management with native Python exceptions that are automatically converted to Rust error types, eliminating the complexity of HTTP status codes and network error handling.
+This plugin-based error handling approach provides robust error management with automatic conversion between Python exceptions and JavaScript errors, eliminating the complexity of manual error handling while maintaining clear error reporting and debugging capabilities.

@@ -37,24 +37,25 @@ GitInspectorGUI technology stack and architectural decisions.
     -   `concurrent.futures` for parallel processing
     -   `multiprocessing` for CPU-intensive tasks
 
-### PyO3 Integration
+### Python Integration
 
--   **PyO3 0.20+** - Rust bindings for Python
-    -   Embedded Python interpreter within Rust binary
-    -   Direct function calls between Rust and Python
-    -   Type-safe Python object handling with smart pointers
-    -   Native error handling via PyResult<T> and PyErr
-    -   GIL (Global Interpreter Lock) management
+-   **tauri-plugin-python 0.3.6** - Official Tauri plugin for Python integration
+    -   Embedded Python interpreter within Rust binary via PyO3
+    -   Simplified API for Python function calls
+    -   Automatic error handling and type conversion
+    -   Plugin-managed PyO3 bindings
+    -   JSON-based communication interface
     -   Support for async Python operations
 
-**Purpose**: PyO3 enables GitInspectorGUI to embed a Python interpreter directly within the Rust Tauri application, allowing direct execution of Python analysis code without separate processes or network communication.
+**Purpose**: tauri-plugin-python provides a high-level interface for Python integration in Tauri applications, using PyO3 internally while eliminating the complexity of manual PyO3 binding code.
 
 **Key Features**:
 
--   **Zero IPC overhead** - Direct function calls between Rust and Python
--   **Native memory access** - No serialization between Rust and Python
--   **Embedded interpreter** - Python runs within the same process
--   **Type-safe conversion** - Automatic Python ↔ Rust type conversion
+-   **Zero IPC overhead** - Direct function calls through plugin layer
+-   **Automatic error conversion** - Python exceptions to JavaScript errors
+-   **Embedded interpreter** - Python runs within the same process via PyO3
+-   **Simplified API** - Clean `callFunction()` interface for frontend
+-   **Plugin-managed PyO3** - No manual PyO3 boilerplate required
 
 ### CLI Framework
 
@@ -66,18 +67,18 @@ GitInspectorGUI technology stack and architectural decisions.
 
 ### Communication
 
--   **PyO3 Direct Integration** - Direct Python function calls from Rust
--   **Tauri Commands** - Frontend ↔ Rust backend communication
--   **Single Process** - Embedded Python within Tauri application
+-   **Plugin-Based Integration** - Python function calls through tauri-plugin-python
+-   **Plugin API** - Frontend ↔ Plugin communication via `callFunction()`
+-   **Single Process** - Embedded Python within Tauri application via PyO3
 -   **JSON Configuration** - Shared settings between CLI/GUI
 
 ### Data Flow
 
 ```mermaid
 graph LR
-    A[Tauri Frontend] -->|invoke()| B[Tauri Rust Backend]
-    B -->|Direct calls| C[PyO3 Bindings]
-    C -->|Python functions| D[Python Analysis Engine]
+    A[Tauri Frontend] -->|callFunction()| B[tauri-plugin-python API]
+    B -->|Plugin calls| C[Tauri Plugin]
+    C -->|PyO3 bindings| D[Python Analysis Engine]
     D --> E[Repository Data]
 
     F[JSON Config] --> A
@@ -144,10 +145,11 @@ graph LR
 | Rust       | 1.63+           | 1.85.0         |
 | Git        | 2.45+           | 2.47.1         |
 | Tauri      | 2.0+            | 2.1.0          |
+| tauri-plugin-python | 0.3.6+ | 0.3.6 |
 | PyO3       | 0.20+           | 0.22.0         |
 
 ## Related Documentation
 
 -   **[Development Environment](../development/environment-setup.md)** - Setup instructions
 -   **[Package Management](../development/package-management-overview.md)** - Frontend dependencies
--   **[PyO3 Integration](../architecture/design-decisions.md)** - PyO3 architecture details
+-   **[Plugin Architecture](../architecture/design-decisions.md)** - Plugin-based architecture details
