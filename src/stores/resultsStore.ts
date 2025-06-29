@@ -133,7 +133,7 @@ export const useResultsStore = create<ResultsStore>((set, get) => ({
                     error.message.includes("tcp connect error")
                 ) {
                     userFriendlyMessage =
-                        "Cannot connect to Python API server. Please ensure the server is running and try again.";
+                        "Cannot connect to Python backend. Please restart the application and try again.";
                 } else if (
                     error.message.includes("Not running in Tauri context")
                 ) {

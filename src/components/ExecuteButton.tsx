@@ -25,7 +25,7 @@ export function ExecuteButton() {
         // In non-demo mode, check if server is running
         if (!isDemo && !status.isRunning) {
             alert(
-                "Python API server is not running. Please start the server first using the 'Start Server' button above."
+                "Python backend is not available. Please restart the application."
             );
             return;
         }

@@ -31,14 +31,8 @@ classifiers = [
 ]
 requires-python = ">=3.13,<3.14"
 dependencies = [
-    "fastapi >= 0.115.12",
     "gitpython>=3.1.44",
-    "mkdocs>=1.6.1",
-    "mkdocs-material>=9.6.14",
-    "mkdocs-mermaid2-plugin>=1.2.1",
     "psutil >= 7.0.0",
-    "requests >= 2.32.4",
-    "uvicorn[standard]>=0.34.3",
 ]
 
 [project.urls]
@@ -50,7 +44,14 @@ gigui = "gigui.cli:main"
 gitinspectorgui = "gigui.cli:main"
 
 [dependency-groups]
-dev = ["pyinstaller>=6.14.1", "pytest>=8.4.0", "ruff >= 0.11.13"]
+dev = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.14",
+    "mkdocs-mermaid2-plugin>=1.2.1",
+    "pyinstaller>=6.14.1",
+    "pytest>=8.4.0",
+    "ruff >= 0.11.13",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["python/gigui"]

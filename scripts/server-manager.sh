@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # GitInspectorGUI Server Management Script
-# Helps manage multiple servers in the Tauri React Vite FastAPI Python full stack
+# Helps manage multiple servers in the Tauri React Vite Python full stack
 
 set -e
 
@@ -29,7 +29,7 @@ show_help() {
     echo ""
     echo "Commands:"
     echo "  status         Show all running servers and their ports"
-    echo "  kill-all       Kill all servers (Vite, Tauri, FastAPI, docs)"
+    echo "  kill-all       Kill all servers (Vite, Tauri, Python backend, docs)"
     echo "  kill-new-only  Kill only new app servers (preserve old app)"
     echo "  kill-port      Kill process on specific port"
     echo "  clean          Clean start - kill all servers and clear caches"
@@ -43,12 +43,12 @@ show_help() {
     echo "Default ports:"
     echo "  5173  - Vite development server"
     echo "  1420  - Tauri development server"
-    echo "  8000  - FastAPI Python API"
+    echo "  8000  - Python backend API"
     echo "  8080  - MkDocs documentation server"
     echo ""
     echo "Alternative ports (for side-by-side testing):"
     echo "  5174  - Vite development server (alt)"
-    echo "  8001  - FastAPI Python API (alt)"
+    echo "  8001  - Python backend API (alt)"
     echo "  8081  - MkDocs documentation server (alt)"
     echo ""
     echo "Old app typically uses: 5000 (Werkzeug), 8000, 8080"
@@ -74,7 +74,7 @@ show_status() {
 
     check_port $VITE_PORT "Vite"
     check_port $TAURI_DEV_PORT "Tauri"
-    check_port $FASTAPI_PORT "FastAPI"
+    check_port $FASTAPI_PORT "Python Backend"
     check_port $DOCS_PORT "Docs"
 
     echo ""
@@ -123,7 +123,6 @@ kill_all_servers() {
     pkill -f "pnpm.*dev" 2>/dev/null || true
 
     echo "  Killing Python API processes..."
-    pkill -f "uvicorn" 2>/dev/null || true
     pkill -f "dev_api.py" 2>/dev/null || true
     pkill -f "api.py" 2>/dev/null || true
 
@@ -189,8 +188,8 @@ start_dev_servers() {
     echo "Use 'tail -f /tmp/gitinspector-*.log' to monitor logs"
     echo ""
 
-    # Start FastAPI in background
-    echo "🐍 Starting FastAPI server on port $FASTAPI_PORT..."
+    # Start Python backend in background
+    echo "🐍 Starting Python backend server on port $FASTAPI_PORT..."
     cd python
     nohup python dev_api.py > /tmp/gitinspector-api.log 2>&1 &
     cd ..
@@ -269,7 +268,7 @@ check_conflicts() {
 
     if [ "$conflicts_found" = true ]; then
         echo "💡 Recommendation: Use 'start-alt' to run with alternative ports"
-        echo "   Alternative ports: FastAPI=$ALT_FASTAPI_PORT, Docs=$ALT_DOCS_PORT, Vite=$ALT_VITE_PORT"
+        echo "   Alternative ports: Python Backend=$ALT_FASTAPI_PORT, Docs=$ALT_DOCS_PORT, Vite=$ALT_VITE_PORT"
     else
         echo "✅ No conflicts detected - safe to use default ports"
     fi
@@ -286,12 +285,12 @@ start_alt_servers() {
 
     echo ""
     echo "Starting servers with alternative ports..."
-    echo "FastAPI: $ALT_FASTAPI_PORT, Docs: $ALT_DOCS_PORT, Vite: $ALT_VITE_PORT"
+    echo "Python Backend: $ALT_FASTAPI_PORT, Docs: $ALT_DOCS_PORT, Vite: $ALT_VITE_PORT"
     echo "Use 'tail -f /tmp/gitinspector-alt-*.log' to monitor logs"
     echo ""
 
-    # Start FastAPI on alternative port
-    echo "🐍 Starting FastAPI server on port $ALT_FASTAPI_PORT..."
+    # Start Python backend on alternative port
+    echo "🐍 Starting Python backend server on port $ALT_FASTAPI_PORT..."
     cd python
     # Set environment variable to use alternative port
     FASTAPI_PORT=$ALT_FASTAPI_PORT nohup python dev_api.py > /tmp/gitinspector-alt-api.log 2>&1 &

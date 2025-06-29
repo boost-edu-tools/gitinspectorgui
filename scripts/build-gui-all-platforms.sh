@@ -137,8 +137,8 @@ if ! command -v tauri &> /dev/null; then
     pnpm add -g @tauri-apps/cli
 fi
 
-# Build Python FastAPI server package
-print_status "Building Python FastAPI server package..."
+# Build Python backend package
+print_status "Building Python backend package..."
 if command -v uv &> /dev/null; then
     if [ "$VERBOSE" = true ]; then
         uv build
@@ -283,7 +283,7 @@ generate_checksums "dist/releases"
 # Summary
 show_build_summary "dist/releases" "GitInspectorGUI"
 echo "   Desktop apps: dist/releases/"
-echo "   Python FastAPI server: Available via pip install (if wheel was built)"
+echo "   Python backend: Available via pip install (if wheel was built)"
 
 # Show next steps
 show_next_steps "gui"

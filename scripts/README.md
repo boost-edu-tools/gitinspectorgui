@@ -1,6 +1,6 @@
 # GitInspectorGUI Build & Release Scripts
 
-This directory contains automation scripts for building, testing, and releasing GitInspectorGUI (a Tauri desktop app with FastAPI backend) across multiple platforms.
+This directory contains automation scripts for building, testing, and releasing GitInspectorGUI (a Tauri desktop app with embedded Python backend via PyO3) across multiple platforms.
 
 ## Scripts Overview
 
