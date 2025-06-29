@@ -1,7 +1,7 @@
 import type { Settings } from "@/types/settings";
 import type { AnalysisResult } from "@/types/results";
 import { defaultSettings } from "@/types/settings";
-import { callFunction } from "tauri-plugin-python-api";
+import { invoke } from "@tauri-apps/api/core";
 
 export async function executeAnalysis(
     settings: Settings
@@ -12,20 +12,12 @@ export async function executeAnalysis(
     );
 
     try {
-        console.log("2. Using tauri-plugin-python API");
+        console.log("2. Using Tauri invoke API");
 
-        // Convert settings to JSON string for Python function
-        const settingsJson = JSON.stringify(settings);
+        // Call Rust command directly with settings object
+        const result = await invoke<AnalysisResult>("execute_analysis", { settings });
 
-        // Call Python function through plugin
-        const resultJson = await callFunction("execute_analysis", [
-            settingsJson,
-        ]);
-
-        // Parse JSON response
-        const result = JSON.parse(resultJson as string) as AnalysisResult;
-
-        console.log("3. Plugin returned result:", {
+        console.log("3. Tauri returned result:", {
             success: result.success,
             repositoryCount: result.repositories?.length || 0,
             error: result.error,
@@ -43,8 +35,7 @@ export async function executeAnalysis(
 
 export async function getSettings(): Promise<Settings> {
     try {
-        const settingsJson = await callFunction("get_settings", []);
-        const settings = JSON.parse(settingsJson as string) as Settings;
+        const settings = await invoke<Settings>("get_settings");
         return settings;
     } catch (error) {
         console.error("Failed to get settings:", error);
@@ -55,13 +46,7 @@ export async function getSettings(): Promise<Settings> {
 
 export async function saveSettings(settings: Settings): Promise<void> {
     try {
-        const settingsJson = JSON.stringify(settings);
-        const resultJson = await callFunction("save_settings", [settingsJson]);
-        const result = JSON.parse(resultJson as string);
-
-        if (!result.success) {
-            throw new Error(result.error || "Failed to save settings");
-        }
+        await invoke<void>("save_settings", { settings });
     } catch (error) {
         console.error("Failed to save settings:", error);
         throw new Error(`Failed to save settings: ${error}`);
@@ -70,8 +55,8 @@ export async function saveSettings(settings: Settings): Promise<void> {
 
 export async function getEngineInfo(): Promise<any> {
     try {
-        const infoJson = await callFunction("get_engine_info", []);
-        return JSON.parse(infoJson as string);
+        const info = await invoke<any>("get_engine_info");
+        return info;
     } catch (error) {
         console.error("Failed to get engine info:", error);
         throw new Error(`Failed to get engine info: ${error}`);
@@ -80,8 +65,8 @@ export async function getEngineInfo(): Promise<any> {
 
 export async function getPerformanceStats(): Promise<any> {
     try {
-        const statsJson = await callFunction("get_performance_stats", []);
-        return JSON.parse(statsJson as string);
+        const stats = await invoke<any>("get_performance_stats");
+        return stats;
     } catch (error) {
         console.error("Failed to get performance stats:", error);
         throw new Error(`Failed to get performance stats: ${error}`);
@@ -93,11 +78,9 @@ export async function healthCheck(): Promise<{
     version: string;
 }> {
     try {
-        console.log("Starting health check with tauri-plugin-python...");
-        const healthJson = await callFunction("health_check", []);
-        console.log("Health check raw response:", healthJson);
-        const result = JSON.parse(healthJson as string);
-        console.log("Health check parsed result:", result);
+        console.log("Starting health check with Tauri invoke...");
+        const result = await invoke<any>("health_check");
+        console.log("Health check result:", result);
         return result;
     } catch (error) {
         console.error("Failed to perform health check:", error);
@@ -110,17 +93,27 @@ export async function healthCheck(): Promise<{
     }
 }
 
-// Add a simple test function to debug the plugin
-export async function testPlugin(): Promise<string> {
+export async function getBlameData(settings: Settings): Promise<any> {
     try {
-        console.log("Testing basic plugin communication...");
+        const blameData = await invoke<any>("get_blame_data", { settings });
+        return blameData;
+    } catch (error) {
+        console.error("Failed to get blame data:", error);
+        throw new Error(`Failed to get blame data: ${error}`);
+    }
+}
+
+// Add a simple test function to debug the communication
+export async function testInvoke(): Promise<any> {
+    try {
+        console.log("Testing basic Tauri invoke communication...");
 
         // Try the simplest possible call
-        const result = await callFunction("health_check", []);
-        console.log("Plugin test successful:", result);
-        return result as string;
+        const result = await invoke<any>("health_check");
+        console.log("Invoke test successful:", result);
+        return result;
     } catch (error) {
-        console.error("Plugin test failed:", error);
+        console.error("Invoke test failed:", error);
         throw error;
     }
 }

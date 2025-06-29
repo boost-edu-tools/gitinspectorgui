@@ -18,7 +18,7 @@ tauri-plugin-shell = "2.0"
 tauri-plugin-dialog = "2.0"
 tauri-plugin-fs = "2.0"
 tauri-plugin-os = "2.0"
-tauri-plugin-python = { version = "0.3.6", features = ["pyo3"] }
+pyo3 = { version = "0.22", features = ["auto-initialize"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1", features = ["full"] }

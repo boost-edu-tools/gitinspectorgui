@@ -48,6 +48,7 @@ _tauri_plugin_functions = [
     "get_engine_info",
     "get_performance_stats",
     "health_check",
+    "get_blame_data",
 ]
 
 
@@ -272,6 +273,40 @@ def get_performance_stats():
         return json.dumps(stats)
     except Exception as e:
         error_response = {"error": str(e)}
+        return json.dumps(error_response)
+
+
+def get_blame_data(settings_json):
+    """Get blame data for repositories."""
+    try:
+        if not api_instance:
+            return json.dumps({
+                "blame_data": [],
+                "success": False,
+                "error": "GitInspectorAPI not available"
+            })
+
+        # Parse settings
+        if isinstance(settings_json, str):
+            settings_dict = json.loads(settings_json)
+        else:
+            settings_dict = settings_json
+
+        # For now, return a placeholder response
+        # This would be implemented to call the actual blame analysis
+        blame_response = {
+            "blame_data": [],
+            "success": True,
+            "message": "Blame data analysis not yet implemented"
+        }
+        return json.dumps(blame_response)
+
+    except Exception as e:
+        error_response = {
+            "blame_data": [],
+            "success": False,
+            "error": str(e)
+        }
         return json.dumps(error_response)
 
 

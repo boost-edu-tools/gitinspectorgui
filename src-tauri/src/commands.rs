@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use pyo3::prelude::*;
 
 // Keep existing Settings struct for type safety and compatibility
 #[derive(Debug, Serialize, Deserialize)]
@@ -247,36 +248,114 @@ pub struct BlameEntry {
     pub content: String,
 }
 
-// NOTE: With tauri-plugin-python, these commands are now just placeholders.
-// The actual Python functions are called directly from JavaScript using the plugin API.
-// These commands are kept for backward compatibility with the existing frontend.
+// Claude's elegant helper function for calling Python functions
+async fn call_python_function<T, R>(
+    function_name: &str,
+    args: T,
+) -> Result<R, String>
+where
+    T: Serialize,
+    R: for<'de> Deserialize<'de>,
+{
+    Python::with_gil(|py| -> PyResult<R> {
+        // Add the project's Python directory to the path
+        let sys = py.import_bound("sys")?;
+        let path = sys.getattr("path")?;
 
+        // Get the current working directory and add python subdirectory
+        let current_dir = std::env::current_dir()
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Failed to get current directory: {}", e)))?;
+        let python_dir = current_dir.join("python");
+
+        path.call_method1("insert", (0, python_dir.to_string_lossy().as_ref()))?;
+
+        // Import the main module from src-tauri/src-python/
+        let src_python_dir = current_dir.join("src-tauri").join("src-python");
+        path.call_method1("insert", (0, src_python_dir.to_string_lossy().as_ref()))?;
+
+        let main_module = py.import_bound("main")?;
+
+        // Serialize arguments to JSON string
+        let args_json = serde_json::to_string(&args)
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to serialize args: {}", e)))?;
+
+        // Call the Python function
+        let result = main_module.call_method1(function_name, (args_json,))?;
+        let result_str: String = result.extract()?;
+
+        // Deserialize the result
+        serde_json::from_str(&result_str)
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to deserialize result: {}", e)))
+    })
+    .map_err(|e| format!("Python call failed: {}", e))
+}
+
+// Special helper for functions that don't take arguments
+async fn call_python_function_no_args<R>(function_name: &str) -> Result<R, String>
+where
+    R: for<'de> Deserialize<'de>,
+{
+    Python::with_gil(|py| -> PyResult<R> {
+        // Add the project's Python directory to the path
+        let sys = py.import_bound("sys")?;
+        let path = sys.getattr("path")?;
+
+        // Get the current working directory and add python subdirectory
+        let current_dir = std::env::current_dir()
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Failed to get current directory: {}", e)))?;
+        let python_dir = current_dir.join("python");
+
+        path.call_method1("insert", (0, python_dir.to_string_lossy().as_ref()))?;
+
+        // Import the main module from src-tauri/src-python/
+        let src_python_dir = current_dir.join("src-tauri").join("src-python");
+        path.call_method1("insert", (0, src_python_dir.to_string_lossy().as_ref()))?;
+
+        let main_module = py.import_bound("main")?;
+
+        // Call the Python function with no arguments
+        let result = main_module.call_method0(function_name)?;
+        let result_str: String = result.extract()?;
+
+        // Deserialize the result
+        serde_json::from_str(&result_str)
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to deserialize result: {}", e)))
+    })
+    .map_err(|e| format!("Python call failed: {}", e))
+}
+
+// Clean Tauri commands using the helper functions
 #[tauri::command]
-pub async fn execute_analysis(_settings: Settings) -> Result<AnalysisResult, String> {
-    Err("This command is deprecated. Use the JavaScript API with tauri-plugin-python instead.".to_string())
+pub async fn execute_analysis(settings: Settings) -> Result<AnalysisResult, String> {
+    call_python_function("execute_analysis", settings).await
 }
 
 #[tauri::command]
 pub async fn get_settings() -> Result<Settings, String> {
-    Err("This command is deprecated. Use the JavaScript API with tauri-plugin-python instead.".to_string())
+    call_python_function_no_args("get_settings").await
 }
 
 #[tauri::command]
-pub async fn save_settings(_settings: Settings) -> Result<(), String> {
-    Err("This command is deprecated. Use the JavaScript API with tauri-plugin-python instead.".to_string())
+pub async fn save_settings(settings: Settings) -> Result<(), String> {
+    call_python_function("save_settings", settings).await
 }
 
 #[tauri::command]
 pub async fn get_engine_info() -> Result<serde_json::Value, String> {
-    Err("This command is deprecated. Use the JavaScript API with tauri-plugin-python instead.".to_string())
+    call_python_function_no_args("get_engine_info").await
 }
 
 #[tauri::command]
 pub async fn get_performance_stats() -> Result<serde_json::Value, String> {
-    Err("This command is deprecated. Use the JavaScript API with tauri-plugin-python instead.".to_string())
+    call_python_function_no_args("get_performance_stats").await
 }
 
 #[tauri::command]
 pub async fn health_check() -> Result<serde_json::Value, String> {
-    Err("This command is deprecated. Use the JavaScript API with tauri-plugin-python instead.".to_string())
+    call_python_function_no_args("health_check").await
+}
+
+#[tauri::command]
+pub async fn get_blame_data(settings: Settings) -> Result<serde_json::Value, String> {
+    call_python_function("get_blame_data", settings).await
 }
