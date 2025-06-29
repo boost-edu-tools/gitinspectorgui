@@ -17,57 +17,63 @@ graph TB
     end
 
     subgraph "Backend Integration"
-        E[PyO3 Bindings] --> F[Git Analysis]
-        F --> G[Python Logic]
+        E[tauri-plugin-python] --> F[PyO3 Bindings]
+        F --> G[Git Analysis]
+        G --> H[Python Logic]
     end
 
     subgraph "Development Tools"
-        H[Vite Build Tool] --> B
-        I[pnpm Package Manager] --> C
-        J[Rust Compiler] --> A
-        K[uv Package Manager] --> G
+        I[Vite Build Tool] --> B
+        J[pnpm Package Manager] --> C
+        K[Rust Compiler] --> A
+        L[uv Package Manager] --> H
     end
 
-    A -->|Direct calls| E
+    A -->|callFunction()| E
 ```
 
 ## Core Technologies
 
-### PyO3 (Python-Rust Integration)
+### tauri-plugin-python (Python Integration)
 
-**What it is**: A Rust crate that provides bindings for the Python interpreter, allowing Rust applications to execute Python code directly.
+**What it is**: An official Tauri plugin that provides seamless Python integration using PyO3 under the hood.
 
 **Why we use it**:
 
--   Direct function calls between Rust and Python (no IPC overhead)
--   Embedded Python interpreter within Rust applications
--   Type-safe Python object handling with smart pointers
--   Native error propagation and handling
--   Single process deployment simplicity
+-   Simplified Python function calling with `callFunction()` API
+-   Automatic error conversion between Python and JavaScript
+-   Plugin-managed PyO3 complexity
+-   Direct function calls (no IPC overhead)
+-   Single process deployment with embedded Python
 
-**Think of it as**: A bridge that embeds a Python interpreter directly inside a Rust application, allowing Rust code to call Python functions as if they were native Rust functions.
+**Think of it as**: A plugin that handles all the complexity of embedding Python in a Tauri application, giving you a simple `callFunction()` interface to call Python functions from JavaScript.
 
 **Key characteristics**:
 
--   Uses Python's C API through safe Rust abstractions
+-   Uses PyO3 internally for Python interpreter integration
 -   Manages Python's Global Interpreter Lock (GIL) automatically
--   Provides smart pointers (Py<T>, Bound<'py, T>) for Python objects
--   Handles Python/Rust type conversions seamlessly
+-   Provides simple function registration via `_tauri_plugin_functions` list
+-   Handles JSON serialization/deserialization automatically
 
-**Key files**: `src-tauri/src/main.rs` (PyO3 integration), `Cargo.toml` (PyO3 dependencies)
+**Key files**: `src-tauri/src-python/main.py` (Python functions), `src-tauri/Cargo.toml` (plugin dependency)
 
 **Example**:
 
-```rust
-use pyo3::prelude::*;
+```python
+# Python side (src-tauri/src-python/main.py)
+def execute_analysis(settings_json):
+    settings = json.loads(settings_json)
+    result = perform_analysis(settings)
+    return json.dumps(result)
 
-fn call_analysis(settings: &Settings) -> PyResult<AnalysisResult> {
-    Python::with_gil(|py| {
-        let analysis_module = py.import("gitinspector_engine")?;
-        let result = analysis_module.getattr("execute_analysis")?.call1((settings,))?;
-        result.extract::<AnalysisResult>()
-    })
-}
+_tauri_plugin_functions = [execute_analysis]
+```
+
+```typescript
+// Frontend side
+import { callFunction } from "tauri-plugin-python-api";
+
+const result = await callFunction("execute_analysis", [settingsJson]);
 ```
 
 ### Tauri (Desktop Application Framework)
@@ -230,30 +236,32 @@ uv run command        # Run command in the project environment
 ```mermaid
 sequenceDiagram
     participant UI as React UI
-    participant Tauri as Tauri Runtime
+    participant Plugin as tauri-plugin-python
     participant PyO3 as PyO3 Bindings
     participant Python as Python Engine
 
-    UI->>Tauri: User clicks "Analyze"
-    Tauri->>PyO3: invoke() Tauri command
+    UI->>Plugin: callFunction("execute_analysis", [settings])
+    Plugin->>PyO3: Plugin calls PyO3
     PyO3->>Python: Direct function call
     Python->>Python: Execute git analysis
-    Python-->>PyO3: Return analysis results
-    PyO3-->>Tauri: Convert to Rust types
-    Tauri-->>UI: Return results to frontend
+    Python-->>PyO3: Return JSON results
+    PyO3-->>Plugin: Convert to plugin format
+    Plugin-->>UI: Return results to frontend
 ```
 
 ### File Structure Logic
 
 ```
-├── python/                 # Python analysis engine (embedded via PyO3)
+├── python/                 # Python analysis engine (embedded via plugin)
 │   ├── gigui/             # Main Python package
 │   └── pyproject.toml     # Python dependencies (managed by uv)
 ├── src/                   # React/TypeScript frontend
 │   ├── components/        # React components
 │   └── lib/              # Utility functions
-├── src-tauri/            # Tauri desktop application with PyO3 integration
-│   ├── src/              # Rust code with PyO3 bindings
+├── src-tauri/            # Tauri desktop application with plugin integration
+│   ├── src-python/       # Python functions for plugin
+│   │   └── main.py       # Plugin entry point
+│   ├── src/              # Rust code with plugin setup
 │   └── tauri.conf.json   # Desktop app configuration
 ├── package.json          # Frontend dependencies (managed by pnpm)
 └── vite.config.ts        # Build tool configuration
@@ -300,10 +308,10 @@ A: Desktop UI development in Python (tkinter, PyQt) is more limited than modern 
 A: Tauri produces smaller, faster applications with better security. The trade-off is learning some Rust concepts, but Tauri handles most of the complexity.
 
 **Q: Do I need to learn all these technologies?**
-A: No. Focus on the Python analysis logic where your expertise lies. PyO3 handles the integration automatically, and you can use AI tools to help with frontend changes.
+A: No. Focus on the Python analysis logic where your expertise lies. The tauri-plugin-python handles the integration automatically, and you can use AI tools to help with frontend changes.
 
 **Q: What if something breaks in the frontend/Rust parts?**
 A: The architecture is designed so you can develop and test the Python analysis logic independently. Most issues can be resolved by restarting the desktop application or using AI tools for frontend fixes.
 
-**Q: How does PyO3 affect Python development?**
-A: You write normal Python code. PyO3 handles calling your Python functions from Rust automatically. The main difference is that Python changes require restarting the desktop application instead of just reloading a web server.
+**Q: How does the plugin affect Python development?**
+A: You write normal Python code with simple function registration. The plugin handles calling your Python functions from JavaScript automatically. The main difference is that Python changes require restarting the desktop application instead of just reloading a web server.

@@ -4,9 +4,9 @@ GitInspectorGUI Python API specification for developers implementing analysis fu
 
 ## Overview
 
-This document specifies the Python functions you need to implement for GitInspectorGUI. The PyO3 integration between Rust and Python is already handled automatically - you just need to implement these Python functions according to the specifications below.
+This document specifies the Python functions you need to implement for GitInspectorGUI. The tauri-plugin-python integration between JavaScript and Python is handled automatically - you just need to implement these Python functions according to the specifications below.
 
-**Integration Note**: These functions are called directly from Rust via PyO3 - no HTTP requests involved. See [PyO3 Architecture](../architecture/design-decisions.md) for technical details.
+**Integration Note**: These functions are called directly from the frontend via tauri-plugin-python - no HTTP requests involved. See [Plugin Architecture](../architecture/design-decisions.md) for technical details.
 
 ## Core Functions
 
@@ -15,46 +15,55 @@ This document specifies the Python functions you need to implement for GitInspec
 | `execute_analysis()` | Repository analysis | Yes      |
 | `get_settings()`     | Get settings        | Yes      |
 | `save_settings()`    | Save settings       | Yes      |
-| `get_engine_info()`  | Engine capabilities | Optional |
+| `health_check()`     | Backend health      | Yes      |
+| `get_engine_info()`  | Engine capabilities | Yes      |
+| `get_blame_data()`   | Blame analysis      | Yes      |
 
 ## Execute Analysis
 
-### `execute_analysis(settings: Settings) -> Dict[str, Any]`
+### `execute_analysis(settings_json: str) -> str`
 
 Main analysis function that processes git repositories.
 
 **Parameters:**
 
 ```python
-@dataclass
-class Settings:
-    input_fstrs: List[str]              # Repository paths
-    n_files: int = 100                  # Max files to analyze
-    ex_files: List[str] = None          # Files to exclude
-    extensions: List[str] = None        # File extensions to include
-    file_formats: List[str] = None      # Output formats
-    processes: int = 4                  # Number of processes
-    legacy_engine: bool = False         # Use legacy analysis
+# Input: JSON string containing settings
+{
+    "input_fstrs": ["path1", "path2"],     # Repository paths
+    "n_files": 100,                       # Max files to analyze
+    "exclude_patterns": ["*.log"],        # Files to exclude
+    "extensions": [".py", ".js"],         # File extensions to include
+    "since": "2023-01-01",               # Date range start
+    "until": "2023-12-31",               # Date range end
+    "processes": 4,                       # Number of processes
+    "legacy_engine": false                # Use legacy analysis
+}
 ```
 
 **Returns:**
 
 ```python
+# Output: JSON string containing results
 {
     "repositories": [
         {
-            "name": str,
-            "path": str,
-            "commit_count": int,
-            "author_count": int,
+            "name": "repo-name",
+            "path": "/path/to/repo",
+            "commit_count": 150,
+            "author_count": 5,
             "authors": [...],
             "files": [...]
         }
     ],
     "summary": {
-        "total_repositories": int,
-        "total_commits": int,
-        "analysis_duration": float
+        "total_repositories": 2,
+        "total_commits": 300,
+        "analysis_duration": 2.5
+    },
+    "performance_stats": {
+        "memory_usage": "45MB",
+        "processing_time": "2.5s"
     }
 }
 ```
@@ -62,57 +71,82 @@ class Settings:
 **Example Implementation:**
 
 ```python
-def execute_analysis(settings: Settings) -> Dict[str, Any]:
+import json
+import logging
+
+def execute_analysis(settings_json: str) -> str:
     """Execute repository analysis with given settings."""
+    try:
+        # Parse JSON input
+        settings = json.loads(settings_json)
 
-    # Validate input
-    if not settings.input_fstrs:
-        raise ValidationError("No repositories specified")
+        # Validate input
+        if not settings.get('input_fstrs'):
+            raise ValueError("No repositories specified")
 
-    # Perform analysis
-    results = []
-    for repo_path in settings.input_fstrs:
-        repo_data = analyze_repository(repo_path, settings)
-        results.append(repo_data)
+        # Perform analysis
+        results = []
+        for repo_path in settings['input_fstrs']:
+            repo_data = analyze_repository(repo_path, settings)
+            results.append(repo_data)
 
-    return {
-        "repositories": results,
-        "summary": {
-            "total_repositories": len(results),
-            "total_commits": sum(r["commit_count"] for r in results),
-            "analysis_duration": time.time() - start_time
-        }
-    }
+        # Return JSON string
+        return json.dumps({
+            "repositories": results,
+            "summary": {
+                "total_repositories": len(results),
+                "total_commits": sum(r["commit_count"] for r in results),
+                "analysis_duration": time.time() - start_time
+            }
+        })
+    except Exception as e:
+        logging.error(f"Analysis failed: {e}")
+        raise RuntimeError(f"Analysis execution failed: {e}")
 ```
 
-## Settings Management
+## Health Check
 
-### `get_settings() -> Dict[str, Any]`
+### `health_check() -> Dict[str, Any]`
 
-Get current application settings.
+Check if the Python backend is healthy and operational.
 
 **Returns:**
 
 ```python
 {
-    "input_fstrs": [],
-    "n_files": 100,
-    "file_formats": ["json"],
-    "processes": 1,
-    "legacy_engine": False
+    "status": "healthy",  # or "error"
+    "message": "Python backend is running",
+    "backend": "tauri-plugin-python",
+    "api_status": "ready"
 }
 ```
 
-### `save_settings(settings: Settings) -> bool`
+**Example Implementation:**
 
-Save application settings.
+```python
+def health_check():
+    """Check if the Python backend is healthy."""
+    try:
+        # Verify API is accessible
+        api_status = "ready"  # Check your API status here
 
-**Parameters:** Settings object (same as execute_analysis)
-**Returns:** `True` if successful, `False` otherwise
+        return {
+            "status": "healthy",
+            "message": "Python backend is running",
+            "backend": "tauri-plugin-python",
+            "api_status": api_status
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Backend error: {str(e)}",
+            "backend": "tauri-plugin-python"
+        }
+```
 
 ## Engine Information
 
-### `get_engine_info() -> Dict[str, Any]` (Optional)
+### `get_engine_info() -> Dict[str, Any]`
 
 Get information about the analysis engine capabilities.
 
@@ -120,14 +154,77 @@ Get information about the analysis engine capabilities.
 
 ```python
 {
-    "engine_version": "2.1.0",
-    "supported_formats": ["json", "xml", "html", "csv"],
-    "legacy_engine_available": True,
-    "features": {
-        "blame_analysis": True,
-        "rename_detection": True
-    }
+    "name": "GitInspectorGUI Analysis Engine",
+    "version": "1.0.0",
+    "backend": "tauri-plugin-python",
+    "python_version": "3.11.0",
+    "capabilities": [
+        "repository_analysis",
+        "blame_data",
+        "author_statistics",
+        "file_analysis",
+        "settings_management"
+    ]
 }
+```
+
+## Settings Management
+
+### `get_settings() -> str`
+
+Get current application settings as JSON string.
+
+**Returns:**
+
+```python
+# JSON string containing current settings
+{
+    "input_fstrs": [],
+    "n_files": 100,
+    "exclude_patterns": [],
+    "extensions": [],
+    "processes": 1,
+    "legacy_engine": false
+}
+```
+
+### `save_settings(settings_json: str) -> str`
+
+Save application settings from JSON string.
+
+**Parameters:** JSON string containing settings
+**Returns:** JSON string with status
+
+```python
+def save_settings(settings_json: str) -> str:
+    """Save application settings."""
+    try:
+        settings = json.loads(settings_json)
+        # Save settings logic here
+        return json.dumps({"status": "success", "message": "Settings saved"})
+    except Exception as e:
+        raise RuntimeError(f"Settings save failed: {e}")
+```
+
+## Blame Data Analysis
+
+### `get_blame_data(settings_json: str) -> str`
+
+Get detailed blame data for repositories.
+
+**Parameters:** JSON string containing settings
+**Returns:** JSON string containing blame analysis
+
+```python
+def get_blame_data(settings_json: str) -> str:
+    """Get blame data for repositories."""
+    try:
+        settings = json.loads(settings_json)
+        # Perform blame analysis
+        result = perform_blame_analysis(settings)
+        return json.dumps(result)
+    except Exception as e:
+        raise RuntimeError(f"Blame data retrieval failed: {e}")
 ```
 
 ## Error Handling
@@ -146,138 +243,252 @@ class ValidationError(Exception):
 class RepositoryError(Exception):
     """Raised when repository access fails"""
     pass
+
+class ConfigurationError(Exception):
+    """Raised when configuration is invalid"""
+    pass
 ```
 
 **Error Handling Example:**
 
 ```python
-def execute_analysis(settings: Settings) -> Dict[str, Any]:
+def execute_analysis(settings_json: str) -> str:
     try:
-        # Validate settings
-        if not settings.input_fstrs:
+        # Parse and validate settings
+        settings = json.loads(settings_json)
+
+        if not settings.get('input_fstrs'):
             raise ValidationError("No repositories specified")
 
         # Check repository access
-        for repo_path in settings.input_fstrs:
+        for repo_path in settings['input_fstrs']:
             if not os.path.exists(repo_path):
                 raise RepositoryError(f"Repository not found: {repo_path}")
 
         # Perform analysis
-        return perform_git_analysis(settings)
+        result = perform_git_analysis(settings)
+        return json.dumps(result)
 
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON settings: {e}")
     except Exception as e:
         logging.error(f"Analysis failed: {e}")
-        raise AnalysisError(f"Analysis execution failed: {e}")
+        raise RuntimeError(f"Analysis execution failed: {e}")
 ```
 
-## Module Structure
+## Plugin Function Registration
 
-**Why this matters:** The Rust-Python integration is configured to import specific Python modules and functions. If your code isn't organized exactly as shown below, the desktop application won't be able to find your functions and will fail with import errors.
-
-**The Problem:** PyO3 (the Rust-Python bridge) needs to know exactly where to find your Python functions. The Rust code is hardcoded to import from `gigui.analysis` and call specific function names.
-
-**What happens if you get it wrong:**
-
--   Import errors when the desktop app starts
--   "Module not found" or "Function not found" runtime errors
--   The analysis button won't work
+**Why this matters:** The tauri-plugin-python needs to know exactly which Python functions are available. Functions must be registered in a specific list for the plugin to find them.
 
 **Required Structure:**
 
 ```python
-# gigui/analysis/__init__.py
-# This file MUST export these exact function names
-from .main import execute_analysis, get_settings, save_settings, get_engine_info
+# src-tauri/src-python/main.py
+"""GitInspectorGUI Analysis Engine - Plugin Integration."""
 
-# gigui/analysis/main.py
-# This file MUST contain these exact function names
-from typing import List, Dict, Any
-from dataclasses import dataclass
+import sys
+import json
 import logging
+from pathlib import Path
 
-@dataclass
-class Settings:
-    input_fstrs: List[str]
-    n_files: int = 100
-    ex_files: List[str] = None
-    extensions: List[str] = None
-    file_formats: List[str] = None
-    processes: int = 4
-    legacy_engine: bool = False
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def execute_analysis(settings: Settings) -> Dict[str, Any]:
-    # Your implementation here
+# Handle embedded Python environment
+try:
+    project_root = Path(__file__).parent.parent.parent
+except NameError:
+    # Fallback for embedded Python environments
+    project_root = Path.cwd()
+
+# Add Python modules to path
+python_path = project_root / "python"
+if python_path.exists():
+    sys.path.insert(0, str(python_path))
+
+# Import analysis engine
+from gigui.api.main import GitInspectorAPI
+
+# Initialize API
+api = GitInspectorAPI()
+
+def health_check():
+    """Check if the Python backend is healthy."""
+    # Implementation here
     pass
 
-def get_settings() -> Dict[str, Any]:
-    # Your implementation here
+def get_engine_info():
+    """Get information about the analysis engine."""
+    # Implementation here
     pass
 
-def save_settings(settings: Settings) -> bool:
-    # Your implementation here
+def execute_analysis(settings_json):
+    """Execute repository analysis."""
+    # Implementation here
     pass
 
-def get_engine_info() -> Dict[str, Any]:
-    # Your implementation here
+def get_settings():
+    """Get current analysis settings."""
+    # Implementation here
     pass
+
+def save_settings(settings_json):
+    """Save analysis settings."""
+    # Implementation here
+    pass
+
+def get_blame_data(settings_json):
+    """Get blame data for repositories."""
+    # Implementation here
+    pass
+
+# CRITICAL: Register functions with the plugin
+_tauri_plugin_functions = [
+    health_check,
+    get_engine_info,
+    execute_analysis,
+    get_settings,
+    save_settings,
+    get_blame_data,
+]
 ```
 
 **Critical Requirements:**
 
--   Module path must be exactly `gigui.analysis`
+-   Entry point must be `src-tauri/src-python/main.py`
 -   Function names must match exactly (case-sensitive)
--   Function signatures must match the specifications above
--   The `__init__.py` file must export all required functions
+-   All functions must accept/return JSON strings (except health_check and get_engine_info)
+-   Functions must be listed in `_tauri_plugin_functions` list
+-   Functions must handle JSON parsing/serialization internally
+
+## Frontend Integration
+
+The frontend calls these functions using the plugin API:
+
+```typescript
+import { callFunction } from "tauri-plugin-python-api";
+
+// Health check
+const health = await callFunction("health_check", []);
+
+// Execute analysis
+const settingsJson = JSON.stringify(settings);
+const resultJson = await callFunction("execute_analysis", [settingsJson]);
+const result = JSON.parse(resultJson);
+
+// Get engine info
+const engineInfo = await callFunction("get_engine_info", []);
+```
 
 ## Testing Your Functions
 
 Test your Python functions independently:
 
 ```python
-# test_analysis.py
-from gigui.analysis import execute_analysis, Settings
+# test_plugin_functions.py
+import json
+from main import execute_analysis, health_check, get_engine_info
 
-def test_basic_analysis():
-    settings = Settings(
-        input_fstrs=["/path/to/test/repo"],
-        n_files=10
-    )
+def test_health_check():
+    """Test health check function."""
+    result = health_check()
+    assert result["status"] == "healthy"
+    assert result["backend"] == "tauri-plugin-python"
 
-    result = execute_analysis(settings)
+def test_execute_analysis():
+    """Test analysis function."""
+    settings = {
+        "input_fstrs": ["/path/to/test/repo"],
+        "n_files": 10
+    }
+
+    result_json = execute_analysis(json.dumps(settings))
+    result = json.loads(result_json)
 
     assert "repositories" in result
     assert "summary" in result
-    assert len(result["repositories"]) > 0
+
+def test_engine_info():
+    """Test engine info function."""
+    info = get_engine_info()
+    assert info["backend"] == "tauri-plugin-python"
+    assert "capabilities" in info
 
 if __name__ == "__main__":
-    test_basic_analysis()
-    print("Analysis function works!")
+    test_health_check()
+    test_execute_analysis()
+    test_engine_info()
+    print("All plugin functions work!")
 ```
 
 ## Debugging
 
-Add logging to your functions for debugging:
+Add comprehensive logging to your functions:
 
 ```python
 import logging
 
-def execute_analysis(settings: Settings) -> Dict[str, Any]:
-    logging.info(f"Starting analysis with {len(settings.input_fstrs)} repositories")
-
+def execute_analysis(settings_json: str) -> str:
+    """Execute analysis with comprehensive logging."""
     try:
+        settings = json.loads(settings_json)
+        logger.info(f"Starting analysis with {len(settings.get('input_fstrs', []))} repositories")
+
         # Your analysis logic
         result = perform_analysis(settings)
-        logging.info("Analysis completed successfully")
-        return result
+        logger.info("Analysis completed successfully")
+
+        return json.dumps(result)
 
     except Exception as e:
-        logging.error(f"Analysis failed: {e}")
+        logger.error(f"Analysis failed: {e}")
         raise
+```
+
+## Performance Considerations
+
+### JSON Serialization
+
+```python
+def optimized_analysis(settings_json: str) -> str:
+    """Optimized analysis with efficient JSON handling."""
+    import gc
+
+    try:
+        settings = json.loads(settings_json)
+
+        # Process in batches for large datasets
+        results = process_repositories_efficiently(settings)
+
+        # Explicit cleanup for large datasets
+        gc.collect()
+
+        return json.dumps(results)
+    except Exception as e:
+        gc.collect()  # Cleanup on error
+        raise
+```
+
+### Memory Management
+
+```python
+def memory_efficient_analysis(settings_json: str) -> str:
+    """Memory-efficient analysis implementation."""
+    settings = json.loads(settings_json)
+
+    # Stream results for large repositories
+    def generate_results():
+        for repo_path in settings['input_fstrs']:
+            yield analyze_single_repository(repo_path, settings)
+
+    results = list(generate_results())
+    return json.dumps({"repositories": results})
 ```
 
 ## Related Documentation
 
--   **[Technology Primer](../technology-primer.md)** - Understanding the overall architecture
+-   **[Technology Primer](../technology-primer.md)** - Understanding the plugin architecture
 -   **[Development Workflow](../development/development-workflow.md)** - Development patterns
 -   **[Error Handling](error-handling.md)** - Comprehensive error handling patterns
--   **[Examples](examples.md)** - More detailed implementation examples
+-   **[Examples](examples.md)** - Detailed implementation examples with plugin integration
