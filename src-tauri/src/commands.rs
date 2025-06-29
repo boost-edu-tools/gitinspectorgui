@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use tauri::command;
 
+// Keep existing Settings struct for type safety and compatibility
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Settings {
     // Repository and Input Settings
@@ -247,187 +247,36 @@ pub struct BlameEntry {
     pub content: String,
 }
 
-use pyo3::prelude::*;
-use std::sync::Mutex;
+// NOTE: With tauri-plugin-python, these commands are now just placeholders.
+// The actual Python functions are called directly from JavaScript using the plugin API.
+// These commands are kept for backward compatibility with the existing frontend.
 
-// Global Python interpreter state
-static PYTHON_INITIALIZED: Mutex<bool> = Mutex::new(false);
-
-// Helper function to call Python functions with PyO3
-async fn call_python_function(
-    function_name: &str,
-    args: Option<&str>,
-) -> Result<String, String> {
-    // Ensure Python is initialized
-    {
-        let mut initialized = PYTHON_INITIALIZED.lock().unwrap();
-        if !*initialized {
-            // Set up Python environment variables based on our debugging findings
-            // These paths are critical for PyO3 to find the Python standard library
-            let python_home = "/Users/dvbeek/.local/share/uv/python/cpython-3.13.2-macos-aarch64-none";
-            let python_stdlib = "/Users/dvbeek/.local/share/uv/python/cpython-3.13.2-macos-aarch64-none/lib/python3.13";
-            let venv_site_packages = "/Users/dvbeek/1-repos/github-boost/gitinspectorgui/.venv/lib/python3.13/site-packages";
-            let project_python = "/Users/dvbeek/1-repos/github-boost/gitinspectorgui/python";
-
-            std::env::set_var("PYTHONHOME", python_home);
-            let python_path = format!("{}:{}:{}:{}", python_stdlib, venv_site_packages, project_python, python_stdlib);
-            std::env::set_var("PYTHONPATH", &python_path);
-
-            pyo3::prepare_freethreaded_python();
-            *initialized = true;
-        }
-    }
-
-    Python::with_gil(|py| {
-        // Initialize Python path
-        let sys = py.import_bound("sys")
-            .map_err(|e| format!("Failed to import sys: {}", e))?;
-        let path = sys.getattr("path")
-            .map_err(|e| format!("Failed to get sys.path: {}", e))?;
-
-        // Add both Python directories to the path
-        // 1. The bridge module is in src-tauri/python/
-        let bridge_python_dir = std::env::current_dir()
-            .map_err(|e| format!("Failed to get current dir: {}", e))?
-            .join("src-tauri")
-            .join("python");
-
-        path.call_method1("insert", (0, bridge_python_dir.to_string_lossy().as_ref()))
-            .map_err(|e| format!("Failed to add bridge python dir to sys.path: {}", e))?;
-
-        // 2. The main gigui package is in python/
-        let main_python_dir = std::env::current_dir()
-            .map_err(|e| format!("Failed to get current dir: {}", e))?
-            .join("python");
-
-        path.call_method1("insert", (0, main_python_dir.to_string_lossy().as_ref()))
-            .map_err(|e| format!("Failed to add main python dir to sys.path: {}", e))?;
-
-        // Import our main module
-        let module = py.import_bound("main")
-            .map_err(|e| format!("Failed to import main module: {}", e))?;
-
-        let function = module.getattr(function_name)
-            .map_err(|e| format!("Function '{}' not found: {}", function_name, e))?;
-
-        let result = match args {
-            Some(args_str) => {
-                function.call1((args_str,))
-                    .map_err(|e| format!("Python function call failed: {}", e))?
-            }
-            None => {
-                function.call0()
-                    .map_err(|e| format!("Python function call failed: {}", e))?
-            }
-        };
-
-        let result_str: String = result.extract()
-            .map_err(|e| format!("Failed to extract result as string: {}", e))?;
-
-        Ok(result_str)
-    })
+#[tauri::command]
+pub async fn execute_analysis(_settings: Settings) -> Result<AnalysisResult, String> {
+    Err("This command is deprecated. Use the JavaScript API with tauri-plugin-python instead.".to_string())
 }
 
-#[command]
-pub async fn execute_analysis(
-    mut settings: Settings,
-) -> Result<AnalysisResult, String> {
-    println!("Executing analysis with PyO3");
-
-    // Convert relative paths to absolute paths (same logic as before)
-    let mut absolute_paths = Vec::new();
-    for path in &settings.input_fstrs {
-        let absolute_path = if std::path::Path::new(path).is_absolute() {
-            path.clone()
-        } else {
-            match std::env::current_dir() {
-                Ok(current_dir) => {
-                    let full_path = current_dir.join(path);
-                    match full_path.canonicalize() {
-                        Ok(canonical_path) => canonical_path.to_string_lossy().to_string(),
-                        Err(_) => full_path.to_string_lossy().to_string(),
-                    }
-                }
-                Err(_) => path.clone(),
-            }
-        };
-        absolute_paths.push(absolute_path);
-    }
-    settings.input_fstrs = absolute_paths;
-
-    // Serialize settings to JSON
-    let settings_json = serde_json::to_string(&settings)
-        .map_err(|e| format!("Failed to serialize settings: {}", e))?;
-
-    // Call Python function
-    let result_json = call_python_function("execute_analysis", Some(&settings_json)).await?;
-
-    // Deserialize result
-    let result: AnalysisResult = serde_json::from_str(&result_json)
-        .map_err(|e| format!("Failed to deserialize analysis result: {}", e))?;
-
-    Ok(result)
-}
-
-#[command]
+#[tauri::command]
 pub async fn get_settings() -> Result<Settings, String> {
-    let result_json = call_python_function("get_settings", None).await?;
-
-    let settings: Settings = serde_json::from_str(&result_json)
-        .map_err(|e| format!("Failed to deserialize settings: {}", e))?;
-
-    Ok(settings)
+    Err("This command is deprecated. Use the JavaScript API with tauri-plugin-python instead.".to_string())
 }
 
-#[command]
-pub async fn save_settings(settings: Settings) -> Result<(), String> {
-    let settings_json = serde_json::to_string(&settings)
-        .map_err(|e| format!("Failed to serialize settings: {}", e))?;
-
-    let result_json = call_python_function("save_settings", Some(&settings_json)).await?;
-
-    #[derive(Deserialize)]
-    struct SaveResponse {
-        success: bool,
-        error: Option<String>,
-    }
-
-    let response: SaveResponse = serde_json::from_str(&result_json)
-        .map_err(|e| format!("Failed to deserialize save response: {}", e))?;
-
-    if response.success {
-        Ok(())
-    } else {
-        Err(response.error.unwrap_or_else(|| "Unknown error saving settings".to_string()))
-    }
+#[tauri::command]
+pub async fn save_settings(_settings: Settings) -> Result<(), String> {
+    Err("This command is deprecated. Use the JavaScript API with tauri-plugin-python instead.".to_string())
 }
 
-#[command]
+#[tauri::command]
 pub async fn get_engine_info() -> Result<serde_json::Value, String> {
-    let result_json = call_python_function("get_engine_info", None).await?;
-
-    let engine_info: serde_json::Value = serde_json::from_str(&result_json)
-        .map_err(|e| format!("Failed to deserialize engine info: {}", e))?;
-
-    Ok(engine_info)
+    Err("This command is deprecated. Use the JavaScript API with tauri-plugin-python instead.".to_string())
 }
 
-#[command]
+#[tauri::command]
 pub async fn get_performance_stats() -> Result<serde_json::Value, String> {
-    let result_json = call_python_function("get_performance_stats", None).await?;
-
-    let stats: serde_json::Value = serde_json::from_str(&result_json)
-        .map_err(|e| format!("Failed to deserialize performance stats: {}", e))?;
-
-    Ok(stats)
+    Err("This command is deprecated. Use the JavaScript API with tauri-plugin-python instead.".to_string())
 }
 
-#[command]
+#[tauri::command]
 pub async fn health_check() -> Result<serde_json::Value, String> {
-    let result_json = call_python_function("health_check", None).await?;
-
-    let health_status: serde_json::Value = serde_json::from_str(&result_json)
-        .map_err(|e| format!("Failed to deserialize health status: {}", e))?;
-
-    Ok(health_status)
+    Err("This command is deprecated. Use the JavaScript API with tauri-plugin-python instead.".to_string())
 }

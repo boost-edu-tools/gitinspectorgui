@@ -1,14 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-
-// Dynamically import Tauri invoke only if available
-const getTauriInvoke = async () => {
-    try {
-        const { invoke } = await import("@tauri-apps/api/core");
-        return invoke;
-    } catch (error) {
-        throw new Error("Tauri APIs not available");
-    }
-};
+import { healthCheck, getEngineInfo } from "@/lib/api";
 
 export interface ServerStatus {
     isRunning: boolean;
@@ -28,10 +19,9 @@ export function useServerStatus() {
 
     const checkServerHealth = useCallback(async () => {
         try {
-            // Try to directly use Tauri invoke - if it works, we're in desktop mode
-            const invoke = await getTauriInvoke();
-            await invoke("health_check");
-            const engineInfo = await invoke("get_engine_info");
+            // Use the new plugin API
+            const healthResult = await healthCheck();
+            const engineInfo = await getEngineInfo();
 
             setStatus((prev) => ({
                 ...prev,
@@ -42,22 +32,13 @@ export function useServerStatus() {
             }));
             return true;
         } catch (error) {
-            // If Tauri invoke fails, we're either in browser mode or there's an actual error
             const errorMessage =
                 error instanceof Error ? error.message : "Unknown error";
-
-            // Check if this is a "Tauri not available" error vs a backend error
-            const isTauriError =
-                errorMessage.includes("Tauri APIs not available") ||
-                errorMessage.includes("Cannot resolve") ||
-                errorMessage.includes("__TAURI__");
 
             setStatus((prev) => ({
                 ...prev,
                 isRunning: false,
-                error: isTauriError
-                    ? "PyO3 backend only available in desktop app"
-                    : `PyO3 backend error: ${errorMessage}`,
+                error: `Plugin backend error: ${errorMessage}`,
                 lastChecked: new Date(),
             }));
             return false;

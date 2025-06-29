@@ -25,14 +25,15 @@ Original architecture requirements that guided GitInspectorGUI development.
 
 ### UI/UX Preferences
 
--   **Component libraries** - shadcn/ui and Zustand for state management
+-   **Component libraries** - Mantine and Zustand
 -   **Design system** - Flowbite Figma UI Kit for rapid prototyping
 -   **JSX familiarity** - Coming from PySimpleGUI background
--   **No code generators** - Manual implementation from Figma designs
+-   **No code generators** - Manual implementation from Figma designs or from
+    old GUI screenshots
 
 ### CLI/GUI Integration
 
--   **argparse CLI** - Nearly identical settings to GUI
+-   **Typer CLI** - Nearly identical settings to GUI
 -   **Execution patterns** - CLI runs once, GUI supports multiple runs
 -   **Output consistency** - Identical analysis results between CLI/GUI
 -   **JSON configuration** - Shared settings with CLI override capability

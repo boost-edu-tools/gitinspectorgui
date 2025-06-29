@@ -26,7 +26,7 @@ export function ServerStatus() {
             return "Checking backend...";
         }
         if (status.isRunning) {
-            return "PyO3 backend ready";
+            return "Plugin backend ready";
         }
         return "Backend not available";
     };

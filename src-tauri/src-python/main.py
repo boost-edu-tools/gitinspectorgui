@@ -9,7 +9,13 @@ from dataclasses import asdict
 from pathlib import Path
 
 # Add the project's Python directory to the path
-project_root = Path(__file__).parent.parent.parent
+try:
+    # Try to use __file__ if available (normal Python execution)
+    project_root = Path(__file__).parent.parent.parent
+except NameError:
+    # Fallback for embedded Python environments like tauri-plugin-python
+    project_root = Path.cwd()
+
 python_dir = project_root / "python"
 sys.path.insert(0, str(python_dir))
 
@@ -45,16 +51,8 @@ _tauri_plugin_functions = [
 ]
 
 
-def execute_analysis(settings_json: str) -> str:
-    """Execute git analysis with the provided settings.
-
-    Args:
-        settings_json: JSON string containing analysis settings
-
-    Returns:
-        JSON string containing analysis results
-
-    """
+def execute_analysis(settings_json):
+    """Execute git analysis with the provided settings."""
     try:
         if not api_instance:
             return json.dumps(
@@ -66,7 +64,10 @@ def execute_analysis(settings_json: str) -> str:
             )
 
         # Parse settings
-        settings_dict = json.loads(settings_json)
+        if isinstance(settings_json, str):
+            settings_dict = json.loads(settings_json)
+        else:
+            settings_dict = settings_json
 
         # Ensure all required fields have defaults
         defaults = {
@@ -170,13 +171,8 @@ def execute_analysis(settings_json: str) -> str:
         return json.dumps(error_response)
 
 
-def get_settings() -> str:
-    """Get default settings.
-
-    Returns:
-        JSON string containing default settings
-
-    """
+def get_settings():
+    """Get default settings."""
     try:
         if not api_instance:
             # Return basic default settings if API is not available
@@ -239,19 +235,12 @@ def get_settings() -> str:
         return json.dumps(error_response)
 
 
-def save_settings(settings_json: str) -> str:
-    """Save settings (placeholder implementation).
-
-    Args:
-        settings_json: JSON string containing settings to save
-
-    Returns:
-        JSON string containing save result
-
-    """
+def save_settings(settings_json):
+    """Save settings."""
     try:
         # For now, just validate the JSON
-        json.loads(settings_json)
+        if isinstance(settings_json, str):
+            json.loads(settings_json)
 
         response = {"success": True, "error": None}
         return json.dumps(response)
@@ -261,17 +250,12 @@ def save_settings(settings_json: str) -> str:
         return json.dumps(response)
 
 
-def get_engine_info() -> str:
-    """Get engine information.
-
-    Returns:
-        JSON string containing engine info
-
-    """
+def get_engine_info():
+    """Get engine information."""
     try:
         info = {
-            "engine": "PyO3",
-            "version": "0.1.0",
+            "engine": "tauri-plugin-python",
+            "version": "0.3.6",
             "python_version": sys.version,
             "backend": "gitinspector-gui",
         }
@@ -281,13 +265,8 @@ def get_engine_info() -> str:
         return json.dumps(error_response)
 
 
-def get_performance_stats() -> str:
-    """Get performance statistics.
-
-    Returns:
-        JSON string containing performance stats
-
-    """
+def get_performance_stats():
+    """Get performance statistics."""
     try:
         stats = {"memory_usage": "N/A", "cpu_usage": "N/A", "active_threads": "N/A"}
         return json.dumps(stats)
@@ -296,17 +275,14 @@ def get_performance_stats() -> str:
         return json.dumps(error_response)
 
 
-def health_check() -> str:
-    """Perform health check.
-
-    Returns:
-        JSON string containing health status
-
-    """
+def health_check():
+    """Perform health check."""
     try:
         status = {
             "status": "healthy",
-            "timestamp": "2025-01-01T00:00:00Z",
+            "version": "2.0.0-plugin",
+            "backend": "tauri-plugin-python",
+            "api_available": api_instance is not None,
             "python_path": sys.executable,
             "working_directory": os.getcwd(),
         }
@@ -318,7 +294,7 @@ def health_check() -> str:
 
 if __name__ == "__main__":
     # Test the functions
-    print("Testing PyO3 Python module...")
+    print("Testing tauri-plugin-python module...")
     print("Health check:", health_check())
     print("Engine info:", get_engine_info())
     print("Settings:", get_settings())
