@@ -11,9 +11,9 @@ If you're unfamiliar with the technologies used, see the **[Technology Primer](.
 **Development environment components**:
 
 -   **Frontend**: Tauri (desktop framework) + React (UI library) + TypeScript (typed JavaScript) + Vite (build tool)
--   **Backend**: Python analysis engine embedded via PyO3 (Rust-Python bindings)
+-   **Backend**: Python analysis engine embedded via PyO3 helper functions (simplified Rust-Python integration)
 -   **Package Management**: uv (fast Python package manager), pnpm (fast JavaScript package manager)
--   **Build System**: Cargo (Rust compiler with PyO3), Vite (frontend bundler)
+-   **Build System**: Cargo (Rust compiler with PyO3 helpers), Vite (frontend bundler)
 
 ## Development Configuration
 
@@ -51,8 +51,8 @@ pnpm run tauri dev
 
 # This starts:
 # - Vite dev server for frontend hot reload
-# - Tauri application with embedded Python via PyO3
-# - Direct PyO3 function calls (no separate server)
+# - Tauri application with embedded Python via PyO3 helpers
+# - Simplified PyO3 helper function calls (no separate server)
 ```
 
 ### Development Modes
@@ -65,12 +65,12 @@ pnpm run tauri dev
 pnpm run dev
 
 # Note: Python changes require restarting the desktop app
-# since Python is embedded via PyO3
+# since Python is embedded via PyO3 helpers
 ```
 
 ## Debugging
 
-### PyO3 Integration Debugging
+### PyO3 Helper Function Debugging
 
 ```json
 {
@@ -89,7 +89,7 @@ pnpm run dev
 
 ### Python Code Debugging
 
-Since Python is embedded via PyO3, debugging requires different approaches:
+Since Python is embedded via PyO3 helpers, debugging requires different approaches:
 
 ```python
 # Add logging to Python code
@@ -108,7 +108,7 @@ def execute_analysis(settings):
 -   **Console**: Use `console.log()` for debugging
 -   **Breakpoints**: Set in VS Code or browser DevTools
 
-### PyO3 Error Debugging
+### PyO3 Helper Function Error Debugging
 
 ```bash
 # Enable PyO3 debug logging
@@ -133,13 +133,13 @@ cd python && python -m pytest --cov=gigui
 cd python && python -m pytest tests/test_analysis.py
 ```
 
-### PyO3 Integration Tests
+### PyO3 Helper Function Integration Tests
 
 ```bash
-# Test PyO3 bindings
+# Test PyO3 helper functions
 cd src-tauri && cargo test
 
-# Test with Python integration
+# Test with Python integration through helpers
 cd src-tauri && cargo test --features python-tests
 ```
 
@@ -176,7 +176,7 @@ mkdocs build           # Documentation
 
 ## Performance Monitoring
 
-### PyO3 Performance
+### PyO3 Helper Function Performance
 
 ```rust
 // Add timing to Rust code
@@ -209,13 +209,13 @@ def execute_analysis(settings):
 
 ## Troubleshooting
 
-### PyO3 Compilation Issues
+### PyO3 Helper Function Compilation Issues
 
 ```bash
 # Check Python development headers
 python -c "import sysconfig; print(sysconfig.get_path('include'))"
 
-# Rebuild PyO3 bindings
+# Rebuild PyO3 helper functions
 cd src-tauri && cargo clean && cargo build
 ```
 
@@ -296,4 +296,4 @@ pnpm run tauri build
 -   **[Development Workflow](development-workflow.md)** - Development patterns and best practices
 -   **[Package Management](package-management-overview.md)** - Dependencies and tools
 -   **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
--   **[PyO3 Integration](../architecture/design-decisions.md)** - PyO3 architecture details
+-   **[PyO3 Helper Integration](../architecture/design-decisions.md)** - PyO3 helper function architecture details

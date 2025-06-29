@@ -1,6 +1,6 @@
 # Architecture Design Decisions
 
-## IPC Evolution: stdout → HTTP → Plugin-Based Integration
+## IPC Evolution: stdout → HTTP → Simplified PyO3 Helper Function Integration
 
 ### Previous Issues with stdout Communication
 
@@ -16,13 +16,20 @@
 -   **Error boundary** - HTTP status codes vs native exceptions
 -   **Development complexity** - Multiple processes to coordinate
 
-### Current Plugin-Based Integration
+### Previous Issues with Plugin Architecture
+
+-   **Plugin dependency complexity** - External plugin maintenance and compatibility
+-   **API compatibility issues** - Plugin API changes breaking builds
+-   **Build system complexity** - Plugin registration and configuration overhead
+-   **Limited control** - Plugin abstractions hiding important details
+
+### Current Simplified PyO3 Helper Function Integration
 
 ```mermaid
 graph TB
-    A[Tauri Frontend] -->|callFunction()| B[tauri-plugin-python API]
-    B -->|Plugin calls| C[Tauri Plugin]
-    C -->|PyO3 bindings| D[Python Analysis Engine]
+    A[Tauri Frontend] -->|invoke()| B[Tauri Commands]
+    B -->|Helper Functions| C[PyO3 Bindings]
+    C -->|Direct Calls| D[Python Analysis Engine]
     D -->|Native objects| C
     C -->|Rust types| B
     B -->|JSON| A
@@ -31,23 +38,24 @@ graph TB
     D --> E
 ```
 
-## Plugin-Based Architecture
+## Simplified PyO3 Helper Function Architecture
 
 ### Key Benefits
 
 #### Performance
 
--   **Zero IPC overhead** - Direct function calls through plugin layer
+-   **Zero IPC overhead** - Direct function calls through PyO3 bindings
 -   **Native memory access** - No serialization between components
 -   **Embedded interpreter** - Python runs within the same process via PyO3
--   **Type-safe conversion** - Automatic Python ↔ Rust type conversion
+-   **Type-safe conversion** - Automatic Python ↔ Rust type conversion via helper functions
 
 #### Development
 
 -   **Single process** - Simplified debugging and development
 -   **Integrated logging** - Python logging works seamlessly with Rust
--   **Plugin error handling** - Automatic error conversion and propagation
+-   **Clean abstractions** - Helper functions eliminate PyO3 boilerplate
 -   **Hot reload** - Frontend changes don't require backend restart
+-   **No external dependencies** - Direct PyO3 integration without plugin complexity
 
 #### Deployment
 
@@ -55,24 +63,41 @@ graph TB
 -   **Simplified distribution** - Embedded Python interpreter
 -   **Cross-platform consistency** - Same architecture on all platforms
 -   **Reduced attack surface** - No network communication required
+-   **No plugin dependencies** - Direct PyO3 integration reduces build complexity
 
 ## Implementation
 
-### Plugin Integration (Rust)
+### PyO3 Helper Function Integration (Rust)
 
 ```rust
-use tauri_plugin_python::{init_and_register, PythonExt};
+// Our PyO3 helper functions abstract away all the complexity
+// and provide a clean, simple interface for calling Python functions
+
+// Tauri commands using the simplified helper functions
+#[tauri::command]
+pub async fn execute_analysis(settings: Settings) -> Result<AnalysisResult, String> {
+    python_helper::call_function("execute_analysis", settings).await
+}
+
+#[tauri::command]
+pub async fn health_check() -> Result<serde_json::Value, String> {
+    python_helper::call_function("health_check", ()).await
+}
 
 fn main() {
     tauri::Builder::default()
-        .plugin(init_and_register(vec![
-            "health_check".into(),
-            "get_engine_info".into(),
-            "execute_analysis".into(),
-            "get_settings".into(),
-            "save_settings".into(),
-            "get_blame_data".into(),
-        ]))
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_os::init())
+        .invoke_handler(tauri::generate_handler![
+            execute_analysis,
+            get_settings,
+            save_settings,
+            get_engine_info,
+            get_performance_stats,
+            health_check,
+            get_blame_data
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -117,7 +142,7 @@ def get_engine_info():
     return {
         "name": "GitInspectorGUI Analysis Engine",
         "version": "1.0.0",
-        "backend": "tauri-plugin-python"
+        "backend": "direct-pyo3"
     }
 
 def execute_analysis(settings_json):
@@ -163,21 +188,14 @@ def get_blame_data(settings_json):
         logger.error(f"Failed to get blame data: {e}")
         raise
 
-# Register functions with the plugin
-_tauri_plugin_functions = [
-    health_check,
-    get_engine_info,
-    execute_analysis,
-    get_settings,
-    save_settings,
-    get_blame_data,
-]
+# Functions available to Tauri commands via PyO3 helper functions
+# These functions are called through simplified helper function abstractions
 ```
 
 ### Frontend Integration
 
 ```typescript
-import { callFunction } from "tauri-plugin-python-api";
+import { invoke } from "@tauri-apps/api/core";
 
 interface Settings {
     input_fstrs: string[];
@@ -196,9 +214,8 @@ export async function executeAnalysis(
     settings: Settings
 ): Promise<AnalysisResult> {
     try {
-        const settingsJson = JSON.stringify(settings);
-        const resultJson = await callFunction("execute_analysis", [settingsJson]);
-        return JSON.parse(resultJson);
+        const result = await invoke<AnalysisResult>("execute_analysis", { settings });
+        return result;
     } catch (error) {
         console.error("Analysis failed:", error);
         throw new Error(`Analysis failed: ${error}`);
@@ -207,7 +224,7 @@ export async function executeAnalysis(
 
 export async function healthCheck(): Promise<any> {
     try {
-        return await callFunction("health_check", []);
+        return await invoke<any>("health_check");
     } catch (error) {
         console.error("Health check failed:", error);
         throw new Error(`Health check failed: ${error}`);
@@ -216,7 +233,7 @@ export async function healthCheck(): Promise<any> {
 
 export async function getEngineInfo(): Promise<any> {
     try {
-        return await callFunction("get_engine_info", []);
+        return await invoke<any>("get_engine_info");
     } catch (error) {
         console.error("Failed to get engine info:", error);
         throw new Error(`Failed to get engine info: ${error}`);
@@ -226,9 +243,9 @@ export async function getEngineInfo(): Promise<any> {
 
 ## Error Handling
 
-### Plugin Error Propagation
+### PyO3 Error Propagation
 
-The tauri-plugin-python automatically handles error conversion between Python exceptions and JavaScript errors:
+The PyO3 helper functions automatically handle error conversion between Python exceptions and JavaScript errors:
 
 ```python
 def execute_analysis(settings_json):
@@ -257,11 +274,10 @@ def execute_analysis(settings_json):
 ```typescript
 export async function executeAnalysis(settings: Settings): Promise<AnalysisResult> {
     try {
-        const settingsJson = JSON.stringify(settings);
-        const resultJson = await callFunction("execute_analysis", [settingsJson]);
-        return JSON.parse(resultJson);
+        const result = await invoke<AnalysisResult>("execute_analysis", { settings });
+        return result;
     } catch (error) {
-        // Plugin automatically converts Python exceptions to JavaScript errors
+        // PyO3 helper functions automatically convert Python exceptions to JavaScript errors
         if (error instanceof Error) {
             if (error.message.includes("Invalid or inaccessible repositories")) {
                 throw new Error("Repository validation failed. Please check your repository paths.");
@@ -279,10 +295,9 @@ export async function executeAnalysis(settings: Settings): Promise<AnalysisResul
 
 ### JSON-Based Communication
 
-The plugin uses JSON for type-safe communication between frontend and Python:
+The PyO3 helper functions use JSON for type-safe communication between frontend and Python:
 
 ```python
-from pydantic import BaseModel
 from typing import List, Optional
 import json
 
@@ -341,13 +356,13 @@ interface AnalysisResult {
 
 ## Performance Considerations
 
-### Plugin Overhead
+### PyO3 Helper Function Overhead
 
-The tauri-plugin-python provides minimal overhead while maintaining the performance benefits of PyO3:
+The PyO3 helper functions provide minimal overhead while maintaining the performance benefits of direct PyO3 integration:
 
 ```python
 def batch_analysis(repositories: List[str]) -> str:
-    """Efficient batch processing through plugin."""
+    """Efficient batch processing through PyO3 helpers."""
     results = []
 
     for repo in repositories:
@@ -389,7 +404,7 @@ def execute_analysis(settings_json: str) -> str:
 
 ## Testing Strategy
 
-### Plugin Integration Testing
+### PyO3 Integration Testing
 
 ```python
 import pytest
@@ -397,7 +412,7 @@ import json
 from unittest.mock import patch
 
 def test_health_check():
-    """Test plugin health check function."""
+    """Test PyO3 health check function."""
     result = health_check()
     assert result["status"] == "healthy"
     assert "message" in result
@@ -428,21 +443,21 @@ def test_execute_analysis_invalid_json():
 import { describe, it, expect, vi } from 'vitest';
 import { executeAnalysis, healthCheck } from './api';
 
-// Mock the plugin
-vi.mock('tauri-plugin-python-api', () => ({
-    callFunction: vi.fn(),
+// Mock the Tauri invoke function
+vi.mock('@tauri-apps/api/core', () => ({
+    invoke: vi.fn(),
 }));
 
-describe('Plugin API Integration', () => {
+describe('PyO3 API Integration', () => {
     it('should execute analysis successfully', async () => {
-        const mockResult = JSON.stringify({
+        const mockResult = {
             files: [],
             authors: [],
             blame_data: {},
             performance_stats: {}
-        });
+        };
 
-        vi.mocked(callFunction).mockResolvedValue(mockResult);
+        vi.mocked(invoke).mockResolvedValue(mockResult);
 
         const settings = {
             input_fstrs: ['.'],
@@ -456,7 +471,7 @@ describe('Plugin API Integration', () => {
 
     it('should handle health check', async () => {
         const mockHealth = { status: 'healthy', message: 'OK' };
-        vi.mocked(callFunction).mockResolvedValue(mockHealth);
+        vi.mocked(invoke).mockResolvedValue(mockHealth);
 
         const result = await healthCheck();
         expect(result.status).toBe('healthy');
@@ -466,56 +481,57 @@ describe('Plugin API Integration', () => {
 
 ## Architecture Benefits
 
-### Plugin-Based Advantages
+### PyO3 Helper Function Integration Advantages
 
-| Aspect             | Previous Approaches            | Plugin Architecture          |
-| ------------------ | ------------------------------ | ---------------------------- |
-| **Performance**    | Network/IPC overhead           | Direct function calls        |
-| **Error Handling** | HTTP status codes + JSON       | Automatic error conversion   |
-| **Development**    | Multiple processes to debug    | Single process debugging     |
-| **Deployment**     | Server + client coordination   | Single executable            |
-| **Type Safety**    | Manual JSON validation         | Plugin-managed conversion    |
-| **Memory Usage**   | Separate process overhead      | Shared memory space          |
-| **Startup Time**   | Server startup + connection    | Embedded interpreter         |
-| **Testing**        | HTTP mocking required          | Direct function testing      |
+| Aspect             | Previous Approaches            | PyO3 Helper Function Integration |
+| ------------------ | ------------------------------ | -------------------------------- |
+| **Performance**    | Network/IPC overhead           | Direct function calls            |
+| **Error Handling** | HTTP status codes + JSON       | Automatic error conversion       |
+| **Development**    | Multiple processes to debug    | Single process debugging         |
+| **Deployment**     | Server + client coordination   | Single executable                |
+| **Type Safety**    | Manual JSON validation         | Helper-managed conversion        |
+| **Memory Usage**   | Separate process overhead      | Shared memory space              |
+| **Startup Time**   | Server startup + connection    | Embedded interpreter             |
+| **Testing**        | HTTP mocking required          | Direct function testing          |
 
 ### Key Architectural Advantages
 
-1. **Simplified Integration**: Plugin handles all PyO3 complexity automatically
+1. **Simplified Integration**: Helper functions handle all PyO3 complexity automatically
 2. **Better Performance**: Zero network overhead with direct function calls
-3. **Automatic Error Handling**: Plugin converts Python exceptions to JavaScript errors
+3. **Automatic Error Handling**: PyO3 helpers convert Python exceptions to JavaScript errors
 4. **Easier Debugging**: All components in same process with integrated logging
-5. **Reduced Boilerplate**: No manual PyO3 binding code required
-6. **Modern API**: Clean `callFunction()` interface for frontend integration
+5. **Reduced Boilerplate**: Clean abstractions over PyO3 binding code
+6. **Modern API**: Clean `invoke()` interface for frontend integration
 
 ## Future Extensions
 
 ### Potential Enhancements
 
--   **Async Python Support**: Integration with Python asyncio through plugin
+-   **Async Python Support**: Integration with Python asyncio through PyO3
 -   **Parallel Processing**: Multi-threaded analysis with automatic GIL management
--   **Plugin System**: Dynamic Python module loading via plugin configuration
--   **Performance Monitoring**: Plugin-specific metrics and profiling
+-   **Dynamic Loading**: Dynamic Python module loading via PyO3 configuration
+-   **Performance Monitoring**: PyO3-specific metrics and profiling
 -   **Memory Optimization**: Advanced Python object lifecycle management
 
 ### Scalability Considerations
 
--   **Large Repositories**: Streaming analysis results through plugin
+-   **Large Repositories**: Streaming analysis results through PyO3 helpers
 -   **Memory Management**: Efficient Python object cleanup
 -   **Error Recovery**: Robust error handling for long-running operations
--   **Plugin Configuration**: Advanced plugin settings for optimization
+-   **PyO3 Configuration**: Advanced PyO3 settings for optimization
 
 ## Summary
 
-The tauri-plugin-python architecture provides a robust, high-performance solution that eliminates the complexity of manual PyO3 integration while maintaining all performance benefits. The plugin approach simplifies development and deployment while providing better performance than network-based communication.
+The simplified PyO3 helper function architecture provides a robust, high-performance solution that eliminates the complexity of both plugin dependencies and PyO3 boilerplate while maintaining all performance benefits. The PyO3 helper function approach simplifies development and deployment while providing better performance than network-based communication.
 
 Key advantages:
 
--   **Zero integration overhead** with plugin-managed PyO3 bindings
--   **Automatic error conversion** between Python and JavaScript
+-   **Zero integration overhead** with simplified PyO3 helper functions
+-   **Automatic error conversion** between Python and JavaScript through helpers
 -   **Single process simplicity** for development and deployment
--   **Type-safe communication** through JSON serialization
+-   **Type-safe communication** through JSON serialization via helpers
 -   **Integrated logging and debugging** capabilities
--   **Modern API design** with clean function call interface
+-   **Modern API design** with clean helper function interface
+-   **Reduced boilerplate** through clean abstractions over PyO3
 
-This architecture provides a solid foundation for future enhancements while maintaining the flexibility and power of the Python analysis engine through a simplified, plugin-based interface.
+This architecture provides a solid foundation for future enhancements while maintaining the flexibility and power of the Python analysis engine through simplified PyO3 helper function abstractions.

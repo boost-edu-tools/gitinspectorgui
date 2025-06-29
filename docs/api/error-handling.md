@@ -1,12 +1,12 @@
-# Plugin Error Handling
+# Error Handling
 
-Error handling patterns for GitInspectorGUI tauri-plugin-python integration.
+Error handling patterns for GitInspectorGUI simplified PyO3 helper function integration.
 
 ## Overview
 
-With tauri-plugin-python integration, errors are handled through automatic conversion between Python exceptions and JavaScript errors. The plugin manages all error conversion, eliminating the need for manual error handling code.
+With our simplified PyO3 helper function integration, errors are handled through automatic conversion between Python exceptions and JavaScript errors. Our helper functions manage all error conversion, eliminating the need for manual error handling code.
 
-**Error Flow**: Python exceptions are automatically converted to JavaScript errors by tauri-plugin-python. For architecture details, see [Plugin Architecture](../architecture/design-decisions.md).
+**Error Flow**: Python exceptions are automatically converted to JavaScript errors by our PyO3 helper functions. For architecture details, see [PyO3 Architecture](../architecture/design-decisions.md).
 
 ## Error Types
 
@@ -19,15 +19,15 @@ With tauri-plugin-python integration, errors are handled through automatic conve
 | `RepositoryError`    | Repository access failure  | Git repository not found       |
 | `ConfigurationError` | Configuration issues       | Invalid configuration data     |
 
-### Plugin Error Conversion
+### PyO3 Error Conversion
 
-The tauri-plugin-python automatically converts Python exceptions to JavaScript errors:
+Our PyO3 helper functions automatically convert Python exceptions to JavaScript errors:
 
 ```typescript
-// Frontend side - Plugin handles conversion automatically
+// Frontend side - PyO3 helper functions handle conversion automatically
 try {
-    const result = await callFunction("execute_analysis", [settingsJson]);
-    return JSON.parse(result);
+    const result = await invoke<AnalysisResult>("execute_analysis", { settings });
+    return result;
 } catch (error) {
     // Python exceptions are automatically converted to JavaScript errors
     console.error("Analysis failed:", error.message);
@@ -221,16 +221,17 @@ def analyze_single_repository(repo_path: str, settings: dict) -> dict:
 
 ## Frontend Error Handling
 
-### Plugin Error Processing
+### PyO3 Error Processing
 
 ```typescript
+import { invoke } from "@tauri-apps/api/core";
+
 export async function executeAnalysis(settings: Settings): Promise<AnalysisResult> {
     try {
-        const settingsJson = JSON.stringify(settings);
-        const resultJson = await callFunction("execute_analysis", [settingsJson]);
-        return JSON.parse(resultJson);
+        const result = await invoke<AnalysisResult>("execute_analysis", { settings });
+        return result;
     } catch (error) {
-        // Plugin automatically converts Python exceptions to JavaScript errors
+        // PyO3 helper functions automatically convert Python exceptions to JavaScript errors
         if (error instanceof Error) {
             // Handle specific error types based on message content
             if (error.message.includes("Invalid or inaccessible repositories")) {
@@ -252,16 +253,15 @@ export async function executeAnalysis(settings: Settings): Promise<AnalysisResul
 
 export async function healthCheck(): Promise<HealthStatus> {
     try {
-        return await callFunction("health_check", []);
+        return await invoke<HealthStatus>("health_check");
     } catch (error) {
-        throw new Error(`Plugin backend is not available: ${error}`);
+        throw new Error(`PyO3 backend is not available: ${error}`);
     }
 }
 
 export async function getSettings(): Promise<Settings> {
     try {
-        const settingsJson = await callFunction("get_settings", []);
-        return JSON.parse(settingsJson);
+        return await invoke<Settings>("get_settings");
     } catch (error) {
         throw new Error(`Failed to load settings: ${error}`);
     }
@@ -535,15 +535,15 @@ def test_analysis_errors():
 import { describe, it, expect, vi } from 'vitest';
 import { executeAnalysis, healthCheck } from './api';
 
-// Mock the plugin
-vi.mock('tauri-plugin-python-api', () => ({
-    callFunction: vi.fn(),
+// Mock Tauri invoke
+vi.mock('@tauri-apps/api/core', () => ({
+    invoke: vi.fn(),
 }));
 
-describe('Plugin Error Handling', () => {
+describe('PyO3 Error Handling', () => {
     it('should handle validation errors', async () => {
         const mockError = new Error('No repositories specified');
-        vi.mocked(callFunction).mockRejectedValue(mockError);
+        vi.mocked(invoke).mockRejectedValue(mockError);
 
         const settings = { input_fstrs: [], n_files: 10 };
 
@@ -552,18 +552,18 @@ describe('Plugin Error Handling', () => {
 
     it('should handle repository errors', async () => {
         const mockError = new Error('Repository path does not exist');
-        vi.mocked(callFunction).mockRejectedValue(mockError);
+        vi.mocked(invoke).mockRejectedValue(mockError);
 
         const settings = { input_fstrs: ['/nonexistent'], n_files: 10 };
 
         await expect(executeAnalysis(settings)).rejects.toThrow('Repository validation failed');
     });
 
-    it('should handle plugin unavailable', async () => {
-        const mockError = new Error('Plugin not available');
-        vi.mocked(callFunction).mockRejectedValue(mockError);
+    it('should handle backend unavailable', async () => {
+        const mockError = new Error('PyO3 backend not available');
+        vi.mocked(invoke).mockRejectedValue(mockError);
 
-        await expect(healthCheck()).rejects.toThrow('Plugin backend is not available');
+        await expect(healthCheck()).rejects.toThrow('PyO3 backend is not available');
     });
 });
 ```
@@ -604,4 +604,4 @@ raise ValidationError(
 raise ValidationError("Invalid extension")
 ```
 
-This plugin-based error handling approach provides robust error management with automatic conversion between Python exceptions and JavaScript errors, eliminating the complexity of manual error handling while maintaining clear error reporting and debugging capabilities.
+This simplified PyO3 helper function error handling approach provides robust error management with automatic conversion between Python exceptions and JavaScript errors, eliminating the complexity of manual error handling while maintaining clear error reporting and debugging capabilities.

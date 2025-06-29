@@ -1,20 +1,20 @@
 # Development Architecture
 
-Comprehensive guide to GitInspectorGUI's PyO3-based development architecture with embedded Python integration.
+Comprehensive guide to GitInspectorGUI's simplified PyO3 helper function architecture with embedded Python integration.
 
 ## Overview
 
-GitInspectorGUI uses a **single-process PyO3 architecture** that embeds Python directly within the Rust Tauri application. This provides excellent performance and simplifies both development and deployment.
+GitInspectorGUI uses a **single-process architecture with PyO3 helper functions** that embed Python directly within the Rust Tauri application. This provides excellent performance and simplifies both development and deployment.
 
-**Key Concept**: Both development and production modes use the **same single-process architecture** with embedded Python via PyO3 bindings.
+**Key Concept**: Both development and production modes use the **same single-process architecture** with embedded Python via our simplified PyO3 helper functions.
 
-### Why PyO3 Single-Process Architecture?
+### Why Simplified PyO3 Helper Function Architecture?
 
--   **Direct Integration**: Python functions called directly from Rust (no IPC overhead)
+-   **Direct Integration**: Python functions called through clean helper function abstractions (no IPC overhead)
 -   **Simplified Development**: Single command starts complete development environment
 -   **Better Performance**: No network communication between frontend and backend
 -   **Easier Deployment**: Single executable with embedded Python interpreter
--   **Type Safety**: PyO3 provides type-safe Python object handling
+-   **Clean Abstractions**: Helper functions eliminate PyO3 boilerplate complexity
 
 ## Development Mode Architecture
 
@@ -23,20 +23,20 @@ graph TB
     subgraph "Development Environment - Single Process"
         A[Tauri Desktop App<br/>Main Process]
         B[Vite Dev Server<br/>Port 5173<br/>Frontend Hot Reload]
-        C[PyO3 Bindings<br/>Embedded Python Engine]
+        C[PyO3 Helper Functions<br/>Embedded Python Engine]
         D[Python Analysis Engine<br/>Git Operations]
     end
 
     subgraph "Developer Workflow"
         E[Edit React/TypeScript] --> B
         F[Edit Python Code] --> D
-        G[Edit Rust/PyO3 Code] --> C
+        G[Edit Rust/Helper Code] --> C
     end
 
     subgraph "Communication Flow"
         B -->|Serves Frontend| A
-        A -->|Direct Function Calls| C
-        C -->|Python Bindings| D
+        A -->|invoke() calls| C
+        C -->|Helper Functions| D
     end
 
     style A fill:#f3e5f5
@@ -47,12 +47,12 @@ graph TB
 
 ### Development Components
 
-| Component             | Purpose                            | Hot Reload          | Debug Access         |
-| --------------------- | ---------------------------------- | ------------------- | -------------------- |
-| **Tauri Desktop App** | Main application process with PyO3 | ✅ Auto-restart     | Webview Inspector    |
-| **Vite Dev Server**   | Frontend development with HMR      | ✅ Instant          | Browser DevTools     |
-| **PyO3 Bindings**     | Rust-Python integration layer      | ❌ Requires restart | Rust debugging tools |
-| **Python Engine**     | Embedded analysis engine           | ❌ Requires restart | Python debugging     |
+| Component                  | Purpose                                    | Hot Reload          | Debug Access         |
+| -------------------------- | ------------------------------------------ | ------------------- | -------------------- |
+| **Tauri Desktop App**      | Main application process with PyO3        | ✅ Auto-restart     | Webview Inspector    |
+| **Vite Dev Server**        | Frontend development with HMR              | ✅ Instant          | Browser DevTools     |
+| **PyO3 Helper Functions**  | Simplified Rust-Python integration layer  | ❌ Requires restart | Rust debugging tools |
+| **Python Engine**          | Embedded analysis engine                   | ❌ Requires restart | Python debugging     |
 
 ## Production Mode Architecture
 
@@ -61,7 +61,7 @@ graph TB
     subgraph "Production Environment - Single Process"
         A[Tauri Desktop App<br/>Bundled Application]
         B[Embedded Frontend<br/>React Bundle]
-        C[PyO3 Bindings<br/>Embedded Python]
+        C[PyO3 Helper Functions<br/>Embedded Python]
         D[Python Analysis Engine<br/>Bundled Code]
     end
 
@@ -81,11 +81,11 @@ graph TB
 ### Production Characteristics
 
 -   **Single Executable**: All components bundled into one desktop application
--   **Embedded Python**: Python interpreter embedded via PyO3
--   **No Network Communication**: Direct function calls between Rust and Python
+-   **Embedded Python**: Python interpreter embedded via PyO3 helper functions
+-   **No Network Communication**: Direct function calls through helper functions
 -   **Cross-Platform**: Single codebase builds for Windows, macOS, and Linux
 
-## PyO3 Integration Flow
+## PyO3 Helper Function Integration Flow
 
 ### Development Request Flow
 
@@ -94,7 +94,7 @@ sequenceDiagram
     participant Dev as Developer
     participant Vite as Vite Server (5173)
     participant Tauri as Tauri App
-    participant PyO3 as PyO3 Bindings
+    participant Helpers as PyO3 Helpers
     participant Python as Python Engine
     participant Git as Git Repository
 
@@ -102,12 +102,12 @@ sequenceDiagram
     Vite-->>Tauri: Hot reload update
 
     Dev->>Tauri: Test analysis feature
-    Tauri->>PyO3: invoke("execute_analysis", settings)
-    PyO3->>Python: Direct function call
+    Tauri->>Helpers: invoke("execute_analysis", settings)
+    Helpers->>Python: Helper function call
     Python->>Git: Execute git commands
     Git-->>Python: Repository data
-    Python-->>PyO3: Return analysis results
-    PyO3-->>Tauri: Convert to Rust types
+    Python-->>Helpers: Return analysis results
+    Helpers-->>Tauri: Convert to Rust types
     Tauri-->>Dev: Display results in UI
 ```
 
@@ -120,12 +120,12 @@ sequenceDiagram
 -   **Data Format**: JSON serialization via Tauri
 -   **Error Handling**: Native Rust Result types
 
-**PyO3 Integration**:
+**PyO3 Helper Function Integration**:
 
--   **Python Calls**: Direct function invocation via PyO3
--   **Type Conversion**: Automatic Python ↔ Rust type conversion
--   **Error Propagation**: PyResult<T> and PyErr handling
--   **Memory Management**: Automatic GIL (Global Interpreter Lock) handling
+-   **Python Calls**: Direct function invocation via helper functions
+-   **Type Conversion**: Automatic Python ↔ Rust type conversion via helpers
+-   **Error Propagation**: Automatic error handling through helper functions
+-   **Memory Management**: Automatic GIL management handled by helpers
 
 ## Service Startup Architecture
 
@@ -133,13 +133,13 @@ sequenceDiagram
 
 ```mermaid
 graph TD
-    A[Tauri Application Start] --> B[Initialize PyO3]
+    A[Tauri Application Start] --> B[Initialize PyO3 Helpers]
     B --> C[Load Python Interpreter]
     C --> D[Import Python Modules]
     D --> E[Start Vite Dev Server<br/>Development Only]
     E --> F[Application Ready]
 
-    B --> G[PyO3 Initialization]
+    B --> G[Helper Function Initialization]
     C --> H[Python Runtime Ready]
     D --> I[Analysis Engine Ready]
 
@@ -149,12 +149,12 @@ graph TD
     style E fill:#e1f5fe
 ```
 
-**Startup Order**: Tauri → PyO3 → Python → Vite (dev only) → Ready
+**Startup Order**: Tauri → PyO3 Helpers → Python → Vite (dev only) → Ready
 
 **Component Dependencies**:
 
 -   Tauri application manages all other components
--   PyO3 requires Python interpreter initialization
+-   PyO3 helpers require Python interpreter initialization
 -   Python modules must be importable at startup
 -   Vite dev server is optional (development only)
 
@@ -164,7 +164,7 @@ graph TD
 
 **Features**:
 
--   PyO3 Python integration
+-   PyO3 helper function integration
 -   Native OS integration
 -   File system access
 -   Auto-restart on Rust code changes
@@ -191,12 +191,12 @@ graph TD
 -   **DevTools**: Full browser debugging capabilities
 -   **Network Tab**: Monitor Tauri IPC calls
 
-### PyO3 Bindings
+### PyO3 Helper Functions
 
 **Features**:
 
--   Direct Python function calls from Rust
--   Type-safe Python object handling
+-   Simplified Python function calls from Rust
+-   Clean abstractions over PyO3 complexity
 -   Automatic GIL management
 -   Native error propagation
 
@@ -204,7 +204,7 @@ graph TD
 
 -   **No Hot Reload**: Changes require application restart
 -   **Rust Debugging**: Use standard Rust debugging tools
--   **Python Integration**: Debug Python code within Rust context
+-   **Python Integration**: Debug Python code through helper functions
 
 ### Python Analysis Engine
 
@@ -212,7 +212,7 @@ graph TD
 
 -   Git repository analysis
 -   Embedded within Rust process
--   Direct function call interface
+-   Clean function call interface via helpers
 -   Native exception handling
 
 **Development Access**:
@@ -242,22 +242,22 @@ pnpm run tauri dev
 -   **Tauri DevTools**: Monitor IPC calls
 -   **Breakpoints**: Set in browser DevTools
 
-### PyO3 Integration Debugging
+### PyO3 Helper Function Debugging
 
 ```bash
 # Start with Rust debug logging
 RUST_LOG=debug pnpm run tauri dev
 
-# Debug PyO3 specifically
-RUST_LOG=pyo3=debug pnpm run tauri dev
+# Debug helper functions specifically
+RUST_LOG=gitinspectorgui=debug pnpm run tauri dev
 ```
 
 **Debug Techniques**:
 
 -   **Rust Debugging**: Standard Rust debugger (lldb/gdb)
--   **PyO3 Logging**: Enable PyO3-specific logging
--   **Error Handling**: Monitor PyResult and PyErr
--   **GIL Monitoring**: Track Python GIL acquisition
+-   **Helper Function Logging**: Enable application-specific logging
+-   **Error Handling**: Monitor helper function error conversion
+-   **Performance Monitoring**: Track helper function call times
 
 ### Python Engine Debugging
 
@@ -281,7 +281,7 @@ print(result)
 
 ## Troubleshooting Common Issues
 
-### PyO3 Integration Issues
+### PyO3 Helper Function Issues
 
 **Python Import Errors**:
 
@@ -294,7 +294,7 @@ uv sync
 python -c "from gigui.analysis import execute_analysis; print('OK')"
 ```
 
-**PyO3 Compilation Issues**:
+**Helper Function Compilation Issues**:
 
 ```bash
 # Clean and rebuild
@@ -325,8 +325,8 @@ cargo build --verbose
 # Check Python path
 python -c "import sys; print(sys.executable)"
 
-# Verify PyO3 can find Python
-RUST_LOG=pyo3=debug pnpm run tauri dev
+# Verify helper functions can find Python
+RUST_LOG=debug pnpm run tauri dev
 ```
 
 ### Development Workflow Issues
@@ -352,14 +352,16 @@ pnpm run tauri dev
 
 ## Configuration Files
 
-### PyO3 Configuration
+### PyO3 Helper Function Configuration
 
 **Cargo.toml** (`src-tauri/Cargo.toml`):
 
 ```toml
 [dependencies]
-pyo3 = { version = "0.20", features = ["auto-initialize"] }
+pyo3 = { version = "0.22", features = ["auto-initialize"] }
 tauri = { version = "2.0", features = ["shell-open"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [build-dependencies]
 tauri-build = { version = "2.0" }
@@ -396,7 +398,7 @@ tauri-build = { version = "2.0" }
 name = "gigui"
 dependencies = [
     "gitpython>=3.1.40",
-    "pydantic>=2.5.0",
+    "psutil>=7.0.0",
 ]
 
 [tool.uv]
@@ -416,7 +418,7 @@ dev-dependencies = [
 # Start development mode
 pnpm run tauri dev
 
-# Test PyO3 integration
+# Test PyO3 helper function integration
 # - Open application
 # - Select a git repository
 # - Run analysis
@@ -466,13 +468,13 @@ p.sort_stats('cumulative').print_stats(10)
 
 ## Summary
 
-The PyO3 development architecture provides:
+The PyO3 helper function development architecture provides:
 
 -   **Single Process**: All components run within one Tauri application
--   **Direct Integration**: Python functions called directly from Rust
+-   **Simplified Integration**: Python functions called through clean helper function abstractions
 -   **Simplified Development**: One command starts complete environment
 -   **Better Performance**: No network overhead between components
--   **Type Safety**: PyO3 provides safe Python-Rust integration
+-   **Clean Abstractions**: Helper functions eliminate PyO3 boilerplate complexity
 
 ## Development vs Production Comparison
 
@@ -483,7 +485,7 @@ The PyO3 development architecture provides:
 ```mermaid
 graph TB
     subgraph "Development Environment"
-        A[Tauri App<br/>PyO3 + Python]
+        A[Tauri App<br/>PyO3 Helpers + Python]
         B[Vite Dev Server<br/>Hot Reload]
         C[Python Analysis<br/>Embedded Engine]
     end
@@ -510,7 +512,7 @@ graph TB
     subgraph "Production Environment"
         A[Tauri Desktop App<br/>Single Executable]
         B[Bundled Frontend<br/>React Build]
-        C[Embedded Python<br/>PyO3 Integration]
+        C[Embedded Python<br/>PyO3 Helper Functions]
     end
 
     subgraph "End User Benefits"
@@ -533,7 +535,7 @@ graph TB
 | Aspect            | Development Mode                   | Production Mode           |
 | ----------------- | ---------------------------------- | ------------------------- |
 | **Frontend**      | Vite dev server with hot reload    | Bundled React build       |
-| **Python**        | Embedded via PyO3 (same as prod)   | Embedded via PyO3         |
+| **Python**        | Embedded via PyO3 helpers          | Embedded via PyO3 helpers |
 | **Debugging**     | Full debugging tools available     | Limited debugging         |
 | **Performance**   | Slower (dev tools overhead)        | Optimized for performance |
 | **File Watching** | Frontend files watched for changes | No file watching          |
@@ -548,7 +550,7 @@ graph TB
 pnpm run tauri dev
 
 # What happens:
-# 1. Tauri application starts with PyO3
+# 1. Tauri application starts with PyO3 helpers
 # 2. Python interpreter initializes
 # 3. Vite dev server starts for frontend
 # 4. Hot reload activates for frontend changes
@@ -574,4 +576,4 @@ pnpm run tauri build
 -   **[Environment Setup](environment-setup.md)** - Initial development setup
 -   **[Build Process](build-process.md)** - Production build configuration
 -   **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
--   **[API Examples](../api/examples.md)** - PyO3 integration examples
+-   **[API Examples](../api/examples.md)** - PyO3 helper function integration examples

@@ -45,7 +45,7 @@ source .venv/bin/activate  # if not activated
 # Check Python development headers
 python -c "import sysconfig; print(sysconfig.get_path('include'))"
 
-# Rebuild PyO3 bindings
+# Rebuild PyO3 helper functions
 cd src-tauri && cargo clean && cargo build
 
 # Check for missing dependencies
@@ -101,7 +101,7 @@ RUST_LOG=debug pnpm run tauri dev
 
 ### Python Integration Issues
 
-**Symptoms**: Python functions not working in desktop app, PyO3 errors
+**Symptoms**: Python functions not working in desktop app, PyO3 helper errors
 
 **Solutions**:
 
@@ -110,7 +110,17 @@ RUST_LOG=debug pnpm run tauri dev
 cd python
 python -c "from gigui.analysis import execute_analysis; print('OK')"
 
-# Check PyO3 bindings
+# Check PyO3 helper functions
+cd src-tauri && cargo test
+
+# Enable PyO3 debug logging
+RUST_LOG=pyo3=debug pnpm run tauri dev
+
+# Verify Python environment
+python -c "import sys; print(sys.executable)"
+python -c "import sysconfig; print(sysconfig.get_path('include'))"
+```
+# Check PyO3 helper functions
 cd src-tauri && cargo test
 
 # Enable PyO3 debug logging
@@ -169,9 +179,9 @@ pnpm type-check
 pnpm run tauri dev
 ```
 
-### PyO3 Debugging Issues
+### PyO3 Helper Function Debugging Issues
 
-**Symptoms**: Unable to debug Python code, PyO3 errors unclear
+**Symptoms**: Unable to debug Python code, PyO3 helper errors unclear
 
 **Solutions**:
 
@@ -188,7 +198,7 @@ python -c "from gigui.analysis import problematic_function; print(problematic_fu
 # Check for Python import issues
 python -c "import gigui; print('Import OK')"
 
-# Verify PyO3 compilation
+# Verify PyO3 helper compilation
 cd src-tauri && cargo build --verbose
 ```
 
@@ -295,7 +305,7 @@ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
 
 ### Common Error Patterns
 
-**PyO3 Import Errors**:
+**PyO3 Helper Import Errors**:
 
 ```
 Error: Python module 'gigui' not found
@@ -303,21 +313,21 @@ Error: Python module 'gigui' not found
 
 Solution: Check Python environment and run `uv sync`
 
-**PyO3 Type Conversion Errors**:
+**PyO3 Helper Type Conversion Errors**:
 
 ```
 TypeError: argument 'settings' must be dict, not str
 ```
 
-Solution: Check data types being passed between Rust and Python
+Solution: Check data types being passed through helper functions between Rust and Python
 
-**Tauri Compilation Errors**:
+**Tauri PyO3 Helper Compilation Errors**:
 
 ```
 error: failed to run custom build command for `pyo3`
 ```
 
-Solution: Check Python development headers and rebuild
+Solution: Check Python development headers and rebuild helper functions
 
 ## Diagnostics
 
@@ -343,7 +353,7 @@ python -m pytest tests/ -v
 ### Integration Testing
 
 ```bash
-# Test PyO3 bindings
+# Test PyO3 helper functions
 cd src-tauri && cargo test
 
 # Test Python analysis engine
@@ -362,7 +372,7 @@ pnpm run tauri dev
 # Monitor memory usage
 top -p $(pgrep gitinspectorgui)
 
-# Profile PyO3 performance
+# Profile PyO3 helper performance
 RUST_LOG=debug pnpm run tauri dev
 
 # Python memory profiling
@@ -500,7 +510,7 @@ cd src-tauri && cargo --version
 
 4. **Regular health checks**:
     ```bash
-    python -c "from gigui.analysis import execute_analysis; print('PyO3 OK')"
+    python -c "from gigui.analysis import execute_analysis; print('PyO3 Helper OK')"
     pnpm run tauri dev  # Should start without errors
     ```
 
@@ -516,7 +526,7 @@ cd src-tauri && cargo --version
 
     ```bash
     cd python && python -m pytest  # Python layer
-    cd src-tauri && cargo test      # PyO3 layer
+    cd src-tauri && cargo test      # PyO3 helper layer
     pnpm test                       # Frontend layer
     ```
 
@@ -530,4 +540,4 @@ cd src-tauri && cargo --version
 -   **[Environment Setup](environment-setup.md)** - Development setup
 -   **[Development Workflow](development-workflow.md)** - Development patterns
 -   **[Development Commands](development-commands.md)** - Command reference
--   **[PyO3 Integration](../architecture/design-decisions.md)** - PyO3 architecture details
+-   **[PyO3 Helper Integration](../architecture/design-decisions.md)** - PyO3 helper function architecture details

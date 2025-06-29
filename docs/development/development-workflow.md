@@ -17,7 +17,7 @@ GitInspectorGUI uses a **single-process PyO3 architecture** that embeds Python d
 
 -   **Simplified Development**: Single command starts complete environment
 -   **Fast Iteration**: Frontend hot reloading with embedded Python
--   **Direct Integration**: PyO3 provides direct Python-Rust function calls
+-   **Direct Integration**: PyO3 helper functions provide simplified Python-Rust function calls
 -   **Single Process**: No network overhead or server management
 
 For detailed commands, see **[Development Commands](development-commands.md)**.
@@ -82,7 +82,7 @@ For detailed commands, see **[Development Commands](development-commands.md)**.
 -   **Manual restart required** - Python is embedded via PyO3, so app must be restarted
 -   **Fast restart** - Single process restart is quick (typically 2-3 seconds)
 -   **No connection loss** - No separate server to reconnect to
--   **PyO3 recompilation** - Rust automatically recompiles PyO3 bindings
+-   **PyO3 helper recompilation** - Rust automatically recompiles PyO3 helper functions
 
 **Workflow for Python changes**:
 
@@ -113,7 +113,7 @@ For detailed commands, see **[Development Commands](development-commands.md)**.
 
 -   **Auto-recompile** - Cargo rebuilds on file changes
 -   **Full restart** - Tauri app restarts completely
--   **PyO3 integration** - Python bindings are recompiled automatically
+-   **PyO3 helper integration** - Python helper functions are recompiled automatically
 -   **Type safety** - Compilation errors prevent runtime issues
 
 **Workflow for Rust changes**:
@@ -122,7 +122,7 @@ For detailed commands, see **[Development Commands](development-commands.md)**.
 # 1. Make Rust changes (src-tauri/src/)
 # 2. Cargo automatically recompiles
 # 3. Desktop app restarts with new code
-# 4. Test PyO3 integration
+# 4. Test PyO3 helper integration
 ```
 
 ## Testing and Debugging Workflows
@@ -146,21 +146,21 @@ python -m pytest tests/test_new_function.py -v
 python -c "from gigui.analysis import new_function; print('PyO3 ready')"
 ```
 
-### PyO3 Integration Testing
+### PyO3 Helper Function Integration Testing
 
 **Workflow**:
 
 ```bash
-# 1. Test PyO3 bindings
+# 1. Test PyO3 helper functions
 cd src-tauri && cargo test
 
-# 2. Test Python integration
+# 2. Test Python integration through helpers
 cargo test --features python-tests
 
 # 3. Test through desktop app
 pnpm run tauri dev
 
-# 4. Verify function calls work correctly
+# 4. Verify helper function calls work correctly
 ```
 
 ### Frontend Component Testing
@@ -205,7 +205,7 @@ pnpm run tauri dev
 
 ## Debugging Workflows
 
-### PyO3 Debugging
+### PyO3 Helper Function Debugging
 
 **When Python functions aren't working in the desktop app**:
 
@@ -214,7 +214,7 @@ pnpm run tauri dev
 cd python
 python -c "from gigui.analysis import problematic_function; print(problematic_function())"
 
-# 2. Check PyO3 bindings
+# 2. Check PyO3 helper functions
 cd src-tauri
 cargo test --verbose
 
@@ -222,7 +222,7 @@ cargo test --verbose
 RUST_LOG=pyo3=debug pnpm run tauri dev
 
 # 4. Check for type conversion issues
-# Look for PyO3 error messages in terminal output
+# Look for PyO3 helper function error messages in terminal output
 ```
 
 ### Frontend Debugging
@@ -257,8 +257,8 @@ top -p $(pgrep gitinspectorgui)
 # 3. Profile Python code
 # Add timing statements to Python functions
 
-# 4. Check PyO3 overhead
-# Compare direct Python execution vs PyO3 calls
+# 4. Check PyO3 helper overhead
+# Compare direct Python execution vs PyO3 helper calls
 ```
 
 ## Development Patterns
@@ -291,13 +291,13 @@ top -p $(pgrep gitinspectorgui)
     cd python && python -m pytest tests/test_new_feature.py
     ```
 
-4. **Add PyO3 binding** (if needed):
+4. **Add PyO3 helper function** (if needed):
 
     ```rust
     // src-tauri/src/commands.rs
     #[tauri::command]
     pub async fn analyze_new_feature_command(settings: Settings) -> Result<AnalysisResult, String> {
-        // PyO3 integration
+        // PyO3 helper function integration
     }
     ```
 
@@ -320,7 +320,7 @@ top -p $(pgrep gitinspectorgui)
 1. **Identify impact scope**:
 
     - Python function changes
-    - PyO3 binding changes
+    - PyO3 helper function changes
     - Frontend display changes
 
 2. **Test current functionality**:
@@ -338,7 +338,7 @@ top -p $(pgrep gitinspectorgui)
     python -m pytest  # Verify tests still pass
     ```
 
-4. **Test PyO3 integration**:
+4. **Test PyO3 helper integration**:
 
     ```bash
     pnpm run tauri dev
@@ -408,7 +408,7 @@ pnpm run tauri dev
     cd python && python -m pytest
     ```
 
-2. **Verify PyO3 integration**:
+2. **Verify PyO3 helper integration**:
 
     ```bash
     cd src-tauri && cargo test
@@ -431,13 +431,13 @@ pnpm run tauri dev
 
 -   Create feature branch
 -   Develop Python functionality first
--   Add PyO3 integration
+-   Add PyO3 helper integration
 -   Update frontend if needed
 -   Test complete integration
 
 **Bug fixes**:
 
--   Identify layer (Python, PyO3, Frontend)
+-   Identify layer (Python, PyO3 Helpers, Frontend)
 -   Fix in appropriate layer
 -   Test integration
 -   Verify fix doesn't break other features
@@ -466,13 +466,13 @@ pnpm run tauri dev
 pnpm run tauri dev
 ```
 
-**PyO3 compilation errors**:
+**PyO3 helper compilation errors**:
 
 ```bash
 # Check Python environment
 python -c "import sysconfig; print(sysconfig.get_path('include'))"
 
-# Rebuild PyO3 bindings
+# Rebuild PyO3 helper functions
 cd src-tauri && cargo clean && cargo build
 ```
 
@@ -489,14 +489,14 @@ pnpm dev  # Test frontend only
 1. **Isolate the problem**:
 
     - Python function issue?
-    - PyO3 integration issue?
+    - PyO3 helper integration issue?
     - Frontend display issue?
 
 2. **Test each layer independently**:
 
     ```bash
     cd python && python -m pytest  # Python layer
-    cd src-tauri && cargo test      # PyO3 layer
+    cd src-tauri && cargo test      # PyO3 helper layer
     pnpm test                       # Frontend layer
     ```
 
@@ -516,5 +516,5 @@ pnpm dev  # Test frontend only
 -   **[Environment Setup](environment-setup.md)** - Development configuration
 -   **[Development Commands](development-commands.md)** - All development commands
 -   **[Package Management](package-management-overview.md)** - Dependencies and tools
--   **[PyO3 Integration](../architecture/design-decisions.md)** - PyO3 architecture details
+-   **[PyO3 Helper Integration](../architecture/design-decisions.md)** - PyO3 helper function architecture details
 -   **[Technology Primer](../technology-primer.md)** - Understanding the full stack

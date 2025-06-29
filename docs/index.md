@@ -32,7 +32,7 @@ Development environment and tooling documentation for GitInspectorGUI contributo
 
 ### API Development
 
--   **[HTTP API Reference](api/reference.md)** - Complete API documentation
+-   **[PyO3 API Reference](api/reference.md)** - Complete API documentation
 -   **[API Examples](api/examples.md)** - Usage patterns and code samples
 -   **[Error Handling](api/error-handling.md)** - Error codes and troubleshooting
 
@@ -46,18 +46,18 @@ Development environment and tooling documentation for GitInspectorGUI contributo
 
 ## Features
 
--   **HTTP API Architecture** - Tauri desktop frontend with Python backend
+-   **PyO3 Helper Function Architecture** - Tauri desktop frontend with embedded Python backend
 -   **Cross-Platform** - Windows, macOS, Linux support
 -   **Git Analysis** - Comprehensive repository insights
 -   **Interactive UI** - React-based interface with filtering
--   **Developer API** - Complete HTTP API documentation
+-   **Developer API** - Complete PyO3 API documentation
 
 ## Architecture
 
 ```mermaid
 graph TD
-    A[Tauri Frontend] --> B[HTTP Client]
-    B --> C[Python HTTP Server]
+    A[Tauri Frontend] --> B[PyO3 Helper Functions]
+    B --> C[Embedded Python Engine]
     C --> D[Git Analysis Engine]
     D --> E[Repository Data]
 

@@ -203,8 +203,8 @@ ls -la .git/
 ```toml
 [project]
 dependencies = [
-    "gitpython>=3.1.40",
-    "pydantic>=2.5.0",
+    "gitpython>=3.1.44",
+    "psutil>=7.0.0",
     # ... other dependencies
 ]
 ```

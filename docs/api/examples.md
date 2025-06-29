@@ -1,12 +1,12 @@
-# Plugin Integration Examples
+# API Integration Examples
 
-Practical examples for GitInspectorGUI tauri-plugin-python function implementation.
+Practical examples for GitInspectorGUI simplified PyO3 helper function implementation.
 
 ## Overview
 
-This document shows how to implement the required Python functions that will be called directly from the frontend via tauri-plugin-python. The plugin handles all communication between JavaScript and Python automatically.
+This document shows how to implement the required Python functions that will be called directly from the frontend via our PyO3 helper functions. Our integration handles all communication between JavaScript and Python automatically.
 
-**Implementation Focus**: These examples show direct Python function implementations using the plugin's function registration system. For plugin architecture details, see [Design Decisions](../architecture/design-decisions.md).
+**Implementation Focus**: These examples show direct Python function implementations using our PyO3 helper function system. For PyO3 architecture details, see [Design Decisions](../architecture/design-decisions.md).
 
 ## Python Function Implementation
 
@@ -57,14 +57,14 @@ def health_check():
             "status": "healthy",
             "message": "Python backend is running",
             "api_status": api_status,
-            "backend": "tauri-plugin-python"
+            "backend": "direct-pyo3"
         }
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return {
             "status": "error",
             "message": f"Backend error: {str(e)}",
-            "backend": "tauri-plugin-python"
+            "backend": "direct-pyo3"
         }
 
 def get_engine_info():
@@ -73,7 +73,7 @@ def get_engine_info():
         return {
             "name": "GitInspectorGUI Analysis Engine",
             "version": "1.0.0",
-            "backend": "tauri-plugin-python",
+            "backend": "direct-pyo3",
             "python_version": sys.version,
             "capabilities": [
                 "repository_analysis",
@@ -165,7 +165,7 @@ _tauri_plugin_functions = [
 
 ```typescript
 // src/lib/api.ts
-import { callFunction } from "tauri-plugin-python-api";
+import { invoke } from "@tauri-apps/api/core";
 
 export interface Settings {
     input_fstrs: string[];
@@ -200,16 +200,16 @@ export interface EngineInfo {
 
 export async function healthCheck(): Promise<HealthStatus> {
     try {
-        return await callFunction("health_check", []);
+        return await invoke<HealthStatus>("health_check");
     } catch (error) {
         console.error("Health check failed:", error);
-        throw new Error(`Plugin backend is not available: ${error}`);
+        throw new Error(`PyO3 backend is not available: ${error}`);
     }
 }
 
 export async function getEngineInfo(): Promise<EngineInfo> {
     try {
-        return await callFunction("get_engine_info", []);
+        return await invoke<EngineInfo>("get_engine_info");
     } catch (error) {
         console.error("Failed to get engine info:", error);
         throw new Error(`Failed to get engine info: ${error}`);
@@ -218,9 +218,7 @@ export async function getEngineInfo(): Promise<EngineInfo> {
 
 export async function executeAnalysis(settings: Settings): Promise<AnalysisResult> {
     try {
-        const settingsJson = JSON.stringify(settings);
-        const resultJson = await callFunction("execute_analysis", [settingsJson]);
-        return JSON.parse(resultJson);
+        return await invoke<AnalysisResult>("execute_analysis", { settings });
     } catch (error) {
         console.error("Analysis failed:", error);
 
@@ -243,8 +241,7 @@ export async function executeAnalysis(settings: Settings): Promise<AnalysisResul
 
 export async function getSettings(): Promise<Settings> {
     try {
-        const settingsJson = await callFunction("get_settings", []);
-        return JSON.parse(settingsJson);
+        return await invoke<Settings>("get_settings");
     } catch (error) {
         console.error("Failed to get settings:", error);
         throw new Error(`Failed to load settings: ${error}`);
@@ -253,12 +250,9 @@ export async function getSettings(): Promise<Settings> {
 
 export async function saveSettings(settings: Settings): Promise<void> {
     try {
-        const settingsJson = JSON.stringify(settings);
-        const result = await callFunction("save_settings", [settingsJson]);
-        const response = JSON.parse(result);
-
-        if (response.status !== "success") {
-            throw new Error(response.message || "Failed to save settings");
+        const result = await invoke<{status: string, message: string}>("save_settings", { settings });
+        if (result.status !== "success") {
+            throw new Error(result.message || "Failed to save settings");
         }
     } catch (error) {
         console.error("Failed to save settings:", error);
@@ -268,9 +262,7 @@ export async function saveSettings(settings: Settings): Promise<void> {
 
 export async function getBlameData(settings: Settings): Promise<any> {
     try {
-        const settingsJson = JSON.stringify(settings);
-        const resultJson = await callFunction("get_blame_data", [settingsJson]);
-        return JSON.parse(resultJson);
+        return await invoke<any>("get_blame_data", { settings });
     } catch (error) {
         console.error("Failed to get blame data:", error);
         throw new Error(`Failed to get blame data: ${error}`);
@@ -510,7 +502,7 @@ def test_health_check():
     result = health_check()
 
     assert result["status"] == "healthy"
-    assert result["backend"] == "tauri-plugin-python"
+    assert result["backend"] == "direct-pyo3"
     assert "message" in result
 
 def test_execute_analysis_valid_input():
@@ -555,27 +547,27 @@ def test_execute_analysis_no_repositories():
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { executeAnalysis, healthCheck, getEngineInfo } from '../api';
 
-// Mock the plugin
-vi.mock('tauri-plugin-python-api', () => ({
-    callFunction: vi.fn(),
+// Mock Tauri invoke
+vi.mock('@tauri-apps/api/core', () => ({
+    invoke: vi.fn(),
 }));
 
-import { callFunction } from 'tauri-plugin-python-api';
+import { invoke } from '@tauri-apps/api/core';
 
-describe('Plugin API Integration', () => {
+describe('PyO3 API Integration', () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
 
     it('should execute analysis successfully', async () => {
-        const mockResult = JSON.stringify({
+        const mockResult = {
             files: [],
             authors: [],
             blame_data: {},
             performance_stats: {}
-        });
+        };
 
-        vi.mocked(callFunction).mockResolvedValue(mockResult);
+        vi.mocked(invoke).mockResolvedValue(mockResult);
 
         const settings = {
             input_fstrs: ['.'],
@@ -584,7 +576,7 @@ describe('Plugin API Integration', () => {
 
         const result = await executeAnalysis(settings);
 
-        expect(callFunction).toHaveBeenCalledWith('execute_analysis', [JSON.stringify(settings)]);
+        expect(invoke).toHaveBeenCalledWith('execute_analysis', { settings });
         expect(result.files).toBeDefined();
         expect(result.authors).toBeDefined();
     });
@@ -593,39 +585,39 @@ describe('Plugin API Integration', () => {
         const mockHealth = {
             status: 'healthy',
             message: 'Python backend is running',
-            backend: 'tauri-plugin-python'
+            backend: 'direct-pyo3'
         };
 
-        vi.mocked(callFunction).mockResolvedValue(mockHealth);
+        vi.mocked(invoke).mockResolvedValue(mockHealth);
 
         const result = await healthCheck();
 
-        expect(callFunction).toHaveBeenCalledWith('health_check', []);
+        expect(invoke).toHaveBeenCalledWith('health_check');
         expect(result.status).toBe('healthy');
-        expect(result.backend).toBe('tauri-plugin-python');
+        expect(result.backend).toBe('direct-pyo3');
     });
 
     it('should get engine info', async () => {
         const mockInfo = {
             name: 'GitInspectorGUI Analysis Engine',
             version: '1.0.0',
-            backend: 'tauri-plugin-python',
+            backend: 'direct-pyo3',
             python_version: '3.11.0',
             capabilities: ['repository_analysis']
         };
 
-        vi.mocked(callFunction).mockResolvedValue(mockInfo);
+        vi.mocked(invoke).mockResolvedValue(mockInfo);
 
         const result = await getEngineInfo();
 
-        expect(callFunction).toHaveBeenCalledWith('get_engine_info', []);
+        expect(invoke).toHaveBeenCalledWith('get_engine_info');
         expect(result.name).toBe('GitInspectorGUI Analysis Engine');
-        expect(result.backend).toBe('tauri-plugin-python');
+        expect(result.backend).toBe('direct-pyo3');
     });
 
     it('should handle analysis errors', async () => {
         const mockError = new Error('No repositories specified');
-        vi.mocked(callFunction).mockRejectedValue(mockError);
+        vi.mocked(invoke).mockRejectedValue(mockError);
 
         const settings = { input_fstrs: [], n_files: 10 };
 
@@ -678,4 +670,4 @@ def optimized_analysis(settings_json):
         raise
 ```
 
-This plugin integration approach provides seamless Python-JavaScript communication through tauri-plugin-python, eliminating the complexity of manual integration while maintaining high performance and excellent error handling.
+This simplified PyO3 helper function integration approach provides seamless Python-JavaScript communication through our helper functions, eliminating the complexity of manual integration while maintaining high performance and excellent error handling.

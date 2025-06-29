@@ -4,9 +4,9 @@ GitInspectorGUI Python API specification for developers implementing analysis fu
 
 ## Overview
 
-This document specifies the Python functions you need to implement for GitInspectorGUI. The tauri-plugin-python integration between JavaScript and Python is handled automatically - you just need to implement these Python functions according to the specifications below.
+This document specifies the Python functions you need to implement for GitInspectorGUI. The simplified PyO3 helper function integration between JavaScript and Python is handled automatically - you just need to implement these Python functions according to the specifications below.
 
-**Integration Note**: These functions are called directly from the frontend via tauri-plugin-python - no HTTP requests involved. See [Plugin Architecture](../architecture/design-decisions.md) for technical details.
+**Integration Note**: These functions are called directly from the frontend via our PyO3 helper functions - no HTTP requests involved. See [PyO3 Architecture](../architecture/design-decisions.md) for technical details.
 
 ## Core Functions
 
@@ -116,7 +116,7 @@ Check if the Python backend is healthy and operational.
 {
     "status": "healthy",  # or "error"
     "message": "Python backend is running",
-    "backend": "tauri-plugin-python",
+    "backend": "direct-pyo3",
     "api_status": "ready"
 }
 ```
@@ -133,14 +133,14 @@ def health_check():
         return {
             "status": "healthy",
             "message": "Python backend is running",
-            "backend": "tauri-plugin-python",
+            "backend": "direct-pyo3",
             "api_status": api_status
         }
     except Exception as e:
         return {
             "status": "error",
             "message": f"Backend error: {str(e)}",
-            "backend": "tauri-plugin-python"
+            "backend": "direct-pyo3"
         }
 ```
 
@@ -156,7 +156,7 @@ Get information about the analysis engine capabilities.
 {
     "name": "GitInspectorGUI Analysis Engine",
     "version": "1.0.0",
-    "backend": "tauri-plugin-python",
+    "backend": "direct-pyo3",
     "python_version": "3.11.0",
     "capabilities": [
         "repository_analysis",
@@ -276,9 +276,9 @@ def execute_analysis(settings_json: str) -> str:
         raise RuntimeError(f"Analysis execution failed: {e}")
 ```
 
-## Plugin Function Registration
+## PyO3 Function Registration
 
-**Why this matters:** The tauri-plugin-python needs to know exactly which Python functions are available. Functions must be registered in a specific list for the plugin to find them.
+**Why this matters:** Our PyO3 helper functions need to know exactly which Python functions are available. Functions must be registered properly for the Tauri commands to find them.
 
 **Required Structure:**
 
@@ -364,21 +364,19 @@ _tauri_plugin_functions = [
 
 ## Frontend Integration
 
-The frontend calls these functions using the plugin API:
+The frontend calls these functions using our PyO3 integration:
 
 ```typescript
-import { callFunction } from "tauri-plugin-python-api";
+import { invoke } from "@tauri-apps/api/core";
 
 // Health check
-const health = await callFunction("health_check", []);
+const health = await invoke<any>("health_check");
 
 // Execute analysis
-const settingsJson = JSON.stringify(settings);
-const resultJson = await callFunction("execute_analysis", [settingsJson]);
-const result = JSON.parse(resultJson);
+const result = await invoke<AnalysisResult>("execute_analysis", { settings });
 
 // Get engine info
-const engineInfo = await callFunction("get_engine_info", []);
+const engineInfo = await invoke<any>("get_engine_info");
 ```
 
 ## Testing Your Functions
@@ -394,7 +392,7 @@ def test_health_check():
     """Test health check function."""
     result = health_check()
     assert result["status"] == "healthy"
-    assert result["backend"] == "tauri-plugin-python"
+    assert result["backend"] == "direct-pyo3"
 
 def test_execute_analysis():
     """Test analysis function."""
@@ -412,14 +410,14 @@ def test_execute_analysis():
 def test_engine_info():
     """Test engine info function."""
     info = get_engine_info()
-    assert info["backend"] == "tauri-plugin-python"
+    assert info["backend"] == "direct-pyo3"
     assert "capabilities" in info
 
 if __name__ == "__main__":
     test_health_check()
     test_execute_analysis()
     test_engine_info()
-    print("All plugin functions work!")
+    print("All PyO3 functions work!")
 ```
 
 ## Debugging

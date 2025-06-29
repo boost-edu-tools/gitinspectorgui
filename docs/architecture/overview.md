@@ -1,12 +1,12 @@
 # System Architecture Overview
 
-Modern plugin-based architecture with Tauri desktop frontend and embedded Python backend via tauri-plugin-python.
+Modern simplified architecture with Tauri desktop frontend and embedded Python backend via PyO3 helper function integration.
 
 ## For Python Developers
 
 If you're unfamiliar with the frontend technologies, see the **[Technology Primer](../technology-primer.md)** first. This document explains how the Python backend you'll work with integrates directly into the desktop application.
 
-**Key concept**: The Python backend runs embedded within the Tauri application via tauri-plugin-python, enabling direct function calls without network communication. You can develop and test the Python analysis logic independently.
+**Key concept**: The Python backend runs embedded within the Tauri application via our simplified PyO3 helper functions, enabling direct function calls without network communication. You can develop and test the Python analysis logic independently.
 
 ## Architecture
 
@@ -18,8 +18,8 @@ graph TB
         C[Zustand State]
     end
 
-    subgraph "Plugin Integration"
-        D[tauri-plugin-python]
+    subgraph "PyO3 Integration"
+        D[PyO3 Helper Functions]
         E[PyO3 Bindings]
         F[Python Analysis Engine]
         G[Legacy Integration]
@@ -32,8 +32,8 @@ graph TB
 
     A --> B
     B --> C
-    B -->|callFunction()| D
-    D -->|Plugin calls| E
+    B -->|invoke()| D
+    D -->|Direct calls| E
     E -->|Python bindings| F
     F --> G
     G --> H
@@ -53,8 +53,8 @@ graph TB
 
 ### Backend Stack
 
--   **tauri-plugin-python** - Official Tauri plugin for Python integration
--   **PyO3** - Rust bindings for Python interpreter (used by plugin)
+-   **PyO3 Helper Functions** - Simplified direct PyO3 integration
+-   **PyO3** - Rust bindings for Python interpreter
 -   **Python Analysis Engine** - Git analysis and data processing
 -   **Pydantic** - Data validation and type safety
 -   **GitPython** - Git operations
@@ -64,7 +64,7 @@ graph TB
 
 ### Key Functions
 
--   `execute_analysis()` - Repository analysis via plugin
+-   `execute_analysis()` - Repository analysis via PyO3 helpers
 -   `get_settings()` / `save_settings()` - Settings management
 -   `get_engine_info()` - Engine capabilities
 -   `health_check()` - Backend health monitoring
@@ -72,8 +72,8 @@ graph TB
 
 ### Communication
 
--   **Protocol** - Direct Python function calls via tauri-plugin-python
--   **API** - `callFunction()` interface for frontend integration
+-   **Protocol** - Direct Python function calls via PyO3 helper functions
+-   **API** - `invoke()` interface for frontend integration
 -   **Validation** - JSON-based data exchange with type safety
 -   **Error handling** - Automatic Python exception to JavaScript error conversion
 -   **GIL Management** - Automatic Global Interpreter Lock handling via PyO3
@@ -83,17 +83,17 @@ graph TB
 ```mermaid
 sequenceDiagram
     participant UI as React UI
-    participant Plugin as tauri-plugin-python
+    participant Helpers as PyO3 Helper Functions
     participant PyO3 as PyO3 Bindings
     participant Python as Python Engine
 
-    UI->>Plugin: callFunction("execute_analysis", [settings])
-    Plugin->>PyO3: Plugin calls PyO3
+    UI->>Helpers: invoke("execute_analysis", {settings})
+    Helpers->>PyO3: Direct PyO3 calls
     PyO3->>Python: Direct function call
     Python->>Python: Execute git analysis
     Python-->>PyO3: Return JSON results
-    PyO3-->>Plugin: Convert to plugin format
-    Plugin-->>UI: Return results to frontend
+    PyO3-->>Helpers: Convert to Rust types
+    Helpers-->>UI: Return results to frontend
 ```
 
 ## Design Principles
@@ -102,18 +102,18 @@ sequenceDiagram
 
 -   **Frontend** - UI, state management, visualization
 -   **Backend** - Git analysis, data processing, persistence
--   **Communication** - Plugin-managed function call boundary
+-   **Communication** - PyO3 helper function call boundary
 
 ### Performance
 
--   **Direct integration** - No IPC overhead via plugin
+-   **Direct integration** - No IPC overhead via PyO3 helpers
 -   **Parallel processing** - Multi-threaded analysis
 -   **Efficient data structures** - Memory optimization
 -   **Caching** - Result and operation caching
 
 ### Reliability
 
--   **Error handling** - Automatic plugin error conversion
+-   **Error handling** - Automatic PyO3 error conversion
 -   **Input validation** - JSON-based type safety
 -   **Logging** - Structured logging with levels
 -   **Performance monitoring** - Application-level metrics
@@ -154,22 +154,22 @@ graph LR
 
 ## Technology Rationale
 
-### Why Plugin-Based Integration?
+### Why Direct PyO3 Integration?
 
-**Previous HTTP API limitations:**
+**Previous HTTP API architecture (deprecated):**
 
 -   Network communication overhead
 -   Complex error handling across HTTP boundary
 -   Separate process management
 -   JSON serialization/deserialization costs
 
-**Plugin integration benefits:**
+**Direct PyO3 integration benefits:**
 
 -   Zero IPC overhead with direct function calls
 -   Automatic error conversion between Python and JavaScript
 -   Single process deployment simplicity
--   Simplified API with `callFunction()` interface
--   Plugin-managed PyO3 complexity
+-   Simplified API with `invoke()` interface
+-   Clean abstractions over PyO3 complexity
 
 ### Stack Choices
 
@@ -180,13 +180,13 @@ graph LR
 -   Rich ecosystem
 -   Modern development experience
 
-**tauri-plugin-python + Python:**
+**Direct PyO3 + Python:**
 
 -   Excellent git libraries
 -   Fast development
--   Plugin-managed PyO3 integration
+-   Simplified PyO3 helper functions
 -   Embedded Python interpreter
--   Simplified function registration
+-   Direct function registration
 
 ## Performance Architecture
 
@@ -221,4 +221,4 @@ graph LR
 
 ## Summary
 
-Plugin-based architecture provides robust, maintainable foundation with direct integration between desktop frontend and embedded Python backend via tauri-plugin-python. Designed for performance, reliability, and simplified deployment with zero network overhead while eliminating PyO3 integration complexity.
+Simplified direct PyO3 architecture provides robust, maintainable foundation with direct integration between desktop frontend and embedded Python backend via our PyO3 helper functions. Designed for performance, reliability, and simplified deployment with zero network overhead while providing clean abstractions over PyO3 integration complexity.

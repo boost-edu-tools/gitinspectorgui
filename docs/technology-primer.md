@@ -17,7 +17,7 @@ graph TB
     end
 
     subgraph "Backend Integration"
-        E[tauri-plugin-python] --> F[PyO3 Bindings]
+        E[PyO3 Helper Functions] --> F[PyO3 Bindings]
         F --> G[Git Analysis]
         G --> H[Python Logic]
     end
@@ -29,33 +29,33 @@ graph TB
         L[uv Package Manager] --> H
     end
 
-    A -->|callFunction()| E
+    A -->|invoke()| E
 ```
 
 ## Core Technologies
 
-### tauri-plugin-python (Python Integration)
+### PyO3 Helper Functions (Python Integration)
 
-**What it is**: An official Tauri plugin that provides seamless Python integration using PyO3 under the hood.
+**What it is**: Simplified helper functions that provide seamless Python integration using PyO3 directly.
 
 **Why we use it**:
 
--   Simplified Python function calling with `callFunction()` API
+-   Simplified Python function calling with `invoke()` API
 -   Automatic error conversion between Python and JavaScript
--   Plugin-managed PyO3 complexity
+-   Clean abstractions over PyO3 complexity
 -   Direct function calls (no IPC overhead)
 -   Single process deployment with embedded Python
 
-**Think of it as**: A plugin that handles all the complexity of embedding Python in a Tauri application, giving you a simple `callFunction()` interface to call Python functions from JavaScript.
+**Think of it as**: Helper functions that handle all the complexity of embedding Python in a Tauri application, giving you a simple `invoke()` interface to call Python functions from JavaScript.
 
 **Key characteristics**:
 
--   Uses PyO3 internally for Python interpreter integration
+-   Uses PyO3 directly for Python interpreter integration
 -   Manages Python's Global Interpreter Lock (GIL) automatically
--   Provides simple function registration via `_tauri_plugin_functions` list
+-   Provides simple function registration via direct function mapping
 -   Handles JSON serialization/deserialization automatically
 
-**Key files**: `src-tauri/src-python/main.py` (Python functions), `src-tauri/Cargo.toml` (plugin dependency)
+**Key files**: `src-tauri/src-python/main.py` (Python functions), `src-tauri/Cargo.toml` (PyO3 dependency)
 
 **Example**:
 
@@ -66,14 +66,14 @@ def execute_analysis(settings_json):
     result = perform_analysis(settings)
     return json.dumps(result)
 
-_tauri_plugin_functions = [execute_analysis]
+# Functions are registered directly with PyO3 helper functions
 ```
 
 ```typescript
 // Frontend side
-import { callFunction } from "tauri-plugin-python-api";
+import { invoke } from "@tauri-apps/api/core";
 
-const result = await callFunction("execute_analysis", [settingsJson]);
+const result = await invoke("execute_analysis", { settings });
 ```
 
 ### Tauri (Desktop Application Framework)
@@ -236,32 +236,32 @@ uv run command        # Run command in the project environment
 ```mermaid
 sequenceDiagram
     participant UI as React UI
-    participant Plugin as tauri-plugin-python
+    participant Helpers as PyO3 Helper Functions
     participant PyO3 as PyO3 Bindings
     participant Python as Python Engine
 
-    UI->>Plugin: callFunction("execute_analysis", [settings])
-    Plugin->>PyO3: Plugin calls PyO3
+    UI->>Helpers: invoke("execute_analysis", {settings})
+    Helpers->>PyO3: Direct PyO3 calls
     PyO3->>Python: Direct function call
     Python->>Python: Execute git analysis
     Python-->>PyO3: Return JSON results
-    PyO3-->>Plugin: Convert to plugin format
-    Plugin-->>UI: Return results to frontend
+    PyO3-->>Helpers: Convert to Rust types
+    Helpers-->>UI: Return results to frontend
 ```
 
 ### File Structure Logic
 
 ```
-├── python/                 # Python analysis engine (embedded via plugin)
+├── python/                 # Python analysis engine (embedded via PyO3)
 │   ├── gigui/             # Main Python package
 │   └── pyproject.toml     # Python dependencies (managed by uv)
 ├── src/                   # React/TypeScript frontend
 │   ├── components/        # React components
 │   └── lib/              # Utility functions
-├── src-tauri/            # Tauri desktop application with plugin integration
-│   ├── src-python/       # Python functions for plugin
-│   │   └── main.py       # Plugin entry point
-│   ├── src/              # Rust code with plugin setup
+├── src-tauri/            # Tauri desktop application with PyO3 integration
+│   ├── src-python/       # Python functions for PyO3
+│   │   └── main.py       # PyO3 entry point
+│   ├── src/              # Rust code with PyO3 setup
 │   └── tauri.conf.json   # Desktop app configuration
 ├── package.json          # Frontend dependencies (managed by pnpm)
 └── vite.config.ts        # Build tool configuration
@@ -308,10 +308,10 @@ A: Desktop UI development in Python (tkinter, PyQt) is more limited than modern 
 A: Tauri produces smaller, faster applications with better security. The trade-off is learning some Rust concepts, but Tauri handles most of the complexity.
 
 **Q: Do I need to learn all these technologies?**
-A: No. Focus on the Python analysis logic where your expertise lies. The tauri-plugin-python handles the integration automatically, and you can use AI tools to help with frontend changes.
+A: No. Focus on the Python analysis logic where your expertise lies. The PyO3 helper functions handle the integration automatically, and you can use AI tools to help with frontend changes.
 
 **Q: What if something breaks in the frontend/Rust parts?**
 A: The architecture is designed so you can develop and test the Python analysis logic independently. Most issues can be resolved by restarting the desktop application or using AI tools for frontend fixes.
 
-**Q: How does the plugin affect Python development?**
-A: You write normal Python code with simple function registration. The plugin handles calling your Python functions from JavaScript automatically. The main difference is that Python changes require restarting the desktop application instead of just reloading a web server.
+**Q: How does the PyO3 integration affect Python development?**
+A: You write normal Python code with simple function registration. The PyO3 helper functions handle calling your Python functions from JavaScript automatically. The main difference is that Python changes require restarting the desktop application instead of just reloading a web server.

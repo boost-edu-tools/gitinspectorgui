@@ -1,6 +1,6 @@
 # GitInspectorGUI
 
-Modern desktop application for git repository analysis with Tauri + React + TypeScript frontend and Python HTTP API backend.
+Modern desktop application for git repository analysis with Tauri + React + TypeScript frontend and embedded Python backend via PyO3 helper functions.
 
 ## ⚠️ IMPORTANT NOTICE
 
@@ -26,21 +26,18 @@ For the stable, production-ready version, please use the original GitInspectorGU
 ### Development
 
 ```bash
-# Start API server
-python -m gigui.start_server
-
-# Start application (new terminal)
+# Install dependencies and start development
 pnpm install
 pnpm run tauri dev
 ```
 
 ## 🏗️ Architecture
 
-**HTTP API Architecture (v2.0)**
+**PyO3 Helper Function Architecture (v2.0)**
 
 - Frontend: Tauri + React + TypeScript + shadcn/ui
-- Backend: Python FastAPI + GitInspector engine
-- Communication: JSON over HTTP
+- Backend: Embedded Python analysis engine via PyO3 helper functions
+- Communication: Direct function calls (zero IPC overhead)
 
 ## ✨ Features
 

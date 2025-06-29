@@ -93,14 +93,15 @@ Once your virtual environment is set up and activated, you can proceed with depe
 uv sync
 
 # Add new dependency
-uv add fastapi
+uv add gitpython
 
 # Add dev dependency
 uv add --group dev pytest
 
 # Run project commands
 gigui --help
-python -m gigui.start_server
+# PyO3 embedded - no separate server needed
+pnpm run tauri dev
 pytest
 mkdocs serve
 ```

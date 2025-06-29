@@ -26,7 +26,7 @@ graph TB
 
 ```
 python/gigui/
-├── api.py              # HTTP API
+├── api.py              # Legacy API (deprecated)
 ├── legacy_engine.py    # Integration wrapper
 ├── person_data.py      # Author identity merging
 ├── data.py            # Statistics calculation
@@ -100,9 +100,8 @@ def convert_results(repo_data: RepoData) -> RepositoryResult:
 [project]
 name = "gitinspectorgui"
 dependencies = [
-    "fastapi>=0.104.0",
-    "uvicorn>=0.24.0",
-    "pydantic>=2.5.0",
+    "gitpython>=3.1.44",
+    "psutil>=7.0.0",
     # Legacy analysis dependencies
 ]
 

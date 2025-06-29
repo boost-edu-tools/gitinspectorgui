@@ -108,8 +108,8 @@ uv sync          # Python dependencies
 pnpm install     # Node.js dependencies
 
 # 3. Start development (see Development Workflow for all options)
-python -m gigui.start_server --reload  # Terminal 1
-pnpm run tauri dev                      # Terminal 2
+# PyO3 embedded - no separate server needed
+pnpm run tauri dev                      # Single command
 ```
 
 ### Dependency Updates

@@ -57,7 +57,7 @@ Original architecture requirements that guided GitInspectorGUI development.
 These requirements led to the current architecture:
 
 -   **Tauri + React + TypeScript** frontend
--   **Python HTTP API** backend
+-   **Embedded Python** backend via PyO3 helper functions
 -   **JSON Schema** configuration management
 -   **TanStack Table** for interactive data display
 -   **Cross-platform** desktop distribution

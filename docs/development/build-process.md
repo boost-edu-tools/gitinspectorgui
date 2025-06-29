@@ -87,9 +87,9 @@ sequenceDiagram
 **Communication Flow:**
 
 1. **Frontend to Tauri**: Uses Tauri's `invoke()` function for type-safe communication
-2. **Tauri to PyO3**: Direct Rust function calls to PyO3 bindings
-3. **PyO3 to Python**: Direct Python function invocation via embedded interpreter
-4. **Error Handling**: Native PyResult<T> and PyErr propagation
+2. **Tauri to PyO3 Helpers**: Simplified helper function calls
+3. **PyO3 Helpers to Python**: Direct Python function invocation via embedded interpreter
+4. **Error Handling**: Automatic error conversion through helper functions
 
 ## Build Process Steps
 
@@ -155,8 +155,10 @@ The Tauri build process integrates all components via PyO3:
 
 ```toml
 [dependencies]
-pyo3 = { version = "0.20", features = ["auto-initialize"] }
+pyo3 = { version = "0.22", features = ["auto-initialize"] }
 tauri = { version = "2.0", features = ["shell-open"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [build-dependencies]
 tauri-build = { version = "2.0" }
@@ -165,7 +167,7 @@ tauri-build = { version = "2.0" }
 **Critical Integration Points:**
 
 1. **Frontend Integration**: `frontendDist: "../dist"` - Tauri embeds the built React app
-2. **Python Integration**: PyO3 embeds Python interpreter directly in Rust binary
+2. **Python Integration**: PyO3 helper functions provide simplified Python integration
 3. **Python Code Bundling**: Python source bundled as Tauri resources
 4. **Build Hooks**: `beforeBuildCommand` ensures frontend is built before packaging
 
@@ -307,12 +309,12 @@ GitInspectorGUI/
 
 ### Integration Mechanisms
 
-#### PyO3 Embedding
+#### PyO3 Helper Function Integration
 
--   **Embedded Python**: Python interpreter embedded directly in Rust binary
--   **Direct Function Calls**: No IPC overhead, direct memory access
+-   **Embedded Python**: Python interpreter embedded directly in Rust binary via PyO3 helpers
+-   **Direct Function Calls**: No IPC overhead, simplified function calls through helpers
 -   **Python Code Access**: Python source bundled as Tauri resources
--   **GIL Management**: Automatic Global Interpreter Lock handling
+-   **GIL Management**: Automatic Global Interpreter Lock handling via helper functions
 
 #### Resource Bundling
 
@@ -323,9 +325,9 @@ GitInspectorGUI/
 #### Runtime Communication
 
 -   **Tauri Commands**: Rust functions exposed to frontend via `invoke()`
--   **PyO3 Integration**: Direct Python function calls from Rust
--   **Type Safety**: PyResult<T> and PyErr for error handling
--   **Memory Management**: Automatic Python object lifecycle management
+-   **PyO3 Helper Integration**: Simplified Python function calls through helper functions
+-   **Type Safety**: Automatic type conversion and error handling via helpers
+-   **Memory Management**: Automatic Python object lifecycle management through helpers
 
 #### Process Management
 
@@ -344,12 +346,12 @@ GitInspectorGUI/
 -   `tailwind.config.js` - Tailwind CSS configuration
 -   `postcss.config.js` - PostCSS processing
 
-### PyO3 Configuration
+### PyO3 Helper Function Configuration
 
 -   `src-tauri/Cargo.toml` - Rust and PyO3 dependencies
 -   `src-tauri/build.rs` - Rust build script
--   `src-tauri/src/main.rs` - PyO3 integration code
--   `src-tauri/src/commands.rs` - Tauri commands with PyO3 calls
+-   `src-tauri/src/main.rs` - PyO3 helper function integration
+-   `src-tauri/src/commands.rs` - Tauri commands using PyO3 helpers
 
 ### Python Configuration
 
@@ -373,13 +375,13 @@ GitInspectorGUI/
 ### Development Build
 
 ```bash
-# Frontend development server with PyO3 backend
+# Frontend development server with PyO3 helper function backend
 pnpm run tauri dev
 
 # This starts:
 # 1. Vite dev server for frontend hot reload
-# 2. Tauri application with embedded Python via PyO3
-# 3. Direct PyO3 function calls (no separate server)
+# 2. Tauri application with embedded Python via PyO3 helpers
+# 3. Simplified Python function calls through helper functions (no separate server)
 ```
 
 ### Production Build
@@ -400,7 +402,7 @@ pnpm run tauri dev
 ### Performance Optimizations
 
 -   **Frontend**: Vite's optimized bundling with tree-shaking
--   **PyO3**: Direct function calls with zero IPC overhead
+-   **PyO3 Helpers**: Simplified function calls with zero IPC overhead
 -   **Tauri**: Rust's zero-cost abstractions and optimized compilation
 -   **Python**: Embedded interpreter with optimized module loading
 
@@ -411,12 +413,12 @@ pnpm run tauri dev
 -   **Bundle**: Resource compression and deduplication
 -   **Icons**: Multiple resolutions for different platforms
 
-### PyO3-Specific Optimizations
+### PyO3 Helper Function Optimizations
 
--   **GIL Management**: Efficient Global Interpreter Lock usage
--   **Memory Management**: Automatic Python object cleanup
--   **Type Conversion**: Optimized Python ↔ Rust type conversion
--   **Error Handling**: Native error propagation without serialization
+-   **GIL Management**: Efficient Global Interpreter Lock usage handled by helpers
+-   **Memory Management**: Automatic Python object cleanup through helpers
+-   **Type Conversion**: Optimized Python ↔ Rust type conversion via helpers
+-   **Error Handling**: Automatic error conversion without manual serialization
 
 ## Troubleshooting Build Issues
 
@@ -433,7 +435,7 @@ pnpm install
 pnpm run build --verbose
 ```
 
-#### PyO3 Build Failures
+#### PyO3 Helper Function Build Failures
 
 ```bash
 # Clear Rust build cache
@@ -488,7 +490,7 @@ pnpm run tauri build --verbose
 -   Python installation compatibility
 -   PyO3 Windows-specific compilation
 
-### PyO3-Specific Issues
+### PyO3 Helper Function Issues
 
 #### Python Version Compatibility
 
@@ -496,14 +498,14 @@ pnpm run tauri build --verbose
 # Check Python version (3.8+ required)
 python --version
 
-# Verify PyO3 can find Python
+# Verify PyO3 helpers can find Python
 RUST_LOG=pyo3=debug cargo build
 ```
 
 #### GIL and Threading Issues
 
 ```bash
-# Debug GIL-related issues
+# Debug GIL-related issues (handled automatically by helpers)
 RUST_LOG=pyo3=debug pnpm run tauri dev
 
 # Check for deadlocks or performance issues
@@ -525,7 +527,7 @@ The build process is automated through GitLab CI/CD:
 
 -   **Automated Builds**: Triggered on commits and tags
 -   **Multi-Platform**: Builds for all supported platforms
--   **PyO3 Testing**: Automated testing of Python integration
+-   **PyO3 Helper Testing**: Automated testing of simplified Python integration
 -   **Release**: Automatic release creation and artifact upload
 
 See the [Operations documentation](../operations/deployment.md) for detailed CI/CD configuration.
@@ -535,7 +537,7 @@ See the [Operations documentation](../operations/deployment.md) for detailed CI/
 After successful build:
 
 1. **Test the Applications**: Use `./scripts/test-release.sh`
-2. **Test PyO3 Integration**: Verify Python functions work correctly
+2. **Test PyO3 Helper Integration**: Verify Python functions work correctly through helpers
 3. **Create Release Tag**: `git tag vX.Y.Z && git push origin vX.Y.Z`
 4. **Upload to Releases**: `glab release create vX.Y.Z dist/releases/*`
 5. **Update Auto-updater**: Configure update endpoints
@@ -543,15 +545,15 @@ After successful build:
 
 For version management, use `./scripts/prepare-release.sh X.Y.Z` to prepare version updates across all components.
 
-## PyO3 Build Architecture Summary
+## PyO3 Helper Function Build Architecture Summary
 
-The PyO3 build architecture provides:
+The PyO3 helper function build architecture provides:
 
 -   **Single Process**: All components embedded in one Tauri application
--   **Direct Integration**: Python functions called directly from Rust
+-   **Simplified Integration**: Python functions called through clean helper function abstractions
 -   **Simplified Deployment**: No separate server processes to manage
--   **Better Performance**: Zero IPC overhead with direct function calls
--   **Type Safety**: PyO3 provides safe Python-Rust integration
+-   **Better Performance**: Zero IPC overhead with simplified function calls
+-   **Type Safety**: Helper functions provide safe Python-Rust integration with automatic error handling
 -   **Cross-Platform**: Consistent architecture across all platforms
 
-This architecture eliminates the complexity of multi-process coordination while maintaining all the functionality of the original system.
+This architecture eliminates the complexity of both multi-process coordination and PyO3 boilerplate while maintaining all the functionality of the original system through clean, simplified abstractions.
