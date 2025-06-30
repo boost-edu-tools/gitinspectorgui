@@ -1,31 +1,14 @@
-# Development Information
+# Developer Resources
 
-For developers interested in contributing to GitInspectorGUI or building from source, please see the comprehensive developer documentation.
-
-## Developer Resources
-
-- **[Developer Documentation](../index.md)** - Complete development guide including:
-  - Environment setup and prerequisites
-  - Development workflow and patterns
-  - Building and testing procedures
-  - Publishing and distribution
-  - Architecture and design decisions
+Looking to contribute to GitInspectorGUI or build from source? All developer documentation is available in the **Developer Home** tab.
 
 ## Quick Links
 
-- **[Getting Started](../getting-started/01-prerequisites.md)** - Prerequisites and installation
-- **[Development Workflow](../development/development-workflow.md)** - Core development patterns
-- **[Publishing Guide](../development/publishing.md)** - Package publishing to PyPI
-- **[API Documentation](../api/reference.md)** - Complete API reference
+- **[Developer Documentation](../index.md)** - Complete development guide
+- **[Getting Started](../getting-started/01-prerequisites.md)** - Prerequisites and setup
+- **[API Reference](../api/reference.md)** - Complete API documentation
+- **[Architecture Overview](../architecture/overview.md)** - System design and structure
 
 ## Contributing
 
-GitInspectorGUI welcomes contributions! The developer documentation provides all the information needed to:
-
-- Set up a development environment
-- Understand the codebase architecture
-- Follow development best practices
-- Test and build the application
-- Submit contributions
-
-Visit the [Developer Documentation](../index.md) to get started.
+GitInspectorGUI welcomes contributions! The developer documentation provides everything needed to get started with development, testing, and contributing to the project.

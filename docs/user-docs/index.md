@@ -15,4 +15,4 @@ Welcome to the GitinspectorGUI user documentation. This documentation provides i
 -   [Supported](supported.md) - Supported platforms and features
 -   [FAQ](faq.md) - Frequently asked questions
 -   [Development](develop.md) - Information for developers
--   [Issues](issues.md) - Known issues and troubleshooting
+-   [Known Issues](known-issues.md) - Known issues and troubleshooting

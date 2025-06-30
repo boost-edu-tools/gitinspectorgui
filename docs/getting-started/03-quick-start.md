@@ -50,7 +50,7 @@ pnpm run dev
 Now that your environment is working:
 
 -   **[Development Workflow](../development/development-workflow.md)** - Learn development patterns
--   **[CLI Guide](cli-guide.md)** - Command-line usage
+-   **[CLI Development Guide](../development/cli-development-guide.md)** - Command-line development
 -   **[API Reference](../api/reference.md)** - Backend API documentation
 
 ## Troubleshooting
@@ -115,6 +115,6 @@ rm -rf src-tauri/target/debug
 After successful testing:
 
 1. **[Development Workflow](../development/development-workflow.md)** - Learn development patterns and best practices
-2. **[CLI Guide](cli-guide.md)** - Command-line interface usage
+2. **[CLI Development Guide](../development/cli-development-guide.md)** - Command-line development
 3. **[API Reference](../api/reference.md)** - Backend API documentation
 4. **[Architecture Overview](../architecture/overview.md)** - Understanding the system design

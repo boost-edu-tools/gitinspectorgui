@@ -59,14 +59,15 @@ nav:
           - Home: user-docs/index.md
           - Overview: user-docs/overview.md
           - Installation: user-docs/install.md
+          - Quick Start: user-docs/quick-start.md
           - GUI: user-docs/gui.md
           - CLI: user-docs/cli.md
           - Output: user-docs/output.md
           - Examples: user-docs/examples.md
           - Supported: user-docs/supported.md
+          - Known Issues: user-docs/known-issues.md
           - FAQ: user-docs/faq.md
-          - Development: user-docs/develop.md
-          - Issues: user-docs/issues.md
+          - Developer Resources: user-docs/develop.md
     - Developer Home: index.md
     - Demo: https://boost-edu-tools.github.io/gitinspectorgui/demo/
     - Technology Primer: technology-primer.md
@@ -74,16 +75,17 @@ nav:
           - Prerequisites: getting-started/01-prerequisites.md
           - Installation: getting-started/02-installation.md
           - Quick Start: getting-started/03-quick-start.md
-          - CLI Guide: getting-started/cli-guide.md
     - Development:
+          - Environment Setup: development/environment-setup.md
           - Development Workflow: development/development-workflow.md
           - Commands Reference: development/development-commands.md
-          - Environment Setup: development/environment-setup.md
           - Package Management:
                 - Overview: development/package-management-overview.md
                 - Python Dependencies: development/python-package-management.md
                 - JavaScript Dependencies: development/javascript-package-management.md
+          - CLI Development Guide: development/cli-development-guide.md
           - Build Process: development/build-process.md
+          - Publishing: development/publishing.md
           - Troubleshooting: development/troubleshooting.md
           - Advanced:
                 - Demo-Based Development: development/advanced/demo-based-development.md
@@ -93,16 +95,16 @@ nav:
           - Examples: api/examples.md
           - Error Handling: api/error-handling.md
     - Architecture:
+          - Design Background: architecture/design-background-info.md
           - System Overview: architecture/overview.md
           - Technology Stack: architecture/technology-stack.md
-          - Design Background: architecture/design-background-info.md
           - Design Decisions: architecture/design-decisions.md
           - Legacy Integration: architecture/legacy-integration.md
     - Operations:
           - Release & Distribution: operations/deployment.md
           - Server Management: operations/server-management.md
-          - Documentation Deployment: operations/documentation-deployment.md
           - Maintenance: operations/maintenance.md
+          - Documentation Deployment: operations/documentation-deployment.md
 
 repo_url: https://github.com/boost-edu-tools/gitinspectorgui
 edit_uri: edit/main/docs/
