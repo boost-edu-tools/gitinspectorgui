@@ -1,177 +1,163 @@
-# CLI Guide
+# CLI Development Guide
 
-Complete guide for GitInspectorGUI command-line interface usage.
+Development-focused guide for building and testing GitInspectorGUI's command-line interface.
+
+!!! info "Complete CLI Reference"
+    For complete CLI usage, options, and examples, see the **[User CLI Guide](../user-docs/cli.md)**.
 
 ## Overview
 
-GitInspectorGUI provides both standalone executables and Python module access for command-line analysis. The CLI serves dual purposes:
+This guide covers CLI development workflows, building from source, and testing CLI functionality during development.
 
--   **CLI Mode**: Traditional command-line interface with argparse options
--   **Desktop Integration**: Embedded Python engine for GUI integration
--   **JSON Output**: Compatible with programmatic integration
+## Development CLI Usage
 
-## Installation Methods
-
-### From Release Builds
-
-Download the latest release for your platform:
-
--   **macOS**: `gitinspectorcli-macos-arm64` (Apple Silicon) or `gitinspectorcli-macos-x64` (Intel)
--   **Linux**: `gitinspectorcli-linux-x64` or `gitinspectorcli-linux-arm64`
--   **Windows**: `gitinspectorcli-windows-x64.exe`
+### Testing CLI During Development
 
 ```bash
-# Download from releases
-wget https://github.com/your-org/gitinspectorgui/releases/latest/gitinspector-api-sidecar
-chmod +x gitinspector-api-sidecar
+# Test CLI through Python module (development)
+cd python
+python -m gigui.cli --help
+
+# Test with current development code
+python -m gigui.cli /path/to/repository
+
+# Test specific features
+python -m gigui.cli /repo --output-format json
 ```
 
-## Basic Usage
+### Development vs Production CLI
 
-### Simple Analysis
+-   **Development**: Uses `python -m gigui.cli` with current source code
+-   **Production**: Uses standalone executables built from source
+-   **Integration**: CLI shares the same analysis engine as the GUI via PyO3
 
-# Using standalone CLI
-./gitinspectorcli /path/to/repository
+## Building CLI from Source
 
-# Get help
-./gitinspectorcli --help
-```
-
-### Output Formats
+### Build Scripts
 
 ```bash
-# Table format (default)
-./gitinspector-api-sidecar /repo --output-format table
+# Build for current platform only
+./python/tools/build-cli-app.sh
 
-# JSON format
-./gitinspector-api-sidecar /repo --output-format json
-
-# Save JSON to file
-./gitinspector-api-sidecar /path/to/repo --output-format json > analysis.json
-```
-
-## Standalone Application Features
-
--   **Standalone Executable**: No Python installation required
--   **Cross-Platform**: Available for Windows, macOS, and Linux
--   **Full Analysis Capabilities**: Same powerful analysis engine as the GUI
--   **Multiple Output Formats**: Table and JSON output
--   **Comprehensive Options**: 100+ configuration options
--   **Portable**: Single executable file that can be distributed easily
-
-## Output Format Examples
-
-### Table Format (Default)
-
-The table format provides a human-readable overview:
-
-```
-=== Repository: my-project ===
-Path: /path/to/my-project
-
---- Authors (3) ---
-Name                 Email                     Commits  Files  %
-----------------------------------------------------------------------
-John Doe             john@example.com          45       12     65.2
-Jane Smith           jane@example.com          20       8      29.0
-Bot User             bot@example.com           4        2      5.8
-
---- Files (5) ---
-Name                      Lines    Commits  Authors  %
-------------------------------------------------------------
-main.py                   234      15       3        35.2
-utils.py                  156      8        2        23.4
-config.py                 89       5        2        13.4
-tests.py                  67       4        2        10.1
-README.md                 45       3        2        6.8
-```
-
-### JSON Format
-
-The JSON format provides structured data for programmatic use:
-
-```json
-{
-    "success": true,
-    "repositories": [
-        {
-            "name": "my-project",
-            "path": "/path/to/my-project",
-            "authors": [
-                {
-                    "name": "John Doe",
-                    "email": "john@example.com",
-                    "commits": 45,
-                    "insertions": 1234,
-                    "deletions": 567,
-                    "files": 12,
-                    "percentage": 65.2,
-                    "age": "2:15:03"
-                }
-            ],
-            "files": [
-                {
-                    "name": "main.py",
-                    "path": "src/main.py",
-                    "lines": 234,
-                    "commits": 15,
-                    "authors": 3,
-                    "percentage": 35.2
-                }
-            ],
-            "blame_data": []
-        }
-    ]
-}
-```
-
-## Advanced Usage
-
-!!! note "Web Interface Integration"
-
-    The backend includes capabilities for web-based interactive output with features like `auto_open_browser`, `server_port`, and `max_browser_tabs`. However, these web interface integration capabilities are not yet exposed via CLI flags. Future versions may include options like `--web` or `--interactive` to launch the rich interactive tables available in the GUI application.
-
-## Building from Source
-
-To build the CLI application yourself:
-
-```bash
-# Build for current platform
-./python/build-cli-app.sh
-
-# Build for all platforms
+# Build for all platforms (requires cross-compilation setup)
 ./scripts/build-cli-all-platforms.sh --all
 
-# Clean build
+# Clean build (removes previous builds)
 ./scripts/build-cli-all-platforms.sh --clean
 ```
 
-The built executables will be available in `dist/cli-releases/`.
+### Build Output
 
-## Troubleshooting
+Built executables are available in:
+- `dist/cli-releases/` - Cross-platform builds
+- `python/dist/` - Current platform builds
 
-### Permission Issues (macOS/Linux)
+### Build Requirements
 
-If you get a permission error, make the executable runnable:
+- **Python 3.8+** with development headers
+- **PyInstaller** for executable creation
+- **Cross-compilation tools** for multi-platform builds (optional)
+
+## Testing CLI Changes
+
+### Unit Testing
 
 ```bash
-chmod +x gitinspector-api-sidecar
-# or
-chmod +x gitinspectorcli-*
+# Test CLI module
+cd python
+python -m pytest tests/test_cli.py -v
+
+# Test analysis engine
+python -m pytest tests/test_analysis.py -v
 ```
 
-### Security Warnings (macOS)
-
-On macOS, you may need to allow the executable in System Preferences > Security & Privacy.
-
-### JSON Parsing Errors
+### Integration Testing
 
 ```bash
+# Test CLI with real repository
+python -m gigui.cli . --output-format json > test_output.json
+
 # Validate JSON output
-./gitinspector-api-sidecar /repo --output-format json | jq '.'
+python -c "import json; json.load(open('test_output.json'))"
+
+# Test GUI integration
+pnpm run tauri dev  # CLI functionality embedded in GUI
+```
+
+### Performance Testing
+
+```bash
+# Profile CLI performance
+python -m gigui.cli /large/repo --profile 10
+
+# Memory usage testing
+python -m memory_profiler -m gigui.cli /repo
+```
+
+## CLI Development Workflow
+
+### 1. Make Changes
+```bash
+# Edit CLI code in python/gigui/cli/
+# Edit analysis code in python/gigui/analysis/
+```
+
+### 2. Test Changes
+```bash
+# Quick test with development CLI
+python -m gigui.cli /test/repo
+
+# Test through GUI integration
+pnpm run tauri dev
+```
+
+### 3. Build and Test Executable
+```bash
+# Build standalone executable
+./python/tools/build-cli-app.sh
+
+# Test built executable
+./dist/gitinspector-api-sidecar /test/repo
+```
+
+## Troubleshooting Development Issues
+
+### CLI Module Import Errors
+
+```bash
+# Ensure Python environment is activated
+source .venv/bin/activate
+
+# Reinstall in development mode
+cd python
+pip install -e .
+```
+
+### Build Failures
+
+```bash
+# Clean Python cache
+find python -name "__pycache__" -exec rm -rf {} +
+find python -name "*.pyc" -delete
+
+# Clean build artifacts
+rm -rf python/build python/dist
+./python/tools/build-cli-app.sh
+```
+
+### PyO3 Integration Issues
+
+```bash
+# Test PyO3 helper functions
+cd src-tauri
+cargo test
+
+# Test Python-Rust integration
+pnpm run tauri dev
 ```
 
 ## Related Documentation
 
--   **[Quick Start](03-quick-start.md)** - Get development environment running
--   **[Installation](02-installation.md)** - Detailed setup instructions
+-   **[User CLI Guide](../user-docs/cli.md)** - Complete CLI reference and usage
+-   **[Development Workflow](../development/development-workflow.md)** - General development patterns
+-   **[Build Process](../development/build-process.md)** - Complete build documentation

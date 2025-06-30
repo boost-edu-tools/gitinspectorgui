@@ -92,74 +92,25 @@ The JavaScript ecosystem prioritized convenience and rapid development, acceptin
     -   Remembering to switch environments when changing projects
     -   Deactivating when done (`deactivate`)
 
-## Combined Development Workflow
+## Quick Reference
 
-For projects like GitInspectorGUI that use both Python and JavaScript, a combined workflow is necessary:
+For detailed commands and workflows, see the specific guides:
 
-### Complete Setup
+### Python Dependencies
+- **Tool**: `uv` (fast Python package manager)
+- **Guide**: [Python Package Management](python-package-management.md)
+- **Key commands**: `uv venv`, `uv sync`, `uv add`
 
+### JavaScript Dependencies
+- **Tool**: `pnpm` (efficient Node.js package manager)
+- **Guide**: [JavaScript Package Management](javascript-package-management.md)
+- **Key commands**: `pnpm install`, `pnpm add`, `pnpm run`
+
+### Combined Workflow
 ```bash
-# 1. Install package managers (if not already installed)
-curl -LsSf https://astral.sh/uv/install.sh | sh  # uv
-corepack enable                                   # pnpm
-
-# 2. Install all dependencies
-uv sync          # Python dependencies
-pnpm install     # Node.js dependencies
-
-# 3. Start development (see Development Workflow for all options)
-# PyO3 embedded - no separate server needed
-pnpm run tauri dev                      # Single command
+# Quick setup (see specific guides for details)
+uv sync && pnpm install && pnpm run tauri dev
 ```
-
-### Dependency Updates
-
-```bash
-# Update Python dependencies
-uv sync --upgrade
-
-# Update Node.js dependencies
-pnpm update
-pnpm audit fix
-
-# Update Rust dependencies (if needed)
-cargo update
-```
-
-### Clean Reinstall
-
-If you encounter any issues with dependencies, a clean reinstall often helps:
-
-```bash
-# Clean Python environment
-rm -rf .venv
-uv venv
-uv sync
-
-# Clean Node.js environment
-rm -rf node_modules pnpm-lock.yaml
-pnpm install
-```
-
-## Best Practices
-
-### Version Management
-
--   **Commit lock files** to version control for reproducible builds
--   **Use exact versions** for critical dependencies
--   **Regular updates** to stay current with security patches
-
-### Performance
-
--   **Use uv for Python** - significantly faster than pip
--   **Use pnpm for Node.js** - faster and more efficient than npm
--   **Enable corepack** for automatic pnpm management
-
-### Security
-
--   **Regular audits** with `pnpm audit` and dependency scanning
--   **Review updates** before applying to catch breaking changes
--   **Use lock files** to ensure consistent dependency versions
 
 ## Glossary
 
