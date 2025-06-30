@@ -34,47 +34,17 @@ graph TB
 
 ## Core Technologies
 
-### PyO3 Helper Functions (Python Integration)
+### PyO3 Integration (Python Backend)
 
-**What it is**: Simplified helper functions that provide seamless Python integration using PyO3 directly.
+**What it is**: Embedded Python interpreter that runs your analysis code directly within the desktop application.
 
-**Why we use it**:
+**Why we use it**: Allows you to write Python analysis code that gets called directly from the frontend with no network overhead.
 
--   Simplified Python function calling with `invoke()` API
--   Automatic error conversion between Python and JavaScript
--   Clean abstractions over PyO3 complexity
--   Direct function calls (no IPC overhead)
--   Single process deployment with embedded Python
+**Think of it as**: Your Python functions become part of the desktop application - the frontend can call them directly using `invoke()`.
 
-**Think of it as**: Helper functions that handle all the complexity of embedding Python in a Tauri application, giving you a simple `invoke()` interface to call Python functions from JavaScript.
+> **Technical Details**: For comprehensive information about the PyO3 architecture, see [Design Decisions](architecture/design-decisions.md).
 
-**Key characteristics**:
-
--   Uses PyO3 directly for Python interpreter integration
--   Manages Python's Global Interpreter Lock (GIL) automatically
--   Provides simple function registration via direct function mapping
--   Handles JSON serialization/deserialization automatically
-
-**Key files**: `src-tauri/src-python/main.py` (Python functions), `src-tauri/Cargo.toml` (PyO3 dependency)
-
-**Example**:
-
-```python
-# Python side (src-tauri/src-python/main.py)
-def execute_analysis(settings_json):
-    settings = json.loads(settings_json)
-    result = perform_analysis(settings)
-    return json.dumps(result)
-
-# Functions are registered directly with PyO3 helper functions
-```
-
-```typescript
-// Frontend side
-import { invoke } from "@tauri-apps/api/core";
-
-const result = await invoke("execute_analysis", { settings });
-```
+**Key files**: `src-tauri/src-python/main.py` (Python functions), `python/` (your analysis code)
 
 ### Tauri (Desktop Application Framework)
 

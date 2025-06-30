@@ -4,6 +4,10 @@ mod commands;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Initialize logging - this makes RUST_LOG environment variable functional
+    env_logger::init();
+    log::info!("Starting GitInspectorGUI application");
+
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             commands::execute_analysis,

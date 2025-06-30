@@ -49,7 +49,6 @@ pnpm run dev
 
 Now that your environment is working:
 
--   **[First Analysis](04-first-analysis.md)** - Test with repository analysis
 -   **[Development Workflow](../development/development-workflow.md)** - Learn development patterns
 -   **[CLI Guide](cli-guide.md)** - Command-line usage
 -   **[API Reference](../api/reference.md)** - Backend API documentation
@@ -77,3 +76,45 @@ uv sync && pnpm install
 rm -rf node_modules/.vite
 rm -rf src-tauri/target/debug
 ```
+
+### Common Issues
+
+**Desktop app won't start**:
+
+```bash
+# Check Rust/Tauri installation
+rustc --version
+pnpm run tauri --version
+
+# Clear and reinstall frontend dependencies
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
+```
+
+**Python integration errors**:
+
+```bash
+# Check Python environment
+python -c "import gigui; print('OK')"
+
+# Reinstall Python dependencies
+uv sync
+
+# Clear Tauri cache
+rm -rf src-tauri/target/debug
+```
+
+### Getting Debug Information
+
+1. **Application logs**: Check the terminal where you started `pnpm run tauri dev`
+2. **Frontend logs**: Right-click in the desktop app → "Inspect" → "Console" tab
+3. **Python debugging**: Add print statements to Python code and restart the app
+
+## Next Steps
+
+After successful testing:
+
+1. **[Development Workflow](../development/development-workflow.md)** - Learn development patterns and best practices
+2. **[CLI Guide](cli-guide.md)** - Command-line interface usage
+3. **[API Reference](../api/reference.md)** - Backend API documentation
+4. **[Architecture Overview](../architecture/overview.md)** - Understanding the system design

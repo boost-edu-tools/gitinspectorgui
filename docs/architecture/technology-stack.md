@@ -39,23 +39,10 @@ GitInspectorGUI technology stack and architectural decisions.
 
 ### Python Integration
 
--   **PyO3 0.22** - Direct Python-Rust bindings with simplified integration
-    -   Embedded Python interpreter within Rust binary
-    -   Custom helper functions for clean API
-    -   Automatic JSON serialization/deserialization
-    -   Direct PyO3 bindings with elegant abstractions
-    -   Type-safe communication interface
-    -   Support for async Python operations
+-   **PyO3 0.22** - Python-Rust bindings for embedded Python interpreter
 
-**Purpose**: Our simplified PyO3 helper function integration provides the performance and reliability of direct PyO3 bindings while maintaining a clean, easy-to-use API through custom helper functions.
+> **Integration Details**: For comprehensive information about the PyO3 architecture, see [Design Decisions](design-decisions.md).
 
-**Key Features**:
-
--   **Zero IPC overhead** - Direct function calls via PyO3
--   **Automatic error conversion** - Python exceptions to Rust Result types
--   **Embedded interpreter** - Python runs within the same process
--   **Simplified API** - Clean `invoke()` interface for frontend
--   **Custom abstractions** - Helper functions eliminate PyO3 boilerplate
 
 ### CLI Framework
 
@@ -67,16 +54,15 @@ GitInspectorGUI technology stack and architectural decisions.
 
 ### Communication
 
--   **Direct PyO3 Integration** - Python function calls through simplified PyO3 bindings
 -   **Tauri Commands** - Frontend ↔ Backend communication via `invoke()`
--   **Single Process** - Embedded Python within Tauri application via PyO3
--   **JSON Serialization** - Automatic type conversion between Rust and Python
+-   **Embedded Python** - Single process with embedded Python interpreter
+-   **JSON Serialization** - Data exchange format
 
 ### Data Flow
 
 ```mermaid
 graph LR
-    A[Tauri Frontend] -->|invoke()| B[Tauri Commands]
+    A[Tauri Frontend] -->|invoke| B[Tauri Commands]
     B -->|Helper Functions| C[PyO3 Bindings]
     C -->|Direct Calls| D[Python Analysis Engine]
     D --> E[Repository Data]

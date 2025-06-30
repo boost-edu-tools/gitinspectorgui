@@ -26,35 +26,9 @@ wget https://github.com/your-org/gitinspectorgui/releases/latest/gitinspector-ap
 chmod +x gitinspector-api-sidecar
 ```
 
-### From Python Wheel
-
-```bash
-# Install Python package
-pip install gitinspectorgui-0.5.0-py3-none-any.whl
-
-# Use CLI module
-python -m gigui.cli --help
-```
-
-### From Source
-
-```bash
-# Build standalone executable
-cd python
-uv run pyinstaller api-sidecar.spec --clean --noconfirm
-# Creates: dist/gitinspector-api-sidecar
-```
-
 ## Basic Usage
 
 ### Simple Analysis
-
-```bash
-# Analyze current directory
-./gitinspector-api-sidecar .
-
-# Analyze specific repository
-./gitinspector-api-sidecar /path/to/repo
 
 # Using standalone CLI
 ./gitinspectorcli /path/to/repository
@@ -201,4 +175,3 @@ On macOS, you may need to allow the executable in System Preferences > Security 
 
 -   **[Quick Start](03-quick-start.md)** - Get development environment running
 -   **[Installation](02-installation.md)** - Detailed setup instructions
--   **[First Analysis](04-first-analysis.md)** - Test your setup

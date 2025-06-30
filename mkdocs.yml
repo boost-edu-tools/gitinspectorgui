@@ -74,10 +74,8 @@ nav:
           - Prerequisites: getting-started/01-prerequisites.md
           - Installation: getting-started/02-installation.md
           - Quick Start: getting-started/03-quick-start.md
-          - First Analysis: getting-started/04-first-analysis.md
           - CLI Guide: getting-started/cli-guide.md
     - Development:
-          - Development Architecture: development/development-architecture.md
           - Development Workflow: development/development-workflow.md
           - Commands Reference: development/development-commands.md
           - Environment Setup: development/environment-setup.md
@@ -104,7 +102,6 @@ nav:
           - Release & Distribution: operations/deployment.md
           - Server Management: operations/server-management.md
           - Documentation Deployment: operations/documentation-deployment.md
-          - Monitoring: operations/monitoring.md
           - Maintenance: operations/maintenance.md
 
 repo_url: https://github.com/boost-edu-tools/gitinspectorgui

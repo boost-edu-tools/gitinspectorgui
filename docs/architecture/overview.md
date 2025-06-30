@@ -6,7 +6,9 @@ Modern simplified architecture with Tauri desktop frontend and embedded Python b
 
 If you're unfamiliar with the frontend technologies, see the **[Technology Primer](../technology-primer.md)** first. This document explains how the Python backend you'll work with integrates directly into the desktop application.
 
-**Key concept**: The Python backend runs embedded within the Tauri application via our simplified PyO3 helper functions, enabling direct function calls without network communication. You can develop and test the Python analysis logic independently.
+**Key concept**: The Python backend runs embedded within the Tauri application, enabling direct function calls without network communication. You can develop and test the Python analysis logic independently.
+
+> **PyO3 Integration Details**: For comprehensive information about the PyO3 helper function architecture, see [Design Decisions](design-decisions.md).
 
 ## Architecture
 
@@ -14,7 +16,7 @@ If you're unfamiliar with the frontend technologies, see the **[Technology Prime
 graph TB
     subgraph "Frontend"
         A[Tauri Desktop]
-        B[React + TypeScript]
+        B[React TypeScript]
         C[Zustand State]
     end
 
@@ -32,7 +34,7 @@ graph TB
 
     A --> B
     B --> C
-    B -->|invoke()| D
+    B -->|invoke| D
     D -->|Direct calls| E
     E -->|Python bindings| F
     F --> G
@@ -118,39 +120,71 @@ sequenceDiagram
 -   **Logging** - Structured logging with levels
 -   **Performance monitoring** - Application-level metrics
 
-## Development vs Production
+## Development vs Production Architecture
 
-!!! info "Detailed Development Architecture"
+!!! info "Development Workflows"
 
-    For comprehensive information about development setup and PyO3 integration patterns, see **[Development Architecture](../development/development-architecture.md)**.
+    For detailed development workflows and command reference, see **[Development Workflow](../development/development-workflow.md)** and **[Development Commands](../development/development-commands.md)**.
 
-### Development Mode
-
-```mermaid
-graph LR
-    A[Vite Dev Server<br/>Port 5173] --> B[Tauri Dev Server<br/>Port 1420]
-    B --> C[Embedded Python<br/>via PyO3]
-    C --> D[Local Git Repos]
-```
-
--   **Single process** with embedded Python via PyO3
--   Hot module replacement for frontend changes
--   Python code changes require application restart
--   Direct function call debugging
--   Comprehensive development tools
-
-### Production Build
+### Development Mode Architecture
 
 ```mermaid
-graph LR
-    A[Tauri Desktop App<br/>Single Binary] --> B[Embedded Python<br/>via PyO3]
-    B --> C[User Repositories]
+graph TB
+    subgraph "Development Environment"
+        A[pnpm run tauri dev]
+        B[Tauri Desktop App<br/>Port 1420]
+        C[Vite Dev Server<br/>Port 5173]
+        D[Embedded Python<br/>via PyO3]
+    end
+
+    subgraph "Development Features"
+        E[Frontend Hot Reload]
+        F[PyO3 Integration Testing]
+        G[Single Process Debugging]
+    end
+
+    A --> B
+    A --> C
+    B --> D
+    C --> E
+    D --> F
+    B --> G
 ```
 
--   **Single bundled application** with embedded Python interpreter
--   No network communication required
--   Optimized performance with direct function calls
--   Cross-platform deployment
+**Development Characteristics**:
+-   **Single command start** - `pnpm run tauri dev` launches complete environment
+-   **Hot module replacement** - Frontend changes appear instantly
+-   **Embedded Python** - Direct PyO3 function calls for testing
+-   **Integrated debugging** - All components in single process
+-   **Fast iteration** - Python changes require app restart (2-3 seconds)
+
+### Production Build Architecture
+
+```mermaid
+graph TB
+    subgraph "Production Application"
+        A[Tauri Desktop App<br/>Single Binary]
+        B[Bundled Frontend<br/>Optimized Build]
+        C[Embedded Python<br/>Interpreter + Code]
+    end
+
+    subgraph "User Environment"
+        D[Git Repositories]
+        E[Settings Storage]
+    end
+
+    A --> B
+    A --> C
+    C --> D
+    A --> E
+```
+
+**Production Characteristics**:
+-   **Single executable** - Complete application in one binary
+-   **No external dependencies** - Python interpreter embedded
+-   **Optimized performance** - Direct function calls, no IPC
+-   **Cross-platform** - Native performance on all platforms
+-   **Zero configuration** - No server setup or network requirements
 
 ## Technology Rationale
 

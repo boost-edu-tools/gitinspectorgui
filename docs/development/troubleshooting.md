@@ -334,15 +334,17 @@ Solution: Check Python development headers and rebuild helper functions
 ### Logging and Debug Information
 
 ```bash
-# Enable comprehensive debug logging
-export RUST_LOG=debug
-export RUST_BACKTRACE=1
-export PYTHONPATH="${PWD}/python"
+# Enable comprehensive debug logging (see Rust Logging in Environment Setup)
+export RUST_LOG=debug                    # General debug logging
+export RUST_LOG=gitinspectorgui=debug    # Application-specific logging
+export RUST_BACKTRACE=1                  # Show panic backtraces
 pnpm run tauri dev
 
 # PyO3 specific debugging
 export RUST_LOG=pyo3=debug
 pnpm run tauri dev
+
+# Note: PYTHONPATH is automatically configured by the build system
 
 # Python module testing
 cd python

@@ -28,7 +28,6 @@ Development environment and tooling documentation for GitInspectorGUI contributo
 ### Command Line Interface
 
 -   **[CLI Guide](getting-started/cli-guide.md)** - Complete command-line usage
--   **[First Analysis](getting-started/04-first-analysis.md)** - Test your setup
 
 ### API Development
 

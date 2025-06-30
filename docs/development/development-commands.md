@@ -1,10 +1,10 @@
 # Development Commands Reference
 
-Comprehensive reference for all GitInspectorGUI development commands for the single-process PyO3 architecture.
+Comprehensive reference for all GitInspectorGUI development commands.
 
-!!! tip "Architecture Context"
+!!! tip "Workflow Context"
 
-    For understanding the single-process PyO3 development setup, see **[Development Architecture](development-architecture.md)**.
+    For understanding development workflows and patterns, see **[Development Workflow](development-workflow.md)**.
 
 ## Quick Reference
 
@@ -148,9 +148,13 @@ cd src-tauri && cargo clean && cargo build
 ### PyO3 Debugging Commands
 
 ```bash
-# Enable detailed PyO3 logging
+# Enable detailed PyO3 logging (see Rust Logging in Environment Setup)
 export RUST_LOG=pyo3=debug
 export RUST_BACKTRACE=1
+pnpm run tauri dev
+
+# Enable application-specific logging
+export RUST_LOG=gitinspectorgui=debug
 pnpm run tauri dev
 
 # Check Python environment for PyO3
@@ -461,7 +465,7 @@ pnpm clean            # Clean build artifacts
 
 ## Related Documentation
 
--   **[Development Architecture](development-architecture.md)** - Understanding the PyO3 single-process setup
+-   **[Development Workflow](development-workflow.md)** - Understanding development workflows and patterns
 -   **[Environment Setup](environment-setup.md)** - Initial development setup
 -   **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
 -   **[PyO3 Integration](../architecture/design-decisions.md)** - PyO3 architecture details

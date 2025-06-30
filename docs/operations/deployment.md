@@ -10,12 +10,11 @@ GitInspectorGUI is a Tauri-based desktop application with embedded Python analys
 2. [Build Process](#build-process)
 3. [Release Artifacts](#release-artifacts)
 4. [Distribution Platforms](#distribution-platforms)
-5. [Auto-Updates](#auto-updates)
-6. [Release Workflow](#release-workflow)
-7. [Version Management](#version-management)
-8. [Testing & Quality Assurance](#testing-quality-assurance)
-9. [CI/CD Integration](#cicd-integration)
-10. [Development to Production](#development-to-production)
+5. [Release Workflow](#release-workflow)
+6. [Version Management](#version-management)
+7. [Testing & Quality Assurance](#testing-quality-assurance)
+8. [CI/CD Integration](#cicd-integration)
+9. [Development to Production](#development-to-production)
 
 ---
 
@@ -139,53 +138,30 @@ All release artifacts include SHA256 checksums in `checksums.sha256`.
 
 ## Distribution Platforms
 
-### 1. GitLab Releases (Primary)
-
-**Advantages:**
-
--   Integrated with GitLab CI/CD
--   Free hosting for open source projects
--   Automatic update detection
--   Version history and release notes
--   Package registry integration
+### 1. GitHub Releases (Primary)
 
 **Setup:**
 
 ```bash
-# Create release with GitLab CLI
-glab release create v1.0.0 \
-  --name "GitInspectorGUI v1.0.0" \
-  --notes "Release notes here" \
-  dist/releases/*
-
-# Or using GitLab API
-curl --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-     --data name="v1.0.0" \
-     --data tag_name="v1.0.0" \
-     --data description="Release notes" \
-     "https://gitlab.com/api/v4/projects/$PROJECT_ID/releases"
-```
-
-### 2. GitHub Releases (Alternative)
-
-**Advantages:**
-
--   Free hosting
--   Automatic update detection
--   Version history
--   Release notes
-
-**Setup:**
-
-```bash
-# Create release with GitHub CLI (if mirroring to GitHub)
+# Create release with GitHub CLI
 gh release create v1.0.0 \
   --title "GitInspectorGUI v1.0.0" \
   --notes "Release notes here" \
   dist/releases/*
+
+# Or using GitHub API
+curl -X POST \
+  -H "Authorization: token $GITHUB_TOKEN" \
+  -H "Accept: application/vnd.github.v3+json" \
+  https://api.github.com/repos/owner/repo/releases \
+  -d '{
+    "tag_name": "v1.0.0",
+    "name": "GitInspectorGUI v1.0.0",
+    "body": "Release notes here"
+  }'
 ```
 
-### 3. Platform-Specific Stores
+### 2. Platform-Specific Stores
 
 #### Windows
 
@@ -220,69 +196,6 @@ Host installers on your own website with download links:
 
 ---
 
-## Auto-Updates
-
-### Tauri Updater Configuration
-
-Configure in `src-tauri/tauri.conf.json`:
-
-```json
-{
-    "tauri": {
-        "updater": {
-            "active": true,
-            "endpoints": [
-                "https://gitlab.com/your-username/gitinspectorgui/-/releases/{{current_version}}/downloads/{{target}}"
-            ],
-            "dialog": true,
-            "pubkey": "YOUR_PUBLIC_KEY_HERE"
-        }
-    }
-}
-```
-
-**Development vs Production Configuration:**
-
-```bash
-# Use different configs for different environments
-pnpm run tauri build --config src-tauri/tauri.conf.json          # Production
-pnpm run tauri build --config src-tauri/tauri.conf.dev.json     # Development
-```
-
-### Update Server Response
-
-Your update endpoint should return:
-
-```json
-{
-    "version": "1.0.1",
-    "notes": "Bug fixes and improvements",
-    "pub_date": "2024-01-15T12:00:00Z",
-    "platforms": {
-        "windows-x86_64": {
-            "signature": "signature_here",
-            "url": "https://releases.example.com/gitinspectorgui-1.0.1-x64.msi"
-        },
-        "darwin-x86_64": {
-            "signature": "signature_here",
-            "url": "https://releases.example.com/gitinspectorgui-1.0.1-x64.dmg"
-        }
-    }
-}
-```
-
-### Update Signing
-
-Generate signing keys:
-
-```bash
-# Generate private key (keep secure!)
-tauri signer generate -w ~/.tauri/myapp.key
-
-# Get public key for tauri.conf.json
-tauri signer sign -k ~/.tauri/myapp.key --password mypassword
-```
-
 ---
 
 ## Release Workflow
@@ -312,63 +225,7 @@ tauri signer sign -k ~/.tauri/myapp.key --password mypassword
 
 ### 2. Automated Release Pipeline
 
-Example GitLab CI workflow (`.gitlab-ci.yml`):
-
-```yaml
-stages:
-    - test
-    - build
-    - release
-
-variables:
-    PYTHON_VERSION: "3.13"
-    NODE_VERSION: "22"
-    RUST_VERSION: "1.85"
-
-# Test stage
-test:
-    stage: test
-    image: python:$PYTHON_VERSION
-    before_script:
-        - curl -fsSL https://get.pnpm.io/install.sh | sh -
-        - source ~/.bashrc
-        - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-        - source ~/.cargo/env
-    script:
-        - uv sync
-        - pnpm install
-        - python -m pytest
-        - pnpm test
-    only:
-        - tags
-
-# Build stage
-build:
-    stage: build
-    parallel:
-        matrix:
-            - PLATFORM: [ubuntu-latest, windows-latest, macos-latest]
-    script:
-        - ./scripts/build-all-platforms.sh --current
-        - ./scripts/test-release.sh
-    artifacts:
-        paths:
-            - dist/releases/
-        expire_in: 1 week
-    only:
-        - tags
-
-# Release stage
-release:
-    stage: release
-    image: registry.gitlab.com/gitlab-org/release-cli:latest
-    script:
-        - glab release create $CI_COMMIT_TAG --name "GitInspectorGUI $CI_COMMIT_TAG" --notes-file CHANGELOG.md dist/releases/*
-    only:
-        - tags
-```
-
-**Alternative GitHub Actions** (if mirroring to GitHub):
+GitHub Actions workflow (`.github/workflows/release.yml`):
 
 ```yaml
 name: Release
@@ -377,7 +234,39 @@ on:
         tags: ["v*"]
 
 jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.13"
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+
+            - name: Setup Rust
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Install uv
+              run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+            - name: Install dependencies
+              run: |
+                  uv sync
+                  pnpm install
+
+            - name: Run tests
+              run: |
+                  python -m pytest
+                  pnpm test
+
     build:
+        needs: test
         strategy:
             matrix:
                 platform: [macos-latest, ubuntu-latest, windows-latest]
@@ -415,6 +304,24 @@ jobs:
               with:
                   name: ${{ matrix.platform }}-build
                   path: src-tauri/target/release/bundle/
+
+    release:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+
+            - name: Create release
+              uses: softprops/action-gh-release@v1
+              with:
+                  files: |
+                      *-build/**/*
+                  generate_release_notes: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### 3. Manual Release Steps
@@ -433,9 +340,9 @@ git push origin v1.0.0
 # 4. Test release artifacts
 ./scripts/test-release.sh
 
-# 5. Create GitLab release
-glab release create v1.0.0 \
-  --name "GitInspectorGUI v1.0.0" \
+# 5. Create GitHub release
+gh release create v1.0.0 \
+  --title "GitInspectorGUI v1.0.0" \
   --notes-file CHANGELOG.md \
   dist/releases/*
 
@@ -505,191 +412,46 @@ echo "Release artifacts tested successfully"
 
 ## Version Management
 
-### Semantic Versioning
-
-Follow [SemVer](https://semver.org/):
-
--   **MAJOR**: Breaking changes
--   **MINOR**: New features (backward compatible)
--   **PATCH**: Bug fixes
-
-### Version Synchronization
-
 Keep versions synchronized across:
 
 -   `package.json` - Frontend version
 -   `src-tauri/tauri.conf.json` - App version
 -   `python/pyproject.toml` - Python CLI version
 
-### Pre-Release Versions
-
-Use pre-release tags for testing:
-
--   `1.0.0-alpha.1` - Alpha releases
--   `1.0.0-beta.1` - Beta releases
--   `1.0.0-rc.1` - Release candidates
-
 ---
 
-## Testing & Quality Assurance
-
-### Pre-Release Testing
-
-1. **Functional Testing**
-
-    - Test core git analysis features
-    - Verify UI responsiveness
-    - Test file operations
-
-2. **Platform Testing**
-
-    - Install and run on each target platform
-    - Test platform-specific features
-    - Verify installer behavior
-
-3. **Performance Testing**
-    - Large repository analysis
-    - Memory usage monitoring
-    - Startup time measurement
-
-### Beta Testing Program
-
-1. **Internal Testing**
-
-    - Development team validation
-    - Automated test suite
-    - Performance benchmarks
-
-2. **External Beta**
-    - Limited user group
-    - Feedback collection
-    - Issue tracking
-
-### Release Validation
-
-```bash
-# Verify signatures
-tauri signer verify -k public.key -s signature.sig app.exe
-
-# Test installation
-# Windows: Run .msi installer
-# macOS: Mount .dmg and test .app
-# Linux: Install .deb or run .AppImage
-
-# Verify auto-updater
-# Check update detection and download
-```
-
----
 
 ## CI/CD Integration
 
-### GitLab CI/CD Setup
+### GitHub Actions Setup
 
-The project uses GitLab CI/CD for automated testing and deployment. Key features:
+The project uses GitHub Actions for automated testing and deployment. Key features:
 
-**Pipeline Stages:**
+**Workflow Jobs:**
 
 1. **Test**: Run Python and frontend tests
 2. **Build**: Create platform-specific builds
-3. **Release**: Publish to GitLab releases
+3. **Release**: Publish to GitHub releases
 4. **Deploy**: Update documentation
 
 **Configuration Files:**
 
--   `.gitlab-ci.yml` - Main CI/CD pipeline
+-   `.github/workflows/release.yml` - Main release workflow
+-   `.github/workflows/test.yml` - Continuous integration testing
 -   `scripts/switch-ci.sh` - Switch between CI providers
 
 **Environment Variables:**
 
 ```bash
-# Required in GitLab CI/CD settings
-GITLAB_TOKEN=your_gitlab_token
-TAURI_PRIVATE_KEY=your_signing_key
-TAURI_KEY_PASSWORD=your_key_password
+# Required in GitHub repository secrets
+GITHUB_TOKEN=automatically_provided_by_github
 ```
 
 ### Documentation Deployment
 
-Automated documentation deployment to GitLab Pages:
-
-```yaml
-# In .gitlab-ci.yml
-pages:
-    stage: deploy
-    script:
-        - mkdocs build
-        - mv site public
-    artifacts:
-        paths:
-            - public
-    only:
-        - main
-```
-
-See [Documentation Deployment Guide](documentation-deployment.md) for details.
+See [Documentation Deployment Guide](documentation-deployment.md) for complete setup and configuration details.
 
 ---
-
-## Development to Production
-
-### From Development Mode to Release
-
-1. **Development Phase**:
-
-    - Use [Development Commands](../development/development-commands.md) for rapid iteration
-    - Follow [Environment Setup](../development/environment-setup.md)
-
-2. **Pre-Release Testing**:
-
-    ```bash
-    # Test production build locally
-    pnpm run tauri build
-    ./src-tauri/target/release/gitinspectorgui
-
-    # Test Python API sidecar
-    cd python && ./test-api-sidecar.sh
-    ```
-
-3. **Release Preparation**:
-
-    - Update versions across all files
-    - Update documentation
-    - Create comprehensive changelog
-
-4. **Release Execution**:
-
-    - Use automated CI/CD pipeline
-    - Monitor build status
-    - Test release artifacts
-
-5. **Post-Release**:
-    - Monitor user feedback
-    - Track download statistics
-    - Plan next iteration
-
-## Distribution Best Practices
-
-### Security
-
--   **Code Signing**: Sign all executables with valid certificates
--   **Checksums**: Provide SHA256 hashes for verification
--   **HTTPS**: Use secure download links
--   **Vulnerability Scanning**: Regular security audits
-
-### User Experience
-
--   **Clear Installation Instructions**: Platform-specific guides
--   **Uninstall Support**: Proper cleanup procedures
--   **Error Handling**: Graceful failure modes
--   **Documentation**: User guides and troubleshooting
-
-### Monitoring
-
--   **Download Analytics**: Track adoption rates
--   **Crash Reporting**: Automated error collection
--   **User Feedback**: Support channels and issue tracking
--   **Update Success Rates**: Monitor auto-update effectiveness
 
 ## Troubleshooting Releases
 
@@ -731,33 +493,3 @@ signtool.exe /list /s My                  # Windows
 # Test signing
 tauri signer sign --help
 ```
-
-### Release Validation
-
-**Before Publishing:**
-
-1. Test installation on clean systems
-2. Verify auto-updater functionality
-3. Check all download links work
-4. Validate checksums match
-5. Test uninstallation process
-
-**After Publishing:**
-
-1. Monitor download statistics
-2. Check for user-reported issues
-3. Verify auto-updater detects new version
-4. Update documentation if needed
-
----
-
-## Next Steps
-
-After successful deployment:
-
-1. **Monitor Release**: Track downloads and user feedback
-2. **Plan Updates**: Use [Version Management](#version-management) for future releases
-3. **Improve Process**: Refine CI/CD pipeline based on experience
-4. **Documentation**: Keep [Installation Guide](../getting-started/02-installation.md) updated
-
-This distribution model aligns with GitInspectorGUI's desktop application architecture, modern CI/CD practices, and provides users with familiar installation experiences on each platform while supporting the project's AI-assisted development workflow.

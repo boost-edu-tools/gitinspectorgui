@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use pyo3::prelude::*;
+use log::{debug, error};
 
 // Keep existing Settings struct for type safety and compatibility
 #[derive(Debug, Serialize, Deserialize)]
@@ -257,6 +258,8 @@ where
     T: Serialize,
     R: for<'de> Deserialize<'de>,
 {
+    debug!("Calling Python function: {}", function_name);
+
     Python::with_gil(|py| -> PyResult<R> {
         // Add the project's Python directory to the path
         let sys = py.import_bound("sys")?;
@@ -267,27 +270,38 @@ where
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Failed to get current directory: {}", e)))?;
         let python_dir = current_dir.join("python");
 
+        debug!("Adding Python path: {}", python_dir.display());
         path.call_method1("insert", (0, python_dir.to_string_lossy().as_ref()))?;
 
         // Import the main module from src-tauri/src-python/
         let src_python_dir = current_dir.join("src-tauri").join("src-python");
+        debug!("Adding src-python path: {}", src_python_dir.display());
         path.call_method1("insert", (0, src_python_dir.to_string_lossy().as_ref()))?;
 
+        debug!("Importing Python main module");
         let main_module = py.import_bound("main")?;
 
         // Serialize arguments to JSON string
         let args_json = serde_json::to_string(&args)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to serialize args: {}", e)))?;
 
+        debug!("Serialized args length: {} bytes", args_json.len());
+
         // Call the Python function
+        debug!("Executing Python function: {}", function_name);
         let result = main_module.call_method1(function_name, (args_json,))?;
         let result_str: String = result.extract()?;
+
+        debug!("Python function {} completed, result length: {} bytes", function_name, result_str.len());
 
         // Deserialize the result
         serde_json::from_str(&result_str)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to deserialize result: {}", e)))
     })
-    .map_err(|e| format!("Python call failed: {}", e))
+    .map_err(|e| {
+        error!("Python call to {} failed: {}", function_name, e);
+        format!("Python call failed: {}", e)
+    })
 }
 
 // Special helper for functions that don't take arguments
@@ -295,6 +309,8 @@ async fn call_python_function_no_args<R>(function_name: &str) -> Result<R, Strin
 where
     R: for<'de> Deserialize<'de>,
 {
+    debug!("Calling Python function (no args): {}", function_name);
+
     Python::with_gil(|py| -> PyResult<R> {
         // Add the project's Python directory to the path
         let sys = py.import_bound("sys")?;
@@ -305,23 +321,32 @@ where
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Failed to get current directory: {}", e)))?;
         let python_dir = current_dir.join("python");
 
+        debug!("Adding Python path: {}", python_dir.display());
         path.call_method1("insert", (0, python_dir.to_string_lossy().as_ref()))?;
 
         // Import the main module from src-tauri/src-python/
         let src_python_dir = current_dir.join("src-tauri").join("src-python");
+        debug!("Adding src-python path: {}", src_python_dir.display());
         path.call_method1("insert", (0, src_python_dir.to_string_lossy().as_ref()))?;
 
+        debug!("Importing Python main module");
         let main_module = py.import_bound("main")?;
 
         // Call the Python function with no arguments
+        debug!("Executing Python function: {}", function_name);
         let result = main_module.call_method0(function_name)?;
         let result_str: String = result.extract()?;
+
+        debug!("Python function {} completed, result length: {} bytes", function_name, result_str.len());
 
         // Deserialize the result
         serde_json::from_str(&result_str)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to deserialize result: {}", e)))
     })
-    .map_err(|e| format!("Python call failed: {}", e))
+    .map_err(|e| {
+        error!("Python call to {} failed: {}", function_name, e);
+        format!("Python call failed: {}", e)
+    })
 }
 
 // Clean Tauri commands using the helper functions

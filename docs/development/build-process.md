@@ -498,7 +498,7 @@ pnpm run tauri build --verbose
 # Check Python version (3.8+ required)
 python --version
 
-# Verify PyO3 helpers can find Python
+# Verify PyO3 helpers can find Python (see Rust Logging in Environment Setup)
 RUST_LOG=pyo3=debug cargo build
 ```
 

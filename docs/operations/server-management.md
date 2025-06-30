@@ -2,14 +2,6 @@
 
 GitInspectorGUI uses a single-process PyO3 architecture with embedded Python. This guide covers application lifecycle management and troubleshooting.
 
-## Architecture Overview
-
-The GitInspectorGUI application uses a **single-process architecture** with embedded Python via PyO3:
-
--   **Tauri Desktop Application** - Single process containing all components
--   **Embedded Python Engine** - Python interpreter embedded within Tauri via PyO3
--   **No Network Communication** - Direct function calls between Rust and Python
-
 ## Development vs Production
 
 ### Development Mode
@@ -294,40 +286,6 @@ pnpm run tauri dev
 -   User settings are stored in platform-specific locations
 -   No database or persistent server state to backup
 
-## Monitoring
-
-### Application Health
-
-**Check Application Status:**
-
-```bash
-# Development mode - check terminal output
-pnpm run tauri dev
-
-# Look for:
-# ✓ Python modules loaded successfully
-# ✓ Tauri application started
-# ✓ Frontend connected
-```
-
-**Performance Monitoring:**
-
--   Monitor memory usage during large repository analysis
--   Check CPU usage with multiple repositories
--   Watch for Python exception logs
-
-### Error Tracking
-
-**Log Locations:**
-
--   **Development:** Terminal output from `pnpm run tauri dev`
--   **Production:** Platform-specific application log directories
-
-**Key Error Patterns:**
-
--   `PyO3 Error:` - Python integration issues
--   `Tauri Error:` - Desktop application issues
--   `Analysis Error:` - Git repository analysis problems
 
 ## Best Practices
 

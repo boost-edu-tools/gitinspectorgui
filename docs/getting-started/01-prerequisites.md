@@ -92,22 +92,6 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 npm install -g pnpm
 ```
 
-## Verification
-
-After installation, verify all tools are working:
-
-```bash
-# Check versions
-python --version    # Should show 3.8+
-node --version      # Should show 22.0+
-rustc --version     # Should show 1.63+
-git --version       # Should show 2.45+
-
-# Check package managers
-uv --version        # Should show uv 0.4.x+
-pnpm --version      # Should show 9.x+
-```
-
 ## What Each Tool Does
 
 -   **Git**: Version control (you probably already have this)
@@ -122,7 +106,6 @@ Once all prerequisites are installed:
 
 1. **[Installation](02-installation.md)** - Set up the GitInspectorGUI project
 2. **[Quick Start](03-quick-start.md)** - Get the development environment running
-3. **[First Analysis](04-first-analysis.md)** - Test your setup
 
 ## Troubleshooting
 

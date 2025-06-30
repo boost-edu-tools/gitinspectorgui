@@ -37,6 +37,50 @@ If using VS Code:
 1. `Ctrl+Shift+P` → "Python: Select Interpreter"
 2. Choose `.venv/bin/python` (created by `uv sync`)
 
+## Rust Logging
+
+**RUST_LOG** is Rust's standard environment variable for controlling log levels. The format is:
+
+- `RUST_LOG=module=level` - Sets logging level for specific modules
+- `pyo3=debug` - Enables debug-level logging for the PyO3 crate
+
+### Common RUST_LOG Patterns
+
+```bash
+# General debug logging
+export RUST_LOG=debug
+
+# Application-specific logging
+export RUST_LOG=gitinspectorgui=debug
+
+# PyO3 integration debugging (Python-Rust communication)
+export RUST_LOG=pyo3=debug
+
+# Multiple modules
+export RUST_LOG=pyo3=debug,gitinspectorgui=info
+
+# All PyO3 and Tauri logging
+export RUST_LOG=pyo3=debug,tauri=debug
+```
+
+### Log Levels
+
+Available log levels (from most to least verbose):
+
+- `trace` - Very detailed tracing information
+- `debug` - Debug information for development
+- `info` - General information messages
+- `warn` - Warning messages
+- `error` - Error messages only
+
+### GitInspectorGUI Specific Usage
+
+In this project, RUST_LOG is particularly useful for:
+
+- **PyO3 debugging**: `RUST_LOG=pyo3=debug` shows Python-Rust integration details
+- **Application debugging**: `RUST_LOG=gitinspectorgui=debug` shows app-specific logs
+- **Performance monitoring**: Debug logs include timing and memory information
+
 ## Development Server Configuration
 
 For development server commands and workflows, see **[Development Workflow](development-workflow.md)**.
@@ -268,13 +312,13 @@ python -c "import tracemalloc; tracemalloc.start()"
 ### Development Environment
 
 ```bash
-# Enable debug logging
-export RUST_LOG=debug
-export RUST_BACKTRACE=1
+# Enable debug logging (now functional with env_logger)
+export RUST_LOG=debug                    # General debug logging
+export RUST_LOG=gitinspectorgui=debug    # Application-specific logging
+export RUST_LOG=pyo3=debug               # PyO3 integration debugging
+export RUST_BACKTRACE=1                  # Show panic backtraces
 
-# PyO3 specific debugging
-export PYTHONPATH="${PWD}/python"
-export RUST_LOG=pyo3=debug
+# Note: PYTHONPATH is automatically configured by the build system
 
 # Start development with debug info
 pnpm run tauri dev
