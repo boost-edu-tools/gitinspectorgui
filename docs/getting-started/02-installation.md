@@ -13,7 +13,7 @@ Set up the GitInspectorGUI development environment after installing prerequisite
 Clone the repository and navigate to the project directory:
 
 ```bash
-git clone https://gitlab.com/your-username/gitinspectorgui.git
+git clone https://github.com/boost-edu-tools/gitinspectorgui.git
 cd gitinspectorgui
 ```
 

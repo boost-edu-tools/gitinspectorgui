@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # GitHub Pages documentation build test script
-# Adapted from GitLab Pages version to work with GitHub Pages deployment
-# This preserves all the sophistication of the original while adapting for GitHub
+# Tests MkDocs build process for GitHub Pages deployment
 
 set -e  # Exit on any error
 
@@ -82,7 +81,7 @@ if [ $? -eq 0 ]; then
     if [ -f "package.json" ]; then
         echo ""
         echo "🔨 Building React demo app..."
-        
+
         # Check if npm/pnpm is available and install dependencies
         if command -v pnpm &> /dev/null; then
             echo "📥 Installing Node.js dependencies with pnpm..."
@@ -142,24 +141,24 @@ if [ $? -eq 0 ]; then
     echo "📁 Generated files in 'public/' directory:"
     ls -la public/ | head -10
     echo ""
-    
+
     # Check if demo directory exists and show its contents
     if [ -d "public/demo" ]; then
         echo "📁 Demo app files in 'public/demo/' directory:"
         ls -la public/demo/ | head -5
         echo ""
     fi
-    
+
     echo "📊 Build statistics:"
     echo "   - Total files: $(find public -type f | wc -l)"
     echo "   - HTML files: $(find public -name "*.html" | wc -l)"
     echo "   - CSS files: $(find public -name "*.css" | wc -l)"
     echo "   - JS files: $(find public -name "*.js" | wc -l)"
-    
+
     if [ -d "public/demo" ]; then
         echo "   - Demo files: $(find public/demo -type f | wc -l)"
     fi
-    
+
     echo ""
     echo "🌐 To test locally, you can:"
     echo "   1. Run: python3 -m http.server 8080 --directory public"
@@ -169,7 +168,7 @@ if [ $? -eq 0 ]; then
     fi
     echo ""
     echo "🚀 This build is ready for GitHub Pages deployment!"
-    
+
     # Determine the GitHub Pages URL format
     if git remote get-url origin &>/dev/null; then
         ORIGIN_URL=$(git remote get-url origin)

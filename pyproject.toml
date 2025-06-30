@@ -36,8 +36,8 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://gitlab.com/edu-boost/gitinspectorgui"
-repository = "https://gitlab.com/edu-boost/gitinspectorgui"
+homepage = "https://github.com/boost-edu-tools/gitinspectorgui"
+repository = "https://github.com/boost-edu-tools/gitinspectorgui"
 
 [project.scripts]
 gigui = "gigui.cli:main"

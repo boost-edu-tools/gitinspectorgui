@@ -250,7 +250,7 @@ show_next_steps() {
     echo "📋 Next steps:"
     echo "   1. Test the built applications: ./scripts/test-release.sh"
     echo "   2. Create release tag: git tag vX.Y.Z && git push origin vX.Y.Z"
-    echo "   3. Upload to GitLab releases: glab release create vX.Y.Z dist/*releases/*"
+    echo "   3. Upload to GitHub releases: gh release create vX.Y.Z dist/*releases/*"
 
     if [ "$app_type" = "gui" ]; then
         echo "   4. Update auto-updater endpoints (if configured)"
