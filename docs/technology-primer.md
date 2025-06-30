@@ -10,26 +10,27 @@ The GitInspectorGUI codebase uses a modern multi-technology development stack. H
 
 ```mermaid
 graph TB
-    subgraph "Desktop Application"
-        A[Tauri Framework] --> B[Web UI]
-        B --> C[React Components]
-        C --> D[TypeScript Code]
-    end
+    A[Tauri Framework] --> B[Web UI]
+    B --> C[React Components]
+    C --> D[TypeScript Code]
 
-    subgraph "Backend Integration"
-        E[PyO3 Helper Functions] --> F[PyO3 Bindings]
-        F --> G[Git Analysis]
-        G --> H[Python Logic]
-    end
+    E[PyO3 Helper Functions] --> F[PyO3 Bindings]
+    F --> G[Git Analysis]
+    G --> H[Python Logic]
 
-    subgraph "Development Tools"
-        I[Vite Build Tool] --> B
-        J[pnpm Package Manager] --> C
-        K[Rust Compiler] --> A
-        L[uv Package Manager] --> H
-    end
+    I[Vite Build Tool] --> B
+    J[pnpm Package Manager] --> C
+    K[Rust Compiler] --> A
+    L[uv Package Manager] --> H
 
-    A -->|invoke()| E
+    A -->|invoke| E
+
+    style A fill:#e1f5fe
+    style E fill:#f3e5f5
+    style I fill:#fff3e0
+    style J fill:#fff3e0
+    style K fill:#fff3e0
+    style L fill:#fff3e0
 ```
 
 ## Core Technologies
