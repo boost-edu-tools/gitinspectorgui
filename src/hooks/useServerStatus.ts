@@ -20,7 +20,7 @@ export function useServerStatus() {
     const checkServerHealth = useCallback(async () => {
         try {
             // Use the new plugin API
-            const healthResult = await healthCheck();
+            await healthCheck();
             const engineInfo = await getEngineInfo();
 
             setStatus((prev) => ({
