@@ -12,7 +12,7 @@ from gigui.api import GitInspectorAPI, Settings
 from gigui.core.legacy_engine import legacy_engine
 
 
-def test_legacy_engine_integration():
+def test_legacy_engine_integration() -> None:
     """Test that legacy engine can be integrated with current API."""
     # Test engine info
     info = legacy_engine.get_engine_info()
@@ -31,10 +31,10 @@ def test_legacy_engine_integration():
         assert error_msg == ""
 
 
-def test_legacy_engine_as_api_replacement():
+def test_legacy_engine_as_api_replacement() -> None:
     """Test using legacy engine as a replacement for current API analysis."""
     # Create a mock API that uses the legacy engine
-    api = GitInspectorAPI()
+    GitInspectorAPI()
 
     with tempfile.TemporaryDirectory() as temp_dir:
         # Create a test file in the temp directory
@@ -62,7 +62,7 @@ def test_legacy_engine_as_api_replacement():
             assert hasattr(result, "error")
 
 
-def test_settings_translation_compatibility():
+def test_settings_translation_compatibility() -> None:
     """Test that settings translation maintains compatibility."""
     # Test with various settings configurations
     test_cases = [

@@ -204,7 +204,7 @@ class RepoBase:
 
     """
 
-    def __init__(self, ini_repo: IniRepo):
+    def __init__(self, ini_repo: IniRepo) -> None:
         """Initialize repository base with configuration.
 
         Args:
@@ -263,7 +263,7 @@ class RepoBase:
             return list(self._fstrs)
         # after analysis and blame run
         # fstr2fstat.keys() can be a subset of self._fstrs due to exclusions
-        fstrs = [fstr for fstr in self.fstr2fstat.keys() if fstr != "*"]
+        fstrs = [fstr for fstr in self.fstr2fstat if fstr != "*"]
         return sorted(
             fstrs,
             key=lambda x: self.fstr2fstat[x].stat.blame_line_count,
@@ -273,7 +273,7 @@ class RepoBase:
     @property
     def star_fstrs(self) -> list[FileStr]:
         """Get file strings list with '*' (all files) as first element."""
-        return ["*"] + self.fstrs
+        return ["*", *self.fstrs]
 
     def init_git_repo(self) -> None:
         """Initialize the git repository and build SHA mappings.
@@ -299,13 +299,14 @@ class RepoBase:
             logger.info(f"Initialized git repository: {self.name}")
 
         except Exception as e:
-            logger.error(f"Failed to initialize git repository {self.name}: {e}")
+            logger.exception(f"Failed to initialize git repository {self.name}: {e}")
             raise
 
     def _build_sha_mappings(self) -> None:
         """Build mappings between long SHAs, short SHAs, and commit numbers."""
         if not self.git_repo:
-            raise RuntimeError("Git repository not initialized")
+            msg = "Git repository not initialized"
+            raise RuntimeError(msg)
 
         # Use git log to get both long and short SHAs
         log_output = self.git_repo.git.log("--pretty=format:%H %h")
@@ -328,7 +329,8 @@ class RepoBase:
     def _set_head_commit(self) -> None:
         """Set head commit based on until parameter."""
         if not self.git_repo:
-            raise RuntimeError("Git repository not initialized")
+            msg = "Git repository not initialized"
+            raise RuntimeError(msg)
 
         # Set head_commit to the top-level commit at the date given by args.until
         if self.args.until:
@@ -493,8 +495,7 @@ class RepoBase:
         sorted_files_sizes = sorted(
             _get_worktree_files_sizes(), key=lambda x: x[1], reverse=True
         )
-        sorted_files = [file_size[0] for file_size in sorted_files_sizes]
-        return sorted_files
+        return [file_size[0] for file_size in sorted_files_sizes]
 
     def _matches_ex_file(self, fstr: FileStr) -> bool:
         """Check if file should be excluded based on exclusion patterns.
@@ -563,7 +564,7 @@ class RepoBase:
         try:
             lines_str: str = self.git_repo.git.log(*args)
         except Exception as e:
-            logger.error(f"Git log command failed: {e}")
+            logger.exception(f"Git log command failed: {e}")
             return
 
         lines = lines_str.splitlines()
@@ -643,7 +644,7 @@ class RepoBase:
         It supports both single-threaded and multi-threaded execution.
         """
 
-        def reduce_commits():
+        def reduce_commits() -> None:
             """Remove duplicate commits from the end of commit lists."""
             fstrs = copy.deepcopy(self.fstrs)
             fstrs.sort(key=lambda x: len(self.fstr2commit_groups.get(x, [])))
@@ -702,7 +703,7 @@ class RepoBase:
                                 self._process_commit_lines_for(lines_str, fstr)
                             )
                         except Exception as e:
-                            logger.error(f"Error processing file {fstr}: {e}")
+                            logger.exception(f"Error processing file {fstr}: {e}")
         else:
             # Single-threaded processing
             self.log_space(8)
@@ -720,7 +721,7 @@ class RepoBase:
                         lines_str, fstr
                     )
                 except Exception as e:
-                    logger.error(f"Error processing file {fstr}: {e}")
+                    logger.exception(f"Error processing file {fstr}: {e}")
 
         self.log_space(2)
         reduce_commits()
@@ -760,12 +761,12 @@ class RepoBase:
                 lines_str = git_repo.git.log(*git_log_args())
                 git_repo.close()
             except Exception as e:
-                logger.error(f"Git log failed for file {fstr}: {e}")
+                logger.exception(f"Git log failed for file {fstr}: {e}")
         elif self.git_repo:
             try:
                 lines_str = self.git_repo.git.log(*git_log_args())
             except Exception as e:
-                logger.error(f"Git log failed for file {fstr}: {e}")
+                logger.exception(f"Git log failed for file {fstr}: {e}")
 
         return lines_str, fstr
 
@@ -921,7 +922,7 @@ class RepoBase:
                 "--pretty=format:%h", "--follow", "--name-status", "--", root_fstr
             ).splitlines()
         except Exception as e:
-            logger.error(f"Git log failed for file rename tracking {root_fstr}: {e}")
+            logger.exception(f"Git log failed for file rename tracking {root_fstr}: {e}")
             return sha2f
 
         i: int = 0
@@ -972,7 +973,8 @@ class RepoBase:
 
         nrs: list[int] = sorted(self.fr2sha_nr2f[root_fstr].keys(), reverse=True)
         if not nrs:
-            raise ValueError(f"No entries found for {root_fstr}.")
+            msg = f"No entries found for {root_fstr}."
+            raise ValueError(msg)
 
         for nr in nrs:
             if nr <= sha_nr:
@@ -1054,6 +1056,6 @@ class RepoBase:
                 info["total_commits"] = len(self.sha2nr)
 
         except Exception as e:
-            logger.error(f"Error getting repository info: {e}")
+            logger.exception(f"Error getting repository info: {e}")
 
         return info

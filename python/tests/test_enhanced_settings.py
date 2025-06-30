@@ -12,7 +12,7 @@ from gigui.api import GitInspectorAPI, Settings
 from gigui.core.person_manager import Person
 
 
-def test_basic_settings_creation():
+def test_basic_settings_creation() -> None:
     """Test basic Settings creation with defaults."""
     print("Testing basic Settings creation...")
 
@@ -21,7 +21,7 @@ def test_basic_settings_creation():
     # Test basic defaults
     assert settings.depth == 5
     assert settings.n_files == 5
-    assert settings.multithread == True
+    assert settings.multithread
     assert settings.blame_exclusions == "hide"
     assert settings.view == "auto"
     assert settings.fix == "prefix"
@@ -31,12 +31,12 @@ def test_basic_settings_creation():
     assert settings.git_log_chunk_size == 100
     assert settings.blame_chunk_size == 20
     assert settings.memory_limit_mb == 1024
-    assert settings.enable_gc_optimization == True
+    assert settings.enable_gc_optimization
 
     print("✓ Basic settings creation works correctly")
 
 
-def test_advanced_filtering_patterns():
+def test_advanced_filtering_patterns() -> None:
     """Test advanced pattern-based filtering."""
     print("Testing advanced filtering patterns...")
 
@@ -57,7 +57,7 @@ def test_advanced_filtering_patterns():
     print("✓ Advanced filtering patterns work correctly")
 
 
-def test_performance_settings():
+def test_performance_settings() -> None:
     """Test performance optimization settings."""
     print("Testing performance settings...")
 
@@ -65,23 +65,23 @@ def test_performance_settings():
 
     # Test large repository configuration
     settings.configure_for_large_repository()
-    assert settings.multithread == True
-    assert settings.multicore == True
+    assert settings.multithread
+    assert settings.multicore
     assert settings.memory_limit_mb == 2048
     assert settings.git_log_chunk_size == 200
-    assert settings.enable_gc_optimization == True
+    assert settings.enable_gc_optimization
 
     # Test small repository configuration
     settings.configure_for_small_repository()
-    assert settings.multithread == False
-    assert settings.multicore == False
+    assert not settings.multithread
+    assert not settings.multicore
     assert settings.memory_limit_mb == 512
     assert settings.git_log_chunk_size == 50
 
     print("✓ Performance settings work correctly")
 
 
-def test_blame_analysis_configuration():
+def test_blame_analysis_configuration() -> None:
     """Test blame analysis configuration options."""
     print("Testing blame analysis configuration...")
 
@@ -95,16 +95,16 @@ def test_blame_analysis_configuration():
         enable_ignore_revs=True,
     )
 
-    assert settings.blame_follow_moves == True
-    assert settings.blame_ignore_whitespace == True
-    assert settings.blame_show_email == True
+    assert settings.blame_follow_moves
+    assert settings.blame_ignore_whitespace
+    assert settings.blame_show_email
     assert settings.ignore_revs_file == ".git-blame-ignore-revs"
-    assert settings.enable_ignore_revs == True
+    assert settings.enable_ignore_revs
 
     print("✓ Blame analysis configuration works correctly")
 
 
-def test_output_format_options():
+def test_output_format_options() -> None:
     """Test output format and display options."""
     print("Testing output format options...")
 
@@ -131,13 +131,13 @@ def test_output_format_options():
     print("✓ Output format options work correctly")
 
 
-def test_settings_validation():
+def test_settings_validation() -> bool:
     """Test settings validation."""
     print("Testing settings validation...")
 
     # Test valid settings
     try:
-        settings = Settings(
+        Settings(
             input_fstrs=["test_repo"],
             n_files=10,
             depth=3,
@@ -179,7 +179,7 @@ def test_settings_validation():
     return True
 
 
-def test_person_filtering():
+def test_person_filtering() -> bool:
     """Test enhanced Person filtering with patterns."""
     print("Testing Person filtering...")
 
@@ -224,7 +224,7 @@ def test_person_filtering():
     return True
 
 
-def test_legacy_compatibility():
+def test_legacy_compatibility() -> bool:
     """Test legacy format conversion."""
     print("Testing legacy compatibility...")
 
@@ -264,14 +264,14 @@ def test_legacy_compatibility():
     assert legacy_format["n_files"] == 10
     assert legacy_format["extensions"] == ["py", "js"]
     assert legacy_format["ex_authors"] == ["bot"]
-    assert legacy_format["multithread"] == False
+    assert not legacy_format["multithread"]
     assert legacy_format["verbosity"] == 2
 
     print("✓ Legacy compatibility works correctly")
     return True
 
 
-def test_settings_persistence():
+def test_settings_persistence() -> bool | None:
     """Test settings save/load functionality."""
     print("Testing settings persistence...")
 
@@ -316,7 +316,7 @@ def test_settings_persistence():
         Path(temp_path).unlink(missing_ok=True)
 
 
-def test_helper_methods():
+def test_helper_methods() -> bool:
     """Test helper methods."""
     print("Testing helper methods...")
 
@@ -346,7 +346,7 @@ def test_helper_methods():
     settings.max_thread_workers = 4
     settings.git_log_chunk_size = 100
     settings.enable_gc_optimization = True
-    assert settings.is_performance_optimized() == True
+    assert settings.is_performance_optimized()
 
     # Test memory settings
     memory_settings = settings.get_memory_settings()
@@ -357,7 +357,7 @@ def test_helper_methods():
     return True
 
 
-def main():
+def main() -> bool:
     """Run all tests."""
     print("Running Enhanced Settings Tests")
     print("=" * 50)

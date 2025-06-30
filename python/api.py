@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_settings_from_dict(settings_dict: dict[str, Any]) -> Settings:
-    """Creates a Settings object from a dictionary of settings.
-    """
+    """Creates a Settings object from a dictionary of settings."""
     # Provide defaults for all required fields
     defaults = {
         "input_fstrs": [],
@@ -136,16 +135,15 @@ def create_settings_from_dict(settings_dict: dict[str, Any]) -> Settings:
         )
 
     try:
-        settings = Settings(**settings_dict)
-        return settings
+        return Settings(**settings_dict)
     except Exception as e:
-        logger.error(f"Failed to create Settings object: {e}")
-        raise ValueError(f"Invalid settings: {e}") from e
+        logger.exception(f"Failed to create Settings object: {e}")
+        msg = f"Invalid settings: {e}"
+        raise ValueError(msg) from e
 
 
 def process_repositories(settings: Settings) -> dict[str, Any]:
-    """Processes repositories using the new GitInspectorAPI.
-    """
+    """Processes repositories using the new GitInspectorAPI."""
     if not settings.input_fstrs:
         return {"error": "No input repository paths provided in settings."}
 
@@ -168,7 +166,7 @@ def process_repositories(settings: Settings) -> dict[str, Any]:
         return {"status": "error", "error_message": str(e)}
 
 
-def main():
+def main() -> None:
     """Main entry point for command-line usage."""
     # Read settings JSON from stdin
     try:

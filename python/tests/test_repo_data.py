@@ -18,7 +18,7 @@ from gigui.core.statistics import CommitGroup
 from gigui.typedefs import IniRepo
 
 
-def test_divide_to_percentage():
+def test_divide_to_percentage() -> None:
     """Test the percentage calculation function."""
     print("Testing divide_to_percentage function...")
 
@@ -37,7 +37,7 @@ def test_divide_to_percentage():
     print("✓ divide_to_percentage tests passed")
 
 
-def test_stat_tables():
+def test_stat_tables() -> None:
     """Test the StatTables class functionality."""
     print("Testing StatTables class...")
 
@@ -89,7 +89,7 @@ def test_stat_tables():
     print("✓ StatTables tests passed")
 
 
-def test_repo_data_structure():
+def test_repo_data_structure() -> None:
     """Test the RepoData class structure and initialization."""
     print("Testing RepoData class structure...")
 
@@ -118,7 +118,7 @@ def test_repo_data_structure():
         print("This is expected without a real git repository")
 
 
-def main():
+def main() -> int:
     """Run all tests for the main analysis orchestrator."""
     print("Testing Main Analysis Orchestrator (RepoData)...")
     print("=" * 60)

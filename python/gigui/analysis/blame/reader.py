@@ -102,7 +102,7 @@ class BlameReader:
             if extension in [".py"]:
                 is_comment = stripped.startswith("#")
             elif extension in [".js", ".ts", ".java", ".c", ".cpp", ".h"]:
-                is_comment = stripped.startswith("//") or stripped.startswith("/*")
+                is_comment = stripped.startswith(("//", "/*"))
             elif extension in [".html", ".xml"]:
                 is_comment = stripped.startswith("<!--")
             elif extension in [".css"]:
@@ -147,7 +147,8 @@ class BlameReader:
                 self.oid2blame[oid] = copy.deepcopy(b)
                 self.oid2blame[oid].line_datas = []
         else:
-            raise ValueError(f"Unexpected line format: {line}")
+            msg = f"Unexpected line format: {line}"
+            raise ValueError(msg)
 
         return b, i
 

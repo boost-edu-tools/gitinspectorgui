@@ -107,7 +107,7 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def format_table_output(result):
+def format_table_output(result) -> None:
     """Format analysis result as a table."""
     if not result.success:
         print(f"Error: {result.error}", file=sys.stderr)
@@ -138,7 +138,7 @@ def format_table_output(result):
                 )
 
 
-def main():
+def main() -> None:
     """Main CLI entry point."""
     parser = create_parser()
     args = parser.parse_args()

@@ -23,7 +23,7 @@ script_dir = Path(__file__).parent
 sys.path.insert(0, str(script_dir))
 
 
-def main():
+def main() -> None:
     """Main entry point that delegates to the actual API."""
     try:
         # Get the absolute path to the script directory
@@ -44,9 +44,8 @@ def main():
                 break
 
         # If we found the python directory, add it to sys.path
-        if python_gigui_path:
-            if str(python_gigui_path) not in sys.path:
-                sys.path.insert(0, str(python_gigui_path))
+        if python_gigui_path and str(python_gigui_path) not in sys.path:
+            sys.path.insert(0, str(python_gigui_path))
 
         # Also add the script directory itself
         if str(script_dir) not in sys.path:
@@ -70,7 +69,7 @@ def main():
 
         # Try to find the python directory
         current_path = script_dir
-        for i in range(10):
+        for _i in range(10):
             potential_path = current_path / "python"
             print(
                 f"  Checking: {potential_path} (exists: {potential_path.exists()})",

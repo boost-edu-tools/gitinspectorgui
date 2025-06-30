@@ -234,51 +234,64 @@ class Settings:
 
         # Validation of numeric settings
         if not self.n_files >= 0:
-            raise ValueError("n_files must be a non-negative integer")
+            msg = "n_files must be a non-negative integer"
+            raise ValueError(msg)
         if not self.depth >= 0:
-            raise ValueError("depth must be a non-negative integer")
+            msg = "depth must be a non-negative integer"
+            raise ValueError(msg)
         if not self.max_thread_workers >= 1:
-            raise ValueError("max_thread_workers must be at least 1")
+            msg = "max_thread_workers must be at least 1"
+            raise ValueError(msg)
         if not self.git_log_chunk_size >= 1:
-            raise ValueError("git_log_chunk_size must be at least 1")
+            msg = "git_log_chunk_size must be at least 1"
+            raise ValueError(msg)
         if not self.blame_chunk_size >= 1:
-            raise ValueError("blame_chunk_size must be at least 1")
+            msg = "blame_chunk_size must be at least 1"
+            raise ValueError(msg)
         if not self.memory_limit_mb >= 64:
-            raise ValueError("memory_limit_mb must be at least 64 MB")
+            msg = "memory_limit_mb must be at least 64 MB"
+            raise ValueError(msg)
         if not self.max_file_size_kb >= 1:
-            raise ValueError("max_file_size_kb must be at least 1 KB")
+            msg = "max_file_size_kb must be at least 1 KB"
+            raise ValueError(msg)
 
         # Validation of choice settings
         valid_fix_options = ["prefix", "postfix", "nofix"]
         if self.fix not in valid_fix_options:
-            raise ValueError(f"fix must be one of {valid_fix_options}")
+            msg = f"fix must be one of {valid_fix_options}"
+            raise ValueError(msg)
 
         valid_view_options = ["auto", "dynamic-blame-history", "none"]
         if self.view not in valid_view_options:
-            raise ValueError(f"view must be one of {valid_view_options}")
+            msg = f"view must be one of {valid_view_options}"
+            raise ValueError(msg)
 
         valid_blame_exclusions = ["hide", "show", "remove"]
         if self.blame_exclusions not in valid_blame_exclusions:
+            msg = f"blame_exclusions must be one of {valid_blame_exclusions}"
             raise ValueError(
-                f"blame_exclusions must be one of {valid_blame_exclusions}"
+                msg
             )
 
         valid_date_formats = ["iso", "short", "relative"]
         if self.date_format not in valid_date_formats:
-            raise ValueError(f"date_format must be one of {valid_date_formats}")
+            msg = f"date_format must be one of {valid_date_formats}"
+            raise ValueError(msg)
 
         valid_author_formats = ["name", "email", "both"]
         if self.author_display_format not in valid_author_formats:
+            msg = f"author_display_format must be one of {valid_author_formats}"
             raise ValueError(
-                f"author_display_format must be one of {valid_author_formats}"
+                msg
             )
 
         # Ensure file_formats contains valid options
         valid_file_formats = ["html", "excel"]
         for fmt in self.file_formats:
             if fmt not in valid_file_formats:
+                msg = f"file_format '{fmt}' must be one of {valid_file_formats}"
                 raise ValueError(
-                    f"file_format '{fmt}' must be one of {valid_file_formats}"
+                    msg
                 )
 
         # Set CPU-based defaults for core workers
@@ -288,7 +301,7 @@ class Settings:
         if self.max_core_workers > cpu_count:
             self.max_core_workers = min(cpu_count, 16)
 
-    def normalize_paths(self):
+    def normalize_paths(self) -> None:
         """Normalize file paths for cross-platform compatibility."""
         # Normalize input paths
         self.input_fstrs = [str(Path(p).as_posix()) for p in self.input_fstrs]
@@ -355,7 +368,7 @@ class Settings:
             "blame_chunk_size": self.blame_chunk_size,
         }
 
-    def configure_for_large_repository(self):
+    def configure_for_large_repository(self) -> None:
         """Configure settings optimized for large repositories."""
         self.multithread = True
         self.multicore = True
@@ -366,7 +379,7 @@ class Settings:
         self.enable_gc_optimization = True
         self.max_file_size_kb = 2048
 
-    def configure_for_small_repository(self):
+    def configure_for_small_repository(self) -> None:
         """Configure settings optimized for small repositories."""
         self.multithread = False
         self.multicore = False

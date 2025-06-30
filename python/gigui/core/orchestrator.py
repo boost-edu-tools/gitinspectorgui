@@ -217,11 +217,11 @@ class RepoData(RepoBlameHistory):
         )
 
         # Calculate percentages for nested statistics tables
-        for _, fstr2fstat in self.author2fstr2fstat.items():
+        for fstr2fstat in self.author2fstr2fstat.values():
             self.stat_tables.calculate_percentages(
                 fstr2fstat, total_insertions, total_lines
             )
-        for _, author2fstat in self.fstr2author2fstat.items():
+        for author2fstat in self.fstr2author2fstat.values():
             self.stat_tables.calculate_percentages(
                 author2fstat, total_insertions, total_lines
             )
@@ -299,7 +299,7 @@ class RepoData(RepoBlameHistory):
             List of actual author names without the special "*" entry
 
         """
-        return [author for author in self.authors_included if not author == "*"]
+        return [author for author in self.authors_included if author != "*"]
 
     def fr2f2a2sha_set_to_list(
         self, source: dict[FileStr, dict[FileStr, dict[Author, set[SHA]]]]

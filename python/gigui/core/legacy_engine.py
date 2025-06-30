@@ -19,6 +19,7 @@ Classes:
     PerformanceMonitor: Tracks analysis performance and resource usage
 """
 
+import contextlib
 import logging
 import time
 from dataclasses import dataclass
@@ -95,7 +96,8 @@ class SettingsTranslator:
         try:
             # Validate input settings
             if not settings.input_fstrs:
-                raise ValueError("No input repositories specified")
+                msg = "No input repositories specified"
+                raise ValueError(msg)
 
             # Create legacy Args-compatible dictionary
             legacy_args = {
@@ -196,7 +198,7 @@ class SettingsTranslator:
 
             # Create a simple args object from the dictionary
             class Args:
-                def __init__(self, **kwargs):
+                def __init__(self, **kwargs) -> None:
                     for key, value in kwargs.items():
                         setattr(self, key, value)
 
@@ -213,9 +215,10 @@ class SettingsTranslator:
             return ini_repo
 
         except Exception as e:
-            logger.error(f"Settings translation failed: {e}")
+            logger.exception(f"Settings translation failed: {e}")
+            msg = f"Failed to translate settings to legacy format: {e}"
             raise ValueError(
-                f"Failed to translate settings to legacy format: {e}"
+                msg
             ) from e
 
 
@@ -281,7 +284,7 @@ class ResultConverter:
             return AnalysisResult(repositories=repositories, success=True, error=None)
 
         except Exception as e:
-            logger.error(f"Result conversion failed: {e}")
+            logger.exception(f"Result conversion failed: {e}")
             return AnalysisResult(
                 repositories=[],
                 success=False,
@@ -305,7 +308,7 @@ class ResultConverter:
 
                 # Get primary email
                 primary_email = (
-                    list(person.emails)[0] if person.emails else "unknown@example.com"
+                    next(iter(person.emails)) if person.emails else "unknown@example.com"
                 )
 
                 # Get file count for this author from author2fstr2fstat
@@ -315,7 +318,7 @@ class ResultConverter:
                     file_count = len(
                         [
                             f
-                            for f in repo_data.author2fstr2fstat[author].keys()
+                            for f in repo_data.author2fstr2fstat[author]
                             if f != "*"
                         ]
                     )
@@ -429,7 +432,7 @@ class PerformanceMonitor:
     during legacy analysis engine execution.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize performance monitoring."""
         self.start_time = 0.0
         self.end_time = 0.0
@@ -493,7 +496,7 @@ class LegacyEngineWrapper:
     error management while maintaining backward compatibility.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the legacy engine wrapper."""
         self.settings_translator = SettingsTranslator()
         self.result_converter = ResultConverter()
@@ -583,10 +586,10 @@ class LegacyEngineWrapper:
                             if stat.person.author != "*"
                         )
                         repo_files = len(
-                            [f for f in repo_data.fstr2fstat.keys() if f != "*"]
+                            [f for f in repo_data.fstr2fstat if f != "*"]
                         )
                         repo_authors = len(
-                            [a for a in repo_data.author2pstat.keys() if a != "*"]
+                            [a for a in repo_data.author2pstat if a != "*"]
                         )
 
                         total_commits += repo_commits
@@ -600,7 +603,7 @@ class LegacyEngineWrapper:
                         )
 
                     except Exception as e:
-                        logger.error(f"Failed to process repository {repo_path}: {e}")
+                        logger.exception(f"Failed to process repository {repo_path}: {e}")
                         errors += 1
 
                         # Continue with other repositories on error
@@ -639,13 +642,11 @@ class LegacyEngineWrapper:
                 )
 
             except Exception as e:
-                logger.error(f"Legacy engine analysis failed: {e}")
+                logger.exception(f"Legacy engine analysis failed: {e}")
 
                 # Stop monitoring on error
-                try:
+                with contextlib.suppress(Exception):
                     self.performance_monitor.stop_monitoring(0, 0, 0, 0, 1)
-                except:
-                    pass
 
                 # Log performance summary even on error
                 profiler.log_summary()

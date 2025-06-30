@@ -62,7 +62,8 @@ def open_file(fstr: FileStr) -> None:
             case "Windows":
                 subprocess.run(["start", "", fstr], check=True, shell=True)
             case _:
-                raise RuntimeError(f"Unknown platform {platform.system()}")
+                msg = f"Unknown platform {platform.system()}"
+                raise RuntimeError(msg)
 
 
 def log_end_time(start_time: float) -> None:
@@ -133,8 +134,9 @@ def get_digit(arg: Any) -> int:
             return arg
         raise ValueError
     except (TypeError, ValueError) as e:
+        msg = f"Invalid value '{arg}', use a single digit integer >= 0."
         raise argparse.ArgumentTypeError(
-            f"Invalid value '{arg}', use a single digit integer >= 0."
+            msg
         ) from e
 
 
@@ -157,8 +159,9 @@ def get_pos_number(arg: Any) -> int:
             return arg
         raise ValueError
     except (TypeError, ValueError) as e:
+        msg = f"Invalid value '{arg}', use a positive integer number."
         raise argparse.ArgumentTypeError(
-            f"Invalid value '{arg}', use a positive integer number."
+            msg
         ) from e
 
 
@@ -183,8 +186,9 @@ def get_pos_number_or_empty(arg: Any) -> int:
             return arg
         raise ValueError
     except (TypeError, ValueError) as e:
+        msg = f"Invalid value '{arg}', use a positive integer number or empty string \"\"."
         raise argparse.ArgumentTypeError(
-            f"Invalid value '{arg}', use a positive integer number or empty string \"\"."
+            msg
         ) from e
 
 
@@ -224,8 +228,7 @@ def get_version() -> str:
         my_dir = Path(__file__).resolve().parent
         version_file = my_dir / "version.txt"
         with open(version_file, encoding="utf-8") as file:
-            version = file.read().strip()
-        return version
+            return file.read().strip()
     except FileNotFoundError:
         # Return default version for enhanced system
         return "2.0.0-enhanced"
@@ -271,8 +274,7 @@ def non_hex_chars_in_list(s_list: list[str]) -> list[str]:
 
     """
     hex_chars = set("0123456789abcdefABCDEF")
-    non_hex_chars = [c for s in s_list for c in s if c not in hex_chars]
-    return non_hex_chars
+    return [c for s in s_list for c in s if c not in hex_chars]
 
 
 def to_posix_fstr(fstr: str) -> str:

@@ -214,7 +214,7 @@ class PersonStat:
 
     """
 
-    def __init__(self, person: Person):
+    def __init__(self, person: Person) -> None:
         """Initialize person statistics.
 
         Args:
@@ -247,7 +247,7 @@ class FileStat:
 
     show_renames: bool = False
 
-    def __init__(self, fstr: FileStr):
+    def __init__(self, fstr: FileStr) -> None:
         """Initialize file statistics.
 
         Args:

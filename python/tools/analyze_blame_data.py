@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Analyze blame data structure to verify commit information correctness
-"""
+"""Analyze blame data structure to verify commit information correctness."""
 
 import os
 import sys
@@ -13,8 +12,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gigui.api import GitInspectorAPI
 
 
-def analyze_blame_data(repo_path):
-    """Analyze blame data structure and commit distribution"""
+def analyze_blame_data(repo_path) -> None:
+    """Analyze blame data structure and commit distribution."""
     print(f"Analyzing blame data for repository: {repo_path}")
     print("=" * 60)
 
@@ -106,7 +105,7 @@ def analyze_blame_data(repo_path):
     # Check for fake commits
     fake_commits = [
         commit
-        for commit in commit_counter.keys()
+        for commit in commit_counter
         if commit.startswith("legacy_commit_")
     ]
     if fake_commits:
@@ -125,7 +124,7 @@ def analyze_blame_data(repo_path):
     # Check commit SHA format
     valid_shas = sum(
         1
-        for commit in commit_counter.keys()
+        for commit in commit_counter
         if len(commit) >= 7 and all(c in "0123456789abcdef" for c in commit.lower())
     )
     print(f"  📝 Valid SHA format: {valid_shas}/{len(commit_counter)} commits")

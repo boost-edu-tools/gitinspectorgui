@@ -188,8 +188,7 @@ class RepoBlame(RepoBlameBase):
         shas.add(self.head_sha)
 
         # Sort by commit number (newest first)
-        shas_sorted = sorted(shas, key=lambda x: self.sha2nr[x], reverse=True)
-        return shas_sorted
+        return sorted(shas, key=lambda x: self.sha2nr[x], reverse=True)
 
     def line_data_ok(self, b: Blame, d: LineData) -> bool:
         """Check if a line data entry should be included in analysis.

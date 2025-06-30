@@ -41,7 +41,7 @@ class Person:
     ex_author_patterns: list[str] = []
     ex_email_patterns: list[str] = []
 
-    def __init__(self, author: Author, email: Email):
+    def __init__(self, author: Author, email: Email) -> None:
         super().__init__()
         self.authors: set[Author] = {author}
         self.emails: set[Email] = {email}
@@ -54,15 +54,15 @@ class Person:
         self.match_author_filter(author)
         self.match_email_filter(email)
 
-    def match_author_filter(self, author: str):
+    def match_author_filter(self, author: str) -> None:
         """Check if author matches any exclusion patterns."""
         self.find_filter_match(self.ex_author_patterns, author)
 
-    def match_email_filter(self, email: str):
+    def match_email_filter(self, email: str) -> None:
         """Check if email matches any exclusion patterns."""
         self.find_filter_match(self.ex_email_patterns, email)
 
-    def find_filter_match(self, patterns: list[str], author_or_email: str):
+    def find_filter_match(self, patterns: list[str], author_or_email: str) -> None:
         """Check if author or email matches any filter patterns.
 
         Uses case-insensitive fnmatch pattern matching to determine
@@ -70,7 +70,7 @@ class Person:
         """
         if (
             not self.filter_matched
-            and not author_or_email == "*"
+            and author_or_email != "*"
             and any(
                 fnmatchcase(author_or_email.lower(), pattern.lower())
                 for pattern in patterns
@@ -100,7 +100,7 @@ class Person:
         self.author = self.get_author()
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         authors = self.authors_str
         emails = self.emails_str
         s = f"person({self.__str__()})\n"
@@ -109,9 +109,8 @@ class Person:
         s += f"  filter_matched = {self.filter_matched}\n"
         return s
 
-    def __str__(self):
-        s = f"{self.authors_str}, {self.emails_str}\n"
-        return s
+    def __str__(self) -> str:
+        return f"{self.authors_str}, {self.emails_str}\n"
 
     # Required for manipulating Person objects in a set
     def __hash__(self) -> int:
@@ -259,8 +258,7 @@ class PersonsDB(dict[Author | Email, Person]):
             self[""] = person
             return person
         if email == "":
-            person = self.add_author_with_unknown_email(author)
-            return person
+            return self.add_author_with_unknown_email(author)
         # Both author and email are known
         p_author = self.get(author)
         p_email = self.get(email)
@@ -284,10 +282,10 @@ class PersonsDB(dict[Author | Email, Person]):
         self[email] = person
         return person
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "\n".join(f"{key}:\n{person!r}" for key, person in self.items())
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n".join(str(person) for person in self.persons)
 
     @property

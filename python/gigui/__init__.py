@@ -58,10 +58,10 @@ __all__ = [
     "BlameEntry",
     "FileStat",
     "GitInspectorAPI",
-    "RepositoryResult",
-    "Settings",
     # Utility functions
     "Keys",
+    "RepositoryResult",
+    "Settings",
     "divide_to_percentage",
     "ensure_directory_exists",
     "format_bytes",

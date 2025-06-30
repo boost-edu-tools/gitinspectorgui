@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Quick diagnosis runner for GitInspectorGUI timeout issue.
-"""
+"""Quick diagnosis runner for GitInspectorGUI timeout issue."""
 
 import subprocess
 import sys
 from pathlib import Path
 
 
-def main():
+def main() -> None:
     print("GitInspectorGUI Timeout Diagnosis")
     print("=" * 40)
 

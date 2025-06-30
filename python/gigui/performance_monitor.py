@@ -1,5 +1,4 @@
-"""Performance monitoring utilities for GitInspectorGUI analysis.
-"""
+"""Performance monitoring utilities for GitInspectorGUI analysis."""
 
 import logging
 import time
@@ -34,7 +33,7 @@ class PerformanceStep:
 class PerformanceProfiler:
     """Detailed performance profiler for analysis operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.steps: dict[str, PerformanceStep] = {}
         self.current_step: str | None = None
         self.total_start_time = time.time()
@@ -48,7 +47,7 @@ class PerformanceProfiler:
         finally:
             self.end_step(name)
 
-    def start_step(self, name: str):
+    def start_step(self, name: str) -> None:
         """Start timing a specific step."""
         if self.current_step:
             logger.warning(
@@ -67,7 +66,7 @@ class PerformanceProfiler:
 
         logger.info(f"Started step: {name} (Memory: {memory_mb:.1f}MB)")
 
-    def end_step(self, name: str):
+    def end_step(self, name: str) -> None:
         """End timing a specific step."""
         if name not in self.steps:
             logger.error(f"Cannot end step '{name}' - not started")
@@ -108,7 +107,7 @@ class PerformanceProfiler:
 
         return summary
 
-    def log_summary(self):
+    def log_summary(self) -> None:
         """Log performance summary."""
         summary = self.get_summary()
         logger.info("=== PERFORMANCE SUMMARY ===")

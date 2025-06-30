@@ -159,8 +159,9 @@ class RepoBlameBase(RepoBase):
         # Get file string for the specific SHA
         fstr = self.get_fstr_for_sha(root_fstr, start_sha)
         if not fstr:
+            msg = f"File {root_fstr} not found at {start_sha}, number {self.sha2nr[start_sha]}."
             raise ValueError(
-                f"File {root_fstr} not found at {start_sha}, number {self.sha2nr[start_sha]}."
+                msg
             )
 
         start_oid = self.sha2oid[start_sha]

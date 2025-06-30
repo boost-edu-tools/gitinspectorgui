@@ -93,7 +93,7 @@ class Stat:
             else ""
         )
 
-    def add(self, other: "Stat"):
+    def add(self, other: "Stat") -> None:
         """Add another Stat object to this one."""
         self.shas = self.shas | other.shas
         self.insertions = self.insertions + other.insertions
@@ -101,7 +101,7 @@ class Stat:
         self.date_sum = self.date_sum + other.date_sum
         self.blame_line_count = self.blame_line_count + other.blame_line_count
 
-    def add_commit_group(self, commit_group: CommitGroup):
+    def add_commit_group(self, commit_group: CommitGroup) -> None:
         """Add a CommitGroup to this Stat."""
         self.shas |= commit_group.shas
         self.insertions += commit_group.insertions
@@ -131,13 +131,13 @@ class Person:
     ex_email_patterns: list[str] = []
 
     @classmethod
-    def configure_from_settings(cls, settings: "Settings"):
+    def configure_from_settings(cls, settings: "Settings") -> None:
         """Configure Person class filtering from Settings object."""
         cls.show_renames = settings.show_renames
         cls.ex_author_patterns = settings.ex_author_patterns + settings.ex_authors
         cls.ex_email_patterns = settings.ex_email_patterns + settings.ex_emails
 
-    def __init__(self, author: Author, email: Email):
+    def __init__(self, author: Author, email: Email) -> None:
         self.authors: set[Author] = {author}
         self.emails: set[Email] = {email}
         self.author: Author = self.get_author()
@@ -149,15 +149,15 @@ class Person:
         self.match_author_filter(author)
         self.match_email_filter(email)
 
-    def match_author_filter(self, author: str):
+    def match_author_filter(self, author: str) -> None:
         """Check if author matches exclusion patterns."""
         self.find_filter_match(self.ex_author_patterns, author)
 
-    def match_email_filter(self, email: str):
+    def match_email_filter(self, email: str) -> None:
         """Check if email matches exclusion patterns."""
         self.find_filter_match(self.ex_email_patterns, email)
 
-    def find_filter_match(self, patterns: list[str], author_or_email: str):
+    def find_filter_match(self, patterns: list[str], author_or_email: str) -> None:
         """Check if author or email matches any exclusion pattern.
 
         Supports both exact string matches and glob patterns.
@@ -225,8 +225,8 @@ class Person:
         """Required for manipulating Person objects in a set."""
         return hash((frozenset(self.authors), frozenset(self.emails)))
 
-    def __repr__(self):
-        return f"Person({self.author}, {list(self.emails)[0] if self.emails else ''})"
+    def __repr__(self) -> str:
+        return f"Person({self.author}, {next(iter(self.emails)) if self.emails else ''})"
 
 
 class GitRepository:
@@ -237,7 +237,7 @@ class GitRepository:
     sophisticated git repository analysis.
     """
 
-    def __init__(self, path: str):
+    def __init__(self, path: str) -> None:
         self.path = Path(path)
         self.name = self.path.name
         logger.warning(
@@ -334,11 +334,11 @@ class GitRepository:
 
             if result.returncode == 0:
                 authors = list(
-                    set(
+                    {
                         line.strip()
                         for line in result.stdout.split("\n")
                         if line.strip()
-                    )
+                    }
                 )
                 return authors[:10]  # Limit to first 10 authors for demo
             return []
@@ -423,7 +423,7 @@ class GitRepository:
                 len(stats["commits"]) for stats in author_stats.values()
             )
 
-            for author, stats in author_stats.items():
+            for stats in author_stats.values():
                 stats["commit_count"] = len(stats["commits"])
                 stats["file_count"] = len(stats["files"])
                 stats["percentage"] = (
@@ -459,7 +459,7 @@ class GitInspectorAPI:
     Wrapper for enhanced performance and capabilities.
     """
 
-    def __init__(self, engine=None):
+    def __init__(self, engine=None) -> None:
         """Initialize the API with legacy engine integration."""
         self.settings_file = Path.home() / ".gitinspectorgui" / "settings.json"
         self.settings_file.parent.mkdir(exist_ok=True)
@@ -494,7 +494,7 @@ class GitInspectorAPI:
                 return settings
 
             except (json.JSONDecodeError, OSError, TypeError) as e:
-                logger.error(f"Error loading settings: {e}")
+                logger.exception(f"Error loading settings: {e}")
                 print(f"Error loading settings: {e}", file=sys.stderr)
 
         logger.info("Using default settings")
@@ -521,7 +521,7 @@ class GitInspectorAPI:
             )
 
         except OSError as e:
-            logger.error(f"Error saving settings: {e}")
+            logger.exception(f"Error saving settings: {e}")
             print(f"Error saving settings: {e}", file=sys.stderr)
             raise
 
@@ -706,16 +706,16 @@ class GitInspectorAPI:
 
         except Exception as e:
             analysis_time = time.time() - start_time
-            logger.error(
+            logger.exception(
                 f"API analysis execution failed after {analysis_time:.2f} seconds: {e}"
             )
-            logger.error(f"Exception type: {type(e).__name__}")
-            logger.error(f"Exception details: {e!s}")
+            logger.exception(f"Exception type: {type(e).__name__}")
+            logger.exception(f"Exception details: {e!s}")
 
             # Log stack trace for debugging
             import traceback
 
-            logger.error(f"Stack trace:\n{traceback.format_exc()}")
+            logger.exception(f"Stack trace:\n{traceback.format_exc()}")
 
             return AnalysisResult(
                 repositories=[],
@@ -772,7 +772,7 @@ class GitInspectorAPI:
         }
 
 
-def main():
+def main() -> None:
     """Main entry point for command-line usage."""
     if len(sys.argv) < 2:
         print("Usage: python api.py <command> [args...]", file=sys.stderr)
