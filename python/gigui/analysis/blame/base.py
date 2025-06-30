@@ -1,5 +1,4 @@
-"""
-Blame Analysis Base Class for GitInspectorGUI.
+"""Blame Analysis Base Class for GitInspectorGUI.
 
 This module provides the base class for blame operations with core functionality
 including git blame command execution and basic blame data management.
@@ -15,8 +14,7 @@ from gigui.typedefs import SHA, Author, BlameStr, FileStr
 
 
 class RepoBlameBase(RepoBase):
-    """
-    Base class for blame operations with core functionality.
+    """Base class for blame operations with core functionality.
 
     Provides the foundation for blame analysis including git blame command
     execution, option handling, and basic blame data management.
@@ -25,14 +23,15 @@ class RepoBlameBase(RepoBase):
         blame_authors: List of authors ordered by blame line count
         fstr2blames: Mapping of files to their blame data
         blame: Current blame object being processed
+
     """
 
     def __init__(self, ini_repo) -> None:
-        """
-        Initialize blame base with repository configuration.
+        """Initialize blame base with repository configuration.
 
         Args:
             ini_repo: Initial repository configuration
+
         """
         super().__init__(ini_repo)
 
@@ -48,8 +47,7 @@ class RepoBlameBase(RepoBase):
     def get_blames_for(
         self, fstr: FileStr, start_sha: SHA, i: int, i_max: int
     ) -> tuple[FileStr, list[Blame]]:
-        """
-        Get blame data for a specific file at a given commit.
+        """Get blame data for a specific file at a given commit.
 
         Executes git blame command and processes the output to create
         structured blame data with line-by-line attribution.
@@ -62,6 +60,7 @@ class RepoBlameBase(RepoBase):
 
         Returns:
             Tuple of (file_string, list_of_blame_objects)
+
         """
         from gigui.analysis.blame.reader import BlameReader
 
@@ -89,8 +88,7 @@ class RepoBlameBase(RepoBase):
     def _get_git_blames_for(
         self, fstr: FileStr, start_sha: SHA
     ) -> tuple[list[BlameStr], FileStr]:
-        """
-        Execute git blame command with appropriate options.
+        """Execute git blame command with appropriate options.
 
         Builds the git blame command with copy/move detection, whitespace
         handling, and revision exclusions based on configuration.
@@ -101,6 +99,7 @@ class RepoBlameBase(RepoBase):
 
         Returns:
             Tuple of (blame_lines, file_string)
+
         """
         # Copy/move detection options
         copy_move_int2opts: dict[int, list[str]] = {
@@ -140,8 +139,7 @@ class RepoBlameBase(RepoBase):
         root_fstr: FileStr,
         blame_opts: list[str],
     ) -> BlameStr:
-        """
-        Execute the actual git blame command.
+        """Execute the actual git blame command.
 
         Handles thread safety by creating separate GitRepo instances for
         multithreaded operations.
@@ -156,6 +154,7 @@ class RepoBlameBase(RepoBase):
 
         Raises:
             ValueError: If file not found at specified commit
+
         """
         # Get file string for the specific SHA
         fstr = self.get_fstr_for_sha(root_fstr, start_sha)

@@ -1,5 +1,4 @@
-"""
-GitInspectorGUI Test Suite.
+"""GitInspectorGUI Test Suite.
 
 This package contains all test files for the GitInspectorGUI backend.
 """

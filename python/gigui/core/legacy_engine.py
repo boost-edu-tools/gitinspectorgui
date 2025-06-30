@@ -1,5 +1,4 @@
-"""
-Legacy Engine Wrapper for GitInspectorGUI.
+"""Legacy Engine Wrapper for GitInspectorGUI.
 
 This module provides the bridge between the current API and the sophisticated legacy
 analysis engine, enabling seamless integration of all migrated components from Phases 1-3
@@ -22,12 +21,12 @@ Classes:
 
 import logging
 import time
-import psutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from gigui.performance_monitor import profiler
+import psutil
+
 from gigui.api.types import (
     AnalysisResult,
     AuthorStat,
@@ -36,9 +35,10 @@ from gigui.api.types import (
     RepositoryResult,
     Settings,
 )
+from gigui.common import format_bytes, safe_divide, validate_file_path
 from gigui.core.orchestrator import RepoData
 from gigui.core.statistics import IniRepo
-from gigui.common import format_bytes, safe_divide, validate_file_path
+from gigui.performance_monitor import profiler
 
 logger = logging.getLogger(__name__)
 
@@ -68,8 +68,7 @@ class PerformanceMetrics:
 
 
 class SettingsTranslator:
-    """
-    Translates GUI Settings to legacy Args format.
+    """Translates GUI Settings to legacy Args format.
 
     This class handles the conversion between the enhanced Settings dataclass
     and the legacy Args format expected by the sophisticated analysis engine.
@@ -77,8 +76,7 @@ class SettingsTranslator:
 
     @staticmethod
     def translate_to_legacy_args(settings: Settings) -> IniRepo:
-        """
-        Convert GUI Settings to legacy IniRepo format.
+        """Convert GUI Settings to legacy IniRepo format.
 
         Maps all enhanced settings to their legacy equivalents while preserving
         advanced configuration options and ensuring compatibility.
@@ -92,6 +90,7 @@ class SettingsTranslator:
         Raises:
             ValueError: If settings validation fails
             TypeError: If settings contain invalid types
+
         """
         try:
             # Validate input settings
@@ -221,8 +220,7 @@ class SettingsTranslator:
 
 
 class ResultConverter:
-    """
-    Converts legacy RepoData results to GUI AnalysisResult format.
+    """Converts legacy RepoData results to GUI AnalysisResult format.
 
     This class handles the conversion from the sophisticated legacy analysis
     results to the format expected by the current GUI frontend.
@@ -234,8 +232,7 @@ class ResultConverter:
         settings: Settings,
         performance_metrics: PerformanceMetrics,
     ) -> AnalysisResult:
-        """
-        Convert legacy RepoData objects to GUI AnalysisResult format.
+        """Convert legacy RepoData objects to GUI AnalysisResult format.
 
         Transforms the sophisticated legacy analysis results into the format
         expected by the current frontend while preserving all statistical data.
@@ -250,6 +247,7 @@ class ResultConverter:
 
         Raises:
             ValueError: If conversion fails due to invalid data
+
         """
         try:
             repositories = []
@@ -425,8 +423,7 @@ class ResultConverter:
 
 
 class PerformanceMonitor:
-    """
-    Monitors analysis performance and resource usage.
+    """Monitors analysis performance and resource usage.
 
     Tracks memory usage, processing time, and other performance metrics
     during legacy analysis engine execution.
@@ -489,8 +486,7 @@ class PerformanceMonitor:
 
 
 class LegacyEngineWrapper:
-    """
-    Main bridge between current API and legacy analysis engine.
+    """Main bridge between current API and legacy analysis engine.
 
     This class orchestrates the complete integration workflow, handling
     settings translation, analysis execution, result conversion, and
@@ -506,8 +502,7 @@ class LegacyEngineWrapper:
         logger.info("Legacy Engine Wrapper initialized")
 
     def execute_analysis(self, settings: Settings) -> AnalysisResult:
-        """
-        Execute repository analysis using the sophisticated legacy engine.
+        """Execute repository analysis using the sophisticated legacy engine.
 
         This is the main entry point that coordinates the complete analysis
         workflow using all migrated legacy components.
@@ -517,6 +512,7 @@ class LegacyEngineWrapper:
 
         Returns:
             AnalysisResult compatible with current GUI frontend
+
         """
         logger.info("Starting legacy engine analysis")
         self.performance_monitor.start_monitoring()
@@ -661,14 +657,14 @@ class LegacyEngineWrapper:
                 )
 
     def validate_settings(self, settings: Settings) -> tuple[bool, str]:
-        """
-        Validate settings for legacy engine compatibility.
+        """Validate settings for legacy engine compatibility.
 
         Args:
             settings: Settings to validate
 
         Returns:
             Tuple of (is_valid, error_message)
+
         """
         try:
             # Basic validation
@@ -700,11 +696,11 @@ class LegacyEngineWrapper:
             return False, f"Settings validation failed: {e}"
 
     def get_engine_info(self) -> dict[str, Any]:
-        """
-        Get information about the legacy engine capabilities.
+        """Get information about the legacy engine capabilities.
 
         Returns:
             Dictionary with engine information and capabilities
+
         """
         return {
             "engine_name": "GitInspectorGUI Legacy Analysis Engine",

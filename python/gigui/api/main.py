@@ -2,7 +2,6 @@
 # Lines 272, 282, 292, 300: Required for JSON output to stdout (API responses)
 # Lines 263, 276, 286: Required for usage messages to stderr
 # Lines 155, 165, 295: Error messages to stderr
-# ruff: noqa: T201
 """API module for GitInspectorGUI backend.
 
 This module provides a JSON API interface for the Tauri frontend to communicate

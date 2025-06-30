@@ -1,5 +1,4 @@
-"""
-Main Analysis Orchestrator for GitInspectorGUI.
+"""Main Analysis Orchestrator for GitInspectorGUI.
 
 This module provides the central coordination engine for complete repository analysis.
 The RepoData class orchestrates all analysis components, manages statistics table generation,
@@ -35,8 +34,7 @@ logger = getLogger(__name__)
 
 
 def divide_to_percentage(dividend: int, divisor: int) -> PercentageValue:
-    """
-    Calculate percentage from dividend and divisor with proper handling of edge cases.
+    """Calculate percentage from dividend and divisor with proper handling of edge cases.
 
     Provides robust percentage calculation that handles zero divisors and
     returns NaN for invalid calculations.
@@ -47,6 +45,7 @@ def divide_to_percentage(dividend: int, divisor: int) -> PercentageValue:
 
     Returns:
         Percentage value or NaN if calculation is invalid
+
     """
     if dividend and divisor:
         return round(dividend / divisor * 100)
@@ -54,8 +53,7 @@ def divide_to_percentage(dividend: int, divisor: int) -> PercentageValue:
 
 
 class RepoData(RepoBlameHistory):
-    """
-    Main Analysis Orchestrator coordinating complete repository analysis workflow.
+    """Main Analysis Orchestrator coordinating complete repository analysis workflow.
 
     This class serves as the central coordinator for the entire analysis engine,
     managing the complete workflow from initial repository setup through final
@@ -83,17 +81,18 @@ class RepoData(RepoBlameHistory):
         author2nr: Author to number mapping (excluding "*")
         author_star2nr: Author to number mapping (including "*")
         sha2author_nr: SHA to author number mapping
+
     """
 
     def __init__(self, ini_repo: IniRepo) -> None:
-        """
-        Initialize the main analysis orchestrator.
+        """Initialize the main analysis orchestrator.
 
         Sets up all data structures and executes comprehensive analysis
         workflow coordination.
 
         Args:
             ini_repo: Initial repository configuration
+
         """
         super().__init__(ini_repo)
 
@@ -127,8 +126,7 @@ class RepoData(RepoBlameHistory):
         self.run_analysis()
 
     def run_analysis(self) -> bool:
-        """
-        Execute the complete analysis workflow and generate comprehensive statistics.
+        """Execute the complete analysis workflow and generate comprehensive statistics.
 
         Orchestrates the entire analysis process from repository initialization
         through final data preparation. This is the main entry point for
@@ -136,6 +134,7 @@ class RepoData(RepoBlameHistory):
 
         Returns:
             bool: True after successful execution, False if no stats have been found
+
         """
         try:
             if self.args.dryrun == 2:
@@ -159,14 +158,14 @@ class RepoData(RepoBlameHistory):
                 self.git_repo.close()
 
     def _run_no_history(self) -> bool:
-        """
-        Execute core analysis workflow without history processing.
+        """Execute core analysis workflow without history processing.
 
         Generates all primary statistics tables and calculates percentages
         for comprehensive repository analysis.
 
         Returns:
             bool: True if analysis successful, False if no valid data found
+
         """
         if self.args.dryrun == 2:
             return True
@@ -230,8 +229,7 @@ class RepoData(RepoBlameHistory):
         return True
 
     def _set_final_data(self) -> None:
-        """
-        Finalize all data structures and prepare comprehensive results.
+        """Finalize all data structures and prepare comprehensive results.
 
         Performs final data processing including author mapping updates,
         SHA organization, author sorting, and numbering system setup.
@@ -295,19 +293,18 @@ class RepoData(RepoBlameHistory):
 
     @property
     def real_authors_included(self) -> list[Author]:
-        """
-        Get list of real authors (excluding the "*" wildcard author).
+        """Get list of real authors (excluding the "*" wildcard author).
 
         Returns:
             List of actual author names without the special "*" entry
+
         """
         return [author for author in self.authors_included if not author == "*"]
 
     def fr2f2a2sha_set_to_list(
         self, source: dict[FileStr, dict[FileStr, dict[Author, set[SHA]]]]
     ) -> dict[FileStr, dict[FileStr, dict[Author, list[SHA]]]]:
-        """
-        Convert file rename to file to author to SHA sets into sorted lists.
+        """Convert file rename to file to author to SHA sets into sorted lists.
 
         Transforms set-based SHA collections into sorted lists for consistent
         ordering and improved performance in downstream processing.
@@ -317,6 +314,7 @@ class RepoData(RepoBlameHistory):
 
         Returns:
             Target mapping with sorted SHA lists
+
         """
         target: dict[FileStr, dict[FileStr, dict[Author, list[SHA]]]] = {}
         for fstr_root, fstr_root_dict in source.items():
@@ -334,8 +332,7 @@ class RepoData(RepoBlameHistory):
     def fr2f2sha_set_to_list(
         self, source: dict[FileStr, dict[FileStr, set[SHA]]]
     ) -> dict[FileStr, dict[FileStr, list[SHA]]]:
-        """
-        Convert file rename to file to SHA sets into sorted lists.
+        """Convert file rename to file to SHA sets into sorted lists.
 
         Transforms set-based SHA collections into sorted lists for consistent
         ordering and improved performance.
@@ -345,6 +342,7 @@ class RepoData(RepoBlameHistory):
 
         Returns:
             Target mapping with sorted SHA lists
+
         """
         target: dict[FileStr, dict[FileStr, list[SHA]]] = {}
         for fstr_root, fstr_root_dict in source.items():
@@ -357,8 +355,7 @@ class RepoData(RepoBlameHistory):
 
 
 class StatTables:
-    """
-    Statistics Table Generation and Management Engine.
+    """Statistics Table Generation and Management Engine.
 
     This class provides sophisticated algorithms for generating and managing
     all statistics tables used in repository analysis. It handles complex
@@ -379,8 +376,7 @@ class StatTables:
         fstr2commit_groups: dict[FileStr, list[CommitGroup]],
         persons_db: PersonsDB,
     ) -> dict[Author, dict[FileStr, FileStat]]:
-        """
-        Generate author to file to file statistics mapping.
+        """Generate author to file to file statistics mapping.
 
         Creates the foundational statistics table that maps each author to
         their contributions across all files. This is the basis for all
@@ -393,6 +389,7 @@ class StatTables:
 
         Returns:
             Comprehensive author to file to file statistics mapping
+
         """
         # Initialize with wildcard entries for totals
         target = {"*": {"*": FileStat("*")}}
@@ -421,8 +418,7 @@ class StatTables:
         author2fstr2fstat: dict[Author, dict[FileStr, FileStat]],
         fstr2commit_group: dict[FileStr, list[CommitGroup]],
     ) -> dict[FileStr, FileStat]:
-        """
-        Generate file to file statistics mapping.
+        """Generate file to file statistics mapping.
 
         Creates aggregated file statistics by combining contributions from
         all authors for each file. Includes rename tracking and comprehensive
@@ -434,6 +430,7 @@ class StatTables:
 
         Returns:
             Comprehensive file to file statistics mapping
+
         """
         source = author2fstr2fstat
         target: dict[FileStr, FileStat] = {}
@@ -463,8 +460,7 @@ class StatTables:
     def get_fstr2author2fstat(
         author2fstr2fstat: dict[Author, dict[FileStr, FileStat]],
     ) -> dict[FileStr, dict[Author, FileStat]]:
-        """
-        Generate inverted mapping: file to author to file statistics.
+        """Generate inverted mapping: file to author to file statistics.
 
         Creates an inverted view of the author2fstr2fstat table for efficient
         file-centric analysis and reporting.
@@ -474,6 +470,7 @@ class StatTables:
 
         Returns:
             Inverted file to author to file statistics mapping
+
         """
         source = author2fstr2fstat
         target: dict[FileStr, dict[Author, FileStat]] = {}
@@ -494,7 +491,7 @@ class StatTables:
                 # Add author-specific statistics
                 target[fstr][author] = fstat
                 target[fstr]["*"].stat.add(fstat.stat)
-                target[fstr]["*"].names = fstr2fstat[fstr].names
+                target[fstr]["*"].names = fstat.names
 
         return target
 
@@ -502,8 +499,7 @@ class StatTables:
     def get_author2pstat(
         author2fstr2fstat: dict[Author, dict[FileStr, FileStat]], persons_db: PersonsDB
     ) -> dict[Author, PersonStat]:
-        """
-        Generate author to person statistics mapping.
+        """Generate author to person statistics mapping.
 
         Creates comprehensive person statistics by aggregating all file
         contributions for each author. Combines identity information with
@@ -515,6 +511,7 @@ class StatTables:
 
         Returns:
             Comprehensive author to person statistics mapping
+
         """
         source = author2fstr2fstat
         target: dict[Author, PersonStat] = {}
@@ -545,8 +542,7 @@ class StatTables:
         total_insertions: int,
         total_lines: int,
     ) -> None:
-        """
-        Calculate percentage values for insertions and lines across all statistics.
+        """Calculate percentage values for insertions and lines across all statistics.
 
         Applies comprehensive percentage calculations to any statistics mapping,
         whether author-based or file-based. Updates the statistics objects in place
@@ -556,6 +552,7 @@ class StatTables:
             af2pf_stat: Statistics mapping (author or file to statistics)
             total_insertions: Total insertions for percentage calculation
             total_lines: Total lines for percentage calculation
+
         """
         for af in af2pf_stat:  # af is either an author or fstr
             af2pf_stat[af].stat.percent_insertions = divide_to_percentage(

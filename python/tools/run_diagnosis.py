@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""
-Quick diagnosis runner for GitInspectorGUI timeout issue.
+"""Quick diagnosis runner for GitInspectorGUI timeout issue.
 """
 
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -24,7 +23,7 @@ def main():
     if not (Path(repo_path) / ".git").exists():
         print(f"❌ {repo_path} is not a git repository")
         print("Please provide a path to a git repository:")
-        print(f"  python run_diagnosis.py /path/to/git/repo")
+        print("  python run_diagnosis.py /path/to/git/repo")
         sys.exit(1)
 
     print(f"Testing repository: {repo_path}")

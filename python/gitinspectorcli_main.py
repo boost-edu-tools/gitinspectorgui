@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Standalone entry point for GitInspectorCLI.
+"""Standalone entry point for GitInspectorCLI.
 
 This module provides a standalone CLI entry point that can be packaged
 as an executable using PyInstaller without relative import issues.

@@ -1,5 +1,4 @@
-"""
-Blame Reader for GitInspectorGUI.
+"""Blame Reader for GitInspectorGUI.
 
 This module provides the BlameReader class for parsing git blame porcelain output
 and converting it into structured Blame and LineData objects.
@@ -17,8 +16,7 @@ from gigui.typedefs import OID, BlameStr, FileStr
 
 
 class BlameReader:
-    """
-    Parser for git blame porcelain output.
+    """Parser for git blame porcelain output.
 
     Processes the raw output from 'git blame --porcelain' command and converts
     it into structured Blame and LineData objects with proper comment detection.
@@ -28,15 +26,16 @@ class BlameReader:
         fstr: Current file string being processed
         oid2blame: Cache of OID to Blame mappings
         repo: Repository object for lookups
+
     """
 
     def __init__(self, lines: list[BlameStr], repo: RepoBase) -> None:
-        """
-        Initialize blame reader with raw output and repository.
+        """Initialize blame reader with raw output and repository.
 
         Args:
             lines: Raw git blame output lines
             repo: Repository object for SHA/OID lookups
+
         """
         self.lines: list[BlameStr] = lines
         self.fstr: FileStr = ""
@@ -44,8 +43,7 @@ class BlameReader:
         self.repo: RepoBase = repo
 
     def process_lines(self, root_fstr: FileStr) -> list[Blame]:
-        """
-        Process raw blame lines into structured Blame objects.
+        """Process raw blame lines into structured Blame objects.
 
         Parses the git blame porcelain output and creates Blame objects
         with associated LineData. Also performs comment detection on
@@ -56,6 +54,7 @@ class BlameReader:
 
         Returns:
             List of Blame objects with complete line data
+
         """
         blames: list[Blame] = []
         i: int = 0
@@ -79,8 +78,7 @@ class BlameReader:
         return blames
 
     def _detect_comments(self, lines: list[str], fstr: FileStr) -> list[bool]:
-        """
-        Detect which lines are comments based on file extension.
+        """Detect which lines are comments based on file extension.
 
         Args:
             lines: List of code lines
@@ -88,6 +86,7 @@ class BlameReader:
 
         Returns:
             List of boolean values indicating comment status
+
         """
         # Simple comment detection based on file extension
         # This is a simplified version - in a full implementation,
@@ -118,8 +117,7 @@ class BlameReader:
         return comment_lines
 
     def get_next_blame(self, i: int) -> tuple[Blame, int]:
-        """
-        Parse the next blame entry from the output.
+        """Parse the next blame entry from the output.
 
         Args:
             i: Current line index
@@ -129,6 +127,7 @@ class BlameReader:
 
         Raises:
             ValueError: If line format is unexpected
+
         """
         line: BlameStr = self.lines[i]
 
@@ -155,8 +154,7 @@ class BlameReader:
     def get_new_blame(
         self, oid: OID, line_nr: int, line_count: int, i: int
     ) -> tuple[Blame, int]:
-        """
-        Parse a new blame entry with full metadata.
+        """Parse a new blame entry with full metadata.
 
         Args:
             oid: Object ID (full SHA)
@@ -166,6 +164,7 @@ class BlameReader:
 
         Returns:
             Tuple of (Blame object, next line index)
+
         """
         b: Blame = Blame()
         b.oid = oid
@@ -207,8 +206,7 @@ class BlameReader:
     def get_additional_blame(
         self, oid: OID, line_nr: int, line_count: int, i: int
     ) -> tuple[Blame, int]:
-        """
-        Parse additional blame lines for an already-seen OID.
+        """Parse additional blame lines for an already-seen OID.
 
         Args:
             oid: Object ID (already seen)
@@ -218,6 +216,7 @@ class BlameReader:
 
         Returns:
             Tuple of (Blame object, next line index)
+
         """
         b: Blame = deepcopy(self.oid2blame[oid])
         line_datas: list[LineData] = []
@@ -247,8 +246,7 @@ class BlameReader:
         return b, i
 
     def get_blame_oid_line(self, oid: OID, i: int) -> tuple[LineData, int]:
-        """
-        Parse a blame line that references an existing OID.
+        """Parse a blame line that references an existing OID.
 
         Args:
             oid: Expected OID
@@ -259,6 +257,7 @@ class BlameReader:
 
         Raises:
             AssertionError: If OID doesn't match expected value
+
         """
         line: BlameStr = self.lines[i]
         d: LineData = LineData()
@@ -277,8 +276,7 @@ class BlameReader:
         return d, i + 2
 
     def parse_line(self, d: LineData, i: int) -> tuple[LineData, int]:
-        """
-        Parse a code line from blame output.
+        """Parse a code line from blame output.
 
         Args:
             d: LineData object to populate
@@ -289,6 +287,7 @@ class BlameReader:
 
         Raises:
             AssertionError: If line doesn't start with tab
+
         """
         line: BlameStr = self.lines[i]
         assert line.startswith("\t"), f"Expected starting tab, got {line}"

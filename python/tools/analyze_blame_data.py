@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""
-Analyze blame data structure to verify commit information correctness
+"""Analyze blame data structure to verify commit information correctness
 """
 
-import sys
 import os
-from pathlib import Path
+import sys
 from collections import Counter
 from datetime import datetime
 

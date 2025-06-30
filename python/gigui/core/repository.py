@@ -1,5 +1,4 @@
-"""
-Git Operations Layer for GitInspectorGUI.
+"""Git Operations Layer for GitInspectorGUI.
 
 This module provides the core git repository operations layer with optimized
 command execution, error handling, validation, and performance monitoring.
@@ -78,8 +77,7 @@ DEFAULT_EXTENSIONS = [
 
 @dataclass
 class SHADateNr:
-    """
-    SHA with date and number for commit ordering.
+    """SHA with date and number for commit ordering.
 
     Used to order and number commits by date, starting at 1 for the
     initial commit. Provides efficient sorting and lookup capabilities.
@@ -92,8 +90,7 @@ class SHADateNr:
 
 @dataclass
 class Args:
-    """
-    Command-line arguments and configuration options.
+    """Command-line arguments and configuration options.
 
     Simplified Args class for repository operations. Contains the essential
     configuration needed for git analysis operations.
@@ -155,8 +152,7 @@ class Keys:
 
 
 class RepoBase:
-    """
-    Base repository class providing git operations and analysis foundation.
+    """Base repository class providing git operations and analysis foundation.
 
     This class represents a git repository and provides comprehensive functionality
     to interact with and analyze git repositories. It includes optimized git command
@@ -205,14 +201,15 @@ class RepoBase:
         head_commit: Top-level git commit object
         head_oid: Top-level commit OID (long SHA)
         head_sha: Top-level commit SHA (short)
+
     """
 
     def __init__(self, ini_repo: IniRepo):
-        """
-        Initialize repository base with configuration.
+        """Initialize repository base with configuration.
 
         Args:
             ini_repo: Initial repository configuration
+
         """
         self.name: str = ini_repo.name
         self.location: Path = Path(ini_repo.location)
@@ -253,14 +250,14 @@ class RepoBase:
 
     @property
     def fstrs(self) -> list[FileStr]:
-        """
-        Get filtered and sorted list of file strings.
+        """Get filtered and sorted list of file strings.
 
         Returns the private _fstrs list before analysis, or a sorted list
         based on blame line count after analysis and blame run.
 
         Returns:
             List of file strings, sorted by relevance
+
         """
         if not self.fstr2fstat:  # analysis and blame run not yet executed
             return list(self._fstrs)
@@ -279,8 +276,7 @@ class RepoBase:
         return ["*"] + self.fstrs
 
     def init_git_repo(self) -> None:
-        """
-        Initialize the git repository and build SHA mappings.
+        """Initialize the git repository and build SHA mappings.
 
         This function initializes the GitPython repository object and builds
         comprehensive mappings between long SHAs, short SHAs, and commit numbers.
@@ -288,6 +284,7 @@ class RepoBase:
 
         Raises:
             Exception: If repository initialization fails
+
         """
         try:
             # Initialize git repository
@@ -347,8 +344,7 @@ class RepoBase:
         self.head_sha = self.oid2sha[self.head_oid]
 
     def run_base(self) -> None:
-        """
-        Execute base repository analysis operations.
+        """Execute base repository analysis operations.
 
         This method performs the core analysis steps:
         1. Get worktree files based on filters
@@ -380,21 +376,20 @@ class RepoBase:
         logger.info(f"Completed base analysis for repository: {self.name}")
 
     def _convert_to_timestamp(self, date_str: str) -> UnixTimestamp:
-        """
-        Convert date string to Unix timestamp.
+        """Convert date string to Unix timestamp.
 
         Args:
             date_str: Date string in format "YYYY-MM-DD HH:MM:SS"
 
         Returns:
             Unix timestamp in seconds
+
         """
         dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
         return int(dt.timestamp())
 
     def _get_worktree_files(self) -> list[FileStr]:
-        """
-        Get list of files for analysis based on filters and configuration.
+        """Get list of files for analysis based on filters and configuration.
 
         Returns files that:
         - Satisfy the required extensions
@@ -404,6 +399,7 @@ class RepoBase:
 
         Returns:
             List of file strings for analysis
+
         """
         sorted_files: list[FileStr] = self._get_sorted_worktree_files()
         files_set: set[FileStr] = set(sorted_files)
@@ -444,8 +440,7 @@ class RepoBase:
         return files[: self.args.n_files]
 
     def _get_sorted_worktree_files(self) -> list[FileStr]:
-        """
-        Get files in worktree, reverse sorted by file size.
+        """Get files in worktree, reverse sorted by file size.
 
         Returns files that:
         - Match required file extensions
@@ -454,6 +449,7 @@ class RepoBase:
 
         Returns:
             List of file strings sorted by size (largest first)
+
         """
 
         def _get_worktree_files_sizes() -> list[tuple[FileStr, int]]:
@@ -501,14 +497,14 @@ class RepoBase:
         return sorted_files
 
     def _matches_ex_file(self, fstr: FileStr) -> bool:
-        """
-        Check if file should be excluded based on exclusion patterns.
+        """Check if file should be excluded based on exclusion patterns.
 
         Args:
             fstr: File string to check
 
         Returns:
             True if file should be excluded
+
         """
         return any(
             fnmatchcase(fstr.lower(), pattern.lower()) for pattern in self.args.ex_files
@@ -538,8 +534,7 @@ class RepoBase:
                     self.fstr2line_count[blob.path] = 0  # type: ignore
 
     def _get_commits_first_pass(self) -> None:
-        """
-        Process commits in the specified date range (first pass).
+        """Process commits in the specified date range (first pass).
 
         This method:
         1. Retrieves commit information using git log
@@ -624,11 +619,11 @@ class RepoBase:
         self.ex_shas = ex_shas
 
     def _get_since_until_args(self) -> list[str]:
-        """
-        Get git log arguments for date filtering.
+        """Get git log arguments for date filtering.
 
         Returns:
             List of git log arguments for since/until dates
+
         """
         since = self.args.since
         until = self.args.until
@@ -642,8 +637,7 @@ class RepoBase:
         return []
 
     def _set_fstr2commits(self) -> None:
-        """
-        Set file-to-commits mapping with threading support.
+        """Set file-to-commits mapping with threading support.
 
         This method processes git log for each file to build commit groups.
         It supports both single-threaded and multi-threaded execution.
@@ -732,14 +726,14 @@ class RepoBase:
         reduce_commits()
 
     def _get_commit_lines_for(self, fstr: FileStr) -> tuple[str, FileStr]:
-        """
-        Get git log output for a specific file.
+        """Get git log output for a specific file.
 
         Args:
             fstr: File string to get commits for
 
         Returns:
             Tuple of (git log output, file string)
+
         """
 
         def git_log_args() -> list[str]:
@@ -778,8 +772,7 @@ class RepoBase:
     def _process_commit_lines_for(
         self, lines_str: str, fstr_root: FileStr
     ) -> list[CommitGroup]:
-        """
-        Process git log output lines for a file into commit groups.
+        """Process git log output lines for a file into commit groups.
 
         Args:
             lines_str: Git log output
@@ -787,6 +780,7 @@ class RepoBase:
 
         Returns:
             List of commit groups for the file
+
         """
         commit_groups: list[CommitGroup] = []
         lines: list[str] = lines_str.strip().splitlines()
@@ -908,14 +902,14 @@ class RepoBase:
             self.fr2sha_nrs[fstr] = nrs
 
     def _get_sha2f_for_fstr(self, root_fstr: FileStr) -> dict[SHA, FileStr]:
-        """
-        Get SHA-to-filename mapping for file rename tracking.
+        """Get SHA-to-filename mapping for file rename tracking.
 
         Args:
             root_fstr: Root file string to track renames for
 
         Returns:
             Dictionary mapping SHAs to file names at those commits
+
         """
         sha2f: dict[SHA, FileStr] = {}
 
@@ -961,8 +955,7 @@ class RepoBase:
         return sha2f
 
     def get_fstr_for_sha(self, root_fstr: FileStr, sha: SHA) -> FileStr:
-        """
-        Get file name for a specific SHA in the file's rename history.
+        """Get file name for a specific SHA in the file's rename history.
 
         Args:
             root_fstr: Root file string
@@ -970,6 +963,7 @@ class RepoBase:
 
         Returns:
             File name at the specified commit, or empty string if not found
+
         """
         sha_nr: int = self.sha2nr.get(sha, 0)
 
@@ -1003,11 +997,11 @@ class RepoBase:
             logger.debug(f"Closed git repository: {self.name}")
 
     def validate_repository(self) -> tuple[bool, str]:
-        """
-        Validate that the repository is a valid git repository.
+        """Validate that the repository is a valid git repository.
 
         Returns:
             Tuple of (is_valid, error_message)
+
         """
         try:
             if not self.location.exists():
@@ -1036,11 +1030,11 @@ class RepoBase:
             return False, f"Repository validation failed: {e}"
 
     def get_repository_info(self) -> dict[str, Any]:
-        """
-        Get basic repository information.
+        """Get basic repository information.
 
         Returns:
             Dictionary with repository information
+
         """
         info = {
             "name": self.name,

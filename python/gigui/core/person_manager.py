@@ -1,5 +1,4 @@
-"""
-Person Identity Management for GitInspectorGUI.
+"""Person Identity Management for GitInspectorGUI.
 
 This module provides sophisticated person identity management that handles
 multiple author names/emails for the same person, with advanced merging
@@ -24,8 +23,7 @@ NOW = int(time.time())  # current time as Unix timestamp in seconds since epoch
 
 
 class Person:
-    """
-    Represents a person with multiple author names and email addresses.
+    """Represents a person with multiple author names and email addresses.
 
     This class handles sophisticated identity merging, allowing multiple
     author names and email addresses to be associated with the same person.
@@ -65,8 +63,7 @@ class Person:
         self.find_filter_match(self.ex_email_patterns, email)
 
     def find_filter_match(self, patterns: list[str], author_or_email: str):
-        """
-        Check if author or email matches any filter patterns.
+        """Check if author or email matches any filter patterns.
 
         Uses case-insensitive fnmatch pattern matching to determine
         if the given author or email should be excluded.
@@ -82,8 +79,7 @@ class Person:
             self.filter_matched = True
 
     def merge(self, other: "Person") -> "Person":
-        """
-        Merge another person's identity into this person.
+        """Merge another person's identity into this person.
 
         Combines author names, email addresses, and filter status.
         Handles special case where emails are empty strings.
@@ -93,6 +89,7 @@ class Person:
 
         Returns:
             Self (for method chaining)
+
         """
         self.authors |= other.authors
         if self.emails == {""}:
@@ -121,8 +118,7 @@ class Person:
         return hash((frozenset(self.authors), frozenset(self.emails)))
 
     def get_authors(self) -> list[Author]:
-        """
-        Get authors sorted by quality preference.
+        """Get authors sorted by quality preference.
 
         Implements sophisticated author name normalization:
         1. Top authors: Names with spaces and only alphanumeric/space characters
@@ -131,6 +127,7 @@ class Person:
 
         Returns:
             List of authors sorted by preference and length
+
         """
         # nice authors have first and last name
         nice_authors = {author for author in self.authors if " " in author}
@@ -156,8 +153,7 @@ class Person:
 
     @property
     def authors_str(self) -> str:
-        """
-        Get formatted string representation of authors.
+        """Get formatted string representation of authors.
 
         Returns either all authors (if show_renames is True) or just
         the preferred author name.
@@ -169,8 +165,7 @@ class Person:
 
     @property
     def emails_str(self) -> str:
-        """
-        Get formatted string representation of emails.
+        """Get formatted string representation of emails.
 
         Implements intelligent email selection:
         - If only one email, return it
@@ -179,6 +174,7 @@ class Person:
 
         Returns:
             Formatted email string
+
         """
         emails = list(self.emails)
         emails = sorted(emails, key=len)
@@ -199,8 +195,7 @@ class Person:
 
 
 class PersonsDB(dict[Author | Email, Person]):
-    """
-    Database for managing collections of persons with identity merging.
+    """Database for managing collections of persons with identity merging.
 
     This class provides sophisticated person identity management that can
     merge multiple author names and email addresses that belong to the same
@@ -234,8 +229,7 @@ class PersonsDB(dict[Author | Email, Person]):
         super().__setitem__(key, value)
 
     def add_person(self, author: Author | None, email: Email | None) -> "Person":
-        """
-        Add a person to the database with sophisticated identity merging.
+        """Add a person to the database with sophisticated identity merging.
 
         This method implements complex logic to handle various cases:
         - Empty authors with non-empty emails (logs warning)
@@ -248,6 +242,7 @@ class PersonsDB(dict[Author | Email, Person]):
 
         Returns:
             Person object (either existing or newly created)
+
         """
         author = "" if author is None else author
         email = "" if email is None else email
@@ -326,14 +321,14 @@ class PersonsDB(dict[Author | Email, Person]):
         return [person.author for person in self.persons if person.filter_matched]
 
     def add_author_with_unknown_email(self, author: Author) -> "Person":
-        """
-        Add an author with unknown email address.
+        """Add an author with unknown email address.
 
         Args:
             author: Author name
 
         Returns:
             Person object (either existing or newly created)
+
         """
         if author in self:
             return self[author]
@@ -342,14 +337,14 @@ class PersonsDB(dict[Author | Email, Person]):
         return person
 
     def get_filtered_author(self, author: Author | None) -> Author | None:
-        """
-        Get author name if not filtered out.
+        """Get author name if not filtered out.
 
         Args:
             author: Author name to check
 
         Returns:
             Author name if not filtered, None otherwise
+
         """
         person = self[author]
         if person.filter_matched:

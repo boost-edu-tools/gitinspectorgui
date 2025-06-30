@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Development API script for GitInspectorGUI.
+"""Development API script for GitInspectorGUI.
 
 This script acts as a drop-in replacement for the PyInstaller sidecar during development,
 allowing immediate testing of Python changes without rebuilding the sidecar binary.

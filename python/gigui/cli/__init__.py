@@ -1,5 +1,4 @@
-"""
-GitInspectorGUI Command Line Interface Package.
+"""GitInspectorGUI Command Line Interface Package.
 
 This package provides command line interface functionality.
 """

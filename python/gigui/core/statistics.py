@@ -1,5 +1,4 @@
-"""
-Statistics Engine for GitInspectorGUI.
+"""Statistics Engine for GitInspectorGUI.
 
 This module contains the core statistical data structures and calculation algorithms
 for git repository analysis. It provides sophisticated metrics including stability
@@ -46,8 +45,7 @@ NOW = int(time.time())  # current time as Unix timestamp in seconds since epoch
 
 @dataclass
 class CommitGroup:
-    """
-    Groups commits by author and file name for aggregated analysis.
+    """Groups commits by author and file name for aggregated analysis.
 
     A CommitGroup holds the sum of commit data for commits that share the same
     person author and file name. This enables efficient statistical calculations
@@ -60,6 +58,7 @@ class CommitGroup:
         deletions: Total lines deleted
         date_sum: Sum of Unix timestamps for age calculations
         shas: Set of commit SHAs in this group
+
     """
 
     fstr: FileStr
@@ -71,8 +70,7 @@ class CommitGroup:
 
 
 class Stat:
-    """
-    Core statistical data container with advanced metrics calculations.
+    """Core statistical data container with advanced metrics calculations.
 
     This class provides sophisticated statistical analysis capabilities including:
     - Stability metrics (percentage of inserted lines still present)
@@ -97,14 +95,14 @@ class Stat:
 
     @property
     def stability(self) -> StabilityMetric:
-        """
-        Calculate stability metric as percentage of inserted lines still present.
+        """Calculate stability metric as percentage of inserted lines still present.
 
         Stability indicates code quality - higher values mean more of the
         inserted code is still present in the current codebase.
 
         Returns:
             Stability percentage (0-100) or empty string if no data
+
         """
         return (
             min(100, round(100 * self.blame_line_count / self.insertions))
@@ -114,14 +112,14 @@ class Stat:
 
     @property
     def age(self) -> AgeString:
-        """
-        Calculate weighted average age of commits.
+        """Calculate weighted average age of commits.
 
         Uses insertion-weighted timestamps to provide meaningful age
         calculations that reflect the actual contribution timeline.
 
         Returns:
             Formatted age string (e.g., "1:02:15" for 1 year, 2 months, 15 days)
+
         """
         return (
             self.timestamp_to_age(round(self.date_sum / self.insertions))
@@ -149,14 +147,14 @@ class Stat:
         return self.__repr__()
 
     def add(self, other: "Stat") -> None:
-        """
-        Merge another Stat object into this one.
+        """Merge another Stat object into this one.
 
         Combines all statistical data including SHAs, insertions, deletions,
         timestamps, and blame line counts.
 
         Args:
             other: Another Stat object to merge
+
         """
         self.shas = self.shas | other.shas
         self.insertions = self.insertions + other.insertions
@@ -165,13 +163,13 @@ class Stat:
         self.blame_line_count = self.blame_line_count + other.blame_line_count
 
     def add_commit_group(self, commit_group: CommitGroup) -> None:
-        """
-        Add data from a CommitGroup to this statistic.
+        """Add data from a CommitGroup to this statistic.
 
         Efficiently incorporates commit group data into the running statistics.
 
         Args:
             commit_group: CommitGroup containing aggregated commit data
+
         """
         self.shas |= commit_group.shas
         self.insertions += commit_group.insertions
@@ -180,8 +178,7 @@ class Stat:
 
     @staticmethod
     def timestamp_to_age(time_stamp: UnixTimestamp) -> AgeString:
-        """
-        Convert Unix timestamp to human-readable age string.
+        """Convert Unix timestamp to human-readable age string.
 
         Implements sophisticated age calculation that provides meaningful
         time representations in years:months:days format.
@@ -191,6 +188,7 @@ class Stat:
 
         Returns:
             Formatted age string (e.g., "1:02:15" or "02:15" if less than a year)
+
         """
         seconds: int = NOW - time_stamp
         days: float = seconds / SECONDS_IN_DAY
@@ -205,8 +203,7 @@ class Stat:
 
 
 class PersonStat:
-    """
-    Statistical data container for a specific person/author.
+    """Statistical data container for a specific person/author.
 
     Combines person identity information with their statistical contributions
     to provide comprehensive author analysis.
@@ -214,14 +211,15 @@ class PersonStat:
     Attributes:
         person: Person object with identity information
         stat: Stat object with statistical data
+
     """
 
     def __init__(self, person: Person):
-        """
-        Initialize person statistics.
+        """Initialize person statistics.
 
         Args:
             person: Person object containing identity information
+
         """
         self.person: Person = person
         self.stat: Stat = Stat()
@@ -238,8 +236,7 @@ class PersonStat:
 
 
 class FileStat:
-    """
-    Statistical data container for a specific file with rename tracking.
+    """Statistical data container for a specific file with rename tracking.
 
     Provides comprehensive file analysis including rename history tracking
     and statistical aggregation across all file versions.
@@ -251,11 +248,11 @@ class FileStat:
     show_renames: bool = False
 
     def __init__(self, fstr: FileStr):
-        """
-        Initialize file statistics.
+        """Initialize file statistics.
 
         Args:
             fstr: Primary file path string
+
         """
         self.fstr: FileStr = fstr
         self.names: list[FileStr] = []  # Track file renames
@@ -272,40 +269,40 @@ class FileStat:
         return self.__repr__()
 
     def add_name(self, name: FileStr) -> None:
-        """
-        Add a file name to the rename history.
+        """Add a file name to the rename history.
 
         Tracks all names this file has had throughout its history,
         enabling comprehensive rename analysis.
 
         Args:
             name: File name to add to history
+
         """
         if name not in self.names:
             self.names.append(name)
 
     def add_commit_group(self, commit_group: CommitGroup) -> None:
-        """
-        Add commit group data to this file's statistics.
+        """Add commit group data to this file's statistics.
 
         Incorporates commit data and updates the file name history.
 
         Args:
             commit_group: CommitGroup containing file-specific commit data
+
         """
         assert commit_group.fstr != ""
         self.add_name(commit_group.fstr)
         self.stat.add_commit_group(commit_group)
 
     def names_str(self) -> str:
-        """
-        Get formatted string representation of file names.
+        """Get formatted string representation of file names.
 
         Provides intelligent file name display based on rename settings
         and file history.
 
         Returns:
             Formatted file name string showing renames if enabled
+
         """
         names = self.names
         if self.fstr == "*":
@@ -319,8 +316,7 @@ class FileStat:
         return self.fstr + ": " + " + ".join(names)
 
     def relative_names_str(self, subfolder: str) -> str:
-        """
-        Get relative file names string for a specific subfolder.
+        """Get relative file names string for a specific subfolder.
 
         Provides subfolder-relative file paths for better display
         in hierarchical repository views.
@@ -330,6 +326,7 @@ class FileStat:
 
         Returns:
             Formatted relative file name string
+
         """
         if self.fstr == "*":
             return "*"
@@ -350,8 +347,7 @@ class FileStat:
 
 @dataclass
 class IniRepo:
-    """
-    Initial repository configuration for analysis.
+    """Initial repository configuration for analysis.
 
     Contains the basic information needed to initialize repository analysis,
     including location and analysis parameters.
@@ -360,6 +356,7 @@ class IniRepo:
         name: Repository name
         location: Path to repository location
         args: Analysis arguments and settings (if available)
+
     """
 
     name: str
@@ -368,8 +365,7 @@ class IniRepo:
 
 
 def get_relative_fstr(fstr: str, subfolder: str) -> str:
-    """
-    Get relative file path string for a specific subfolder.
+    """Get relative file path string for a specific subfolder.
 
     Utility function for converting absolute file paths to relative paths
     within a specific subfolder context.
@@ -380,6 +376,7 @@ def get_relative_fstr(fstr: str, subfolder: str) -> str:
 
     Returns:
         Relative file path string
+
     """
     if len(subfolder):
         if fstr.startswith(subfolder):

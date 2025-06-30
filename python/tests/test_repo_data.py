@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test script for the Main Analysis Orchestrator (RepoData).
+"""Test script for the Main Analysis Orchestrator (RepoData).
 
 This script validates the complete analysis workflow orchestration,
 statistics table generation, and percentage calculations.
@@ -14,9 +13,9 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from gigui.common import divide_to_percentage
 from gigui.core.orchestrator import RepoData, StatTables
-from gigui.core.statistics import PersonStat, FileStat, CommitGroup
-from gigui.core.person_manager import PersonsDB, Person
-from gigui.typedefs import SHA, Author, FileStr, IniRepo
+from gigui.core.person_manager import PersonsDB
+from gigui.core.statistics import CommitGroup
+from gigui.typedefs import IniRepo
 
 
 def test_divide_to_percentage():

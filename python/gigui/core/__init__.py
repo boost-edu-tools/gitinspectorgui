@@ -1,5 +1,4 @@
-"""
-GitInspectorGUI Core Analysis Engine.
+"""GitInspectorGUI Core Analysis Engine.
 
 This package provides the core analysis engine components including
 repository operations, statistics calculation, and legacy engine integration.

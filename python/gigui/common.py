@@ -1,5 +1,4 @@
-"""
-Utility functions for GitInspectorGUI.
+"""Utility functions for GitInspectorGUI.
 
 This module provides essential utility functions for path manipulation,
 percentage calculations, string formatting, and various helper functions.
@@ -38,22 +37,21 @@ class Keys:
 def log(
     message: Any, text_color: str | None = None, end: str = "\n", flush: bool = False
 ) -> None:
-    """
-    Simple logging function for compatibility with legacy system.
+    """Simple logging function for compatibility with legacy system.
     In the enhanced system, this provides basic console output.
     """
     print(message, end=end, flush=flush)
 
 
 def open_file(fstr: FileStr) -> None:
-    """
-    Open a file using the system's default application.
+    """Open a file using the system's default application.
 
     Args:
         fstr: File path to open
 
     Raises:
         RuntimeError: If the platform is not supported
+
     """
     if fstr:
         match platform.system():
@@ -68,19 +66,18 @@ def open_file(fstr: FileStr) -> None:
 
 
 def log_end_time(start_time: float) -> None:
-    """
-    Output the amount of passed time since 'start_time'.
+    """Output the amount of passed time since 'start_time'.
 
     Args:
         start_time: Start time in seconds (from time.time())
+
     """
     end_time = time.time()
     log(f"Analysis done in {end_time - start_time:.1f} s.")
 
 
 def get_outfile_name(fix: str, outfile_base: str, repo_name: str) -> FileStr:
-    """
-    Generate output filename based on prefix/postfix configuration.
+    """Generate output filename based on prefix/postfix configuration.
 
     Args:
         fix: Type of fix to apply ("prefix", "postfix", or other)
@@ -89,6 +86,7 @@ def get_outfile_name(fix: str, outfile_base: str, repo_name: str) -> FileStr:
 
     Returns:
         Generated filename with appropriate prefix/postfix
+
     """
     base_name = Path(outfile_base).name
     if fix == Keys.prefix:
@@ -101,8 +99,7 @@ def get_outfile_name(fix: str, outfile_base: str, repo_name: str) -> FileStr:
 
 
 def divide_to_percentage(dividend: int, divisor: int) -> float:
-    """
-    Calculate percentage from dividend and divisor.
+    """Calculate percentage from dividend and divisor.
 
     Args:
         dividend: Numerator value
@@ -110,6 +107,7 @@ def divide_to_percentage(dividend: int, divisor: int) -> float:
 
     Returns:
         Percentage value rounded to nearest integer, or NaN if invalid
+
     """
     if dividend and divisor:
         return round(dividend / divisor * 100)
@@ -117,8 +115,7 @@ def divide_to_percentage(dividend: int, divisor: int) -> float:
 
 
 def get_digit(arg: Any) -> int:
-    """
-    Validate and convert argument to single digit integer.
+    """Validate and convert argument to single digit integer.
 
     Args:
         arg: Value to convert and validate
@@ -128,6 +125,7 @@ def get_digit(arg: Any) -> int:
 
     Raises:
         argparse.ArgumentTypeError: If value is not a valid single digit
+
     """
     try:
         arg = int(arg)
@@ -141,8 +139,7 @@ def get_digit(arg: Any) -> int:
 
 
 def get_pos_number(arg: Any) -> int:
-    """
-    Validate and convert argument to positive integer.
+    """Validate and convert argument to positive integer.
 
     Args:
         arg: Value to convert and validate
@@ -152,6 +149,7 @@ def get_pos_number(arg: Any) -> int:
 
     Raises:
         argparse.ArgumentTypeError: If value is not a valid positive integer
+
     """
     try:
         arg = int(arg)
@@ -165,8 +163,7 @@ def get_pos_number(arg: Any) -> int:
 
 
 def get_pos_number_or_empty(arg: Any) -> int:
-    """
-    Validate and convert argument to positive integer or handle empty string.
+    """Validate and convert argument to positive integer or handle empty string.
 
     Args:
         arg: Value to convert and validate
@@ -176,6 +173,7 @@ def get_pos_number_or_empty(arg: Any) -> int:
 
     Raises:
         argparse.ArgumentTypeError: If value is not valid
+
     """
     if arg == "":
         return 0
@@ -191,8 +189,7 @@ def get_pos_number_or_empty(arg: Any) -> int:
 
 
 def get_relative_fstr(fstr: str, subfolder: str) -> str:
-    """
-    Get relative file path string based on subfolder.
+    """Get relative file path string based on subfolder.
 
     Args:
         fstr: File path string
@@ -200,6 +197,7 @@ def get_relative_fstr(fstr: str, subfolder: str) -> str:
 
     Returns:
         Relative file path string
+
     """
     if len(subfolder):
         if fstr.startswith(subfolder):
@@ -212,8 +210,7 @@ def get_relative_fstr(fstr: str, subfolder: str) -> str:
 
 
 def get_version() -> str:
-    """
-    Get version string from version.txt file.
+    """Get version string from version.txt file.
 
     Returns:
         Version string
@@ -221,6 +218,7 @@ def get_version() -> str:
     Note:
         In the enhanced system, this looks for version.txt in the same directory
         as this module. If not found, returns a default version.
+
     """
     try:
         my_dir = Path(__file__).resolve().parent
@@ -234,12 +232,12 @@ def get_version() -> str:
 
 
 def out_profile(profiler: Profile | None, nr_lines: int) -> None:
-    """
-    Output profiling results.
+    """Output profiling results.
 
     Args:
         profiler: Profile object to analyze
         nr_lines: Number of lines to output (0 to disable, >100 to dump to file)
+
     """
 
     def log_profile(profile: Profile, sort: str) -> None:
@@ -263,14 +261,14 @@ def out_profile(profiler: Profile | None, nr_lines: int) -> None:
 
 
 def non_hex_chars_in_list(s_list: list[str]) -> list[str]:
-    """
-    Find non-hexadecimal characters in a list of strings.
+    """Find non-hexadecimal characters in a list of strings.
 
     Args:
         s_list: List of strings to check
 
     Returns:
         List of non-hexadecimal characters found
+
     """
     hex_chars = set("0123456789abcdefABCDEF")
     non_hex_chars = [c for s in s_list for c in s if c not in hex_chars]
@@ -278,14 +276,14 @@ def non_hex_chars_in_list(s_list: list[str]) -> list[str]:
 
 
 def to_posix_fstr(fstr: str) -> str:
-    """
-    Convert file path string to POSIX format.
+    """Convert file path string to POSIX format.
 
     Args:
         fstr: File path string
 
     Returns:
         POSIX-formatted file path string
+
     """
     if not fstr:
         return fstr
@@ -293,27 +291,27 @@ def to_posix_fstr(fstr: str) -> str:
 
 
 def to_posix_fstrs(fstrs: list[str]) -> list[str]:
-    """
-    Convert list of file path strings to POSIX format.
+    """Convert list of file path strings to POSIX format.
 
     Args:
         fstrs: List of file path strings
 
     Returns:
         List of POSIX-formatted file path strings
+
     """
     return [to_posix_fstr(fstr) for fstr in fstrs]
 
 
 def to_system_fstr(fstr: FileStr) -> FileStr:
-    """
-    Convert file path string to system-specific format.
+    """Convert file path string to system-specific format.
 
     Args:
         fstr: File path string
 
     Returns:
         System-specific file path string
+
     """
     if not fstr:
         return fstr
@@ -321,21 +319,20 @@ def to_system_fstr(fstr: FileStr) -> FileStr:
 
 
 def to_system_fstrs(fstrs: list[str]) -> list[str]:
-    """
-    Convert list of file path strings to system-specific format.
+    """Convert list of file path strings to system-specific format.
 
     Args:
         fstrs: List of file path strings
 
     Returns:
         List of system-specific file path strings
+
     """
     return [to_system_fstr(fstr) for fstr in fstrs]
 
 
 def get_dir_matches(input_fstrs: list[FileStr]) -> list[FileStr]:
-    """
-    Get directory matches for input file patterns.
+    """Get directory matches for input file patterns.
 
     Normally, the input paths have already been expanded by the shell, but in case the
     wildcard were protected in quotes, we expand them here.
@@ -345,6 +342,7 @@ def get_dir_matches(input_fstrs: list[FileStr]) -> list[FileStr]:
 
     Returns:
         List of matching directory paths
+
     """
     matching_fstrs: list[FileStr] = []
     for pattern in input_fstrs:
@@ -356,8 +354,7 @@ def get_dir_matches(input_fstrs: list[FileStr]) -> list[FileStr]:
 
 
 def get_posix_dir_matches_for(pattern: FileStr) -> list[FileStr]:
-    """
-    Return a list of posix directories that match the pattern and are not hidden.
+    """Return a list of posix directories that match the pattern and are not hidden.
 
     The pattern is case insensitive.
     If the pattern is absolute, the search is done in the root directory.
@@ -369,6 +366,7 @@ def get_posix_dir_matches_for(pattern: FileStr) -> list[FileStr]:
 
     Returns:
         List of matching POSIX directory paths
+
     """
     base_path: Path
     no_drive_pattern: str
@@ -420,8 +418,7 @@ def get_posix_dir_matches_for(pattern: FileStr) -> list[FileStr]:
 
 
 def resolve_and_strip_input_fstrs(input_fstrs: list[FileStr]) -> list[FileStr]:
-    """
-    Resolve and strip input file path strings.
+    """Resolve and strip input file path strings.
 
     If the input _fstrs are not absolute, resolve them to absolute posix file strings.
     If an input_fstr item equals  `.`, it is replaced with the current working directory.
@@ -431,6 +428,7 @@ def resolve_and_strip_input_fstrs(input_fstrs: list[FileStr]) -> list[FileStr]:
 
     Returns:
         List of resolved absolute POSIX file path strings
+
     """
     input_fstrs_posix: list[FileStr] = [
         Path(strip_quotes(fstr)).resolve().as_posix()  # strip enclosing '' and ""
@@ -440,24 +438,24 @@ def resolve_and_strip_input_fstrs(input_fstrs: list[FileStr]) -> list[FileStr]:
 
 
 def strip_quotes(s: str) -> str:
-    """
-    Remove quotes from the string.
+    """Remove quotes from the string.
 
     Args:
         s: String to strip quotes from
 
     Returns:
         String with leading/trailing quotes removed
+
     """
     return s.strip("'\"")  # Does nothing if the string is not quoted.
 
 
 def print_threads(message: str) -> None:
-    """
-    Print information about current threads for debugging.
+    """Print information about current threads for debugging.
 
     Args:
         message: Message to display with thread information
+
     """
     time.sleep(0.05)
     print(f"\n{message}:")
@@ -472,20 +470,19 @@ def print_threads(message: str) -> None:
 def sigint_handler(
     signum: int, frame: Any, sigint_event: multiprocessingEvent | threading.Event
 ) -> None:
-    """
-    Handle SIGINT signal.
+    """Handle SIGINT signal.
 
     Args:
         signum: Signal number
         frame: Current stack frame
         sigint_event: Event to set when signal is received
+
     """
     sigint_event.set()  # Only used for single core in this main process
 
 
 def setup_sigint_handler(sigint_event: multiprocessingEvent | threading.Event) -> None:
-    """
-    Setup SIGINT signal handler.
+    """Setup SIGINT signal handler.
 
     Args:
         sigint_event: Event to set when signal is received
@@ -493,6 +490,7 @@ def setup_sigint_handler(sigint_event: multiprocessingEvent | threading.Event) -
     Note:
         Currently disabled in the enhanced system for compatibility.
         Signal handling can be enabled by uncommenting the signal.signal calls.
+
     """
     # signal.signal(
     #     signal.SIGINT,
@@ -514,14 +512,14 @@ def setup_sigint_handler(sigint_event: multiprocessingEvent | threading.Event) -
 
 # Enhanced utility functions for the new system
 def validate_file_path(file_path: str) -> tuple[bool, str]:
-    """
-    Validate if a file path is valid and accessible.
+    """Validate if a file path is valid and accessible.
 
     Args:
         file_path: Path to validate
 
     Returns:
         Tuple of (is_valid, error_message)
+
     """
     try:
         path = Path(file_path)
@@ -535,14 +533,14 @@ def validate_file_path(file_path: str) -> tuple[bool, str]:
 
 
 def ensure_directory_exists(dir_path: str) -> bool:
-    """
-    Ensure a directory exists, creating it if necessary.
+    """Ensure a directory exists, creating it if necessary.
 
     Args:
         dir_path: Directory path to ensure exists
 
     Returns:
         True if directory exists or was created successfully
+
     """
     try:
         Path(dir_path).mkdir(parents=True, exist_ok=True)
@@ -552,27 +550,27 @@ def ensure_directory_exists(dir_path: str) -> bool:
 
 
 def get_file_extension(file_path: str) -> str:
-    """
-    Get file extension from file path.
+    """Get file extension from file path.
 
     Args:
         file_path: Path to get extension from
 
     Returns:
         File extension (without dot) or empty string if no extension
+
     """
     return Path(file_path).suffix.lstrip(".")
 
 
 def format_bytes(bytes_value: int) -> str:
-    """
-    Format bytes value into human-readable string.
+    """Format bytes value into human-readable string.
 
     Args:
         bytes_value: Number of bytes
 
     Returns:
         Formatted string (e.g., "1.5 MB")
+
     """
     value = float(bytes_value)
     for unit in ["B", "KB", "MB", "GB", "TB"]:
@@ -583,8 +581,7 @@ def format_bytes(bytes_value: int) -> str:
 
 
 def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> float:
-    """
-    Safely divide two numbers, returning default if denominator is zero.
+    """Safely divide two numbers, returning default if denominator is zero.
 
     Args:
         numerator: Numerator value
@@ -593,6 +590,7 @@ def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> f
 
     Returns:
         Result of division or default value
+
     """
     if denominator == 0:
         return default
@@ -600,8 +598,7 @@ def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> f
 
 
 def truncate_string(text: str, max_length: int, suffix: str = "...") -> str:
-    """
-    Truncate string to maximum length with optional suffix.
+    """Truncate string to maximum length with optional suffix.
 
     Args:
         text: Text to truncate
@@ -610,6 +607,7 @@ def truncate_string(text: str, max_length: int, suffix: str = "...") -> str:
 
     Returns:
         Truncated string
+
     """
     if len(text) <= max_length:
         return text

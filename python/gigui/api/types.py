@@ -1,5 +1,4 @@
-"""
-API data types for GitInspectorGUI backend.
+"""API data types for GitInspectorGUI backend.
 
 This module contains the data classes used by both the API and Legacy Engine
 to avoid circular import issues.
@@ -291,7 +290,6 @@ class Settings:
 
     def normalize_paths(self):
         """Normalize file paths for cross-platform compatibility."""
-
         # Normalize input paths
         self.input_fstrs = [str(Path(p).as_posix()) for p in self.input_fstrs]
 

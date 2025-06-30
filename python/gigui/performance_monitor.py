@@ -1,13 +1,13 @@
-"""
-Performance monitoring utilities for GitInspectorGUI analysis.
+"""Performance monitoring utilities for GitInspectorGUI analysis.
 """
 
-import time
 import logging
-import psutil
+import time
 from contextlib import contextmanager
-from typing import Dict, Any, Optional
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from typing import Any
+
+import psutil
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class PerformanceStep:
     name: str
     start_time: float
-    end_time: Optional[float] = None
+    end_time: float | None = None
     memory_before_mb: float = 0
     memory_after_mb: float = 0
 
@@ -35,8 +35,8 @@ class PerformanceProfiler:
     """Detailed performance profiler for analysis operations."""
 
     def __init__(self):
-        self.steps: Dict[str, PerformanceStep] = {}
-        self.current_step: Optional[str] = None
+        self.steps: dict[str, PerformanceStep] = {}
+        self.current_step: str | None = None
         self.total_start_time = time.time()
 
     @contextmanager
@@ -90,7 +90,7 @@ class PerformanceProfiler:
             f"Delta: {step.memory_delta_mb:+.1f}MB)"
         )
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """Get performance summary."""
         total_duration = time.time() - self.total_start_time
 

@@ -1,5 +1,4 @@
-"""
-Legacy API wrapper for GitInspectorGUI.
+"""Legacy API wrapper for GitInspectorGUI.
 
 This module provides a command-line interface that wraps the new GitInspectorAPI
 for backward compatibility with existing scripts and tools.
@@ -13,7 +12,7 @@ from typing import Any
 
 # Import required modules
 from gigui.api.main import GitInspectorAPI
-from gigui.api.types import AnalysisResult, Settings
+from gigui.api.types import Settings
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -21,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_settings_from_dict(settings_dict: dict[str, Any]) -> Settings:
-    """
-    Creates a Settings object from a dictionary of settings.
+    """Creates a Settings object from a dictionary of settings.
     """
     # Provide defaults for all required fields
     defaults = {
@@ -146,8 +144,7 @@ def create_settings_from_dict(settings_dict: dict[str, Any]) -> Settings:
 
 
 def process_repositories(settings: Settings) -> dict[str, Any]:
-    """
-    Processes repositories using the new GitInspectorAPI.
+    """Processes repositories using the new GitInspectorAPI.
     """
     if not settings.input_fstrs:
         return {"error": "No input repository paths provided in settings."}

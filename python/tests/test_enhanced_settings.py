@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-"""
-Test script for enhanced Settings class with legacy integration features.
+"""Test script for enhanced Settings class with legacy integration features.
 
 This script tests the new advanced configuration options, performance tuning,
 and pattern-based filtering capabilities.
 """
 
-import json
 import tempfile
 from pathlib import Path
-from gigui.api import Settings, GitInspectorAPI
+
+from gigui.api import GitInspectorAPI, Settings
 from gigui.core.person_manager import Person
 
 
@@ -399,9 +398,8 @@ def main():
             "🎉 All tests passed! Enhanced Settings integration is working correctly."
         )
         return True
-    else:
-        print("❌ Some tests failed. Please check the implementation.")
-        return False
+    print("❌ Some tests failed. Please check the implementation.")
+    return False
 
 
 if __name__ == "__main__":

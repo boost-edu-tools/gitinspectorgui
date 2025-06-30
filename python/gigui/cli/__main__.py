@@ -1,5 +1,4 @@
-"""
-CLI entry point for GitInspectorGUI.
+"""CLI entry point for GitInspectorGUI.
 
 This module provides the main entry point for running GitInspectorGUI
 from the command line using `python -m gigui.cli`.

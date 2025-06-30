@@ -1,5 +1,4 @@
-"""
-GitInspectorGUI API Layer.
+"""GitInspectorGUI API Layer.
 
 This package provides the public API interface for the GitInspectorGUI backend,
 including HTTP server functionality and data types.

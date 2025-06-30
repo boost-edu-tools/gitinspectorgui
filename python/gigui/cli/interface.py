@@ -1,5 +1,4 @@
-"""
-Command-line interface for GitInspectorGUI.
+"""Command-line interface for GitInspectorGUI.
 
 This module provides the CLI entry point for the git repository analysis tool.
 """

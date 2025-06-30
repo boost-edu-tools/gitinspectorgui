@@ -1,5 +1,4 @@
-"""
-GitInspectorGUI Blame Analysis Package.
+"""GitInspectorGUI Blame Analysis Package.
 
 This package provides comprehensive blame analysis capabilities including
 line-by-line attribution, historical tracking, and stability metrics.

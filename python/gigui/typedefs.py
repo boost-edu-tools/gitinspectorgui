@@ -1,12 +1,11 @@
-"""
-Type definitions for GitInspectorGUI.
+"""Type definitions for GitInspectorGUI.
 
 This module contains type aliases used throughout the application,
 migrated from the original gitinspectorgui-old codebase.
 """
 
-from typing import Any, Dict, List, Set, Tuple, Union
 from dataclasses import dataclass, field
+from typing import Any
 
 # Basic types
 type Author = str
@@ -56,8 +55,8 @@ type SettingsDict = dict[str, Any]
 type ValidationResult = tuple[bool, str]  # (is_valid, error_message)
 
 # Analysis result types
-type StatisticsData = dict[str, Union[int, float, str]]
-type AnalysisResults = dict[str, Union[StatisticsData, list[Row], HtmlStr]]
+type StatisticsData = dict[str, int | float | str]
+type AnalysisResults = dict[str, StatisticsData | list[Row] | HtmlStr]
 
 # Time and date types
 type UnixTimestamp = int  # Unix timestamp in seconds since epoch
@@ -87,7 +86,7 @@ type CommitData = dict[str, Any]  # Commit information
 type BlameLineData = dict[str, Any]  # Blame line information
 
 # Advanced analysis types
-type StabilityMetric = Union[int, str]  # Stability percentage or empty string
+type StabilityMetric = int | str  # Stability percentage or empty string
 type PercentageValue = float  # Percentage value (0.0 to 100.0)
 type AuthorColorMapping = dict[Author, str]  # Author to color mapping
 type FileRenameHistory = dict[FileStr, list[FileStr]]  # File rename tracking
@@ -117,7 +116,7 @@ class CommitGroup:
     insertions: int
     deletions: int
     date_sum: int
-    shas: Set[SHA] = field(default_factory=set)
+    shas: set[SHA] = field(default_factory=set)
 
 
 @dataclass

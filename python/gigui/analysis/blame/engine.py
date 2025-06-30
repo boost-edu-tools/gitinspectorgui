@@ -1,5 +1,4 @@
-"""
-Blame Analysis Engine for GitInspectorGUI.
+"""Blame Analysis Engine for GitInspectorGUI.
 
 This module provides the main blame analysis classes including
 multithreaded processing and historical blame tracking.
@@ -18,16 +17,14 @@ logger = getLogger(__name__)
 
 
 class RepoBlame(RepoBlameBase):
-    """
-    Main blame analysis class with threading support and author management.
+    """Main blame analysis class with threading support and author management.
 
     Provides comprehensive blame analysis including multithreaded processing,
     author database integration, and statistical calculations for code attribution.
     """
 
     def run_blame(self) -> None:
-        """
-        Execute blame analysis for all files in the repository.
+        """Execute blame analysis for all files in the repository.
 
         Processes all files using either multithreaded or single-threaded approach
         based on configuration. Updates the person database with newly discovered
@@ -69,8 +66,7 @@ class RepoBlame(RepoBlameBase):
         self._normalize_blame_authors()
 
     def _normalize_blame_authors(self) -> None:
-        """
-        Normalize blame authors using the person database.
+        """Normalize blame authors using the person database.
 
         Updates all blame objects to use normalized author names from the
         person database, ensuring consistent author attribution across
@@ -95,8 +91,7 @@ class RepoBlame(RepoBlameBase):
     def update_author2fstr2fstat(
         self, author2fstr2fstat: dict[Author, dict[FileStr, any]]
     ) -> dict[Author, dict[FileStr, any]]:
-        """
-        Update author statistics with blame line counts.
+        """Update author statistics with blame line counts.
 
         Calculates line counts for each author, excluding comments and empty
         lines based on configuration. Updates the provided statistics dictionary
@@ -107,6 +102,7 @@ class RepoBlame(RepoBlameBase):
 
         Returns:
             Updated author to file statistics mapping
+
         """
         author2line_count: dict[Author, int] = {}
         target = author2fstr2fstat
@@ -162,8 +158,7 @@ class RepoBlame(RepoBlameBase):
         return target
 
     def get_blame_shas_for_fstr(self, fstr: FileStr) -> list[SHA]:
-        """
-        Get sorted list of commit SHAs that modified a file.
+        """Get sorted list of commit SHAs that modified a file.
 
         Analyzes blame data to find all commits that contributed to the current
         state of a file, filtered by date range and exclusions.
@@ -173,6 +168,7 @@ class RepoBlame(RepoBlameBase):
 
         Returns:
             List of SHAs sorted by commit number (newest first)
+
         """
         shas: set[SHA] = set()
         blames: list[Blame] = self.fstr2blames[fstr]
@@ -196,8 +192,7 @@ class RepoBlame(RepoBlameBase):
         return shas_sorted
 
     def line_data_ok(self, b: Blame, d: LineData) -> bool:
-        """
-        Check if a line data entry should be included in analysis.
+        """Check if a line data entry should be included in analysis.
 
         Applies filters for comments, empty lines, excluded authors,
         and date ranges to determine if a line should be counted.
@@ -208,6 +203,7 @@ class RepoBlame(RepoBlameBase):
 
         Returns:
             True if line should be included, False otherwise
+
         """
         comment_ok: bool = getattr(self.args, "comments", False) or not d.is_comment
         empty_ok: bool = (
@@ -220,8 +216,7 @@ class RepoBlame(RepoBlameBase):
 
 
 class RepoBlameHistory(RepoBlame):
-    """
-    Historical blame tracking and analysis.
+    """Historical blame tracking and analysis.
 
     Extends RepoBlame to provide historical blame analysis capabilities,
     tracking how blame attribution changes over time and calculating
@@ -230,14 +225,15 @@ class RepoBlameHistory(RepoBlame):
     Attributes:
         fr2f2shas: File rename to file to SHAs mapping
         fstr2sha2blames: File to SHA to blames mapping for history
+
     """
 
     def __init__(self, ini_repo) -> None:
-        """
-        Initialize blame history with repository configuration.
+        """Initialize blame history with repository configuration.
 
         Args:
             ini_repo: Initial repository configuration
+
         """
         super().__init__(ini_repo)
 
@@ -248,8 +244,7 @@ class RepoBlameHistory(RepoBlame):
         self.fstr2sha2blames: dict[FileStr, dict[SHA, list[Blame]]] = {}
 
     def generate_fr_blame_history(self, root_fstr: FileStr, sha: SHA) -> list[Blame]:
-        """
-        Generate blame history for a file at a specific commit.
+        """Generate blame history for a file at a specific commit.
 
         Creates blame data for a file at a historical commit, enabling
         analysis of how code attribution has changed over time.
@@ -260,6 +255,7 @@ class RepoBlameHistory(RepoBlame):
 
         Returns:
             List of Blame objects for the file at the given commit
+
         """
         blame_lines: list[BlameStr]
         blame_lines, _ = self._get_git_blames_for(root_fstr, sha)
@@ -267,8 +263,7 @@ class RepoBlameHistory(RepoBlame):
         return blames
 
     def calculate_stability_metrics(self, fstr: FileStr) -> dict[SHA, float]:
-        """
-        Calculate stability metrics for a file across commits.
+        """Calculate stability metrics for a file across commits.
 
         Determines what percentage of lines from each historical commit
         are still present in the current version of the file.
@@ -278,6 +273,7 @@ class RepoBlameHistory(RepoBlame):
 
         Returns:
             Dictionary mapping SHAs to stability percentages
+
         """
         if fstr not in self.fstr2sha2blames:
             return {}

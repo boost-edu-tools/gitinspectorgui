@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test suite for the migrated utility functions.
+"""Test suite for the migrated utility functions.
 
 This test suite verifies that all utility functions from the legacy system
 have been properly migrated and work correctly in the enhanced system.
@@ -9,10 +8,11 @@ have been properly migrated and work correctly in the enhanced system.
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 from gigui import (
+    Keys,
     divide_to_percentage,
+    ensure_directory_exists,
     format_bytes,
     get_digit,
     get_file_extension,
@@ -30,8 +30,6 @@ from gigui import (
     to_system_fstrs,
     truncate_string,
     validate_file_path,
-    ensure_directory_exists,
-    Keys,
 )
 
 

@@ -1,5 +1,4 @@
-"""
-Integration test for Legacy Engine Wrapper with current API.
+"""Integration test for Legacy Engine Wrapper with current API.
 
 This test verifies that the legacy engine wrapper integrates correctly
 with the current API and can be used as a drop-in replacement.
@@ -9,13 +8,12 @@ import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from gigui.api import Settings, GitInspectorAPI
+from gigui.api import GitInspectorAPI, Settings
 from gigui.core.legacy_engine import legacy_engine
 
 
 def test_legacy_engine_integration():
     """Test that legacy engine can be integrated with current API."""
-
     # Test engine info
     info = legacy_engine.get_engine_info()
     assert "GitInspectorGUI Legacy Analysis Engine" in info["engine_name"]
@@ -35,7 +33,6 @@ def test_legacy_engine_integration():
 
 def test_legacy_engine_as_api_replacement():
     """Test using legacy engine as a replacement for current API analysis."""
-
     # Create a mock API that uses the legacy engine
     api = GitInspectorAPI()
 
@@ -67,7 +64,6 @@ def test_legacy_engine_as_api_replacement():
 
 def test_settings_translation_compatibility():
     """Test that settings translation maintains compatibility."""
-
     # Test with various settings configurations
     test_cases = [
         # Basic settings
