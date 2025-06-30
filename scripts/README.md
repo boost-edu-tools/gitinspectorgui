@@ -30,7 +30,7 @@ For a complete release from development to distribution:
 # 4. Create and publish release
 git add . && git commit -m "chore: bump version to v1.2.0"
 git tag v1.2.0 && git push origin v1.2.0
-glab release create v1.2.0 --name "GitInspectorGUI v1.2.0" --notes-file CHANGELOG.md dist/releases/*
+gh release create v1.2.0 --title "GitInspectorGUI v1.2.0" --notes-file CHANGELOG.md dist/releases/*
 ```
 
 ## Detailed Script Documentation
@@ -162,17 +162,27 @@ Standalone version update utility for synchronizing versions across all project 
 
 ## CI/CD Integration
 
-These scripts are designed to work with GitLab CI/CD:
+These scripts are designed to work with GitHub Actions:
 
 ```yaml
-# Example .gitlab-ci.yml usage
-build:
-    script:
-        - ./scripts/build-all-platforms.sh --current
-        - ./scripts/test-release.sh
-    artifacts:
-        paths:
-            - dist/releases/
+# Example .github/workflows/build.yml usage
+name: Build and Test
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build current platform
+        run: ./scripts/build-all-platforms.sh --current
+      - name: Test release artifacts
+        run: ./scripts/test-release.sh
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: dist/releases/
 ```
 
 ## Development Integration
@@ -215,7 +225,7 @@ apt-get install jq       # Ubuntu/Debian
 
 -   Cross-compilation requires platform-specific setup
 -   Use CI/CD or platform-specific machines for complete builds
--   Consider using GitHub Actions or GitLab CI for multi-platform builds
+-   Consider using GitHub Actions for multi-platform builds
 
 ### Getting Help
 

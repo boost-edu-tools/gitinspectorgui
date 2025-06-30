@@ -523,7 +523,7 @@ valgrind --tool=memcheck ./target/debug/gitinspectorgui
 
 ## Continuous Integration
 
-The build process is automated through GitLab CI/CD:
+The build process is automated through GitHub Actions:
 
 -   **Automated Builds**: Triggered on commits and tags
 -   **Multi-Platform**: Builds for all supported platforms

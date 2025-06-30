@@ -35,7 +35,7 @@ export const useResultsStore = create<ResultsStore>((set, get) => ({
         // Check if we're in demo mode
         const isDemo =
             typeof window !== "undefined" &&
-            window.location.hostname.includes("gitlab.io") &&
+            window.location.hostname.includes("github.io") &&
             window.location.pathname.includes("/gitinspectorgui");
 
         if (isDemo) {

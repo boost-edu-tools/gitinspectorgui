@@ -2,75 +2,107 @@
 
 ## Overview
 
-Integration strategy for Figma design systems and GitLab Pages deployment with demo-based development methodology.
+Integration strategy for Figma design systems and GitHub Pages deployment with demo-based development methodology.
 
-> **Current Status**: The project currently uses GitLab Pages for experimental proof-of-concept demos. This document outlines the planned enhancement to a more powerful Figma-based design system with GitLab Pages deployment for enhanced interactive rapid prototyping capabilities.
+> **Current Status**: The project currently uses GitHub Pages for experimental proof-of-concept demos. This document outlines the planned enhancement to a more powerful Figma-based design system with GitHub Pages deployment for enhanced interactive rapid prototyping capabilities.
 
 ## Current Implementation vs. Future Vision
 
 ### Current (Proof of Concept)
 
-- **Platform**: GitLab Pages deployment
+- **Platform**: GitHub Pages deployment
 - **Demo**: Basic interactive demo with sample data
-- **URL**: https://boost-edu-tools.github.io/gitinspectorgui/
+- **URL**: https://boost-edu-tools.github.io/gitinspectorgui/demo/
 - **Purpose**: Validate core functionality and user experience concepts
 
 ### Future (Figma-Enhanced Design System)
 
-- **Platform**: GitLab Pages (extended with Figma integration)
+- **Platform**: GitHub Pages (extended with Figma integration)
 - **Design**: Figma-integrated design tokens and components
 - **Demos**: Advanced interactive prototyping with realistic scenarios
 - **Purpose**: Rapid iteration with design consistency and comprehensive user feedback
 
-## GitLab Pages + Figma Integration Strategy
+## GitHub Pages + Figma Integration Strategy
 
-The current GitLab Pages deployment can be enhanced with Figma-based rapid prototyping without requiring Vercel:
+The current GitHub Pages deployment can be enhanced with Figma-based rapid prototyping:
 
 ### Enhanced CI/CD Pipeline
 
-The deployment uses a trigger-based architecture where gitinspectorgui triggers edu-boost.gitlab.io for actual deployment:
+The deployment uses GitHub Actions for automated deployment:
 
 ```yaml
-# gitinspectorgui/.gitlab-ci.yml - Enhanced with Figma sync
-stages:
-  - design-sync
-  - deploy
+# .github/workflows/deploy.yml - Enhanced with Figma sync
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
-sync-figma-tokens:
-  stage: design-sync
-  image: node:lts-slim
-  script:
-    - npm install -g @figma/design-tokens-cli
-    - figma-tokens export --token $FIGMA_TOKEN --file-id $FIGMA_FILE_ID
-    - cp figma-tokens.json src/design-tokens/
-  artifacts:
-    paths:
-      - src/design-tokens/figma-tokens.json
-  only:
-    - main
+jobs:
+  sync-figma-tokens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install Figma CLI
+        run: npm install -g @figma/design-tokens-cli
+      - name: Export Figma tokens
+        run: |
+          figma-tokens export --token ${{ secrets.FIGMA_TOKEN }} --file-id ${{ secrets.FIGMA_FILE_ID }}
+          cp figma-tokens.json src/design-tokens/
+        env:
+          FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+          FIGMA_FILE_ID: ${{ secrets.FIGMA_FILE_ID }}
+      - name: Upload tokens artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: figma-tokens
+          path: src/design-tokens/figma-tokens.json
 
-trigger_group_pages:
-  stage: deploy
-  image: alpine:latest
-  dependencies:
-    - sync-figma-tokens
-  before_script:
-    - apk add --no-cache curl
-  script:
-    - echo "Triggering group pages rebuild with Figma tokens..."
-    - |
-      if curl -f -X POST \
-          -F token=$DOCS_TRIGGER_TOKEN \
-          -F ref=main \
-          "https://gitlab.com/api/v4/projects/edu-boost%2Fedu-boost.gitlab.io/trigger/pipeline"; then
-          echo "Group pages deployment triggered successfully"
-          echo "Changes will be available at: https://boost-edu-tools.github.io/gitinspectorgui/"
-      else
-          echo "Failed to trigger deployment"
-          exit 1
-      fi
-  rules:
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  deploy:
+    needs: sync-figma-tokens
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Figma tokens
+        uses: actions/download-artifact@v4
+        with:
+          name: figma-tokens
+          path: src/design-tokens/
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install
+      - name: Build with Figma integration
+        run: |
+          if [ -f "src/design-tokens/figma-tokens.json" ]; then
+            echo "Building with Figma design tokens..."
+            npm run build:figma
+          else
+            echo "Building with standard configuration..."
+            npm run build
+          fi
+        env:
+          NODE_ENV: production
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 ```
 
 ### Design Token Integration
@@ -97,7 +129,7 @@ graph TB
     B --> C[Tailwind Config]
     C --> D[React Components]
     D --> E[Demo Modes]
-    E --> F[GitLab Pages Deployment]
+    E --> F[GitHub Pages Deployment]
     F --> G[Interactive Docs]
 ```
 
@@ -137,64 +169,74 @@ export const DesignSystemComponent = ({
 };
 ```
 
-## GitLab Pages Multi-Environment Strategy
+## GitHub Pages Multi-Environment Strategy
 
 ### Deployment Configuration
 
 ```yaml
-# Enhanced edu-boost.gitlab.io/.gitlab-ci.yml
-pages:
-  image: node:lts-slim
-  before_script:
-    - apt-get update && apt-get install -y git python3 python3-pip python3-venv
-    - npm install -g pnpm
-  script:
-    # Create public directory structure
-    - mkdir -p public
-    - cp index.html public/
+# .github/workflows/pages.yml
+name: Deploy Documentation and Demo
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
-    # Clone gitinspectorgui repository
-    - |
-      if [ -d "temp-gitinspectorgui/.git" ]; then
-        echo "Repository exists, fetching latest changes..."
-        cd temp-gitinspectorgui
-        git fetch origin --depth=1
-        git reset --hard origin/main
-      else
-        echo "Cloning repository..."
-        git clone --depth 1 https://gitlab.com/edu-boost/gitinspectorgui.git temp-gitinspectorgui
-        cd temp-gitinspectorgui
-      fi
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
 
-    # Check for Figma tokens and integrate if available
-    - |
-      if [ -f "src/design-tokens/figma-tokens.json" ]; then
-        echo "Figma tokens found, building with design system integration..."
-        pnpm install
-        pnpm build:figma --base="/gitinspectorgui/demo/"
-      else
-        echo "No Figma tokens found, building with standard configuration..."
-        pnpm install
-        pnpm build --base="/gitinspectorgui/demo/"
-      fi
+      # Build React demo with Figma integration
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install
+      - name: Check for Figma tokens and build
+        run: |
+          if [ -f "src/design-tokens/figma-tokens.json" ]; then
+            echo "Figma tokens found, building with design system integration..."
+            npm run build:figma --base="/gitinspectorgui/demo/"
+          else
+            echo "No Figma tokens found, building with standard configuration..."
+            npm run build --base="/gitinspectorgui/demo/"
+          fi
 
-    # Build documentation
-    - echo "Building documentation..."
-    - python3 -m venv venv
-    - source venv/bin/activate
-    - pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
-    - mkdocs build
+      # Build documentation
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Python dependencies
+        run: |
+          pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
+      - name: Build documentation
+        run: mkdocs build
 
-    # Deploy to public directory
-    - cd ..
-    - mkdir -p public/gitinspectorgui
-    - cp -r temp-gitinspectorgui/site/* public/gitinspectorgui/
-    - mkdir -p public/gitinspectorgui/demo
-    - cp -r temp-gitinspectorgui/dist/* public/gitinspectorgui/demo/
+      # Combine and deploy
+      - name: Prepare deployment
+        run: |
+          mkdir -p public
+          cp -r site/* public/
+          mkdir -p public/demo
+          cp -r dist/* public/demo/
 
-    # Deploy structure:
-    # /gitinspectorgui/          -> Documentation
-    # /gitinspectorgui/demo/     -> Interactive demo (with Figma integration if available)
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './public'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 ```
 
 ### Repository Structure
@@ -208,7 +250,8 @@ gitinspectorgui/
 │   │   └── tailwind-config.ts
 │   └── demo-data/         # Sample data
 ├── docs/                  # MkDocs documentation
-├── storybook/            # Component showcase
+├── .github/
+│   └── workflows/         # GitHub Actions
 └── figma/
     ├── design-system.fig  # Figma file reference
     └── export-config.json # Token export settings
@@ -225,7 +268,7 @@ Build ${componentName} using:
 - Design tokens from figma-tokens.json
 - Flowbite patterns for ${componentType}
 - Demo modes with realistic data
-- Auto-deploy to GitLab Pages for testing
+- Auto-deploy to GitHub Pages for testing
 `;
 ```
 
@@ -234,8 +277,8 @@ Build ${componentName} using:
 ```mermaid
 sequenceDiagram
     AI->>Demo: Build component with demo modes
-    Demo->>GitLab Pages: Deploy interactive demos
-    GitLab Pages->>Users: Provide live experience
+    Demo->>GitHub Pages: Deploy interactive demos
+    GitHub Pages->>Users: Provide live experience
     Users->>AI: Feedback improves iteration
 ```
 
@@ -266,7 +309,7 @@ sequenceDiagram
 
 ### Phase 2: Deployment
 
-- Enhance GitLab Pages with Figma integration
+- Enhance GitHub Pages with Figma integration
 - Create auto-deployment pipeline with design tokens
 - Build interactive demo framework
 - Implement settings export
@@ -294,8 +337,65 @@ sequenceDiagram
 - **Configuration sharing** - Teachers share via URLs
 - **Results comparison** - Compare analysis settings
 
+## GitHub Actions Integration
+
+### Automated Workflows
+
+```yaml
+# .github/workflows/figma-sync.yml
+name: Sync Figma Design Tokens
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Weekly on Monday
+  workflow_dispatch:
+
+jobs:
+  sync-tokens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync Figma tokens
+        run: |
+          npm install -g @figma/design-tokens-cli
+          figma-tokens export --token ${{ secrets.FIGMA_TOKEN }}
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: 'chore: update Figma design tokens'
+          body: 'Automated update of design tokens from Figma'
+          branch: figma-token-update
+```
+
+### Release Integration
+
+```yaml
+# .github/workflows/release.yml
+name: Release
+on:
+  push:
+    tags: [ 'v*' ]
+
+jobs:
+  deploy-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy demo with release tag
+        run: |
+          npm run build --base="/gitinspectorgui/demo/v${{ github.ref_name }}/"
+          # Deploy versioned demo for release testing
+```
+
 ## Summary
 
-Design system integration creates a comprehensive ecosystem where Figma designs, React components, and GitLab Pages deployment work together through AI automation. This produces consistent user experiences while enabling rapid iteration and user feedback collection.
+Design system integration creates a comprehensive ecosystem where Figma designs, React components, and GitHub Pages deployment work together through AI automation. This produces consistent user experiences while enabling rapid iteration and user feedback collection.
 
-The GitLab Pages approach provides all the benefits of rapid prototyping and design system integration without requiring external services like Vercel, maintaining consistency with the existing development workflow while adding powerful Figma-based design capabilities.
+The GitHub Pages approach provides all the benefits of rapid prototyping and design system integration while maintaining consistency with the existing development workflow and adding powerful Figma-based design capabilities.
+
+### Key Advantages
+
+- **Native GitHub Integration** - Seamless workflow with existing repository
+- **Automated Deployment** - GitHub Actions handle all deployment steps
+- **Version Control** - Design tokens tracked in git with full history
+- **Cost Effective** - No external services required
+- **Scalable** - Supports multiple environments and versioned demos
+- **Secure** - Figma tokens managed through GitHub Secrets
