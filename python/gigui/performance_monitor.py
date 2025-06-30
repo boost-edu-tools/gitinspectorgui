@@ -51,7 +51,9 @@ class PerformanceProfiler:
     def start_step(self, name: str):
         """Start timing a specific step."""
         if self.current_step:
-            logger.warning(f"Starting step '{name}' while '{self.current_step}' is still active")
+            logger.warning(
+                f"Starting step '{name}' while '{self.current_step}' is still active"
+            )
 
         try:
             memory_mb = psutil.Process().memory_info().rss / 1024 / 1024
@@ -98,7 +100,8 @@ class PerformanceProfiler:
             summary["steps"][name] = {
                 "duration_ms": step.duration_ms,
                 "memory_delta_mb": step.memory_delta_mb,
-                "percentage_of_total": (step.duration_ms / (total_duration * 1000)) * 100
+                "percentage_of_total": (step.duration_ms / (total_duration * 1000))
+                * 100
                 if total_duration > 0
                 else 0,
             }

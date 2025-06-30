@@ -72,7 +72,9 @@ def test_stat_tables():
 
     # Test author2fstr2fstat generation
     stat_tables = StatTables()
-    author2fstr2fstat = stat_tables.get_author2fstr2fstat(fstrs, fstr2commit_groups, persons_db)
+    author2fstr2fstat = stat_tables.get_author2fstr2fstat(
+        fstrs, fstr2commit_groups, persons_db
+    )
 
     # Verify structure
     assert "*" in author2fstr2fstat, "Missing wildcard author"
@@ -81,7 +83,9 @@ def test_stat_tables():
 
     # Verify statistics
     total_insertions = author2fstr2fstat["*"]["*"].stat.insertions
-    assert total_insertions == 15, f"Expected 15 total insertions, got {total_insertions}"
+    assert total_insertions == 15, (
+        f"Expected 15 total insertions, got {total_insertions}"
+    )
 
     print("✓ StatTables tests passed")
 

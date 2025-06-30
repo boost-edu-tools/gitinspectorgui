@@ -215,7 +215,9 @@ class SettingsTranslator:
 
         except Exception as e:
             logger.error(f"Settings translation failed: {e}")
-            raise ValueError(f"Failed to translate settings to legacy format: {e}") from e
+            raise ValueError(
+                f"Failed to translate settings to legacy format: {e}"
+            ) from e
 
 
 class ResultConverter:
@@ -228,7 +230,9 @@ class ResultConverter:
 
     @staticmethod
     def convert_repo_data_to_analysis_result(
-        repo_data_list: list[RepoData], settings: Settings, performance_metrics: PerformanceMetrics
+        repo_data_list: list[RepoData],
+        settings: Settings,
+        performance_metrics: PerformanceMetrics,
     ) -> AnalysisResult:
         """
         Convert legacy RepoData objects to GUI AnalysisResult format.
@@ -281,7 +285,9 @@ class ResultConverter:
         except Exception as e:
             logger.error(f"Result conversion failed: {e}")
             return AnalysisResult(
-                repositories=[], success=False, error=f"Failed to convert legacy results: {e}"
+                repositories=[],
+                success=False,
+                error=f"Failed to convert legacy results: {e}",
             )
 
     @staticmethod
@@ -300,14 +306,20 @@ class ResultConverter:
                 stat = pstat.stat
 
                 # Get primary email
-                primary_email = list(person.emails)[0] if person.emails else "unknown@example.com"
+                primary_email = (
+                    list(person.emails)[0] if person.emails else "unknown@example.com"
+                )
 
                 # Get file count for this author from author2fstr2fstat
                 file_count = 0
                 if author in repo_data.author2fstr2fstat:
                     # Count files (excluding "*" totals)
                     file_count = len(
-                        [f for f in repo_data.author2fstr2fstat[author].keys() if f != "*"]
+                        [
+                            f
+                            for f in repo_data.author2fstr2fstat[author].keys()
+                            if f != "*"
+                        ]
                     )
 
                 # Create AuthorStat
@@ -392,13 +404,17 @@ class ResultConverter:
                             line_number=line_data.line_nr,
                             author=blame.author,
                             commit=blame.sha,  # Use real commit SHA
-                            date=blame.date.strftime("%Y-%m-%d"),  # Use real commit date
+                            date=blame.date.strftime(
+                                "%Y-%m-%d"
+                            ),  # Use real commit date
                             content=line_data.line.strip(),  # Use real line content
                         )
 
                         blame_data.append(blame_entry)
 
-            logger.debug(f"Converted {len(blame_data)} real blame entries from legacy format")
+            logger.debug(
+                f"Converted {len(blame_data)} real blame entries from legacy format"
+            )
 
         except Exception as e:
             logger.warning(f"Blame data conversion failed: {e}")
@@ -510,7 +526,9 @@ class LegacyEngineWrapper:
                 # Validate input settings
                 if not settings.input_fstrs:
                     return AnalysisResult(
-                        repositories=[], success=False, error="No input repositories specified"
+                        repositories=[],
+                        success=False,
+                        error="No input repositories specified",
                     )
 
                 # Validate repository paths
@@ -543,8 +561,10 @@ class LegacyEngineWrapper:
                             with profiler.step("settings_translation"):
                                 current_settings = Settings(**settings.__dict__)
                                 current_settings.input_fstrs = [repo_path]
-                                ini_repo = self.settings_translator.translate_to_legacy_args(
-                                    current_settings
+                                ini_repo = (
+                                    self.settings_translator.translate_to_legacy_args(
+                                        current_settings
+                                    )
                                 )
 
                             # Create and execute legacy analysis - THIS IS THE CRITICAL STEP
@@ -553,7 +573,9 @@ class LegacyEngineWrapper:
                                     f"Creating RepoData for {repo_path} - this may take time..."
                                 )
                                 repo_data = RepoData(ini_repo)
-                                logger.info(f"RepoData creation completed for {repo_path}")
+                                logger.info(
+                                    f"RepoData creation completed for {repo_path}"
+                                )
 
                         # Update performance monitoring
                         self.performance_monitor.update_peak_memory()
@@ -564,8 +586,12 @@ class LegacyEngineWrapper:
                             for stat in repo_data.author2pstat.values()
                             if stat.person.author != "*"
                         )
-                        repo_files = len([f for f in repo_data.fstr2fstat.keys() if f != "*"])
-                        repo_authors = len([a for a in repo_data.author2pstat.keys() if a != "*"])
+                        repo_files = len(
+                            [f for f in repo_data.fstr2fstat.keys() if f != "*"]
+                        )
+                        repo_authors = len(
+                            [a for a in repo_data.author2pstat.keys() if a != "*"]
+                        )
 
                         total_commits += repo_commits
                         total_files += repo_files
@@ -629,7 +655,9 @@ class LegacyEngineWrapper:
                 profiler.log_summary()
 
                 return AnalysisResult(
-                    repositories=[], success=False, error=f"Legacy engine analysis failed: {e}"
+                    repositories=[],
+                    success=False,
+                    error=f"Legacy engine analysis failed: {e}",
                 )
 
     def validate_settings(self, settings: Settings) -> tuple[bool, str]:

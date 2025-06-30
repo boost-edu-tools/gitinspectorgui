@@ -143,7 +143,9 @@ class RepoBlame(RepoBlameBase):
                     else len([bl.line for bl in b.line_datas if not bl.line.strip()])
                 )
 
-                line_count = total_line_count - comment_lines_subtract - empty_lines_subtract
+                line_count = (
+                    total_line_count - comment_lines_subtract - empty_lines_subtract
+                )
 
                 author2line_count[author] += line_count
 
@@ -208,7 +210,9 @@ class RepoBlame(RepoBlameBase):
             True if line should be included, False otherwise
         """
         comment_ok: bool = getattr(self.args, "comments", False) or not d.is_comment
-        empty_ok: bool = getattr(self.args, "empty_lines", False) or d.line.strip() != ""
+        empty_ok: bool = (
+            getattr(self.args, "empty_lines", False) or d.line.strip() != ""
+        )
         author_ok: bool = b.author not in getattr(self.args, "ex_authors", [])
         date_ok: bool = b.commit_nr in self.sha_since_until_nrs
 
@@ -283,7 +287,9 @@ class RepoBlameHistory(RepoBlame):
         current_lines = {bl.line.strip() for b in current_blames for bl in b.line_datas}
 
         for sha, historical_blames in self.fstr2sha2blames[fstr].items():
-            historical_lines = {bl.line.strip() for b in historical_blames for bl in b.line_datas}
+            historical_lines = {
+                bl.line.strip() for b in historical_blames for bl in b.line_datas
+            }
 
             if not historical_lines:
                 stability_metrics[sha] = 0.0

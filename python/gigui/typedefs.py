@@ -41,7 +41,9 @@ type AuthorToNumberDict = dict[Author, int]
 type FileToSHAsDict = dict[FileStr, list[SHA]]
 
 # Blame history types
-type FileRenameToFileToAuthorToSHAsDict = dict[FileStr, dict[FileStr, dict[Author, list[SHA]]]]
+type FileRenameToFileToAuthorToSHAsDict = dict[
+    FileStr, dict[FileStr, dict[Author, list[SHA]]]
+]
 type SHAToAuthorNumberDict = dict[SHA, int]
 
 # Repository data types

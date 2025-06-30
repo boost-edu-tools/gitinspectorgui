@@ -100,7 +100,10 @@ def test_settings_translation_compatibility():
         # Should either be valid or have a clear error message
         if not is_valid:
             assert error_msg != ""
-            assert "No input repositories specified" not in error_msg or not settings.input_fstrs
+            assert (
+                "No input repositories specified" not in error_msg
+                or not settings.input_fstrs
+            )
 
 
 if __name__ == "__main__":

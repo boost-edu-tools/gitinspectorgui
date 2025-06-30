@@ -35,19 +35,31 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "--include-files", nargs="*", default=[], help="File patterns to include in analysis"
+        "--include-files",
+        nargs="*",
+        default=[],
+        help="File patterns to include in analysis",
     )
 
     parser.add_argument(
-        "--exclude-files", nargs="*", default=[], help="File patterns to exclude from analysis"
+        "--exclude-files",
+        nargs="*",
+        default=[],
+        help="File patterns to exclude from analysis",
     )
 
     parser.add_argument(
-        "--exclude-authors", nargs="*", default=[], help="Author patterns to exclude from analysis"
+        "--exclude-authors",
+        nargs="*",
+        default=[],
+        help="Author patterns to exclude from analysis",
     )
 
     parser.add_argument(
-        "--exclude-emails", nargs="*", default=[], help="Email patterns to exclude from analysis"
+        "--exclude-emails",
+        nargs="*",
+        default=[],
+        help="Email patterns to exclude from analysis",
     )
 
     parser.add_argument(
@@ -59,16 +71,24 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "--scaled-percentages", action="store_true", help="Use scaled percentages in output"
+        "--scaled-percentages",
+        action="store_true",
+        help="Use scaled percentages in output",
     )
-
-    parser.add_argument("--blame-exclusions", action="store_true", help="Enable blame exclusions")
 
     parser.add_argument(
-        "--dynamic-blame-history", action="store_true", help="Enable dynamic blame history"
+        "--blame-exclusions", action="store_true", help="Enable blame exclusions"
     )
 
-    parser.add_argument("--dry-run", action="store_true", help="Perform a dry run (preview only)")
+    parser.add_argument(
+        "--dynamic-blame-history",
+        action="store_true",
+        help="Enable dynamic blame history",
+    )
+
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Perform a dry run (preview only)"
+    )
 
     parser.add_argument(
         "--output-format",

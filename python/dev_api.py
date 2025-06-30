@@ -74,12 +74,14 @@ def main():
         for i in range(10):
             potential_path = current_path / "python"
             print(
-                f"  Checking: {potential_path} (exists: {potential_path.exists()})", file=sys.stderr
+                f"  Checking: {potential_path} (exists: {potential_path.exists()})",
+                file=sys.stderr,
             )
             if potential_path.exists():
                 gigui_path = potential_path / "gigui"
                 print(
-                    f"    gigui at: {gigui_path} (exists: {gigui_path.exists()})", file=sys.stderr
+                    f"    gigui at: {gigui_path} (exists: {gigui_path.exists()})",
+                    file=sys.stderr,
                 )
             current_path = current_path.parent
             if current_path == current_path.parent:

@@ -86,7 +86,9 @@ class RepoBlameBase(RepoBase):
 
         return fstr, blames
 
-    def _get_git_blames_for(self, fstr: FileStr, start_sha: SHA) -> tuple[list[BlameStr], FileStr]:
+    def _get_git_blames_for(
+        self, fstr: FileStr, start_sha: SHA
+    ) -> tuple[list[BlameStr], FileStr]:
         """
         Execute git blame command with appropriate options.
 
@@ -110,7 +112,9 @@ class RepoBlameBase(RepoBase):
         }
 
         # Build blame options based on configuration
-        blame_opts: list[str] = copy_move_int2opts.get(getattr(self.args, "copy_move", 0), [])
+        blame_opts: list[str] = copy_move_int2opts.get(
+            getattr(self.args, "copy_move", 0), []
+        )
 
         # Add whitespace handling
         if not getattr(self.args, "whitespace", False):
@@ -167,7 +171,9 @@ class RepoBlameBase(RepoBase):
         if getattr(self.args, "multithread", False):
             # GitPython is not thread-safe, create new GitRepo instance
             git_repo = GitRepo(self.location)
-            blame_str = git_repo.git.blame(start_oid, fstr, "--follow", "--porcelain", *blame_opts)  # type: ignore
+            blame_str = git_repo.git.blame(
+                start_oid, fstr, "--follow", "--porcelain", *blame_opts
+            )  # type: ignore
             git_repo.close()
         else:
             blame_str = self.git_repo.git.blame(

@@ -196,7 +196,9 @@ class RepoData(RepoBlameHistory):
             return False
 
         # Generate inverted statistics table: file to author mapping
-        self.fstr2author2fstat = self.stat_tables.get_fstr2author2fstat(self.author2fstr2fstat)
+        self.fstr2author2fstat = self.stat_tables.get_fstr2author2fstat(
+            self.author2fstr2fstat
+        )
 
         # Generate person statistics table
         self.author2pstat = self.stat_tables.get_author2pstat(
@@ -208,14 +210,22 @@ class RepoData(RepoBlameHistory):
         total_lines = self.author2pstat["*"].stat.blame_line_count
 
         # Apply percentage calculations to all statistics tables
-        self.stat_tables.calculate_percentages(self.fstr2fstat, total_insertions, total_lines)
-        self.stat_tables.calculate_percentages(self.author2pstat, total_insertions, total_lines)
+        self.stat_tables.calculate_percentages(
+            self.fstr2fstat, total_insertions, total_lines
+        )
+        self.stat_tables.calculate_percentages(
+            self.author2pstat, total_insertions, total_lines
+        )
 
         # Calculate percentages for nested statistics tables
         for _, fstr2fstat in self.author2fstr2fstat.items():
-            self.stat_tables.calculate_percentages(fstr2fstat, total_insertions, total_lines)
+            self.stat_tables.calculate_percentages(
+                fstr2fstat, total_insertions, total_lines
+            )
         for _, author2fstat in self.fstr2author2fstat.items():
-            self.stat_tables.calculate_percentages(author2fstat, total_insertions, total_lines)
+            self.stat_tables.calculate_percentages(
+                author2fstat, total_insertions, total_lines
+            )
 
         return True
 
@@ -315,7 +325,9 @@ class RepoData(RepoBlameHistory):
                 target[fstr_root][fstr] = {}
                 for author, shas in fstr_dict.items():
                     person_author = self.persons_db[author].author
-                    shas_sorted = sorted(shas, key=lambda x: self.sha2nr[x], reverse=True)
+                    shas_sorted = sorted(
+                        shas, key=lambda x: self.sha2nr[x], reverse=True
+                    )
                     target[fstr_root][fstr][person_author] = shas_sorted
         return target
 
@@ -338,7 +350,9 @@ class RepoData(RepoBlameHistory):
         for fstr_root, fstr_root_dict in source.items():
             target[fstr_root] = {}
             for fstr, shas in fstr_root_dict.items():
-                target[fstr_root][fstr] = sorted(shas, key=lambda x: self.sha2nr[x], reverse=True)
+                target[fstr_root][fstr] = sorted(
+                    shas, key=lambda x: self.sha2nr[x], reverse=True
+                )
         return target
 
 

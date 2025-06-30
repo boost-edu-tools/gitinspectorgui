@@ -133,7 +133,9 @@ def create_settings_from_dict(settings_dict: dict[str, Any]) -> Settings:
     # Ensure input_fstrs is a list
     if not isinstance(settings_dict["input_fstrs"], list):
         settings_dict["input_fstrs"] = []
-        logger.warning("'input_fstrs' was not a list or was missing, defaulting to empty list.")
+        logger.warning(
+            "'input_fstrs' was not a list or was missing, defaulting to empty list."
+        )
 
     try:
         settings = Settings(**settings_dict)
@@ -157,7 +159,9 @@ def process_repositories(settings: Settings) -> dict[str, Any]:
         result = api.execute_analysis(settings)
 
         if result.success:
-            logger.info(f"Successfully processed {len(result.repositories)} repositories")
+            logger.info(
+                f"Successfully processed {len(result.repositories)} repositories"
+            )
             return {"status": "success", "data": asdict(result)}
         logger.error(f"Analysis failed: {result.error}")
         return {"status": "error", "error_message": result.error}
@@ -173,7 +177,10 @@ def main():
     try:
         input_json_str = sys.stdin.read()
         if not input_json_str:
-            print(json.dumps({"error": "No input JSON received from stdin."}), file=sys.stderr)
+            print(
+                json.dumps({"error": "No input JSON received from stdin."}),
+                file=sys.stderr,
+            )
             sys.exit(1)
         settings_dict = json.loads(input_json_str)
     except json.JSONDecodeError as e:
@@ -192,7 +199,9 @@ def main():
     if not settings.input_fstrs:
         print(
             json.dumps(
-                {"error": "No input repository paths ('input_fstrs') provided in settings."}
+                {
+                    "error": "No input repository paths ('input_fstrs') provided in settings."
+                }
             ),
             file=sys.stderr,
         )

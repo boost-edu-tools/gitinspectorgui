@@ -152,7 +152,9 @@ class BlameReader:
 
         return b, i
 
-    def get_new_blame(self, oid: OID, line_nr: int, line_count: int, i: int) -> tuple[Blame, int]:
+    def get_new_blame(
+        self, oid: OID, line_nr: int, line_count: int, i: int
+    ) -> tuple[Blame, int]:
         """
         Parse a new blame entry with full metadata.
 

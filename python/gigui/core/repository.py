@@ -494,7 +494,9 @@ class RepoBase:
                 )
             ]
 
-        sorted_files_sizes = sorted(_get_worktree_files_sizes(), key=lambda x: x[1], reverse=True)
+        sorted_files_sizes = sorted(
+            _get_worktree_files_sizes(), key=lambda x: x[1], reverse=True
+        )
         sorted_files = [file_size[0] for file_size in sorted_files_sizes]
         return sorted_files
 
@@ -508,7 +510,9 @@ class RepoBase:
         Returns:
             True if file should be excluded
         """
-        return any(fnmatchcase(fstr.lower(), pattern.lower()) for pattern in self.args.ex_files)
+        return any(
+            fnmatchcase(fstr.lower(), pattern.lower()) for pattern in self.args.ex_files
+        )
 
     def _set_fdata_line_count(self) -> None:
         """Set line counts for all files in the analysis."""
@@ -593,7 +597,8 @@ class RepoBase:
 
             # Check for excluded messages
             if any(
-                fnmatchcase(message.lower(), pattern.lower()) for pattern in self.args.ex_messages
+                fnmatchcase(message.lower(), pattern.lower())
+                for pattern in self.args.ex_messages
             ):
                 ex_shas.add(sha)
                 i += 5
@@ -699,8 +704,8 @@ class RepoBase:
                                     else f"{fstr}"
                                 )
 
-                            self.fstr2commit_groups[fstr] = self._process_commit_lines_for(
-                                lines_str, fstr
+                            self.fstr2commit_groups[fstr] = (
+                                self._process_commit_lines_for(lines_str, fstr)
                             )
                         except Exception as e:
                             logger.error(f"Error processing file {fstr}: {e}")
@@ -717,7 +722,9 @@ class RepoBase:
                     else:
                         logger.info(f"{prefix}{i} of {i_max}: {self.name} {fstr}")
 
-                    self.fstr2commit_groups[fstr] = self._process_commit_lines_for(lines_str, fstr)
+                    self.fstr2commit_groups[fstr] = self._process_commit_lines_for(
+                        lines_str, fstr
+                    )
                 except Exception as e:
                     logger.error(f"Error processing file {fstr}: {e}")
 
@@ -768,7 +775,9 @@ class RepoBase:
 
         return lines_str, fstr
 
-    def _process_commit_lines_for(self, lines_str: str, fstr_root: FileStr) -> list[CommitGroup]:
+    def _process_commit_lines_for(
+        self, lines_str: str, fstr_root: FileStr
+    ) -> list[CommitGroup]:
         """
         Process git log output lines for a file into commit groups.
 
@@ -1010,7 +1019,10 @@ class RepoBase:
             # Check if it's a git repository
             git_dir = self.location / ".git"
             if not git_dir.exists():
-                return False, f"Not a git repository (no .git directory): {self.location}"
+                return (
+                    False,
+                    f"Not a git repository (no .git directory): {self.location}",
+                )
 
             # Try to initialize git repo to validate
             try:

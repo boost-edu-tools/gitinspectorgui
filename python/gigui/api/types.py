@@ -260,7 +260,9 @@ class Settings:
 
         valid_blame_exclusions = ["hide", "show", "remove"]
         if self.blame_exclusions not in valid_blame_exclusions:
-            raise ValueError(f"blame_exclusions must be one of {valid_blame_exclusions}")
+            raise ValueError(
+                f"blame_exclusions must be one of {valid_blame_exclusions}"
+            )
 
         valid_date_formats = ["iso", "short", "relative"]
         if self.date_format not in valid_date_formats:
@@ -268,13 +270,17 @@ class Settings:
 
         valid_author_formats = ["name", "email", "both"]
         if self.author_display_format not in valid_author_formats:
-            raise ValueError(f"author_display_format must be one of {valid_author_formats}")
+            raise ValueError(
+                f"author_display_format must be one of {valid_author_formats}"
+            )
 
         # Ensure file_formats contains valid options
         valid_file_formats = ["html", "excel"]
         for fmt in self.file_formats:
             if fmt not in valid_file_formats:
-                raise ValueError(f"file_format '{fmt}' must be one of {valid_file_formats}")
+                raise ValueError(
+                    f"file_format '{fmt}' must be one of {valid_file_formats}"
+                )
 
         # Set CPU-based defaults for core workers
         import os

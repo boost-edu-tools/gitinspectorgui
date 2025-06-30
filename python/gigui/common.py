@@ -35,7 +35,9 @@ class Keys:
     nofix = "nofix"
 
 
-def log(message: Any, text_color: str | None = None, end: str = "\n", flush: bool = False) -> None:
+def log(
+    message: Any, text_color: str | None = None, end: str = "\n", flush: bool = False
+) -> None:
     """
     Simple logging function for compatibility with legacy system.
     In the enhanced system, this provides basic console output.

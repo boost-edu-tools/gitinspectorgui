@@ -62,7 +62,9 @@ def analyze_blame_data(repo_path):
         file_path = entry.file
         line = entry.line_number
 
-        print(f"  {i + 1:2d}. Commit: {commit[:12]}... Date: {date} File: {file_path} Line: {line}")
+        print(
+            f"  {i + 1:2d}. Commit: {commit[:12]}... Date: {date} File: {file_path} Line: {line}"
+        )
 
         commit_counter[commit] += 1
         date_counter[date] += 1
@@ -76,7 +78,9 @@ def analyze_blame_data(repo_path):
         file_path = entry.file
         line = entry.line_number
 
-        print(f"  {i + 1:2d}. Commit: {commit[:12]}... Date: {date} File: {file_path} Line: {line}")
+        print(
+            f"  {i + 1:2d}. Commit: {commit[:12]}... Date: {date} File: {file_path} Line: {line}"
+        )
 
         commit_counter[commit] += 1
         date_counter[date] += 1
@@ -103,7 +107,9 @@ def analyze_blame_data(repo_path):
 
     # Check for fake commits
     fake_commits = [
-        commit for commit in commit_counter.keys() if commit.startswith("legacy_commit_")
+        commit
+        for commit in commit_counter.keys()
+        if commit.startswith("legacy_commit_")
     ]
     if fake_commits:
         print(f"  ❌ Found {len(fake_commits)} fake commits: {fake_commits[:5]}...")
@@ -138,7 +144,9 @@ def analyze_blame_data(repo_path):
         file_path = entry.file
         line = entry.line_number
 
-        print(f"  {i + 1:3d}. Commit: {commit[:12]}... Date: {date} File: {file_path} Line: {line}")
+        print(
+            f"  {i + 1:3d}. Commit: {commit[:12]}... Date: {date} File: {file_path} Line: {line}"
+        )
 
 
 if __name__ == "__main__":

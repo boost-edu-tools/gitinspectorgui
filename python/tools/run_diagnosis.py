@@ -36,7 +36,9 @@ def main():
         script_dir = Path(__file__).parent
         diagnosis_script = script_dir / "test_timeout_diagnosis.py"
 
-        result = subprocess.run([sys.executable, str(diagnosis_script), repo_path], check=False)
+        result = subprocess.run(
+            [sys.executable, str(diagnosis_script), repo_path], check=False
+        )
 
         if result.returncode == 0:
             print("\n✅ Diagnosis completed successfully!")

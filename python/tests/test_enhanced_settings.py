@@ -199,9 +199,17 @@ def test_person_filtering():
     # Test filtering
     test_cases = [
         ("bot-user", "bot@example.com", True),  # Should be filtered (pattern match)
-        ("automated-system", "auto@example.com", True),  # Should be filtered (pattern match)
+        (
+            "automated-system",
+            "auto@example.com",
+            True,
+        ),  # Should be filtered (pattern match)
         ("user", "user@noreply.github.com", True),  # Should be filtered (pattern match)
-        ("GitHub Actions", "actions@github.com", True),  # Should be filtered (exact match)
+        (
+            "GitHub Actions",
+            "actions@github.com",
+            True,
+        ),  # Should be filtered (exact match)
         ("normal-user", "user@example.com", False),  # Should not be filtered
     ]
 
@@ -297,7 +305,9 @@ def test_settings_persistence():
         assert loaded_settings.n_files == original_settings.n_files
         assert loaded_settings.memory_limit_mb == original_settings.memory_limit_mb
         assert loaded_settings.html_theme == original_settings.html_theme
-        assert loaded_settings.blame_follow_moves == original_settings.blame_follow_moves
+        assert (
+            loaded_settings.blame_follow_moves == original_settings.blame_follow_moves
+        )
 
         print("✓ Settings persistence works correctly")
         return True
@@ -385,7 +395,9 @@ def main():
     print(f"Tests completed: {passed} passed, {failed} failed")
 
     if failed == 0:
-        print("🎉 All tests passed! Enhanced Settings integration is working correctly.")
+        print(
+            "🎉 All tests passed! Enhanced Settings integration is working correctly."
+        )
         return True
     else:
         print("❌ Some tests failed. Please check the implementation.")

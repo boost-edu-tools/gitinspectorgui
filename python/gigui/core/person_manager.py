@@ -74,7 +74,10 @@ class Person:
         if (
             not self.filter_matched
             and not author_or_email == "*"
-            and any(fnmatchcase(author_or_email.lower(), pattern.lower()) for pattern in patterns)
+            and any(
+                fnmatchcase(author_or_email.lower(), pattern.lower())
+                for pattern in patterns
+            )
         ):
             self.filter_matched = True
 
@@ -134,7 +137,9 @@ class Person:
 
         # top authors also do not have a period or comma in their name.
         top_authors = {
-            author for author in nice_authors if all(c.isalnum() or c.isspace() for c in author)
+            author
+            for author in nice_authors
+            if all(c.isalnum() or c.isspace() for c in author)
         }
 
         nice_authors = nice_authors - top_authors
@@ -185,7 +190,9 @@ class Person:
         name_parts = self.author.split()
         name_parts = [part.lower() for part in name_parts if len(part) >= 3]
         # If any part with size >= 3 of author name is in the email, use that email
-        nice_emails = [email for email in email_list if any(part in email for part in name_parts)]
+        nice_emails = [
+            email for email in email_list if any(part in email for part in name_parts)
+        ]
         if nice_emails:
             return nice_emails[0]
         return email_list[0]  # assume self.emails cannot be empty
@@ -303,7 +310,9 @@ class PersonsDB(dict[Author | Email, Person]):
     @property
     def filtered_persons(self) -> list["Person"]:
         """Get persons that are not filtered out."""
-        persons_set_filtered = {person for person in self.persons if not person.filter_matched}
+        persons_set_filtered = {
+            person for person in self.persons if not person.filter_matched
+        }
         return sorted(persons_set_filtered, key=lambda x: x.author)
 
     @property
