@@ -99,7 +99,7 @@ nav:
           - Design Background: architecture/design-background-info.md
           - System Overview: architecture/overview.md
           - Technology Stack: architecture/technology-stack.md
-          - Design Decisions: architecture/design-decisions.md
+          - PyO3 Integration: architecture/pyo3-integration.md
           - Legacy Integration: architecture/legacy-integration.md
     - Operations:
           - Release & Distribution: operations/deployment.md

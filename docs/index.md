@@ -40,7 +40,7 @@ Development environment and tooling documentation for GitInspectorGUI contributo
 
 -   **[System Overview](architecture/overview.md)** - System architecture
 -   **[Technology Stack](architecture/technology-stack.md)** - Technology choices
--   **[Design Decisions](architecture/design-decisions.md)** - Architectural rationale
+-   **[PyO3 Integration Architecture](architecture/pyo3-integration.md)** - Architectural rationale
 -   **[Release & Distribution](operations/deployment.md)** - Production deployment
 -   **[Server Management](operations/server-management.md)** - Operational procedures
 

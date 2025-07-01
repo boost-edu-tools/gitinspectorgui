@@ -468,4 +468,4 @@ pnpm clean            # Clean build artifacts
 -   **[Development Workflow](development-workflow.md)** - Understanding development workflows and patterns
 -   **[Environment Setup](environment-setup.md)** - Initial development setup
 -   **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
--   **[PyO3 Integration](../architecture/design-decisions.md)** - PyO3 architecture details
+-   **[PyO3 Integration](../architecture/pyo3-integration.md)** - PyO3 architecture details

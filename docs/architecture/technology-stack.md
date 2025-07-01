@@ -41,7 +41,7 @@ GitInspectorGUI technology stack and architectural decisions.
 
 -   **PyO3 0.22** - Python-Rust bindings for embedded Python interpreter
 
-> **Integration Details**: For comprehensive information about the PyO3 architecture, see [Design Decisions](design-decisions.md).
+> **Integration Details**: For comprehensive information about the PyO3 architecture, see [PyO3 Integration Architecture](pyo3-integration.md).
 
 
 ### CLI Framework
@@ -137,4 +137,4 @@ graph LR
 
 -   **[Development Environment](../development/environment-setup.md)** - Setup instructions
 -   **[Package Management](../development/package-management-overview.md)** - Frontend dependencies
--   **[PyO3 Architecture](../architecture/design-decisions.md)** - Direct PyO3 integration details
+-   **[PyO3 Integration Architecture](pyo3-integration.md)** - Direct PyO3 integration details

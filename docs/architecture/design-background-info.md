@@ -66,4 +66,4 @@ These requirements led to the current architecture:
 
 -   **[Technology Stack](technology-stack.md)** - Selected technologies and rationale
 -   **[System Overview](overview.md)** - High-level architecture implementation
--   **[Design Decisions](design-decisions.md)** - Specific architectural choices
+-   **[PyO3 Integration Architecture](pyo3-integration.md)** - Specific architectural choices

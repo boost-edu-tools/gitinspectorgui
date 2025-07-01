@@ -1,4 +1,4 @@
-# Architecture Design Decisions
+# PyO3 Integration Architecture
 
 ## IPC Evolution: stdout → HTTP → Simplified PyO3 Helper Function Integration
 
@@ -26,13 +26,13 @@
 ### Current Simplified PyO3 Helper Function Integration
 
 ```mermaid
-graph TB
-    A[Tauri Frontend] -->|invoke()| B[Tauri Commands]
-    B -->|Helper Functions| C[PyO3 Bindings]
-    C -->|Direct Calls| D[Python Analysis Engine]
-    D -->|Native objects| C
-    C -->|Rust types| B
-    B -->|JSON| A
+graph TD
+    A[Tauri Frontend] --> B[Tauri Commands]
+    B --> C[PyO3 Bindings]
+    C --> D[Python Analysis Engine]
+    D --> C
+    C --> B
+    B --> A
 
     E[Python Logs] --> F[Integrated Logging]
     D --> E

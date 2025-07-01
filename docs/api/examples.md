@@ -6,7 +6,7 @@ Practical examples for GitInspectorGUI Python function implementation.
 
 This document shows how to implement the required Python functions that will be called from the frontend. The integration handles all communication between JavaScript and Python automatically.
 
-> **Architecture Details**: For technical information about the integration system, see [Design Decisions](../architecture/design-decisions.md).
+> **Architecture Details**: For technical information about the integration system, see [PyO3 Integration Architecture](../architecture/pyo3-integration.md).
 
 ## Python Function Implementation
 

@@ -43,7 +43,7 @@ graph TB
 
 **Think of it as**: Your Python functions become part of the desktop application - the frontend can call them directly using `invoke()`.
 
-> **Technical Details**: For comprehensive information about the PyO3 architecture, see [Design Decisions](architecture/design-decisions.md).
+> **Technical Details**: For comprehensive information about the PyO3 architecture, see [PyO3 Integration Architecture](architecture/pyo3-integration.md).
 
 **Key files**: `src-tauri/src-python/main.py` (Python functions), `python/` (your analysis code)
 

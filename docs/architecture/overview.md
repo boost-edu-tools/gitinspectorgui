@@ -8,7 +8,7 @@ If you're unfamiliar with the frontend technologies, see the **[Technology Prime
 
 **Key concept**: The Python backend runs embedded within the Tauri application, enabling direct function calls without network communication. You can develop and test the Python analysis logic independently.
 
-> **PyO3 Integration Details**: For comprehensive information about the PyO3 helper function architecture, see [Design Decisions](design-decisions.md).
+> **PyO3 Integration Details**: For comprehensive information about the PyO3 helper function architecture, see [PyO3 Integration Architecture](pyo3-integration.md).
 
 ## Architecture
 

@@ -6,7 +6,7 @@ GitInspectorGUI Python API specification for developers implementing analysis fu
 
 This document specifies the Python functions you need to implement for GitInspectorGUI. The integration between JavaScript and Python is handled automatically - you just need to implement these Python functions according to the specifications below.
 
-> **Integration Details**: For technical information about how these functions are called from the frontend, see [PyO3 Architecture](../architecture/design-decisions.md).
+> **Integration Details**: For technical information about how these functions are called from the frontend, see [PyO3 Integration Architecture](../architecture/pyo3-integration.md).
 
 ## Core Functions
 

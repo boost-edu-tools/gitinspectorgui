@@ -542,4 +542,4 @@ cd src-tauri && cargo --version
 -   **[Environment Setup](environment-setup.md)** - Development setup
 -   **[Development Workflow](development-workflow.md)** - Development patterns
 -   **[Development Commands](development-commands.md)** - Command reference
--   **[PyO3 Helper Integration](../architecture/design-decisions.md)** - PyO3 helper function architecture details
+-   **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper function architecture details

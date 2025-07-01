@@ -6,7 +6,7 @@ Error handling patterns for GitInspectorGUI Python integration.
 
 Errors are handled through automatic conversion between Python exceptions and JavaScript errors. The integration manages all error conversion, eliminating the need for manual error handling code.
 
-> **Integration Details**: For technical information about error conversion, see [PyO3 Architecture](../architecture/design-decisions.md).
+> **Integration Details**: For technical information about error conversion, see [PyO3 Integration Architecture](../architecture/pyo3-integration.md).
 
 ## Error Types
 
