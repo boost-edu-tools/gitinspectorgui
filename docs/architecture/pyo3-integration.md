@@ -216,7 +216,9 @@ export async function executeAnalysis(
     settings: Settings
 ): Promise<AnalysisResult> {
     try {
-        const result = await invoke<AnalysisResult>("execute_analysis", { settings });
+        const result = await invoke<AnalysisResult>("execute_analysis", {
+            settings,
+        });
         return result;
     } catch (error) {
         console.error("Analysis failed:", error);
@@ -274,18 +276,28 @@ def execute_analysis(settings_json):
 ### Frontend Error Handling
 
 ```typescript
-export async function executeAnalysis(settings: Settings): Promise<AnalysisResult> {
+export async function executeAnalysis(
+    settings: Settings
+): Promise<AnalysisResult> {
     try {
-        const result = await invoke<AnalysisResult>("execute_analysis", { settings });
+        const result = await invoke<AnalysisResult>("execute_analysis", {
+            settings,
+        });
         return result;
     } catch (error) {
         // PyO3 helper functions automatically convert Python exceptions to JavaScript errors
         if (error instanceof Error) {
-            if (error.message.includes("Invalid or inaccessible repositories")) {
-                throw new Error("Repository validation failed. Please check your repository paths.");
+            if (
+                error.message.includes("Invalid or inaccessible repositories")
+            ) {
+                throw new Error(
+                    "Repository validation failed. Please check your repository paths."
+                );
             }
             if (error.message.includes("Invalid settings format")) {
-                throw new Error("Settings validation failed. Please check your configuration.");
+                throw new Error(
+                    "Settings validation failed. Please check your configuration."
+                );
             }
         }
         throw new Error(`Analysis failed: ${error}`);
@@ -442,28 +454,28 @@ def test_execute_analysis_invalid_json():
 ### Frontend Integration Testing
 
 ```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { executeAnalysis, healthCheck } from './api';
+import { describe, it, expect, vi } from "vitest";
+import { executeAnalysis, healthCheck } from "./api";
 
 // Mock the Tauri invoke function
-vi.mock('@tauri-apps/api/core', () => ({
+vi.mock("@tauri-apps/api/core", () => ({
     invoke: vi.fn(),
 }));
 
-describe('PyO3 API Integration', () => {
-    it('should execute analysis successfully', async () => {
+describe("PyO3 API Integration", () => {
+    it("should execute analysis successfully", async () => {
         const mockResult = {
             files: [],
             authors: [],
             blame_data: {},
-            performance_stats: {}
+            performance_stats: {},
         };
 
         vi.mocked(invoke).mockResolvedValue(mockResult);
 
         const settings = {
-            input_fstrs: ['.'],
-            n_files: 10
+            input_fstrs: ["."],
+            n_files: 10,
         };
 
         const result = await executeAnalysis(settings);
@@ -471,69 +483,32 @@ describe('PyO3 API Integration', () => {
         expect(result.authors).toBeDefined();
     });
 
-    it('should handle health check', async () => {
-        const mockHealth = { status: 'healthy', message: 'OK' };
+    it("should handle health check", async () => {
+        const mockHealth = { status: "healthy", message: "OK" };
         vi.mocked(invoke).mockResolvedValue(mockHealth);
 
         const result = await healthCheck();
-        expect(result.status).toBe('healthy');
+        expect(result.status).toBe("healthy");
     });
 });
 ```
 
 ## Architecture Benefits
 
-### PyO3 Helper Function Integration Advantages
+| Aspect             | Previous Approaches          | PyO3 Helper Function Integration |
+| ------------------ | ---------------------------- | -------------------------------- |
+| **Performance**    | Network/IPC overhead         | Direct function calls            |
+| **Error Handling** | HTTP status codes + JSON     | Automatic error conversion       |
+| **Development**    | Multiple processes to debug  | Single process debugging         |
+| **Deployment**     | Server + client coordination | Single executable                |
+| **Type Safety**    | Manual JSON validation       | Helper-managed conversion        |
+| **Memory Usage**   | Separate process overhead    | Shared memory space              |
+| **Startup Time**   | Server startup + connection  | Embedded interpreter             |
+| **Testing**        | HTTP mocking required        | Direct function testing          |
 
-| Aspect             | Previous Approaches            | PyO3 Helper Function Integration |
-| ------------------ | ------------------------------ | -------------------------------- |
-| **Performance**    | Network/IPC overhead           | Direct function calls            |
-| **Error Handling** | HTTP status codes + JSON       | Automatic error conversion       |
-| **Development**    | Multiple processes to debug    | Single process debugging         |
-| **Deployment**     | Server + client coordination   | Single executable                |
-| **Type Safety**    | Manual JSON validation         | Helper-managed conversion        |
-| **Memory Usage**   | Separate process overhead      | Shared memory space              |
-| **Startup Time**   | Server startup + connection    | Embedded interpreter             |
-| **Testing**        | HTTP mocking required          | Direct function testing          |
+## Related Documentation
 
-### Key Architectural Advantages
-
-1. **Simplified Integration**: Helper functions handle all PyO3 complexity automatically
-2. **Better Performance**: Zero network overhead with direct function calls
-3. **Automatic Error Handling**: PyO3 helpers convert Python exceptions to JavaScript errors
-4. **Easier Debugging**: All components in same process with integrated logging
-5. **Reduced Boilerplate**: Clean abstractions over PyO3 binding code
-6. **Modern API**: Clean `invoke()` interface for frontend integration
-
-## Future Extensions
-
-### Potential Enhancements
-
--   **Async Python Support**: Integration with Python asyncio through PyO3
--   **Parallel Processing**: Multi-threaded analysis with automatic GIL management
--   **Dynamic Loading**: Dynamic Python module loading via PyO3 configuration
--   **Performance Monitoring**: PyO3-specific metrics and profiling
--   **Memory Optimization**: Advanced Python object lifecycle management
-
-### Scalability Considerations
-
--   **Large Repositories**: Streaming analysis results through PyO3 helpers
--   **Memory Management**: Efficient Python object cleanup
--   **Error Recovery**: Robust error handling for long-running operations
--   **PyO3 Configuration**: Advanced PyO3 settings for optimization
-
-## Summary
-
-The simplified PyO3 helper function architecture provides a robust, high-performance solution that eliminates the complexity of both plugin dependencies and PyO3 boilerplate while maintaining all performance benefits. The PyO3 helper function approach simplifies development and deployment while providing better performance than network-based communication.
-
-Key advantages:
-
--   **Zero integration overhead** with simplified PyO3 helper functions
--   **Automatic error conversion** between Python and JavaScript through helpers
--   **Single process simplicity** for development and deployment
--   **Type-safe communication** through JSON serialization via helpers
--   **Integrated logging and debugging** capabilities
--   **Modern API design** with clean helper function interface
--   **Reduced boilerplate** through clean abstractions over PyO3
-
-This architecture provides a solid foundation for future enhancements while maintaining the flexibility and power of the Python analysis engine through simplified PyO3 helper function abstractions.
+-   **[Architecture Overview](overview.md)** - Complete system architecture
+-   **[Development Workflow](../development/development-workflow.md)** - PyO3 development patterns
+-   **[API Reference](../api/reference.md)** - Function signatures and examples
+-   **[Technology Stack](technology-stack.md)** - PyO3 and build dependencies
