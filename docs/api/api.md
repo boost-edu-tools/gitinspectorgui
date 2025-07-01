@@ -6,6 +6,10 @@ The GitInspectorGUI API layer provides a clean, unified interface for git reposi
 
 The API layer abstracts the complexity of git analysis operations into a simple, consistent interface. It handles settings management, analysis execution, and result formatting while providing both command-line and programmatic access to the underlying analysis engine.
 
+## Integration with Desktop Application
+
+The API functions are called directly from the Tauri desktop frontend via PyO3 helper functions, eliminating network overhead. For technical details on this integration architecture, see [PyO3 Integration](../architecture/pyo3-integration.md).
+
 **Key Components:**
 
 -   **`gigui/api/main.py`** - Core API implementation (`GitInspectorAPI` class)
