@@ -7,23 +7,26 @@ The GitInspectorGUI API layer provides a clean, unified interface for git reposi
 The API layer abstracts the complexity of git analysis operations into a simple, consistent interface. It handles settings management, analysis execution, and result formatting while providing both command-line and programmatic access to the underlying analysis engine.
 
 **Key Components:**
-- **`gigui/api/main.py`** - Core API implementation (`GitInspectorAPI` class)
-- **`gigui/api/types.py`** - Data structures (`Settings`, `AnalysisResult`, etc.)
-- **`gigui/api/__init__.py`** - Public API exports
-- **`api.py`** - Command-line interface wrapper
-- **`dev_api.py`** - Development/testing interface
+
+-   **`gigui/api/main.py`** - Core API implementation (`GitInspectorAPI` class)
+-   **`gigui/api/types.py`** - Data structures (`Settings`, `AnalysisResult`, etc.)
+-   **`gigui/api/__init__.py`** - Public API exports
+-   **`api.py`** - Command-line interface wrapper
+-   **`dev_api.py`** - Development/testing interface
 
 ## Why is the API Needed?
 
 ### Abstraction Layer
+
 The API provides a stable interface that isolates the frontend from the complexity of the underlying git analysis engine. This separation allows for:
 
-- **Clean Integration** - Simplified communication between Tauri frontend and Python backend
-- **Version Stability** - API contracts remain consistent even as internal implementations change
-- **Error Handling** - Centralized error management and user-friendly error messages
-- **Type Safety** - Well-defined data structures for reliable data exchange
+-   **Clean Integration** - Simplified communication between Tauri frontend and Python backend
+-   **Version Stability** - API contracts remain consistent even as internal implementations change
+-   **Error Handling** - Centralized error management and user-friendly error messages
+-   **Type Safety** - Well-defined data structures for reliable data exchange
 
 ### Multiple Access Patterns
+
 GitInspectorGUI supports different usage patterns through the same API, with **GUI and CLI sharing identical options and parameters**:
 
 ```mermaid
@@ -44,12 +47,15 @@ graph TD
 ```
 
 ### Settings Management
-The API handles complex configuration management with **identical parameter sets for GUI and CLI**:
-- **Unified Settings** - GUI and CLI share the same JSON settings file with 100+ configuration options
-- **Validation** - Ensures settings are complete and valid before analysis
-- **Defaults** - Provides sensible defaults for all configuration options
-- **Normalization** - Converts paths and patterns to consistent formats
-- **GUI/CLI Parity** - Changes made in GUI are immediately available to CLI and vice versa
+
+The API handles complex configuration management with **identical parameter sets
+for GUI and CLI**:
+
+-   **Unified Settings** - GUI and CLI share the same JSON settings file with 100+ configuration options
+-   **Validation** - Ensures settings are complete and valid before analysis
+-   **Defaults** - Provides sensible defaults for all configuration options
+-   **Normalization** - Converts paths and patterns to consistent formats
+-   **GUI/CLI Parity** - Changes made in GUI are immediately available to CLI and vice versa
 
 ## What Does the API Do?
 
@@ -57,38 +63,42 @@ The API handles complex configuration management with **identical parameter sets
 
 The API provides six essential operations across **both GUI and CLI interfaces**:
 
-| Function | Purpose | GUI Access | CLI Access | Input | Output |
-|----------|---------|------------|------------|-------|--------|
-| `execute_analysis()` | Repository analysis | Run button | Direct command | Settings JSON | Analysis results |
-| `get_settings()` | Retrieve current settings | Settings form | `--show` flag | None | Settings JSON |
-| `save_settings()` | Store settings | Auto-save on change | `--save` flag | Settings JSON | Success status |
-| `health_check()` | Backend status | Auto on startup | Implicit | None | Health status |
-| `get_engine_info()` | Engine capabilities | About dialog | `--version` | None | Engine metadata |
-| `get_blame_data()` | Detailed blame analysis | Results view | File output | Settings JSON | Blame data |
+| Function             | Purpose                   | GUI Access          | CLI Access     | Input         | Output           |
+| -------------------- | ------------------------- | ------------------- | -------------- | ------------- | ---------------- |
+| `execute_analysis()` | Repository analysis       | Run button          | Direct command | Settings JSON | Analysis results |
+| `get_settings()`     | Retrieve current settings | Settings form       | `--show` flag  | None          | Settings JSON    |
+| `save_settings()`    | Store settings            | Auto-save on change | `--save` flag  | Settings JSON | Success status   |
+| `health_check()`     | Backend status            | Auto on startup     | Implicit       | None          | Health status    |
+| `get_engine_info()`  | Engine capabilities       | About dialog        | `--version`    | None          | Engine metadata  |
+| `get_blame_data()`   | Detailed blame analysis   | Results view        | File output    | Settings JSON | Blame data       |
 
 ### GUI/CLI Shared Parameters
 
 The API ensures **complete parity between GUI and CLI interfaces**. All 100+ configuration options are accessible through both interfaces:
 
 **Repository Settings:**
-- Input folder paths (GUI: text field + browse button, CLI: positional arguments)
-- Repository depth (GUI: number input, CLI: `--depth`)
-- Subfolder analysis (GUI: text field, CLI: `--subfolder`)
+
+-   Input folder paths (GUI: text field + browse button, CLI: positional arguments)
+-   Repository depth (GUI: number input, CLI: `--depth`)
+-   Subfolder analysis (GUI: text field, CLI: `--subfolder`)
 
 **File Analysis:**
-- File extensions (GUI: comma-separated input, CLI: `--extensions` or `-e`)
-- Include patterns (GUI: text field, CLI: `--include-files`)
-- Exclude patterns (GUI: multiple exclusion fields, CLI: `--ex-files`, `--ex-authors`, etc.)
+
+-   File extensions (GUI: comma-separated input, CLI: `--extensions` or `-e`)
+-   Include patterns (GUI: text field, CLI: `--include-files`)
+-   Exclude patterns (GUI: multiple exclusion fields, CLI: `--ex-files`, `--ex-authors`, etc.)
 
 **Output Formats:**
-- HTML/Excel generation (GUI: checkboxes, CLI: `--file-formats`)
-- Output file naming (GUI: dropdown, CLI: `--fix` option)
-- View settings (GUI: radio buttons, CLI: `--view`)
+
+-   HTML/Excel generation (GUI: checkboxes, CLI: `--file-formats`)
+-   Output file naming (GUI: dropdown, CLI: `--fix` option)
+-   View settings (GUI: radio buttons, CLI: `--view`)
 
 **Performance Options:**
-- Multithreading (GUI: checkbox, CLI: `--multithread`)
-- Memory limits (GUI: advanced settings, CLI: memory flags)
-- Processing optimization (GUI: auto-configured, CLI: manual flags)
+
+-   Multithreading (GUI: checkbox, CLI: `--multithread`)
+-   Memory limits (GUI: advanced settings, CLI: memory flags)
+-   Processing optimization (GUI: auto-configured, CLI: manual flags)
 
 **Example showing identical functionality:**
 
@@ -186,44 +196,48 @@ graph TB
 ### Request Processing Flow
 
 1. **Request Reception**
-   ```python
-   def execute_analysis(settings_json: str) -> str:
-       # Parse and validate JSON input
-       settings_dict = json.loads(settings_json)
-       settings = Settings(**settings_dict)
-   ```
+
+    ```python
+    def execute_analysis(settings_json: str) -> str:
+        # Parse and validate JSON input
+        settings_dict = json.loads(settings_json)
+        settings = Settings(**settings_dict)
+    ```
 
 2. **Settings Validation**
-   ```python
-   # Apply defaults and normalize paths
-   settings.normalize_paths()
-   if not settings.input_fstrs:
-       raise ValidationError("No repositories specified")
-   ```
+
+    ```python
+    # Apply defaults and normalize paths
+    settings.normalize_paths()
+    if not settings.input_fstrs:
+        raise ValidationError("No repositories specified")
+    ```
 
 3. **Analysis Execution**
-   ```python
-   # Process each repository
-   repositories = []
-   for repo_path in settings.input_fstrs:
-       repo_result = self._analyze_repository(repo_path, settings)
-       repositories.append(repo_result)
-   ```
+
+    ```python
+    # Process each repository
+    repositories = []
+    for repo_path in settings.input_fstrs:
+        repo_result = self._analyze_repository(repo_path, settings)
+        repositories.append(repo_result)
+    ```
 
 4. **Result Assembly**
-   ```python
-   # Package results with metadata
-   result = AnalysisResult(
-       success=True,
-       repositories=repositories,
-       performance_stats=self._get_performance_stats()
-   )
-   return result.model_dump_json()
-   ```
+    ```python
+    # Package results with metadata
+    result = AnalysisResult(
+        success=True,
+        repositories=repositories,
+        performance_stats=self._get_performance_stats()
+    )
+    return result.model_dump_json()
+    ```
 
 ### Integration Patterns
 
 #### Desktop GUI (Tauri + React + PyO3)
+
 ```typescript
 // Frontend communicates via PyO3 helper functions
 import { invoke } from "@tauri-apps/api/core";
@@ -231,15 +245,16 @@ import { invoke } from "@tauri-apps/api/core";
 // Settings from GUI form automatically converted to API format
 const result = await invoke<AnalysisResult>("execute_analysis", {
     settings: JSON.stringify({
-        input_fstrs: ["/path/to/repo"],     // From GUI path input
-        extensions: ["py", "js"],           // From GUI extensions field
-        ex_authors: ["bot*"],               // From GUI exclusion field
-        multithread: true                   // From GUI checkbox
-    })
+        input_fstrs: ["/path/to/repo"], // From GUI path input
+        extensions: ["py", "js"], // From GUI extensions field
+        ex_authors: ["bot*"], // From GUI exclusion field
+        multithread: true, // From GUI checkbox
+    }),
 });
 ```
 
 #### Command Line Interface
+
 ```bash
 # CLI shares exact same parameter set as GUI
 gitinspectorgui /path/to/repo \
@@ -252,6 +267,7 @@ gitinspectorgui /path/to/repo \
 ```
 
 #### Direct Python Usage
+
 ```python
 # Direct API usage
 from gigui.api import GitInspectorAPI, Settings
@@ -365,17 +381,17 @@ def execute_analysis(self, settings: Settings):
 
 The API serves as the central integration point for all GitInspectorGUI functionality, ensuring **seamless GUI/CLI interoperability**:
 
-- **Desktop GUI** - Tauri frontend calls API via PyO3 helper functions, GUI settings automatically persist to shared JSON
-- **CLI Tool** - Command-line interface wraps API, reads/writes same settings file as GUI
-- **Settings Synchronization** - Changes in GUI immediately affect CLI behavior and vice versa
-- **Consistent Results** - Identical analysis engine produces same results regardless of interface
-- **Development Tools** - Testing and debugging tools use API directly for validation
+-   **Desktop GUI** - Tauri frontend calls API via PyO3 helper functions, GUI settings automatically persist to shared JSON
+-   **CLI Tool** - Command-line interface wraps API, reads/writes same settings file as GUI
+-   **Settings Synchronization** - Changes in GUI immediately affect CLI behavior and vice versa
+-   **Consistent Results** - Identical analysis engine produces same results regardless of interface
+-   **Development Tools** - Testing and debugging tools use API directly for validation
 
 This unified approach guarantees that users get the same functionality and results whether they use the graphical interface or command line, with settings seamlessly shared between both modes of operation.
 
 ## Related Documentation
 
-- **[Architecture Overview](../architecture/overview.md)** - System design context
-- **[GUI Guide](../user-docs/gui.md)** - Complete GUI interface documentation
-- **[CLI Guide](../user-docs/cli.md)** - Full command-line reference
-- **[Development Workflow](../development/development-workflow.md)** - Core development patterns
+-   **[Architecture Overview](../architecture/overview.md)** - System design context
+-   **[GUI Guide](../user-docs/gui.md)** - Complete GUI interface documentation
+-   **[CLI Guide](../user-docs/cli.md)** - Full command-line reference
+-   **[Development Workflow](../development/development-workflow.md)** - Core development patterns
