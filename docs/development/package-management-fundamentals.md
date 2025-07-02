@@ -176,11 +176,11 @@ reveals important trade-offs in developer experience:
 ```json
 // package.json
 {
-  "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "test": "jest"
-  }
+    "scripts": {
+        "dev": "vite dev",
+        "build": "vite build",
+        "test": "jest"
+    }
 }
 ```
 

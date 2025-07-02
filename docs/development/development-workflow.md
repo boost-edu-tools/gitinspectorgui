@@ -151,28 +151,28 @@ pnpm run tauri dev
 ```json
 // .vscode/launch.json
 {
-  "configurations": [
-    {
-      "name": "Debug Tauri with PyO3",
-      "type": "lldb",
-      "request": "launch",
-      "program": "${workspaceFolder}/src-tauri/target/debug/gitinspectorgui",
-      "args": [],
-      "cwd": "${workspaceFolder}",
-      "env": {
-        "RUST_LOG": "debug",
-        "RUST_BACKTRACE": "1"
-      }
-    },
-    {
-      "name": "Debug Python Tests",
-      "type": "python",
-      "request": "launch",
-      "module": "pytest",
-      "args": ["tests/", "-v"],
-      "cwd": "${workspaceFolder}/python"
-    }
-  ]
+    "configurations": [
+        {
+            "name": "Debug Tauri with PyO3",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/src-tauri/target/debug/gitinspectorgui",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "RUST_LOG": "debug",
+                "RUST_BACKTRACE": "1"
+            }
+        },
+        {
+            "name": "Debug Python Tests",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["tests/", "-v"],
+            "cwd": "${workspaceFolder}/python"
+        }
+    ]
 }
 ```
 
@@ -241,28 +241,28 @@ pnpm dev  # Test frontend only
 ### Debugging Process
 
 1. **Isolate the problem**:
-   - Python function issue?
-   - PyO3 helper integration issue?
-   - Frontend display issue?
+    - Python function issue?
+    - PyO3 helper integration issue?
+    - Frontend display issue?
 
 2. **Test each layer independently**:
 
-   ```bash
-   cd python && python -m pytest  # Python layer
-   cd src-tauri && cargo test      # PyO3 helper layer
-   pnpm test                       # Frontend layer
-   ```
+    ```bash
+    cd python && python -m pytest  # Python layer
+    cd src-tauri && cargo test      # PyO3 helper layer
+    pnpm test                       # Frontend layer
+    ```
 
 3. **Test integration**:
 
-   ```bash
-   pnpm run tauri dev  # Complete system
-   ```
+    ```bash
+    pnpm run tauri dev  # Complete system
+    ```
 
 4. **Use appropriate debugging tools**:
-   - Python: print statements, pytest
-   - Rust: RUST_LOG=debug, cargo test
-   - Frontend: console.log, React DevTools
+    - Python: print statements, pytest
+    - Rust: RUST_LOG=debug, cargo test
+    - Frontend: console.log, React DevTools
 
 ## Related Documentation
 
@@ -271,4 +271,6 @@ pnpm dev  # Test frontend only
 - **[Package Management](package-management.md)** - Dependencies and tools
 - **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper
   function architecture details
+- **[Node.js vs Rust Architecture](../architecture/nodejs-development-rust-production.md)** -
+  Development vs production architecture
 - **[Technology Primer](../technology-primer.md)** - Understanding the full stack

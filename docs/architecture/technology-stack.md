@@ -7,10 +7,10 @@ GitInspectorGUI technology stack and architectural decisions.
 ### Core Framework
 
 - **[Tauri 2.x](https://tauri.app/)** - Rust-based desktop framework
-  - System webview (no Chromium bundle)
-  - Native performance and security
-  - Auto-updater support
-  - Cross-platform (Windows, macOS, Linux)
+    - System webview (no Chromium bundle)
+    - Native performance and security
+    - Auto-updater support
+    - Cross-platform (Windows, macOS, Linux)
 
 ### UI Stack
 
@@ -23,19 +23,19 @@ GitInspectorGUI technology stack and architectural decisions.
 ### Data Tables
 
 - **TanStack Table v8** - Advanced table functionality
-  - Column filtering and sorting
-  - Virtual scrolling
-  - Row expansion
-  - Custom cell renderers
+    - Column filtering and sorting
+    - Virtual scrolling
+    - Row expansion
+    - Custom cell renderers
 
 ## Backend
 
 ### Core Runtime
 
 - **Python 3.8+** - Analysis engine language
-  - `asyncio` for async operations
-  - `concurrent.futures` for parallel processing
-  - `multiprocessing` for CPU-intensive tasks
+    - `asyncio` for async operations
+    - `concurrent.futures` for parallel processing
+    - `multiprocessing` for CPU-intensive tasks
 
 ### Python Integration
 
@@ -96,9 +96,9 @@ graph LR
 ### Desktop Applications
 
 - **Tauri Bundler** - Native installers with embedded Python
-  - Windows: `.msi`, `.exe`
-  - macOS: `.dmg`, `.app`
-  - Linux: `.deb`, `.rpm`, `.AppImage`
+    - Windows: `.msi`, `.exe`
+    - macOS: `.dmg`, `.app`
+    - Linux: `.deb`, `.rpm`, `.AppImage`
 - **Auto-updater** - Seamless updates via GitHub releases
 - **Embedded Python** - Python interpreter bundled within application
 
@@ -139,5 +139,7 @@ graph LR
   instructions
 - **[Package Management](../development/package-management.md)** - Dependencies and
   tools
+- **[Node.js vs Rust Architecture](nodejs-development-rust-production.md)** -
+  Development vs production technology choices
 - **[PyO3 Integration Architecture](pyo3-integration.md)** - Direct PyO3 integration
   details

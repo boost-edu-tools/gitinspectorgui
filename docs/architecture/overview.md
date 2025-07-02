@@ -261,6 +261,16 @@ graph TB
 - **Python integration** - GIL usage and PyO3 performance
 - **Application health** - Desktop app responsiveness
 
+## Related Documentation
+
+- **[PyO3 Integration Architecture](pyo3-integration.md)** - Detailed PyO3
+  implementation
+- **[Node.js vs Rust Architecture](nodejs-development-rust-production.md)** -
+  Development vs production architecture
+- **[Technology Stack](technology-stack.md)** - Complete technology overview
+- **[Development Workflow](../development/development-workflow.md)** - Development
+  patterns
+
 ## Summary
 
 Simplified direct PyO3 architecture provides robust, maintainable foundation with direct
