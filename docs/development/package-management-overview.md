@@ -28,16 +28,16 @@ experience improvements over traditional alternatives:
 
 ### Environment Management Philosophy
 
-**Python: Manual Virtual Environment Management**
+**Traditional Python: Manual Virtual Environment Management**
 
-Python's approach requires explicit environment management:
+Traditional Python development requires explicit environment management:
 
 -   **Manual isolation**: Virtual environments must be created and activated manually
 -   **Activation required**: Each project switch requires sourcing the virtual environment
 -   **Explicit management**: Developers must remember to activate/deactivate environments
 
 ```bash
-# Example of Python's manual environment management
+# Example of traditional Python's manual environment management
 cd data-processor
 source .venv/bin/activate    # Manual step required
 python analyze.py            # Now uses data-processor's dependencies
@@ -45,6 +45,19 @@ python analyze.py            # Now uses data-processor's dependencies
 cd ../web-scraper
 source .venv/bin/activate    # Manual step required again
 python crawl.py              # Now uses web-scraper's dependencies
+```
+
+**Python with uv run: Automatic Execution**
+
+The `uv` tool eliminates the manual activation step with `uv run`:
+
+```bash
+# Modern uv approach - automatic environment handling
+cd data-processor
+uv run python analyze.py    # Automatically uses data-processor's environment
+
+cd ../web-scraper
+uv run python crawl.py      # Automatically uses web-scraper's environment
 ```
 
 **JavaScript/Node.js: Automatic Project-Level Dependencies**
@@ -65,12 +78,13 @@ cd ../api-service
 npm test              # Automatically uses api-service's dependencies
 ```
 
+> **Note**: When using `uv run` and `pnpm exec`, both ecosystems provide similarly seamless experiences. The "manual vs automatic" distinction mainly applies to traditional Python workflows without modern tooling.
+
 ### Editable Installs: Development Workflow Differences
 
-**Python: Editable Installs Required**
+**Traditional Python: Editable Installs Required**
 
-In Python, when developing a package, you need to **install your own project**
-so that:
+In traditional Python development, when developing a package, you need to **install your own project** so that:
 
 - Your package modules can be imported from anywhere in the virtual environment
 - Changes to your source code are immediately reflected without reinstalling
@@ -81,7 +95,7 @@ so that:
 **pip approach**: Requires explicit editable install with `pip install -e .` (the `-e` flag stands for "editable"). Without this, changes to your source code won't be reflected when importing your package.
 
 ```bash
-# Python development setup
+# Traditional Python development setup
 cd my-python-package
 source .venv/bin/activate
 
@@ -91,6 +105,8 @@ uv sync
 # pip requires explicit steps
 pip install -r requirements.txt -r requirements-dev.txt -e .
 ```
+
+**Modern Python with uv run**: `uv run` can execute commands even without explicit project installation, automatically handling the environment context.
 
 **JavaScript: No Editable Installs Needed**
 
@@ -109,6 +125,8 @@ cd my-js-project
 pnpm install
 npm run dev  # Runs directly from source files
 ```
+
+> **Note**: The editable install difference becomes less relevant when using `uv run` for command execution, as it handles the project context automatically.
 
 ### Historical and Technical Background
 
@@ -142,6 +160,103 @@ npm run dev  # Runs directly from source files
 
 The JavaScript ecosystem prioritized convenience and rapid development, accepting the overhead of duplicated dependencies across projects in exchange for zero-friction isolation. This fundamental difference explains why `uv sync` includes project installation while `pnpm install` does not - they're solving different problems due to how Python and JavaScript development fundamentally works.
 
+## Command Differences by File Type
+
+Understanding how Python with `uv` and JavaScript handle different types of commands reveals important trade-offs in developer experience:
+
+### 1. Running Project Scripts (Defined in Config Files)
+
+**JavaScript**: Built-in script runner through `package.json`
+```json
+// package.json
+{
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "test": "jest"
+  }
+}
+```
+
+```bash
+pnpm run dev         # Runs: vite dev
+pnpm run build       # Runs: vite build
+npm start            # Shortcut for "npm run start"
+```
+
+**Python**: No equivalent - uses direct commands or shell scripts
+```bash
+# Direct tool execution
+pytest
+ruff check src/
+
+# Shell scripts for complex workflows
+./scripts/setup-dev.sh
+./scripts/build-cli-app.sh
+```
+
+**Python**: No equivalent - uses direct commands or shell scripts
+
+### 2. Running Language-Specific Files
+
+**JavaScript**: Direct execution with automatic dependency resolution
+```bash
+node script.js       # Short and direct - uses project's node_modules
+```
+
+**Python with uv**: Two options with trade-offs
+```bash
+# Option 1: Automatic (longer)
+uv run python script.py
+
+# Option 2: Manual activation (shorter commands, but requires setup)
+source .venv/bin/activate
+python script.py     # Same length as JavaScript
+```
+
+**Python with uv**: Two options with trade-offs
+
+### 3. Running Development Tools
+
+**JavaScript**: Project-specific tool execution
+```bash
+pnpm exec eslint src/        # Use project's or download temporarily
+npx eslint src/              # Use project's or download temporarily
+```
+
+**Python with uv**: Multiple approaches with different trade-offs
+```bash
+# Option 1: Automatic per-command
+uv run ruff check src/       # Same length as pnpm exec
+
+# Option 2: Pre-activated environment
+source .venv/bin/activate
+ruff check src/              # Shortest!
+pytest
+
+# Option 3: Direct execution (if tools installed globally)
+ruff check src/              # Works if ruff installed outside project
+```
+
+### 4. Running System/Shell Scripts
+
+**Both ecosystems**: Identical approach
+```bash
+./scripts/build.sh           # Same for both
+make install                 # Same for both
+```
+
+### Summary of Trade-offs
+
+**JavaScript advantages:**
+- Shortest syntax for running language files (`node script.js`)
+- Built-in project script management (`pnpm run dev`)
+- Single consistent approach (automatic dependency resolution)
+
+**Python advantages:**
+- Shortest tool execution when environment pre-activated (`ruff check src/`)
+- Flexibility to choose between automatic (`uv run`) and manual activation
+
 ## Package Manager Comparison
 
 Now that you understand the fundamental differences, here's how the package managers compare across key features:
@@ -160,6 +275,9 @@ Now that you understand the fundamental differences, here's how the package mana
 | **Add Dev Dependencies** | `uv add --group dev package` | Separate requirements-dev.txt | `pnpm add -D package` | `npm install --save-dev package` |
 | **Update All** | `uv sync --upgrade` | `pip install --upgrade -r requirements.txt` | `pnpm update` | `npm update` |
 | **Environment Activation** | Manual (`source .venv/bin/activate`) | Manual (`source .venv/bin/activate`) | Automatic (project-based) | Automatic (project-based) |
+| **Run Commands in Environment** | `uv run <command>` | Manual activation required | N/A (automatic) | N/A (automatic) |
+| **Script Runner** | N/A (use shell scripts) | N/A (use shell scripts) | `pnpm run <script>` | `npm run <script>` |
+| **Execute Project Tools** | Direct execution | Direct execution | `pnpm exec <tool>` | `npx <tool>` |
 | **Offline Support** | Excellent | Limited | Good (shared cache) | Good (cache) |
 | **Cross-platform** | Yes | Yes | Yes | Yes |
 

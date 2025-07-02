@@ -18,17 +18,22 @@ GitInspectorGUI uses `pnpm` for JavaScript/TypeScript package management. pnpm i
 -   **Stricter security**: Better dependency resolution to prevent "phantom dependencies"
 -   **Monorepo support**: Workspace management for projects with multiple packages
 
-> **Note**: A "monorepo" is a single repository containing multiple related projects with their own dependencies.
-
-## Installation
+## Installation of pnpm
 
 ```bash
-# Enable pnpm (recommended)
 corepack enable
-
-# Or install globally
-npm install -g pnpm
 ```
+
+**Explanation**:
+
+Modern Node.js includes Corepack (a package manager manager) but it's disabled by default. `corepack enable` activates it and creates the `pnpm` binary.
+
+**What happens**:
+
+1. Creates a `pnpm` command on your system PATH
+2. This `pnpm` command is a wrapper that automatically downloads the correct pnpm version when needed
+3. No separate pnpm installation required
+
 
 ## Commands
 
