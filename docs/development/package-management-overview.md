@@ -20,6 +20,12 @@ experience improvements over traditional alternatives:
 -   **uv (Python)**: Focuses on speed and reproducibility while improving Python's virtual environment experience
 -   **pnpm (JavaScript)**: Emphasizes disk space efficiency and automatic dependency isolation
 
+## Quick Setup
+
+```bash
+# Complete development setup
+uv sync && pnpm install && pnpm run tauri dev
+```
 
 
 ## Fundamental Differences: Python vs JavaScript Development
@@ -128,9 +134,7 @@ npm run dev  # Runs directly from source files
 
 > **Note**: The editable install difference becomes less relevant when using `uv run` for command execution, as it handles the project context automatically.
 
-### Historical and Technical Background
-
-??? info "Why these differences evolved"
+!!! info "Historical and Technical Background"
 
     #### Historical Evolution
 
@@ -158,7 +162,7 @@ npm run dev  # Runs directly from source files
     -   Remembering to switch environments when changing projects
     -   Deactivating when done (`deactivate`)
 
-The JavaScript ecosystem prioritized convenience and rapid development, accepting the overhead of duplicated dependencies across projects in exchange for zero-friction isolation. This fundamental difference explains why `uv sync` includes project installation while `pnpm install` does not - they're solving different problems due to how Python and JavaScript development fundamentally works.
+    The JavaScript ecosystem prioritized convenience and rapid development, accepting the overhead of duplicated dependencies across projects in exchange for zero-friction isolation. This fundamental difference explains why `uv sync` includes project installation while `pnpm install` does not - they're solving different problems due to how Python and JavaScript development fundamentally works.
 
 ## Command Differences by File Type
 
@@ -280,13 +284,6 @@ Now that you understand the fundamental differences, here's how the package mana
 | **Execute Project Tools** | Direct execution | Direct execution | `pnpm exec <tool>` | `npx <tool>` |
 | **Offline Support** | Excellent | Limited | Good (shared cache) | Good (cache) |
 | **Cross-platform** | Yes | Yes | Yes | Yes |
-
-## Quick Setup
-
-```bash
-# Complete development setup
-uv sync && pnpm install && pnpm run tauri dev
-```
 
 ## Glossary
 
