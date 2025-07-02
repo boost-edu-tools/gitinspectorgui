@@ -7,7 +7,7 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
-        "format:docs": "prettier --write --print-width 88 'docs/**/*.md'",
+        "format:docs": "prettier --write --print-width 88 --prose-wrap always 'docs/**/*.md'",
         "preview": "vite preview",
         "tauri": "tauri",
         "tauri:dev": "tauri dev",
