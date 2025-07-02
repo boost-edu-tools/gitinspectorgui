@@ -1,9 +1,8 @@
 # Output
 
 Multiple output formats can be selected, resulting in a separate output file for every
-selected format. See the [GUI documentation](gui.md#output-formats-and-viewer-options)
-or [CLI documentation](cli.md#output-formats-and-viewer-options) for information on this
-option.
+selected format. See the [GUI documentation](gui.md#output-generation-and-formatting) or
+[CLI documentation](cli.md#output-formats-cli) for information on this option.
 
 ## Output formats and viewer options
 

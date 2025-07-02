@@ -15,9 +15,7 @@ build automation, testing, and deployment strategies.
 4. [Distribution Platforms](#distribution-platforms)
 5. [Release Workflow](#release-workflow)
 6. [Version Management](#version-management)
-7. [Testing & Quality Assurance](#testing-quality-assurance)
-8. [CI/CD Integration](#cicd-integration)
-9. [Development to Production](#development-to-production)
+7. [CI/CD Integration](#cicd-integration)
 
 ---
 
@@ -57,9 +55,9 @@ gh release create v1.2.0 \
 - **Node.js** 22+ with pnpm
 - **Rust** 1.85+ with Cargo
 - **Platform-specific tools**:
-  - Windows: Visual Studio Build Tools
-  - macOS: Xcode Command Line Tools
-  - Linux: Standard build tools (gcc, pkg-config)
+    - Windows: Visual Studio Build Tools
+    - macOS: Xcode Command Line Tools
+    - Linux: Standard build tools (gcc, pkg-config)
 
 ### Cross-Platform Build
 
@@ -178,10 +176,10 @@ curl -X POST \
 
 - **Mac App Store**: Requires Apple Developer account
 - **Homebrew**: Community package manager
-  ```bash
-  # Example Homebrew formula
-  brew install --cask gitinspectorgui
-  ```
+    ```bash
+    # Example Homebrew formula
+    brew install --cask gitinspectorgui
+    ```
 
 #### Linux
 
@@ -195,7 +193,7 @@ Host installers on your own website with download links:
 
 ```html
 <a href="https://releases.example.com/gitinspectorgui-1.0.0-x64.msi">
-  Download for Windows
+    Download for Windows
 </a>
 ```
 
@@ -235,98 +233,98 @@ GitHub Actions workflow (`.github/workflows/release.yml`):
 ```yaml
 name: Release
 on:
-  push:
-    tags: ["v*"]
+    push:
+        tags: ["v*"]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.13"
+            - name: Setup Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.13"
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+            - name: Setup Rust
+              uses: dtolnay/rust-toolchain@stable
 
-      - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+            - name: Install uv
+              run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
-      - name: Install dependencies
-        run: |
-          uv sync
-          pnpm install
+            - name: Install dependencies
+              run: |
+                  uv sync
+                  pnpm install
 
-      - name: Run tests
-        run: |
-          python -m pytest
-          pnpm test
+            - name: Run tests
+              run: |
+                  python -m pytest
+                  pnpm test
 
-  build:
-    needs: test
-    strategy:
-      matrix:
-        platform: [macos-latest, ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.platform }}
+    build:
+        needs: test
+        strategy:
+            matrix:
+                platform: [macos-latest, ubuntu-latest, windows-latest]
+        runs-on: ${{ matrix.platform }}
 
-    steps:
-      - uses: actions/checkout@v4
+        steps:
+            - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.13"
+            - name: Setup Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.13"
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+            - name: Setup Rust
+              uses: dtolnay/rust-toolchain@stable
 
-      - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+            - name: Install uv
+              run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
-      - name: Install dependencies
-        run: |
-          uv sync
-          pnpm install
+            - name: Install dependencies
+              run: |
+                  uv sync
+                  pnpm install
 
-      - name: Build app
-        run: pnpm run tauri build
+            - name: Build app
+              run: pnpm run tauri build
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.platform }}-build
-          path: src-tauri/target/release/bundle/
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ${{ matrix.platform }}-build
+                  path: src-tauri/target/release/bundle/
 
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    release:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
 
-      - name: Create release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            *-build/**/*
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Create release
+              uses: softprops/action-gh-release@v1
+              with:
+                  files: |
+                      *-build/**/*
+                  generate_release_notes: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### 3. Manual Release Steps
