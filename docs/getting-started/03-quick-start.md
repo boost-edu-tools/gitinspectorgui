@@ -2,9 +2,11 @@
 
 Get GitInspectorGUI development environment running in one command.
 
-**Prerequisites**: Complete **[Prerequisites](01-prerequisites.md)** and **[Installation](02-installation.md)** first.
+**Prerequisites**: Complete **[Prerequisites](01-prerequisites.md)** and
+**[Installation](02-installation.md)** first.
 
-**Note**: This is for the development environment. For application usage, see [gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
+**Note**: This is for the development environment. For application usage, see
+[gitinspectorgui.readthedocs.io](https://gitinspectorgui.readthedocs.io/en/latest/).
 
 ## Single-Step Verification
 
@@ -49,16 +51,20 @@ pnpm run dev
 
 Now that your environment is working:
 
-- **[Development Workflow](../development/development-workflow.md)** - Learn development patterns
-- **[CLI Development Guide](../development/cli-development-guide.md)** - Command-line development
+- **[Development Workflow](../development/development-workflow.md)** - Learn development
+  patterns
+- **[CLI Development Guide](../development/cli-development-guide.md)** - Command-line
+  development
 - **[API Reference](../api/reference.md)** - Backend API documentation
 
 ## Troubleshooting
 
 If something doesn't work:
 
-1. **Check Prerequisites**: Ensure all tools from [Prerequisites](01-prerequisites.md) are installed
-2. **Verify Installation**: Re-run verification steps from [Installation](02-installation.md)
+1. **Check Prerequisites**: Ensure all tools from [Prerequisites](01-prerequisites.md)
+   are installed
+2. **Verify Installation**: Re-run verification steps from
+   [Installation](02-installation.md)
 3. **Common Issues**: See [Troubleshooting Guide](../development/troubleshooting.md)
 
 **Quick fixes**:
@@ -114,7 +120,10 @@ rm -rf src-tauri/target/debug
 
 After successful testing:
 
-1. **[Development Workflow](../development/development-workflow.md)** - Learn development patterns and best practices
-2. **[CLI Development Guide](../development/cli-development-guide.md)** - Command-line development
+1. **[Development Workflow](../development/development-workflow.md)** - Learn
+   development patterns and best practices
+2. **[CLI Development Guide](../development/cli-development-guide.md)** - Command-line
+   development
 3. **[API Reference](../api/reference.md)** - Backend API documentation
-4. **[Architecture Overview](../architecture/overview.md)** - Understanding the system design
+4. **[Architecture Overview](../architecture/overview.md)** - Understanding the system
+   design

@@ -47,7 +47,8 @@ graph TD
 - **Zero IPC overhead** - Direct function calls through PyO3 bindings
 - **Native memory access** - No serialization between components
 - **Embedded interpreter** - Python runs within the same process via PyO3
-- **Type-safe conversion** - Automatic Python ↔ Rust type conversion via helper functions
+- **Type-safe conversion** - Automatic Python ↔ Rust type conversion via helper
+  functions
 
 #### Development
 
@@ -67,7 +68,9 @@ graph TD
 
 ## Implementation
 
-The Python functions shown below must be implemented according to the API specification. For complete function signatures, data types, and implementation examples, see [API Reference](../api/reference.md) and [API Examples](../api/examples.md).
+The Python functions shown below must be implemented according to the API specification.
+For complete function signatures, data types, and implementation examples, see
+[API Reference](../api/reference.md) and [API Examples](../api/examples.md).
 
 ### PyO3 Helper Function Integration (Rust)
 
@@ -247,7 +250,8 @@ export async function getEngineInfo(): Promise<any> {
 
 ### PyO3 Error Propagation
 
-The PyO3 helper functions automatically handle error conversion between Python exceptions and JavaScript errors:
+The PyO3 helper functions automatically handle error conversion between Python
+exceptions and JavaScript errors:
 
 ```python
 def execute_analysis(settings_json):
@@ -301,7 +305,8 @@ export async function executeAnalysis(settings: Settings): Promise<AnalysisResul
 
 ### JSON-Based Communication
 
-The PyO3 helper functions use JSON for type-safe communication between frontend and Python:
+The PyO3 helper functions use JSON for type-safe communication between frontend and
+Python:
 
 ```python
 from typing import List, Optional
@@ -364,7 +369,8 @@ interface AnalysisResult {
 
 ### PyO3 Helper Function Overhead
 
-The PyO3 helper functions provide minimal overhead while maintaining the performance benefits of direct PyO3 integration:
+The PyO3 helper functions provide minimal overhead while maintaining the performance
+benefits of direct PyO3 integration:
 
 ```python
 def batch_analysis(repositories: List[str]) -> str:
@@ -501,6 +507,7 @@ describe("PyO3 API Integration", () => {
 ## Related Documentation
 
 - **[Architecture Overview](overview.md)** - Complete system architecture
-- **[Development Workflow](../development/development-workflow.md)** - PyO3 development patterns
+- **[Development Workflow](../development/development-workflow.md)** - PyO3 development
+  patterns
 - **[API Reference](../api/reference.md)** - Function signatures and examples
 - **[Technology Stack](technology-stack.md)** - PyO3 and build dependencies

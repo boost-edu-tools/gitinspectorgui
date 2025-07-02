@@ -1,14 +1,22 @@
 # API Layer
 
-The GitInspectorGUI API layer provides a clean, unified interface for git repository analysis functionality. Located in `python/gigui/api/` and accessible via `api.py`, it serves as the primary integration point between the frontend and the Python analysis engine.
+The GitInspectorGUI API layer provides a clean, unified interface for git repository
+analysis functionality. Located in `python/gigui/api/` and accessible via `api.py`, it
+serves as the primary integration point between the frontend and the Python analysis
+engine.
 
 ## Overview
 
-The API layer abstracts the complexity of git analysis operations into a simple, consistent interface. It handles settings management, analysis execution, and result formatting while providing both command-line and programmatic access to the underlying analysis engine.
+The API layer abstracts the complexity of git analysis operations into a simple,
+consistent interface. It handles settings management, analysis execution, and result
+formatting while providing both command-line and programmatic access to the underlying
+analysis engine.
 
 ## Integration with Desktop Application
 
-The API functions are called directly from the Tauri desktop frontend via PyO3 helper functions, eliminating network overhead. For technical details on this integration architecture, see [PyO3 Integration](../architecture/pyo3-integration.md).
+The API functions are called directly from the Tauri desktop frontend via PyO3 helper
+functions, eliminating network overhead. For technical details on this integration
+architecture, see [PyO3 Integration](../architecture/pyo3-integration.md).
 
 **Key Components:**
 
@@ -22,16 +30,20 @@ The API functions are called directly from the Tauri desktop frontend via PyO3 h
 
 ### Abstraction Layer
 
-The API provides a stable interface that isolates the frontend from the complexity of the underlying git analysis engine. This separation allows for:
+The API provides a stable interface that isolates the frontend from the complexity of
+the underlying git analysis engine. This separation allows for:
 
-- **Clean Integration** - Simplified communication between Tauri frontend and Python backend
-- **Version Stability** - API contracts remain consistent even as internal implementations change
+- **Clean Integration** - Simplified communication between Tauri frontend and Python
+  backend
+- **Version Stability** - API contracts remain consistent even as internal
+  implementations change
 - **Error Handling** - Centralized error management and user-friendly error messages
 - **Type Safety** - Well-defined data structures for reliable data exchange
 
 ### Multiple Access Patterns
 
-GitInspectorGUI supports different usage patterns through the same API, with **GUI and CLI sharing identical options and parameters**:
+GitInspectorGUI supports different usage patterns through the same API, with **GUI and
+CLI sharing identical options and parameters**:
 
 ```mermaid
 graph TD
@@ -52,14 +64,16 @@ graph TD
 
 ### Settings Management
 
-The API handles complex configuration management with **identical parameter sets
-for GUI and CLI**:
+The API handles complex configuration management with **identical parameter sets for GUI
+and CLI**:
 
-- **Unified Settings** - GUI and CLI share the same JSON settings file with 100+ configuration options
+- **Unified Settings** - GUI and CLI share the same JSON settings file with 100+
+  configuration options
 - **Validation** - Ensures settings are complete and valid before analysis
 - **Defaults** - Provides sensible defaults for all configuration options
 - **Normalization** - Converts paths and patterns to consistent formats
-- **GUI/CLI Parity** - Changes made in GUI are immediately available to CLI and vice versa
+- **GUI/CLI Parity** - Changes made in GUI are immediately available to CLI and vice
+  versa
 
 ## What Does the API Do?
 
@@ -78,7 +92,8 @@ The API provides six essential operations across **both GUI and CLI interfaces**
 
 ### GUI/CLI Shared Parameters
 
-The API ensures **complete parity between GUI and CLI interfaces**. All 100+ configuration options are accessible through both interfaces:
+The API ensures **complete parity between GUI and CLI interfaces**. All 100+
+configuration options are accessible through both interfaces:
 
 **Repository Settings:**
 
@@ -90,7 +105,8 @@ The API ensures **complete parity between GUI and CLI interfaces**. All 100+ con
 
 - File extensions (GUI: comma-separated input, CLI: `--extensions` or `-e`)
 - Include patterns (GUI: text field, CLI: `--include-files`)
-- Exclude patterns (GUI: multiple exclusion fields, CLI: `--ex-files`, `--ex-authors`, etc.)
+- Exclude patterns (GUI: multiple exclusion fields, CLI: `--ex-files`, `--ex-authors`,
+  etc.)
 
 **Output Formats:**
 
@@ -157,7 +173,8 @@ class RepositoryResult:
 
 ### Architecture Overview
 
-The API follows a layered architecture that separates concerns and enables flexible integration:
+The API follows a layered architecture that separates concerns and enables flexible
+integration:
 
 ```mermaid
 graph TB
@@ -283,7 +300,8 @@ result = api.execute_analysis(settings)
 
 ### Error Handling Strategy
 
-The API implements comprehensive error handling with automatic conversion for frontend integration:
+The API implements comprehensive error handling with automatic conversion for frontend
+integration:
 
 ```python
 def execute_analysis(settings: Settings) -> AnalysisResult:
@@ -317,7 +335,8 @@ def execute_analysis(settings: Settings) -> AnalysisResult:
 
 ### Performance Optimization
 
-The API includes intelligent performance optimization based on repository characteristics:
+The API includes intelligent performance optimization based on repository
+characteristics:
 
 ```python
 def configure_for_repository(self, repo_path: str, settings: Settings):
@@ -383,19 +402,27 @@ def execute_analysis(self, settings: Settings):
 
 ## Integration with GitInspectorGUI
 
-The API serves as the central integration point for all GitInspectorGUI functionality, ensuring **seamless GUI/CLI interoperability**:
+The API serves as the central integration point for all GitInspectorGUI functionality,
+ensuring **seamless GUI/CLI interoperability**:
 
-- **Desktop GUI** - Tauri frontend calls API via PyO3 helper functions, GUI settings automatically persist to shared JSON
-- **CLI Tool** - Command-line interface wraps API, reads/writes same settings file as GUI
-- **Settings Synchronization** - Changes in GUI immediately affect CLI behavior and vice versa
-- **Consistent Results** - Identical analysis engine produces same results regardless of interface
+- **Desktop GUI** - Tauri frontend calls API via PyO3 helper functions, GUI settings
+  automatically persist to shared JSON
+- **CLI Tool** - Command-line interface wraps API, reads/writes same settings file as
+  GUI
+- **Settings Synchronization** - Changes in GUI immediately affect CLI behavior and vice
+  versa
+- **Consistent Results** - Identical analysis engine produces same results regardless of
+  interface
 - **Development Tools** - Testing and debugging tools use API directly for validation
 
-This unified approach guarantees that users get the same functionality and results whether they use the graphical interface or command line, with settings seamlessly shared between both modes of operation.
+This unified approach guarantees that users get the same functionality and results
+whether they use the graphical interface or command line, with settings seamlessly
+shared between both modes of operation.
 
 ## Related Documentation
 
 - **[Architecture Overview](../architecture/overview.md)** - System design context
 - **[GUI Guide](../user-docs/gui.md)** - Complete GUI interface documentation
 - **[CLI Guide](../user-docs/cli.md)** - Full command-line reference
-- **[Development Workflow](../development/development-workflow.md)** - Core development patterns
+- **[Development Workflow](../development/development-workflow.md)** - Core development
+  patterns

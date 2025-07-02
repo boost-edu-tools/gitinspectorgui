@@ -2,7 +2,8 @@
 
 ## Overview
 
-Development methodology where components include built-in demo modes for both development testing and interactive documentation.
+Development methodology where components include built-in demo modes for both
+development testing and interactive documentation.
 
 ## Core Concept
 
@@ -191,4 +192,6 @@ export const Component = ({ data, demoMode, demoScenario }: Props) => {
 
 ## Summary
 
-Demo-based development creates components that are self-documenting and battle-tested from day one. Interactive documentation stays current with code while providing users hands-on experience before installation.
+Demo-based development creates components that are self-documenting and battle-tested
+from day one. Interactive documentation stays current with code while providing users
+hands-on experience before installation.

@@ -2,7 +2,8 @@
 
 ## Overview
 
-Integration of sophisticated git analysis algorithms from `gitinspectorgui-old` into the modern Tauri architecture.
+Integration of sophisticated git analysis algorithms from `gitinspectorgui-old` into the
+modern Tauri architecture.
 
 ## Architecture
 

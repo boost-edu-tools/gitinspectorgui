@@ -4,9 +4,12 @@ Error handling patterns for GitInspectorGUI Python integration.
 
 ## Overview
 
-Errors are handled through automatic conversion between Python exceptions and JavaScript errors via PyO3 helper functions. The integration manages all error conversion, eliminating the need for manual error handling code.
+Errors are handled through automatic conversion between Python exceptions and JavaScript
+errors via PyO3 helper functions. The integration manages all error conversion,
+eliminating the need for manual error handling code.
 
-> **Integration Details**: For technical information about this conversion process, see [PyO3 Integration Architecture](../architecture/pyo3-integration.md).
+> **Integration Details**: For technical information about this conversion process, see
+> [PyO3 Integration Architecture](../architecture/pyo3-integration.md).
 
 ## Error Types
 
@@ -620,4 +623,7 @@ raise ValidationError(
 raise ValidationError("Invalid extension")
 ```
 
-This simplified PyO3 helper function error handling approach provides robust error management with automatic conversion between Python exceptions and JavaScript errors, eliminating the complexity of manual error handling while maintaining clear error reporting and debugging capabilities.
+This simplified PyO3 helper function error handling approach provides robust error
+management with automatic conversion between Python exceptions and JavaScript errors,
+eliminating the complexity of manual error handling while maintaining clear error
+reporting and debugging capabilities.

@@ -1,11 +1,12 @@
 # Package Management Fundamentals
 
-Exploring why Python and JavaScript package management work so differently,
-covering ecosystem differences, design philosophy, and historical background.
+Exploring why Python and JavaScript package management work so differently, covering
+ecosystem differences, design philosophy, and historical background.
 
 ## Fundamental Ecosystem Differences
 
-Understanding these core differences is essential for comprehending why package management works so differently between Python and JavaScript.
+Understanding these core differences is essential for comprehending why package
+management works so differently between Python and JavaScript.
 
 ### Environment Management Philosophy
 
@@ -59,21 +60,27 @@ cd ../api-service
 npm test              # Automatically uses api-service's dependencies
 ```
 
-> **Note:** When using `uv run` and `pnpm exec`, both ecosystems provide similarly seamless experiences. The "manual vs automatic" distinction mainly applies to traditional Python workflows without modern tooling.
+> **Note:** When using `uv run` and `pnpm exec`, both ecosystems provide similarly
+> seamless experiences. The "manual vs automatic" distinction mainly applies to
+> traditional Python workflows without modern tooling.
 
 ### Editable Installs: Development Workflow Differences
 
 #### Traditional Python: Editable Installs Required
 
-In traditional Python development, when developing a package, you need to **install your own project** so that:
+In traditional Python development, when developing a package, you need to **install your
+own project** so that:
 
 - Your package modules can be imported from anywhere in the virtual environment
 - Changes to your source code are immediately reflected without reinstalling
 - Your package's console scripts/entry points work correctly
 
-**uv approach:** `uv sync` automatically installs the current project in editable mode, handling both dependencies and project setup in one command.
+**uv approach:** `uv sync` automatically installs the current project in editable mode,
+handling both dependencies and project setup in one command.
 
-**pip approach:** Requires explicit editable install with `pip install -e .` (the `-e` flag stands for "editable"). Without this, changes to your source code won't be reflected when importing your package.
+**pip approach:** Requires explicit editable install with `pip install -e .` (the `-e`
+flag stands for "editable"). Without this, changes to your source code won't be
+reflected when importing your package.
 
 ```bash
 # Traditional Python development setup
@@ -87,7 +94,8 @@ uv sync
 pip install -r requirements.txt -r requirements-dev.txt -e .
 ```
 
-**Modern Python with uv run:** `uv run` can execute commands even without explicit project installation, automatically handling the environment context.
+**Modern Python with uv run:** `uv run` can execute commands even without explicit
+project installation, automatically handling the environment context.
 
 #### JavaScript: No Editable Installs Needed
 
@@ -141,7 +149,8 @@ uv replaces multiple Python tools and files:
 - setup.py/setup.cfg (package configuration)
 - requirements.txt files (dependency specification)
 
-All consolidated into a single tool with pyproject.toml as the central configuration file.
+All consolidated into a single tool with pyproject.toml as the central configuration
+file.
 
 ### pnpm Advanced Features
 
@@ -152,11 +161,13 @@ pnpm uses a content-addressable store:
 - Saves significant disk space across projects
 - Faster installs due to deduplication
 
-pnpm prevents "phantom dependencies" - packages that are used but not explicitly declared.
+pnpm prevents "phantom dependencies" - packages that are used but not explicitly
+declared.
 
 ## Command Differences by File Type
 
-Understanding how Python with `uv` and JavaScript handle different types of commands reveals important trade-offs in developer experience:
+Understanding how Python with `uv` and JavaScript handle different types of commands
+reveals important trade-offs in developer experience:
 
 ### 1. Running Project Scripts (Defined in Config Files)
 
@@ -305,12 +316,18 @@ pnpm audit fix
 
 ## Glossary
 
-- **Dependency resolution:** The process of determining which versions of packages to install that satisfy all requirements without conflicts.
-- **Lock file:** A file that records the exact versions of all dependencies, ensuring reproducible builds.
-- **Virtual environment:** An isolated Python environment with its own installed packages.
-- **Phantom dependencies:** Dependencies that are used but not explicitly declared in package.json.
-- **Editable install:** A Python package installation mode where changes to source code are immediately reflected without reinstalling.
-- **Content-addressable storage:** A storage method where files are identified by their content hash, enabling deduplication.
+- **Dependency resolution:** The process of determining which versions of packages to
+  install that satisfy all requirements without conflicts.
+- **Lock file:** A file that records the exact versions of all dependencies, ensuring
+  reproducible builds.
+- **Virtual environment:** An isolated Python environment with its own installed
+  packages.
+- **Phantom dependencies:** Dependencies that are used but not explicitly declared in
+  package.json.
+- **Editable install:** A Python package installation mode where changes to source code
+  are immediately reflected without reinstalling.
+- **Content-addressable storage:** A storage method where files are identified by their
+  content hash, enabling deduplication.
 
 ## Related Documentation
 

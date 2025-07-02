@@ -2,7 +2,10 @@
 
 ## Overview
 
-GitInspectorGUI is a Tauri-based desktop application with embedded Python analysis engine via PyO3 that gets distributed as platform-specific installers and packages. This guide covers the complete release process from development to distribution, including build automation, testing, and deployment strategies.
+GitInspectorGUI is a Tauri-based desktop application with embedded Python analysis
+engine via PyO3 that gets distributed as platform-specific installers and packages. This
+guide covers the complete release process from development to distribution, including
+build automation, testing, and deployment strategies.
 
 ## Table of Contents
 
@@ -40,7 +43,9 @@ gh release create v1.2.0 \
   dist/releases/*
 ```
 
-**⚠️ Prerequisites**: Ensure you have completed the [Environment Setup](../development/environment-setup.md) and tested with [Development Commands](../development/development-commands.md).
+**⚠️ Prerequisites**: Ensure you have completed the
+[Environment Setup](../development/environment-setup.md) and tested with
+[Development Commands](../development/development-commands.md).
 
 ---
 
@@ -448,7 +453,8 @@ GITHUB_TOKEN=automatically_provided_by_github
 
 ### Documentation Deployment
 
-See [Documentation Deployment Guide](documentation-deployment.md) for complete setup and configuration details.
+See [Documentation Deployment Guide](documentation-deployment.md) for complete setup and
+configuration details.
 
 ---
 

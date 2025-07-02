@@ -8,7 +8,8 @@ Get up and running with GitInspectorGUI in just a few steps.
 
 Download the latest release for your platform:
 
-- **[GitHub Releases](https://github.com/davbeek/gitinspectorgui-old/releases)** - GUI apps for Windows and macOS
+- **[GitHub Releases](https://github.com/davbeek/gitinspectorgui-old/releases)** - GUI
+  apps for Windows and macOS
 - No installation required - just download and run
 
 ### Option 2: Install from PyPI
@@ -97,4 +98,5 @@ gitinspectorgui . --exclude-authors "*bot*,*automated*"
 
 - **[FAQ](faq.md)** - Common questions and solutions
 - **[Known Issues](known-issues.md)** - Current limitations
-- **[GitHub Issues](https://github.com/davbeek/gitinspectorgui-old/issues)** - Report bugs or request features
+- **[GitHub Issues](https://github.com/davbeek/gitinspectorgui-old/issues)** - Report
+  bugs or request features

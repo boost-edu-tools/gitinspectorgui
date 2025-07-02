@@ -4,9 +4,12 @@ Practical examples for GitInspectorGUI Python function implementation.
 
 ## Overview
 
-This document shows how to implement the required Python functions that will be called from the frontend. The integration handles all communication between JavaScript and Python automatically.
+This document shows how to implement the required Python functions that will be called
+from the frontend. The integration handles all communication between JavaScript and
+Python automatically.
 
-> **Architecture Details**: For technical information about the integration system, see [PyO3 Integration Architecture](../architecture/pyo3-integration.md).
+> **Architecture Details**: For technical information about the integration system, see
+> [PyO3 Integration Architecture](../architecture/pyo3-integration.md).
 
 ## Python Function Implementation
 
@@ -676,4 +679,6 @@ def optimized_analysis(settings_json):
         raise
 ```
 
-This simplified PyO3 helper function integration approach provides seamless Python-JavaScript communication through our helper functions, eliminating the complexity of manual integration while maintaining high performance and excellent error handling.
+This simplified PyO3 helper function integration approach provides seamless
+Python-JavaScript communication through our helper functions, eliminating the complexity
+of manual integration while maintaining high performance and excellent error handling.

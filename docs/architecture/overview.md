@@ -1,14 +1,20 @@
 # System Architecture Overview
 
-Modern simplified architecture with Tauri desktop frontend and embedded Python backend via PyO3 helper function integration.
+Modern simplified architecture with Tauri desktop frontend and embedded Python backend
+via PyO3 helper function integration.
 
 ## For Python Developers
 
-If you're unfamiliar with the frontend technologies, see the **[Technology Primer](../technology-primer.md)** first. This document explains how the Python backend you'll work with integrates directly into the desktop application.
+If you're unfamiliar with the frontend technologies, see the
+**[Technology Primer](../technology-primer.md)** first. This document explains how the
+Python backend you'll work with integrates directly into the desktop application.
 
-**Key concept**: The Python backend runs embedded within the Tauri application, enabling direct function calls without network communication. You can develop and test the Python analysis logic independently.
+**Key concept**: The Python backend runs embedded within the Tauri application, enabling
+direct function calls without network communication. You can develop and test the Python
+analysis logic independently.
 
-> **PyO3 Integration Details**: For comprehensive information about the PyO3 helper function architecture, see [PyO3 Integration Architecture](pyo3-integration.md).
+> **PyO3 Integration Details**: For comprehensive information about the PyO3 helper
+> function architecture, see [PyO3 Integration Architecture](pyo3-integration.md).
 
 ## Architecture
 
@@ -257,4 +263,7 @@ graph TB
 
 ## Summary
 
-Simplified direct PyO3 architecture provides robust, maintainable foundation with direct integration between desktop frontend and embedded Python backend via our PyO3 helper functions. Designed for performance, reliability, and simplified deployment with zero network overhead while providing clean abstractions over PyO3 integration complexity.
+Simplified direct PyO3 architecture provides robust, maintainable foundation with direct
+integration between desktop frontend and embedded Python backend via our PyO3 helper
+functions. Designed for performance, reliability, and simplified deployment with zero
+network overhead while providing clean abstractions over PyO3 integration complexity.

@@ -2,17 +2,23 @@
 
 Development environment configuration for GitInspectorGUI.
 
-**Prerequisites**: Complete the **[Getting Started Guide](../getting-started/01-prerequisites.md)** first for system requirements and project installation.
+**Prerequisites**: Complete the
+**[Getting Started Guide](../getting-started/01-prerequisites.md)** first for system
+requirements and project installation.
 
 ## Understanding the Development Stack
 
-If you're unfamiliar with the technologies used, see the **[Technology Primer](../technology-primer.md)** first.
+If you're unfamiliar with the technologies used, see the
+**[Technology Primer](../technology-primer.md)** first.
 
 **Development environment components**:
 
-- **Frontend**: Tauri (desktop framework) + React (UI library) + TypeScript (typed JavaScript) + Vite (build tool)
-- **Backend**: Python analysis engine embedded via PyO3 helper functions (simplified Rust-Python integration)
-- **Package Management**: uv (fast Python package manager), pnpm (fast JavaScript package manager)
+- **Frontend**: Tauri (desktop framework) + React (UI library) + TypeScript (typed
+  JavaScript) + Vite (build tool)
+- **Backend**: Python analysis engine embedded via PyO3 helper functions (simplified
+  Rust-Python integration)
+- **Package Management**: uv (fast Python package manager), pnpm (fast JavaScript
+  package manager)
 - **Build System**: Cargo (Rust compiler with PyO3 helpers), Vite (frontend bundler)
 
 ## Development Configuration
@@ -39,7 +45,8 @@ If using VS Code:
 
 ## Rust Logging
 
-**RUST_LOG** is Rust's standard environment variable for controlling log levels. The format is:
+**RUST_LOG** is Rust's standard environment variable for controlling log levels. The
+format is:
 
 - `RUST_LOG=module=level` - Sets logging level for specific modules
 - `pyo3=debug` - Enables debug-level logging for the PyO3 crate
@@ -83,7 +90,8 @@ In this project, RUST_LOG is particularly useful for:
 
 ## Development Server Configuration
 
-For development server commands and workflows, see **[Development Workflow](development-workflow.md)**.
+For development server commands and workflows, see
+**[Development Workflow](development-workflow.md)**.
 
 ### Single-Process Development
 
@@ -337,7 +345,9 @@ pnpm run tauri build
 
 ## Related Documentation
 
-- **[Development Workflow](development-workflow.md)** - Development patterns and best practices
+- **[Development Workflow](development-workflow.md)** - Development patterns and best
+  practices
 - **[Package Management](package-management.md)** - Dependencies and tools
 - **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
-- **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper function architecture details
+- **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper
+  function architecture details

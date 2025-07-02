@@ -2,9 +2,13 @@
 
 ## Overview
 
-Integration strategy for Figma design systems and GitHub Pages deployment with demo-based development methodology.
+Integration strategy for Figma design systems and GitHub Pages deployment with
+demo-based development methodology.
 
-> **Current Status**: The project currently uses GitHub Pages for experimental proof-of-concept demos. This document outlines the planned enhancement to a more powerful Figma-based design system with GitHub Pages deployment for enhanced interactive rapid prototyping capabilities.
+> **Current Status**: The project currently uses GitHub Pages for experimental
+> proof-of-concept demos. This document outlines the planned enhancement to a more
+> powerful Figma-based design system with GitHub Pages deployment for enhanced
+> interactive rapid prototyping capabilities.
 
 ## Current Implementation vs. Future Vision
 
@@ -387,9 +391,14 @@ jobs:
 
 ## Summary
 
-Design system integration creates a comprehensive ecosystem where Figma designs, React components, and GitHub Pages deployment work together through AI automation. This produces consistent user experiences while enabling rapid iteration and user feedback collection.
+Design system integration creates a comprehensive ecosystem where Figma designs, React
+components, and GitHub Pages deployment work together through AI automation. This
+produces consistent user experiences while enabling rapid iteration and user feedback
+collection.
 
-The GitHub Pages approach provides all the benefits of rapid prototyping and design system integration while maintaining consistency with the existing development workflow and adding powerful Figma-based design capabilities.
+The GitHub Pages approach provides all the benefits of rapid prototyping and design
+system integration while maintaining consistency with the existing development workflow
+and adding powerful Figma-based design capabilities.
 
 ### Key Advantages
 

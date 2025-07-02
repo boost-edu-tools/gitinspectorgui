@@ -1,10 +1,17 @@
 # Supported languages
 
-The following table lists the languages that are supported by the analysis tool. The table includes the language name, whether comments are supported, the file extensions that are recognized, and whether the language is included in the analysis by default.
+The following table lists the languages that are supported by the analysis tool. The
+table includes the language name, whether comments are supported, the file extensions
+that are recognized, and whether the language is included in the analysis by default.
 
-Support of comments is relevant only for blame analysis. By means of the option `--comments`, the user can specify whether whole line comments should be included in the blame calculations, see `CLI comments <cli-comments>` and `GUI comments <gui-comments>`.
+Support of comments is relevant only for blame analysis. By means of the option
+`--comments`, the user can specify whether whole line comments should be included in the
+blame calculations, see `CLI comments <cli-comments>` and `GUI comments <gui-comments>`.
 
-By specifying the asterisk as one of the file extensions, the analysis tool will include all files in the analysis. The only difference between the supported and unsupported languages, is that comments are not supported for the latter and unsupported languages are not included in the analysis by default.
+By specifying the asterisk as one of the file extensions, the analysis tool will include
+all files in the analysis. The only difference between the supported and unsupported
+languages, is that comments are not supported for the latter and unsupported languages
+are not included in the analysis by default.
 
 |                         |          |                 |                                 |
 | ----------------------- | -------- | --------------- | ------------------------------- |

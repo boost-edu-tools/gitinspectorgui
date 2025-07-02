@@ -16,8 +16,8 @@ GitInspectorGUI uses separate package managers optimized for each ecosystem:
 
 - **Python backend:** `uv` - 10-100x faster than pip with integrated virtual
   environments
-- **JavaScript/TypeScript frontend:** `pnpm` - 2x faster than npm with shared
-  dependency storage
+- **JavaScript/TypeScript frontend:** `pnpm` - 2x faster than npm with shared dependency
+  storage
 
 ## Installation
 
@@ -355,12 +355,12 @@ interpreter:
 
 VS Code handles Python environments differently from terminal-based workflows:
 
-- **Auto-detection**: VS Code often automatically detects virtual environments in
-  common locations (like `.venv/` folders)
+- **Auto-detection**: VS Code often automatically detects virtual environments in common
+  locations (like `.venv/` folders)
 - **Workspace memory**: Once selected, VS Code remembers the interpreter in workspace
   settings
-- **Terminal integration**: When you open an integrated terminal after selecting a
-  venv interpreter, VS Code usually auto-activates that environment
+- **Terminal integration**: When you open an integrated terminal after selecting a venv
+  interpreter, VS Code usually auto-activates that environment
 
 **Best practice workflow:**
 

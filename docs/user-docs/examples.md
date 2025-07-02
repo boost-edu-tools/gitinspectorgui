@@ -1,6 +1,7 @@
 # Examples
 
-Below, some example output from the [Python Algorithms](https://github.com/TheAlgorithms/Python) project is shown.
+Below, some example output from the
+[Python Algorithms](https://github.com/TheAlgorithms/Python) project is shown.
 
 <figure>
 <img src="../../assets/images/py_algs_gui.png" alt="The GUI for the Python Algorithms project.">

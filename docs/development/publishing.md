@@ -4,7 +4,9 @@ Guide for publishing GitInspectorGUI packages to PyPI and TestPyPI.
 
 ## Overview
 
-GitInspectorGUI can be published as a Python package to PyPI for distribution. This guide covers the publishing workflow, including testing via TestPyPI before production release.
+GitInspectorGUI can be published as a Python package to PyPI for distribution. This
+guide covers the publishing workflow, including testing via TestPyPI before production
+release.
 
 ## Prerequisites
 
@@ -26,7 +28,8 @@ This creates distribution files in the `dist/` directory.
 
 ## Testing with TestPyPI
 
-Before publishing to PyPI, test the publishing process and package installation via TestPyPI.
+Before publishing to PyPI, test the publishing process and package installation via
+TestPyPI.
 
 ### Publish to TestPyPI
 
@@ -41,7 +44,8 @@ uv publish --index testpypi --username __token__ --password AUTHENTICATION-TOKEN
 
 ### Install from TestPyPI
 
-When installing from TestPyPI, dependencies should still come from PyPI. Use this command instead of the basic TestPyPI install command:
+When installing from TestPyPI, dependencies should still come from PyPI. Use this
+command instead of the basic TestPyPI install command:
 
 ```bash
 pip install --pre --index-url https://test.pypi.org/simple/ \

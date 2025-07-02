@@ -4,7 +4,8 @@ System requirements and tool installation for GitInspectorGUI development.
 
 ## Understanding the Technology Stack
 
-GitInspectorGUI uses multiple technologies working together. If you're unfamiliar with any of these, see the **[Technology Primer](../technology-primer.md)** first.
+GitInspectorGUI uses multiple technologies working together. If you're unfamiliar with
+any of these, see the **[Technology Primer](../technology-primer.md)** first.
 
 **What you'll be installing**:
 
@@ -63,7 +64,8 @@ npm install -g pnpm
 
 **Alternative: Homebrew Installation**
 
-Instead of the manual installation steps above, users with Homebrew can choose to install all required tools with a single command:
+Instead of the manual installation steps above, users with Homebrew can choose to
+install all required tools with a single command:
 
 ```bash
 brew install git uv rust pnpm
@@ -133,5 +135,5 @@ sudo chown -R $(whoami) ~/.local/share/pnpm
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
-For more detailed troubleshooting, see the **[Troubleshooting
-Guide](../development/troubleshooting.md)**.
+For more detailed troubleshooting, see the
+**[Troubleshooting Guide](../development/troubleshooting.md)**.

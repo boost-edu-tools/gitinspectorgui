@@ -28,8 +28,8 @@ Original architecture requirements that guided GitInspectorGUI development.
 - **Component libraries** - Mantine and Zustand
 - **Design system** - Flowbite Figma UI Kit for rapid prototyping
 - **JSX familiarity** - Coming from PySimpleGUI background
-- **No code generators** - Manual implementation from Figma designs or from
-  old GUI screenshots
+- **No code generators** - Manual implementation from Figma designs or from old GUI
+  screenshots
 
 ### CLI/GUI Integration
 
@@ -66,4 +66,5 @@ These requirements led to the current architecture:
 
 - **[Technology Stack](technology-stack.md)** - Selected technologies and rationale
 - **[System Overview](overview.md)** - High-level architecture implementation
-- **[PyO3 Integration Architecture](pyo3-integration.md)** - Specific architectural choices
+- **[PyO3 Integration Architecture](pyo3-integration.md)** - Specific architectural
+  choices

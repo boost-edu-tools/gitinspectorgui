@@ -1,13 +1,15 @@
 # CLI Development Guide
 
-Development-focused guide for building and testing GitInspectorGUI's command-line interface.
+Development-focused guide for building and testing GitInspectorGUI's command-line
+interface.
 
-!!! info "Complete CLI Reference"
-For complete CLI usage, options, and examples, see the **[User CLI Guide](../user-docs/cli.md)**.
+!!! info "Complete CLI Reference" For complete CLI usage, options, and examples, see the
+**[User CLI Guide](../user-docs/cli.md)**.
 
 ## Overview
 
-This guide covers CLI development workflows, building from source, and testing CLI functionality during development.
+This guide covers CLI development workflows, building from source, and testing CLI
+functionality during development.
 
 ## Development CLI Usage
 
@@ -163,5 +165,6 @@ pnpm run tauri dev
 ## Related Documentation
 
 - **[User CLI Guide](../user-docs/cli.md)** - Complete CLI reference and usage
-- **[Development Workflow](../development/development-workflow.md)** - General development patterns
+- **[Development Workflow](../development/development-workflow.md)** - General
+  development patterns
 - **[Build Process](../development/build-process.md)** - Complete build documentation

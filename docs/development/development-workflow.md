@@ -1,6 +1,7 @@
 # Development Workflow
 
-High-level development workflows and processes for GitInspectorGUI, focusing on team collaboration and development patterns.
+High-level development workflows and processes for GitInspectorGUI, focusing on team
+collaboration and development patterns.
 
 !!! tip "Detailed Guides"
 
@@ -11,13 +12,15 @@ High-level development workflows and processes for GitInspectorGUI, focusing on 
 
 ## Overview
 
-GitInspectorGUI uses a **single-process PyO3 architecture** that embeds Python directly within the Tauri desktop application for optimal performance and simplicity.
+GitInspectorGUI uses a **single-process PyO3 architecture** that embeds Python directly
+within the Tauri desktop application for optimal performance and simplicity.
 
 **Key Benefits**:
 
 - **Simplified Development**: Single command starts complete environment
 - **Fast Iteration**: Frontend hot reloading with embedded Python
-- **Direct Integration**: PyO3 helper functions provide simplified Python-Rust function calls
+- **Direct Integration**: PyO3 helper functions provide simplified Python-Rust function
+  calls
 - **Single Process**: No network overhead or server management
 
 For detailed commands, see **[Development Commands](development-commands.md)**.
@@ -49,7 +52,8 @@ For detailed commands, see **[Development Commands](development-commands.md)**.
 
 1. Develop Python functions independently
 2. Test Python logic with unit tests: `cd python && python -m pytest`
-3. Verify PyO3 compatibility: `python -c "from gigui.analysis import execute_analysis; print('OK')"`
+3. Verify PyO3 compatibility:
+   `python -c "from gigui.analysis import execute_analysis; print('OK')"`
 4. Test through desktop application: `pnpm run tauri dev`
 
 **Benefits**:
@@ -187,11 +191,14 @@ export RUST_BACKTRACE=1            # Show panic backtraces
 pnpm run tauri dev
 ```
 
-**Note**: PYTHONPATH is automatically configured by the build system and doesn't need manual setting.
+**Note**: PYTHONPATH is automatically configured by the build system and doesn't need
+manual setting.
 
 ## Troubleshooting
 
-For detailed troubleshooting commands, see [Troubleshooting Commands](development-commands.md#troubleshooting-commands) and [Troubleshooting Guide](troubleshooting.md).
+For detailed troubleshooting commands, see
+[Troubleshooting Commands](development-commands.md#troubleshooting-commands) and
+[Troubleshooting Guide](troubleshooting.md).
 
 ### Common Issues
 
@@ -262,5 +269,6 @@ pnpm dev  # Test frontend only
 - **[Environment Setup](environment-setup.md)** - Development configuration
 - **[Development Commands](development-commands.md)** - All development commands
 - **[Package Management](package-management.md)** - Dependencies and tools
-- **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper function architecture details
+- **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper
+  function architecture details
 - **[Technology Primer](../technology-primer.md)** - Understanding the full stack

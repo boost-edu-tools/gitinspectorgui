@@ -4,9 +4,13 @@ GitInspectorGUI Python API specification for developers implementing analysis fu
 
 ## Overview
 
-This document specifies the Python functions you need to implement for GitInspectorGUI. The integration between JavaScript and Python is handled automatically - you just need to implement these Python functions according to the specifications below.
+This document specifies the Python functions you need to implement for GitInspectorGUI.
+The integration between JavaScript and Python is handled automatically - you just need
+to implement these Python functions according to the specifications below.
 
-> **Integration Details**: For technical information about how these functions are called from the frontend via PyO3 helper functions, see [PyO3 Integration Architecture](../architecture/pyo3-integration.md).
+> **Integration Details**: For technical information about how these functions are
+> called from the frontend via PyO3 helper functions, see
+> [PyO3 Integration Architecture](../architecture/pyo3-integration.md).
 
 ## Core Functions
 
@@ -192,8 +196,7 @@ Get current application settings as JSON string.
 
 Save application settings from JSON string.
 
-**Parameters:** JSON string containing settings
-**Returns:** JSON string with status
+**Parameters:** JSON string containing settings **Returns:** JSON string with status
 
 ```python
 def save_settings(settings_json: str) -> str:
@@ -212,8 +215,8 @@ def save_settings(settings_json: str) -> str:
 
 Get detailed blame data for repositories.
 
-**Parameters:** JSON string containing settings
-**Returns:** JSON string containing blame analysis
+**Parameters:** JSON string containing settings **Returns:** JSON string containing
+blame analysis
 
 ```python
 def get_blame_data(settings_json: str) -> str:
@@ -278,7 +281,9 @@ def execute_analysis(settings_json: str) -> str:
 
 ## PyO3 Function Registration
 
-**Why this matters:** Our PyO3 helper functions need to know exactly which Python functions are available. Functions must be registered properly for the Tauri commands to find them.
+**Why this matters:** Our PyO3 helper functions need to know exactly which Python
+functions are available. Functions must be registered properly for the Tauri commands to
+find them.
 
 **Required Structure:**
 
@@ -358,7 +363,8 @@ _tauri_plugin_functions = [
 
 - Entry point must be `src-tauri/src-python/main.py`
 - Function names must match exactly (case-sensitive)
-- All functions must accept/return JSON strings (except health_check and get_engine_info)
+- All functions must accept/return JSON strings (except health_check and
+  get_engine_info)
 - Functions must be listed in `_tauri_plugin_functions` list
 - Functions must handle JSON parsing/serialization internally
 
@@ -486,7 +492,9 @@ def memory_efficient_analysis(settings_json: str) -> str:
 
 ## Related Documentation
 
-- **[Technology Primer](../technology-primer.md)** - Understanding the plugin architecture
-- **[Development Workflow](../development/development-workflow.md)** - Development patterns
+- **[Technology Primer](../technology-primer.md)** - Understanding the plugin
+  architecture
+- **[Development Workflow](../development/development-workflow.md)** - Development
+  patterns
 - **[Error Handling](error-handling.md)** - Comprehensive error handling patterns
 - **[Examples](examples.md)** - Detailed implementation examples with plugin integration

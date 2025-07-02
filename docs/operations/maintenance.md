@@ -1,6 +1,7 @@
 # Maintenance Guide
 
-Essential maintenance procedures for GitInspectorGUI desktop application with embedded Python analysis engine.
+Essential maintenance procedures for GitInspectorGUI desktop application with embedded
+Python analysis engine.
 
 ## Updates
 

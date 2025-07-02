@@ -131,8 +131,8 @@ RUST_LOG=pyo3=debug pnpm run tauri dev
 
 # Verify Python environment
 
-python -c "import sys; print(sys.executable)"
-python -c "import sysconfig; print(sysconfig.get_path('include'))"
+python -c "import sys; print(sys.executable)" python -c "import sysconfig;
+print(sysconfig.get_path('include'))"
 
 ````
 
@@ -468,18 +468,14 @@ cd src-tauri && cargo --version
 1. [Exact commands and actions]
 2. [Include any specific repository or settings used]
 
-**Expected Behavior:**
-[What should happen]
+**Expected Behavior:** [What should happen]
 
-**Actual Behavior:**
-[What actually happens]
+**Actual Behavior:** [What actually happens]
 
 **Error Messages:**
 ```
 
-[Terminal output]
-[Developer console output]
-[Any error dialogs]
+[Terminal output] [Developer console output] [Any error dialogs]
 
 ```
 
@@ -544,4 +540,5 @@ cd src-tauri && cargo --version
 - **[Environment Setup](environment-setup.md)** - Development setup
 - **[Development Workflow](development-workflow.md)** - Development patterns
 - **[Development Commands](development-commands.md)** - Command reference
-- **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper function architecture details
+- **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper
+  function architecture details

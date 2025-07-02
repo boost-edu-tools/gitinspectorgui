@@ -1,6 +1,8 @@
 # Build Process
 
-This document provides a comprehensive overview of the GitInspectorGUI build process, explaining how the React frontend and embedded Python backend are integrated via PyO3 to create cross-platform desktop applications.
+This document provides a comprehensive overview of the GitInspectorGUI build process,
+explaining how the React frontend and embedded Python backend are integrated via PyO3 to
+create cross-platform desktop applications.
 
 ## Table of Contents
 
@@ -19,7 +21,8 @@ This document provides a comprehensive overview of the GitInspectorGUI build pro
 
 ## Architecture Overview
 
-GitInspectorGUI is a **Tauri-based desktop application** with PyO3 embedded Python that combines three main components:
+GitInspectorGUI is a **Tauri-based desktop application** with PyO3 embedded Python that
+combines three main components:
 
 - **React + TypeScript frontend** (UI layer)
 - **Rust Tauri wrapper** (native desktop shell with PyO3 integration)
@@ -88,7 +91,8 @@ sequenceDiagram
 
 1. **Frontend to Tauri**: Uses Tauri's `invoke()` function for type-safe communication
 2. **Tauri to PyO3 Helpers**: Simplified helper function calls
-3. **PyO3 Helpers to Python**: Direct Python function invocation via embedded interpreter
+3. **PyO3 Helpers to Python**: Direct Python function invocation via embedded
+   interpreter
 4. **Error Handling**: Automatic error conversion through helper functions
 
 ## Build Process Steps
@@ -166,7 +170,8 @@ tauri-build = { version = "2.0" }
 
 **Critical Integration Points:**
 
-1. **Frontend Integration**: `frontendDist: "../dist"` - Tauri embeds the built React app
+1. **Frontend Integration**: `frontendDist: "../dist"` - Tauri embeds the built React
+   app
 2. **Python Integration**: PyO3 helper functions provide simplified Python integration
 3. **Python Code Bundling**: Python source bundled as Tauri resources
 4. **Build Hooks**: `beforeBuildCommand` ensures frontend is built before packaging
@@ -190,7 +195,8 @@ pnpm tauri build
 
 ### Build Script Usage
 
-The main build script (`scripts/build-gui-all-platforms.sh`) handles cross-platform compilation:
+The main build script (`scripts/build-gui-all-platforms.sh`) handles cross-platform
+compilation:
 
 ```bash
 # Current platform only
@@ -311,7 +317,8 @@ GitInspectorGUI/
 
 #### PyO3 Helper Function Integration
 
-- **Embedded Python**: Python interpreter embedded directly in Rust binary via PyO3 helpers
+- **Embedded Python**: Python interpreter embedded directly in Rust binary via PyO3
+  helpers
 - **Direct Function Calls**: No IPC overhead, simplified function calls through helpers
 - **Python Code Access**: Python source bundled as Tauri resources
 - **GIL Management**: Automatic Global Interpreter Lock handling via helper functions
@@ -530,30 +537,37 @@ The build process is automated through GitHub Actions:
 - **PyO3 Helper Testing**: Automated testing of simplified Python integration
 - **Release**: Automatic release creation and artifact upload
 
-See the [Operations documentation](../operations/deployment.md) for detailed CI/CD configuration.
+See the [Operations documentation](../operations/deployment.md) for detailed CI/CD
+configuration.
 
 ## Next Steps
 
 After successful build:
 
 1. **Test the Applications**: Use `./scripts/test-release.sh`
-2. **Test PyO3 Helper Integration**: Verify Python functions work correctly through helpers
+2. **Test PyO3 Helper Integration**: Verify Python functions work correctly through
+   helpers
 3. **Create Release Tag**: `git tag vX.Y.Z && git push origin vX.Y.Z`
 4. **Upload to Releases**: `glab release create vX.Y.Z dist/releases/*`
 5. **Update Auto-updater**: Configure update endpoints
 6. **Publish Python CLI**: `cd python && uv publish`
 
-For version management, use `./scripts/prepare-release.sh X.Y.Z` to prepare version updates across all components.
+For version management, use `./scripts/prepare-release.sh X.Y.Z` to prepare version
+updates across all components.
 
 ## PyO3 Helper Function Build Architecture Summary
 
 The PyO3 helper function build architecture provides:
 
 - **Single Process**: All components embedded in one Tauri application
-- **Simplified Integration**: Python functions called through clean helper function abstractions
+- **Simplified Integration**: Python functions called through clean helper function
+  abstractions
 - **Simplified Deployment**: No separate server processes to manage
 - **Better Performance**: Zero IPC overhead with simplified function calls
-- **Type Safety**: Helper functions provide safe Python-Rust integration with automatic error handling
+- **Type Safety**: Helper functions provide safe Python-Rust integration with automatic
+  error handling
 - **Cross-Platform**: Consistent architecture across all platforms
 
-This architecture eliminates the complexity of both multi-process coordination and PyO3 boilerplate while maintaining all the functionality of the original system through clean, simplified abstractions.
+This architecture eliminates the complexity of both multi-process coordination and PyO3
+boilerplate while maintaining all the functionality of the original system through
+clean, simplified abstractions.

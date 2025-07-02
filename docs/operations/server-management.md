@@ -1,6 +1,7 @@
 # Application Management
 
-GitInspectorGUI uses a single-process PyO3 architecture with embedded Python. This guide covers application lifecycle management and troubleshooting.
+GitInspectorGUI uses a single-process PyO3 architecture with embedded Python. This guide
+covers application lifecycle management and troubleshooting.
 
 ## Development vs Production
 
@@ -309,4 +310,6 @@ pnpm run tauri dev
 3. **Verify dependencies** - Ensure all required packages are installed
 4. **Clean rebuild** - Many issues resolve with a clean build
 
-This single-process architecture eliminates the complexity of managing multiple servers while providing robust desktop application functionality with embedded Python analysis capabilities.
+This single-process architecture eliminates the complexity of managing multiple servers
+while providing robust desktop application functionality with embedded Python analysis
+capabilities.
