@@ -136,5 +136,5 @@ graph LR
 ## Related Documentation
 
 -   **[Development Environment](../development/environment-setup.md)** - Setup instructions
--   **[Package Management](../development/package-management-overview.md)** - Frontend dependencies
+-   **[Package Management](../development/package-management.md)** - Dependencies and tools
 -   **[PyO3 Integration Architecture](pyo3-integration.md)** - Direct PyO3 integration details

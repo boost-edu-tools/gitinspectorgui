@@ -338,6 +338,6 @@ pnpm run tauri build
 ## Related Documentation
 
 -   **[Development Workflow](development-workflow.md)** - Development patterns and best practices
--   **[Package Management](package-management-overview.md)** - Dependencies and tools
+-   **[Package Management](package-management.md)** - Dependencies and tools
 -   **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
 -   **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper function architecture details

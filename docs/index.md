@@ -20,7 +20,7 @@ Development environment and tooling documentation for GitInspectorGUI contributo
 ### Development
 
 -   **[Development Workflow](development/development-workflow.md)** - Core development patterns
--   **[Package Management](development/package-management-overview.md)** - Dependencies and tools
+-   **[Package Management](development/package-management.md)** - Dependencies and tools
 -   **[Build Process](development/build-process.md)** - Creating releases
 -   **[Publishing Guide](development/publishing.md)** - Package publishing to PyPI
 -   **[Environment Setup](development/environment-setup.md)** - Development configuration

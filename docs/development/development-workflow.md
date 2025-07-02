@@ -264,6 +264,6 @@ pnpm dev  # Test frontend only
 
 -   **[Environment Setup](environment-setup.md)** - Development configuration
 -   **[Development Commands](development-commands.md)** - All development commands
--   **[Package Management](package-management-overview.md)** - Dependencies and tools
+-   **[Package Management](package-management.md)** - Dependencies and tools
 -   **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper function architecture details
 -   **[Technology Primer](../technology-primer.md)** - Understanding the full stack

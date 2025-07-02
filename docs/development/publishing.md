@@ -113,4 +113,4 @@ pip install --dry-run --index-url https://test.pypi.org/simple/ \
 
 - **[Build Process](build-process.md)** - Complete build documentation
 - **[Development Workflow](development-workflow.md)** - General development patterns
-- **[Package Management](package-management-overview.md)** - Dependency management
+- **[Package Management](package-management.md)** - Dependency management

@@ -1,62 +1,15 @@
-# Package Management Overview
+# Package Management Fundamentals
 
-This guide provides an overview of package management in GitInspectorGUI and explains the approach to managing dependencies across the project.
+Exploring why Python and JavaScript package management work so differently,
+covering ecosystem differences, design philosophy, and historical background.
 
-## Related Guides
+## Fundamental Ecosystem Differences
 
--   [Python Package Management](python-package-management.md) - Detailed guide for Python dependencies with uv
--   [JavaScript Package Management](javascript-package-management.md) - Detailed guide for JavaScript/TypeScript dependencies with pnpm
-
-## Overview
-
-GitInspectorGUI uses separate package managers for its backend and frontend components:
-
--   **Python backend:** Uses `uv` for fast Python package management and virtual environments
--   **JavaScript/TypeScript frontend:** Uses `pnpm` for efficient Node.js package management
-
-These package managers were chosen for their performance and developer experience improvements over traditional alternatives:
-
--   **uv (Python):** Focuses on speed and reproducibility while improving Python's virtual environment experience
--   **pnpm (JavaScript):** Emphasizes disk space efficiency and automatic dependency isolation
-
-## Quick Setup
-
-```bash
-# Complete development setup
-uv sync && pnpm install && pnpm run tauri dev
-```
-
-## Package Managers Used
-
-### uv (Python Package Manager)
-
-**What it is:** A fast Python package installer and resolver that replaces pip and virtualenv.
-
-**Why we use it:**
-- 10-100x faster than pip
-- Integrated virtual environment management
-- Better dependency resolution
-- Modern pyproject.toml support
-- Replaces several additional tools for pip
-
-### pnpm (JavaScript Package Manager)
-
-**What it is:** A fast, disk-efficient package manager for Node.js projects.
-
-**Why we use it:**
-- 2x faster than npm
-- Shared dependency storage saves disk space
-- Stricter security through better dependency resolution
-
-Now that you understand the tools we use, let's explore why package management works so differently between these ecosystems.
-
-## Fundamental Differences: Python vs JavaScript Development
-
-> **Note:** Understanding these core differences is essential for comprehending why package management works so differently between Python and JavaScript.
+Understanding these core differences is essential for comprehending why package management works so differently between Python and JavaScript.
 
 ### Environment Management Philosophy
 
-**Traditional Python: Manual Virtual Environment Management**
+#### Traditional Python: Manual Virtual Environment Management
 
 Traditional Python development requires explicit environment management:
 
@@ -75,7 +28,7 @@ source .venv/bin/activate    # Manual step required again
 python crawl.py              # Now uses web-scraper's dependencies
 ```
 
-**Python with uv run: Automatic Execution**
+#### Python with uv run: Automatic Execution
 
 The `uv` tool eliminates the manual activation step with `uv run`:
 
@@ -88,7 +41,7 @@ cd ../web-scraper
 uv run python crawl.py      # Automatically uses web-scraper's environment
 ```
 
-**JavaScript/Node.js: Automatic Project-Level Dependencies**
+#### JavaScript/Node.js: Automatic Project-Level Dependencies
 
 JavaScript achieved seamless dependency isolation through its design philosophy:
 
@@ -110,7 +63,7 @@ npm test              # Automatically uses api-service's dependencies
 
 ### Editable Installs: Development Workflow Differences
 
-**Traditional Python: Editable Installs Required**
+#### Traditional Python: Editable Installs Required
 
 In traditional Python development, when developing a package, you need to **install your own project** so that:
 
@@ -136,7 +89,7 @@ pip install -r requirements.txt -r requirements-dev.txt -e .
 
 **Modern Python with uv run:** `uv run` can execute commands even without explicit project installation, automatically handling the environment context.
 
-**JavaScript: No Editable Installs Needed**
+#### JavaScript: No Editable Installs Needed
 
 JavaScript/TypeScript projects work differently:
 
@@ -156,81 +109,51 @@ npm run dev  # Runs directly from source files
 
 !!! info "Historical and Technical Background"
 
-    #### Historical Evolution
+    ### Historical Evolution
 
-    -   **JavaScript (2009):** Built with npm from the start, designed for per-project dependency trees
     -   **Python (1991):** Predates modern package management; virtual environments were retrofitted later
+    -   **JavaScript (2009):** Built with npm from the start, designed for per-project dependency trees
 
-    #### Design Philosophy
+    ### Design Philosophy
 
-    -   **JavaScript:** "Move fast" culture accepts dependency duplication for convenience
     -   **Python:** "Explicit is better than implicit" philosophy requires manual environment management
+    -   **JavaScript:** "Move fast" culture accepts dependency duplication for convenience
 
-    #### Technical Constraints
+    ### Technical Constraints
 
-    -   **JavaScript packages:** Mostly pure JavaScript, easily portable and duplicatable
     -   **Python packages:** Often include compiled extensions tied to specific Python versions and system architectures
+    -   **JavaScript packages:** Mostly pure JavaScript, easily portable and duplicatable
 
-    #### Practical Impact
-
-    **JavaScript developers** can seamlessly work across multiple projects without thinking about dependency management.
-
-    **Python developers** must manually manage environments for each project, requiring:
-
-    -   Creating virtual environments (`uv venv`)
-    -   Activating environments (`source .venv/bin/activate`)
-    -   Remembering to switch environments when changing projects
-    -   Deactivating when done (`deactivate`)
 
     The JavaScript ecosystem prioritized convenience and rapid development, accepting the overhead of duplicated dependencies across projects in exchange for zero-friction isolation. This fundamental difference explains why `uv sync` includes project installation while `pnpm install` does not - they're solving different problems due to how Python and JavaScript development fundamentally works.
 
-**Key Takeaway:** The JavaScript ecosystem prioritized convenience and rapid development. It accepts duplicated dependencies across projects in exchange for zero-friction isolation.
 
-This fundamental difference explains why:
+## Advanced Package Manager Features
 
-- `uv sync` includes project installation (Python needs explicit setup)
-- `pnpm install` does not (JavaScript works from source files)
+### uv Advanced Features
 
-They're solving different problems due to how each language fundamentally works.
+uv replaces multiple Python tools and files:
 
-## Package Manager Comparison
+-   pip (package installation)
+-   pip-tools (dependency resolution)
+-   virtualenv/venv (environment management)
+-   build/setuptools (package building)
+-   twine (package publishing)
+-   setup.py/setup.cfg (package configuration)
+-   requirements.txt files (dependency specification)
 
-Now that you understand the fundamental differences, here's how the package managers compare across key features:
+All consolidated into a single tool with pyproject.toml as the central configuration file.
 
-### Speed and Efficiency
+### pnpm Advanced Features
 
-| Feature | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
-|---------|-------------|--------------|-------------------|------------------|
-| **Speed** | 10-100x faster | Baseline | 2x faster | Baseline |
-| **Disk Efficiency** | Standard | Standard | Shared storage | Duplicated dependencies |
-| **Dependency Resolution** | Advanced conflict prevention | Basic | Strict (prevents phantom deps) | Permissive |
+pnpm uses a content-addressable store:
 
-### Configuration and Management
+- Dependencies are stored once globally
+- Projects use hard links to the global store
+- Saves significant disk space across projects
+- Faster installs due to deduplication
 
-| Feature | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
-|---------|-------------|--------------|-------------------|------------------|
-| **Lock Files** | Auto-generated | Manual (requirements.txt + requirements-dev.txt) | Automatic (pnpm-lock.yaml) | Automatic (package-lock.json) |
-| **Virtual Environments** | Integrated (`uv venv`) | Separate tool required | Not needed | Not needed |
-| **Configuration** | pyproject.toml | requirements.txt + requirements-dev.txt | package.json | package.json |
-
-### Common Commands
-
-| Task | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
-|------|-------------|--------------|-------------------|------------------|
-| **Install All Dependencies** | `uv sync` | `pip install -r requirements.txt -r requirements-dev.txt -e .` | `pnpm install` | `npm install` |
-| **Add New Package** | `uv add package` | `pip install package` | `pnpm add package` | `npm install package` |
-| **Remove Package** | `uv remove package` | `pip uninstall package` | `pnpm remove package` | `npm uninstall package` |
-| **Add Dev Dependencies** | `uv add --group dev package` | Separate requirements-dev.txt | `pnpm add -D package` | `npm install --save-dev package` |
-| **Update All** | `uv sync --upgrade` | `pip install --upgrade -r requirements.txt` | `pnpm update` | `npm update` |
-
-### Environment and Execution
-
-| Feature | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
-|---------|-------------|--------------|-------------------|------------------|
-| **Environment Activation** | Manual (`source .venv/bin/activate`) | Manual (`source .venv/bin/activate`) | Automatic (project-based) | Automatic (project-based) |
-| **Run Commands in Environment** | `uv run <command>` | Manual activation required | N/A (automatic) | N/A (automatic) |
-| **Script Runner** | N/A (use shell scripts) | N/A (use shell scripts) | `pnpm run <script>` | `npm run <script>` |
-| **Execute Project Tools** | Direct execution | Direct execution | `pnpm exec <tool>` | `npx <tool>` |
+pnpm prevents "phantom dependencies" - packages that are used but not explicitly declared.
 
 ## Command Differences by File Type
 
@@ -334,6 +257,53 @@ make install                 # Same for both
 - Shortest tool execution when environment pre-activated (`ruff check src/`)
 - Flexibility to choose between automatic (`uv run`) and manual activation
 
+## Comprehensive Comparison
+
+### Speed and Efficiency
+
+| Feature | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
+|---------|-------------|--------------|-------------------|------------------|
+| **Speed** | 10-100x faster | Baseline | 2x faster | Baseline |
+| **Disk Efficiency** | Standard | Standard | Shared storage | Duplicated dependencies |
+| **Dependency Resolution** | Advanced conflict prevention | Basic | Strict (prevents phantom deps) | Permissive |
+
+### Configuration and Management
+
+| Feature | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
+|---------|-------------|--------------|-------------------|------------------|
+| **Lock Files** | Auto-generated | Manual (requirements.txt + requirements-dev.txt) | Automatic (pnpm-lock.yaml) | Automatic (package-lock.json) |
+| **Virtual Environments** | Integrated (`uv venv`) | Separate tool required | Not needed | Not needed |
+| **Configuration** | pyproject.toml | requirements.txt + requirements-dev.txt | package.json | package.json |
+
+### Common Commands
+
+| Task | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
+|------|-------------|--------------|-------------------|------------------|
+| **Install All Dependencies** | `uv sync` | `pip install -r requirements.txt -r requirements-dev.txt -e .` | `pnpm install` | `npm install` |
+| **Add New Package** | `uv add package` | `pip install package` | `pnpm add package` | `npm install package` |
+| **Remove Package** | `uv remove package` | `pip uninstall package` | `pnpm remove package` | `npm uninstall package` |
+| **Add Dev Dependencies** | `uv add --group dev package` | Separate requirements-dev.txt | `pnpm add -D package` | `npm install --save-dev package` |
+| **Update All** | `uv sync --upgrade` | `pip install --upgrade -r requirements.txt` | `pnpm update` | `npm update` |
+
+### Environment and Execution
+
+| Feature | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
+|---------|-------------|--------------|-------------------|------------------|
+| **Environment Activation** | Manual (`source .venv/bin/activate`) | Manual (`source .venv/bin/activate`) | Automatic (project-based) | Automatic (project-based) |
+| **Run Commands in Environment** | `uv run <command>` | Manual activation required | N/A (automatic) | N/A (automatic) |
+| **Script Runner** | N/A (use shell scripts) | N/A (use shell scripts) | `pnpm run <script>` | `npm run <script>` |
+| **Execute Project Tools** | Direct execution | Direct execution | `pnpm exec <tool>` | `npx <tool>` |
+
+## Security Considerations
+
+```bash
+# Audit JavaScript dependencies
+pnpm audit
+
+# Fix automatically where possible
+pnpm audit fix
+```
+
 ## Glossary
 
 -   **Dependency resolution:** The process of determining which versions of packages to install that satisfy all requirements without conflicts.
@@ -341,10 +311,11 @@ make install                 # Same for both
 -   **Virtual environment:** An isolated Python environment with its own installed packages.
 -   **Phantom dependencies:** Dependencies that are used but not explicitly declared in package.json.
 -   **Editable install:** A Python package installation mode where changes to source code are immediately reflected without reinstalling.
+-   **Content-addressable storage:** A storage method where files are identified by their content hash, enabling deduplication.
 
 ## Related Documentation
 
+-   **[Package Management](package-management.md)** - Practical package management guide
 -   **[Development Workflow](development-workflow.md)** - Core development patterns
 -   **[Environment Setup](environment-setup.md)** - Development configuration
--   **[Development Commands](development-commands.md)** - Common commands reference
 -   **[Troubleshooting](troubleshooting.md)** - Common issues and solutions

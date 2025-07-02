@@ -80,9 +80,8 @@ nav:
           - Development Workflow: development/development-workflow.md
           - Commands Reference: development/development-commands.md
           - Package Management:
-                - Overview: development/package-management-overview.md
-                - Python Dependencies: development/python-package-management.md
-                - JavaScript Dependencies: development/javascript-package-management.md
+                - Guide: development/package-management.md
+                - Fundamentals: development/package-management-fundamentals.md
           - CLI Development Guide: development/cli-development-guide.md
           - Build Process: development/build-process.md
           - Publishing: development/publishing.md
