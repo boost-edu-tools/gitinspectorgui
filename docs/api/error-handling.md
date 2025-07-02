@@ -26,12 +26,12 @@ Our PyO3 helper functions automatically convert Python exceptions to JavaScript 
 ```typescript
 // Frontend side - PyO3 helper functions handle conversion automatically
 try {
-    const result = await invoke<AnalysisResult>("execute_analysis", { settings });
-    return result;
+  const result = await invoke<AnalysisResult>("execute_analysis", { settings });
+  return result;
 } catch (error) {
-    // Python exceptions are automatically converted to JavaScript errors
-    console.error("Analysis failed:", error.message);
-    throw error;
+  // Python exceptions are automatically converted to JavaScript errors
+  console.error("Analysis failed:", error.message);
+  throw error;
 }
 ```
 
@@ -227,44 +227,50 @@ def analyze_single_repository(repo_path: str, settings: dict) -> dict:
 import { invoke } from "@tauri-apps/api/core";
 
 export async function executeAnalysis(settings: Settings): Promise<AnalysisResult> {
-    try {
-        const result = await invoke<AnalysisResult>("execute_analysis", { settings });
-        return result;
-    } catch (error) {
-        // PyO3 helper functions automatically convert Python exceptions to JavaScript errors
-        if (error instanceof Error) {
-            // Handle specific error types based on message content
-            if (error.message.includes("Invalid or inaccessible repositories")) {
-                throw new Error("Repository validation failed. Please check your repository paths.");
-            }
-            if (error.message.includes("Invalid JSON settings")) {
-                throw new Error("Settings validation failed. Please check your configuration.");
-            }
-            if (error.message.includes("Git command not found")) {
-                throw new Error("Git is not installed or not in PATH. Please install Git and try again.");
-            }
-            if (error.message.includes("Permission denied")) {
-                throw new Error("Permission denied. Please check file permissions for the repository.");
-            }
-        }
-        throw new Error(`Analysis failed: ${error}`);
+  try {
+    const result = await invoke<AnalysisResult>("execute_analysis", { settings });
+    return result;
+  } catch (error) {
+    // PyO3 helper functions automatically convert Python exceptions to JavaScript errors
+    if (error instanceof Error) {
+      // Handle specific error types based on message content
+      if (error.message.includes("Invalid or inaccessible repositories")) {
+        throw new Error(
+          "Repository validation failed. Please check your repository paths.",
+        );
+      }
+      if (error.message.includes("Invalid JSON settings")) {
+        throw new Error("Settings validation failed. Please check your configuration.");
+      }
+      if (error.message.includes("Git command not found")) {
+        throw new Error(
+          "Git is not installed or not in PATH. Please install Git and try again.",
+        );
+      }
+      if (error.message.includes("Permission denied")) {
+        throw new Error(
+          "Permission denied. Please check file permissions for the repository.",
+        );
+      }
     }
+    throw new Error(`Analysis failed: ${error}`);
+  }
 }
 
 export async function healthCheck(): Promise<HealthStatus> {
-    try {
-        return await invoke<HealthStatus>("health_check");
-    } catch (error) {
-        throw new Error(`PyO3 backend is not available: ${error}`);
-    }
+  try {
+    return await invoke<HealthStatus>("health_check");
+  } catch (error) {
+    throw new Error(`PyO3 backend is not available: ${error}`);
+  }
 }
 
 export async function getSettings(): Promise<Settings> {
-    try {
-        return await invoke<Settings>("get_settings");
-    } catch (error) {
-        throw new Error(`Failed to load settings: ${error}`);
-    }
+  try {
+    return await invoke<Settings>("get_settings");
+  } catch (error) {
+    throw new Error(`Failed to load settings: ${error}`);
+  }
 }
 ```
 
@@ -272,43 +278,49 @@ export async function getSettings(): Promise<Settings> {
 
 ```typescript
 interface RetryOptions {
-    maxRetries: number;
-    delay: number;
-    backoffFactor: number;
+  maxRetries: number;
+  delay: number;
+  backoffFactor: number;
 }
 
 async function retryOperation<T>(
-    operation: () => Promise<T>,
-    options: RetryOptions = { maxRetries: 3, delay: 1000, backoffFactor: 2 }
+  operation: () => Promise<T>,
+  options: RetryOptions = { maxRetries: 3, delay: 1000, backoffFactor: 2 },
 ): Promise<T> {
-    let lastError: Error;
+  let lastError: Error;
 
-    for (let attempt = 0; attempt <= options.maxRetries; attempt++) {
-        try {
-            return await operation();
-        } catch (error) {
-            lastError = error as Error;
+  for (let attempt = 0; attempt <= options.maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error as Error;
 
-            if (attempt === options.maxRetries) {
-                break;
-            }
+      if (attempt === options.maxRetries) {
+        break;
+      }
 
-            // Wait before retry with exponential backoff
-            const waitTime = options.delay * Math.pow(options.backoffFactor, attempt);
-            console.warn(`Attempt ${attempt + 1} failed: ${error}. Retrying in ${waitTime}ms...`);
-            await new Promise(resolve => setTimeout(resolve, waitTime));
-        }
+      // Wait before retry with exponential backoff
+      const waitTime = options.delay * Math.pow(options.backoffFactor, attempt);
+      console.warn(
+        `Attempt ${attempt + 1} failed: ${error}. Retrying in ${waitTime}ms...`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
+  }
 
-    throw new Error(`Operation failed after ${options.maxRetries + 1} attempts: ${lastError.message}`);
+  throw new Error(
+    `Operation failed after ${options.maxRetries + 1} attempts: ${lastError.message}`,
+  );
 }
 
-export async function executeAnalysisWithRetry(settings: Settings): Promise<AnalysisResult> {
-    return retryOperation(() => executeAnalysis(settings), {
-        maxRetries: 2,
-        delay: 1000,
-        backoffFactor: 2
-    });
+export async function executeAnalysisWithRetry(
+  settings: Settings,
+): Promise<AnalysisResult> {
+  return retryOperation(() => executeAnalysis(settings), {
+    maxRetries: 2,
+    delay: 1000,
+    backoffFactor: 2,
+  });
 }
 ```
 
@@ -532,39 +544,43 @@ def test_analysis_errors():
 ### Frontend Error Testing
 
 ```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { executeAnalysis, healthCheck } from './api';
+import { describe, it, expect, vi } from "vitest";
+import { executeAnalysis, healthCheck } from "./api";
 
 // Mock Tauri invoke
-vi.mock('@tauri-apps/api/core', () => ({
-    invoke: vi.fn(),
+vi.mock("@tauri-apps/api/core", () => ({
+  invoke: vi.fn(),
 }));
 
-describe('PyO3 Error Handling', () => {
-    it('should handle validation errors', async () => {
-        const mockError = new Error('No repositories specified');
-        vi.mocked(invoke).mockRejectedValue(mockError);
+describe("PyO3 Error Handling", () => {
+  it("should handle validation errors", async () => {
+    const mockError = new Error("No repositories specified");
+    vi.mocked(invoke).mockRejectedValue(mockError);
 
-        const settings = { input_fstrs: [], n_files: 10 };
+    const settings = { input_fstrs: [], n_files: 10 };
 
-        await expect(executeAnalysis(settings)).rejects.toThrow('Repository validation failed');
-    });
+    await expect(executeAnalysis(settings)).rejects.toThrow(
+      "Repository validation failed",
+    );
+  });
 
-    it('should handle repository errors', async () => {
-        const mockError = new Error('Repository path does not exist');
-        vi.mocked(invoke).mockRejectedValue(mockError);
+  it("should handle repository errors", async () => {
+    const mockError = new Error("Repository path does not exist");
+    vi.mocked(invoke).mockRejectedValue(mockError);
 
-        const settings = { input_fstrs: ['/nonexistent'], n_files: 10 };
+    const settings = { input_fstrs: ["/nonexistent"], n_files: 10 };
 
-        await expect(executeAnalysis(settings)).rejects.toThrow('Repository validation failed');
-    });
+    await expect(executeAnalysis(settings)).rejects.toThrow(
+      "Repository validation failed",
+    );
+  });
 
-    it('should handle backend unavailable', async () => {
-        const mockError = new Error('PyO3 backend not available');
-        vi.mocked(invoke).mockRejectedValue(mockError);
+  it("should handle backend unavailable", async () => {
+    const mockError = new Error("PyO3 backend not available");
+    vi.mocked(invoke).mockRejectedValue(mockError);
 
-        await expect(healthCheck()).rejects.toThrow('PyO3 backend is not available');
-    });
+    await expect(healthCheck()).rejects.toThrow("PyO3 backend is not available");
+  });
 });
 ```
 

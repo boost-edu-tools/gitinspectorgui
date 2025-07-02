@@ -13,9 +13,9 @@ Understanding these core differences is essential for comprehending why package 
 
 Traditional Python development requires explicit environment management:
 
--   **Manual isolation:** Virtual environments must be created and activated manually
--   **Activation required:** Each project switch requires sourcing the virtual environment
--   **Explicit management:** Developers must remember to activate/deactivate environments
+- **Manual isolation:** Virtual environments must be created and activated manually
+- **Activation required:** Each project switch requires sourcing the virtual environment
+- **Explicit management:** Developers must remember to activate/deactivate environments
 
 ```bash
 # Example of traditional Python's manual environment management
@@ -45,10 +45,10 @@ uv run python crawl.py      # Automatically uses web-scraper's environment
 
 JavaScript achieved seamless dependency isolation through its design philosophy:
 
--   **Automatic isolation:** Each project gets its own `node_modules` directory
--   **Zero configuration:** Dependencies are isolated per project by default
--   **Seamless switching:** Simply `cd` into any project and run commands normally
--   **No activation required:** Package resolution happens automatically
+- **Automatic isolation:** Each project gets its own `node_modules` directory
+- **Zero configuration:** Dependencies are isolated per project by default
+- **Seamless switching:** Simply `cd` into any project and run commands normally
+- **No activation required:** Package resolution happens automatically
 
 ```bash
 # Example of JavaScript's automatic dependency isolation
@@ -127,20 +127,19 @@ npm run dev  # Runs directly from source files
 
     The JavaScript ecosystem prioritized convenience and rapid development, accepting the overhead of duplicated dependencies across projects in exchange for zero-friction isolation. This fundamental difference explains why `uv sync` includes project installation while `pnpm install` does not - they're solving different problems due to how Python and JavaScript development fundamentally works.
 
-
 ## Advanced Package Manager Features
 
 ### uv Advanced Features
 
 uv replaces multiple Python tools and files:
 
--   pip (package installation)
--   pip-tools (dependency resolution)
--   virtualenv/venv (environment management)
--   build/setuptools (package building)
--   twine (package publishing)
--   setup.py/setup.cfg (package configuration)
--   requirements.txt files (dependency specification)
+- pip (package installation)
+- pip-tools (dependency resolution)
+- virtualenv/venv (environment management)
+- build/setuptools (package building)
+- twine (package publishing)
+- setup.py/setup.cfg (package configuration)
+- requirements.txt files (dependency specification)
 
 All consolidated into a single tool with pyproject.toml as the central configuration file.
 
@@ -261,38 +260,38 @@ make install                 # Same for both
 
 ### Speed and Efficiency
 
-| Feature | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
-|---------|-------------|--------------|-------------------|------------------|
-| **Speed** | 10-100x faster | Baseline | 2x faster | Baseline |
-| **Disk Efficiency** | Standard | Standard | Shared storage | Duplicated dependencies |
-| **Dependency Resolution** | Advanced conflict prevention | Basic | Strict (prevents phantom deps) | Permissive |
+| Feature                   | uv (Python)                  | pip (Python) | pnpm (JavaScript)              | npm (JavaScript)        |
+| ------------------------- | ---------------------------- | ------------ | ------------------------------ | ----------------------- |
+| **Speed**                 | 10-100x faster               | Baseline     | 2x faster                      | Baseline                |
+| **Disk Efficiency**       | Standard                     | Standard     | Shared storage                 | Duplicated dependencies |
+| **Dependency Resolution** | Advanced conflict prevention | Basic        | Strict (prevents phantom deps) | Permissive              |
 
 ### Configuration and Management
 
-| Feature | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
-|---------|-------------|--------------|-------------------|------------------|
-| **Lock Files** | Auto-generated | Manual (requirements.txt + requirements-dev.txt) | Automatic (pnpm-lock.yaml) | Automatic (package-lock.json) |
-| **Virtual Environments** | Integrated (`uv venv`) | Separate tool required | Not needed | Not needed |
-| **Configuration** | pyproject.toml | requirements.txt + requirements-dev.txt | package.json | package.json |
+| Feature                  | uv (Python)            | pip (Python)                                     | pnpm (JavaScript)          | npm (JavaScript)              |
+| ------------------------ | ---------------------- | ------------------------------------------------ | -------------------------- | ----------------------------- |
+| **Lock Files**           | Auto-generated         | Manual (requirements.txt + requirements-dev.txt) | Automatic (pnpm-lock.yaml) | Automatic (package-lock.json) |
+| **Virtual Environments** | Integrated (`uv venv`) | Separate tool required                           | Not needed                 | Not needed                    |
+| **Configuration**        | pyproject.toml         | requirements.txt + requirements-dev.txt          | package.json               | package.json                  |
 
 ### Common Commands
 
-| Task | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
-|------|-------------|--------------|-------------------|------------------|
-| **Install All Dependencies** | `uv sync` | `pip install -r requirements.txt -r requirements-dev.txt -e .` | `pnpm install` | `npm install` |
-| **Add New Package** | `uv add package` | `pip install package` | `pnpm add package` | `npm install package` |
-| **Remove Package** | `uv remove package` | `pip uninstall package` | `pnpm remove package` | `npm uninstall package` |
-| **Add Dev Dependencies** | `uv add --group dev package` | Separate requirements-dev.txt | `pnpm add -D package` | `npm install --save-dev package` |
-| **Update All** | `uv sync --upgrade` | `pip install --upgrade -r requirements.txt` | `pnpm update` | `npm update` |
+| Task                         | uv (Python)                  | pip (Python)                                                   | pnpm (JavaScript)     | npm (JavaScript)                 |
+| ---------------------------- | ---------------------------- | -------------------------------------------------------------- | --------------------- | -------------------------------- |
+| **Install All Dependencies** | `uv sync`                    | `pip install -r requirements.txt -r requirements-dev.txt -e .` | `pnpm install`        | `npm install`                    |
+| **Add New Package**          | `uv add package`             | `pip install package`                                          | `pnpm add package`    | `npm install package`            |
+| **Remove Package**           | `uv remove package`          | `pip uninstall package`                                        | `pnpm remove package` | `npm uninstall package`          |
+| **Add Dev Dependencies**     | `uv add --group dev package` | Separate requirements-dev.txt                                  | `pnpm add -D package` | `npm install --save-dev package` |
+| **Update All**               | `uv sync --upgrade`          | `pip install --upgrade -r requirements.txt`                    | `pnpm update`         | `npm update`                     |
 
 ### Environment and Execution
 
-| Feature | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
-|---------|-------------|--------------|-------------------|------------------|
-| **Environment Activation** | Manual (`source .venv/bin/activate`) | Manual (`source .venv/bin/activate`) | Automatic (project-based) | Automatic (project-based) |
-| **Run Commands in Environment** | `uv run <command>` | Manual activation required | N/A (automatic) | N/A (automatic) |
-| **Script Runner** | N/A (use shell scripts) | N/A (use shell scripts) | `pnpm run <script>` | `npm run <script>` |
-| **Execute Project Tools** | Direct execution | Direct execution | `pnpm exec <tool>` | `npx <tool>` |
+| Feature                         | uv (Python)                          | pip (Python)                         | pnpm (JavaScript)         | npm (JavaScript)          |
+| ------------------------------- | ------------------------------------ | ------------------------------------ | ------------------------- | ------------------------- |
+| **Environment Activation**      | Manual (`source .venv/bin/activate`) | Manual (`source .venv/bin/activate`) | Automatic (project-based) | Automatic (project-based) |
+| **Run Commands in Environment** | `uv run <command>`                   | Manual activation required           | N/A (automatic)           | N/A (automatic)           |
+| **Script Runner**               | N/A (use shell scripts)              | N/A (use shell scripts)              | `pnpm run <script>`       | `npm run <script>`        |
+| **Execute Project Tools**       | Direct execution                     | Direct execution                     | `pnpm exec <tool>`        | `npx <tool>`              |
 
 ## Security Considerations
 
@@ -306,16 +305,16 @@ pnpm audit fix
 
 ## Glossary
 
--   **Dependency resolution:** The process of determining which versions of packages to install that satisfy all requirements without conflicts.
--   **Lock file:** A file that records the exact versions of all dependencies, ensuring reproducible builds.
--   **Virtual environment:** An isolated Python environment with its own installed packages.
--   **Phantom dependencies:** Dependencies that are used but not explicitly declared in package.json.
--   **Editable install:** A Python package installation mode where changes to source code are immediately reflected without reinstalling.
--   **Content-addressable storage:** A storage method where files are identified by their content hash, enabling deduplication.
+- **Dependency resolution:** The process of determining which versions of packages to install that satisfy all requirements without conflicts.
+- **Lock file:** A file that records the exact versions of all dependencies, ensuring reproducible builds.
+- **Virtual environment:** An isolated Python environment with its own installed packages.
+- **Phantom dependencies:** Dependencies that are used but not explicitly declared in package.json.
+- **Editable install:** A Python package installation mode where changes to source code are immediately reflected without reinstalling.
+- **Content-addressable storage:** A storage method where files are identified by their content hash, enabling deduplication.
 
 ## Related Documentation
 
--   **[Package Management](package-management.md)** - Practical package management guide
--   **[Development Workflow](development-workflow.md)** - Core development patterns
--   **[Environment Setup](environment-setup.md)** - Development configuration
--   **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
+- **[Package Management](package-management.md)** - Practical package management guide
+- **[Development Workflow](development-workflow.md)** - Core development patterns
+- **[Environment Setup](environment-setup.md)** - Development configuration
+- **[Troubleshooting](troubleshooting.md)** - Common issues and solutions

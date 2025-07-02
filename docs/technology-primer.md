@@ -53,10 +53,10 @@ graph TB
 
 **Why we use it**:
 
--   Smaller bundle size than Electron
--   Better performance and security
--   Native OS integration
--   Cross-platform (Windows, macOS, Linux)
+- Smaller bundle size than Electron
+- Better performance and security
+- Native OS integration
+- Cross-platform (Windows, macOS, Linux)
 
 **Think of it as**: Like Electron (packages web apps as desktop apps) but written in Rust instead of Node.js, resulting in smaller, faster applications.
 
@@ -70,10 +70,10 @@ graph TB
 
 **Why we use it**:
 
--   Component-based architecture (reusable UI pieces)
--   Large ecosystem and community
--   Efficient UI updates through virtual DOM
--   Well-suited for complex interactive interfaces
+- Component-based architecture (reusable UI pieces)
+- Large ecosystem and community
+- Efficient UI updates through virtual DOM
+- Well-suited for complex interactive interfaces
 
 **Think of it as**: A way to build UIs by combining small, reusable components (like functions that return HTML).
 
@@ -83,7 +83,7 @@ graph TB
 
 ```tsx
 function AnalysisButton({ onClick }: { onClick: () => void }) {
-    return <button onClick={onClick}>Run Analysis</button>;
+  return <button onClick={onClick}>Run Analysis</button>;
 }
 ```
 
@@ -93,10 +93,10 @@ function AnalysisButton({ onClick }: { onClick: () => void }) {
 
 **Why we use it**:
 
--   Catches errors at compile time
--   Better IDE support (autocomplete, refactoring)
--   Self-documenting code through types
--   Easier refactoring of large codebases
+- Catches errors at compile time
+- Better IDE support (autocomplete, refactoring)
+- Self-documenting code through types
+- Easier refactoring of large codebases
 
 **Think of it as**: JavaScript with Python-style type hints that are actually enforced.
 
@@ -104,15 +104,13 @@ function AnalysisButton({ onClick }: { onClick: () => void }) {
 
 ```typescript
 interface AnalysisSettings {
-    repositoryPath: string;
-    maxFiles: number;
-    extensions: string[];
+  repositoryPath: string;
+  maxFiles: number;
+  extensions: string[];
 }
 
-function analyzeRepository(
-    settings: AnalysisSettings
-): Promise<AnalysisResult> {
-    // Implementation
+function analyzeRepository(settings: AnalysisSettings): Promise<AnalysisResult> {
+  // Implementation
 }
 ```
 
@@ -124,10 +122,10 @@ function analyzeRepository(
 
 **Why we use it**:
 
--   Faster than npm
--   Uses hard links to save disk space
--   Better dependency resolution
--   Stricter dependency management
+- Faster than npm
+- Uses hard links to save disk space
+- Better dependency resolution
+- Stricter dependency management
 
 **Think of it as**: Like `pip` for Python, but for JavaScript packages. The `pnpm-lock.yaml` file is like `requirements.txt` but with exact version locking.
 
@@ -145,17 +143,17 @@ pnpm run script       # Run scripts defined in package.json
 
 **Why we use it**:
 
--   Very fast hot module replacement (instant updates during development)
--   Optimized production builds
--   Built-in TypeScript support
--   Modern ES modules support
+- Very fast hot module replacement (instant updates during development)
+- Optimized production builds
+- Built-in TypeScript support
+- Modern ES modules support
 
 **Think of it as**: Like a combination of a development web server and a build system that compiles your TypeScript/React code into optimized JavaScript.
 
 **What it does**:
 
--   Development: Serves your code with instant updates when you make changes
--   Production: Bundles and optimizes your code for deployment
+- Development: Serves your code with instant updates when you make changes
+- Production: Bundles and optimizes your code for deployment
 
 ### uv (Python Package Manager)
 
@@ -163,10 +161,10 @@ pnpm run script       # Run scripts defined in package.json
 
 **Why we use it**:
 
--   Much faster than pip
--   Better dependency resolution
--   Built-in virtual environment management
--   Compatible with pip and requirements.txt
+- Much faster than pip
+- Better dependency resolution
+- Built-in virtual environment management
+- Compatible with pip and requirements.txt
 
 **Think of it as**: A drop-in replacement for pip that's significantly faster.
 
@@ -184,10 +182,10 @@ uv run command        # Run command in the project environment
 
 **Why we use it**:
 
--   Required for Tauri framework
--   Memory safety without garbage collection
--   Excellent performance
--   Growing ecosystem for desktop applications
+- Required for Tauri framework
+- Memory safety without garbage collection
+- Excellent performance
+- Growing ecosystem for desktop applications
 
 **Your involvement**: You typically won't write Rust code directly. Tauri handles the Rust parts, and you focus on the Python backend and web frontend.
 
@@ -251,15 +249,15 @@ This command starts the development version of the desktop application with embe
 
 ### Making Changes
 
--   **Python changes**: Require application restart (embedded Python)
--   **Frontend changes**: UI updates instantly (thanks to Vite hot reloading)
--   **Rust changes**: Tauri rebuilds and restarts the desktop app
+- **Python changes**: Require application restart (embedded Python)
+- **Frontend changes**: UI updates instantly (thanks to Vite hot reloading)
+- **Rust changes**: Tauri rebuilds and restarts the desktop app
 
 ### Testing
 
--   **Python Analysis**: Test via the desktop application interface
--   **Frontend**: Use browser developer tools (available in Tauri)
--   **Integration**: Test the complete desktop application with embedded Python
+- **Python Analysis**: Test via the desktop application interface
+- **Frontend**: Use browser developer tools (available in Tauri)
+- **Integration**: Test the complete desktop application with embedded Python
 
 ## Next Steps
 

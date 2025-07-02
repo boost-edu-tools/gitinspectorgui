@@ -15,10 +15,10 @@ GitInspectorGUI uses a **single-process PyO3 architecture** that embeds Python d
 
 **Key Benefits**:
 
--   **Simplified Development**: Single command starts complete environment
--   **Fast Iteration**: Frontend hot reloading with embedded Python
--   **Direct Integration**: PyO3 helper functions provide simplified Python-Rust function calls
--   **Single Process**: No network overhead or server management
+- **Simplified Development**: Single command starts complete environment
+- **Fast Iteration**: Frontend hot reloading with embedded Python
+- **Direct Integration**: PyO3 helper functions provide simplified Python-Rust function calls
+- **Single Process**: No network overhead or server management
 
 For detailed commands, see **[Development Commands](development-commands.md)**.
 
@@ -37,9 +37,9 @@ For detailed commands, see **[Development Commands](development-commands.md)**.
 
 **Benefits**:
 
--   Tests complete integration
--   Verifies PyO3 bindings work correctly
--   Ensures UI properly displays Python analysis results
+- Tests complete integration
+- Verifies PyO3 bindings work correctly
+- Ensures UI properly displays Python analysis results
 
 ### 2. Python-Focused Development
 
@@ -54,9 +54,9 @@ For detailed commands, see **[Development Commands](development-commands.md)**.
 
 **Benefits**:
 
--   Faster iteration on Python logic
--   Independent testing of analysis algorithms
--   Clear separation of concerns
+- Faster iteration on Python logic
+- Independent testing of analysis algorithms
+- Clear separation of concerns
 
 ### 3. Frontend-Only Development
 
@@ -71,18 +71,18 @@ For detailed commands, see **[Development Commands](development-commands.md)**.
 
 **Benefits**:
 
--   Faster frontend iteration
--   UI development without Python dependencies
--   Component isolation testing
+- Faster frontend iteration
+- UI development without Python dependencies
+- Component isolation testing
 
 ## Hot Reloading and Development Feedback
 
 ### Python Changes
 
--   **Manual restart required** - Python is embedded via PyO3, so app must be restarted
--   **Fast restart** - Single process restart is quick (typically 2-3 seconds)
--   **No connection loss** - No separate server to reconnect to
--   **PyO3 helper recompilation** - Rust automatically recompiles PyO3 helper functions
+- **Manual restart required** - Python is embedded via PyO3, so app must be restarted
+- **Fast restart** - Single process restart is quick (typically 2-3 seconds)
+- **No connection loss** - No separate server to reconnect to
+- **PyO3 helper recompilation** - Rust automatically recompiles PyO3 helper functions
 
 **Workflow for Python changes**:
 
@@ -95,10 +95,10 @@ For detailed commands, see **[Development Commands](development-commands.md)**.
 
 ### Frontend Changes
 
--   **Hot Module Replacement** - Components update without page refresh
--   **State preservation** - React state maintained when possible
--   **Automatic refresh** - Full reload if HMR fails
--   **Instant feedback** - Changes appear within milliseconds
+- **Hot Module Replacement** - Components update without page refresh
+- **State preservation** - React state maintained when possible
+- **Automatic refresh** - Full reload if HMR fails
+- **Instant feedback** - Changes appear within milliseconds
 
 **Workflow for frontend changes**:
 
@@ -111,10 +111,10 @@ For detailed commands, see **[Development Commands](development-commands.md)**.
 
 ### Rust Changes
 
--   **Auto-recompile** - Cargo rebuilds on file changes
--   **Full restart** - Tauri app restarts completely
--   **PyO3 helper integration** - Python helper functions are recompiled automatically
--   **Type safety** - Compilation errors prevent runtime issues
+- **Auto-recompile** - Cargo rebuilds on file changes
+- **Full restart** - Tauri app restarts completely
+- **PyO3 helper integration** - Python helper functions are recompiled automatically
+- **Type safety** - Compilation errors prevent runtime issues
 
 **Workflow for Rust changes**:
 
@@ -124,7 +124,6 @@ For detailed commands, see **[Development Commands](development-commands.md)**.
 # 3. Desktop app restarts with new code
 # 4. Test PyO3 helper integration
 ```
-
 
 **Workflow**:
 
@@ -148,28 +147,28 @@ pnpm run tauri dev
 ```json
 // .vscode/launch.json
 {
-    "configurations": [
-        {
-            "name": "Debug Tauri with PyO3",
-            "type": "lldb",
-            "request": "launch",
-            "program": "${workspaceFolder}/src-tauri/target/debug/gitinspectorgui",
-            "args": [],
-            "cwd": "${workspaceFolder}",
-            "env": {
-                "RUST_LOG": "debug",
-                "RUST_BACKTRACE": "1"
-            }
-        },
-        {
-            "name": "Debug Python Tests",
-            "type": "python",
-            "request": "launch",
-            "module": "pytest",
-            "args": ["tests/", "-v"],
-            "cwd": "${workspaceFolder}/python"
-        }
-    ]
+  "configurations": [
+    {
+      "name": "Debug Tauri with PyO3",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/src-tauri/target/debug/gitinspectorgui",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "RUST_LOG": "debug",
+        "RUST_BACKTRACE": "1"
+      }
+    },
+    {
+      "name": "Debug Python Tests",
+      "type": "python",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests/", "-v"],
+      "cwd": "${workspaceFolder}/python"
+    }
+  ]
 }
 ```
 
@@ -189,7 +188,6 @@ pnpm run tauri dev
 ```
 
 **Note**: PYTHONPATH is automatically configured by the build system and doesn't need manual setting.
-
 
 ## Troubleshooting
 
@@ -236,34 +234,33 @@ pnpm dev  # Test frontend only
 ### Debugging Process
 
 1. **Isolate the problem**:
-
-    - Python function issue?
-    - PyO3 helper integration issue?
-    - Frontend display issue?
+   - Python function issue?
+   - PyO3 helper integration issue?
+   - Frontend display issue?
 
 2. **Test each layer independently**:
 
-    ```bash
-    cd python && python -m pytest  # Python layer
-    cd src-tauri && cargo test      # PyO3 helper layer
-    pnpm test                       # Frontend layer
-    ```
+   ```bash
+   cd python && python -m pytest  # Python layer
+   cd src-tauri && cargo test      # PyO3 helper layer
+   pnpm test                       # Frontend layer
+   ```
 
 3. **Test integration**:
 
-    ```bash
-    pnpm run tauri dev  # Complete system
-    ```
+   ```bash
+   pnpm run tauri dev  # Complete system
+   ```
 
 4. **Use appropriate debugging tools**:
-    - Python: print statements, pytest
-    - Rust: RUST_LOG=debug, cargo test
-    - Frontend: console.log, React DevTools
+   - Python: print statements, pytest
+   - Rust: RUST_LOG=debug, cargo test
+   - Frontend: console.log, React DevTools
 
 ## Related Documentation
 
--   **[Environment Setup](environment-setup.md)** - Development configuration
--   **[Development Commands](development-commands.md)** - All development commands
--   **[Package Management](package-management.md)** - Dependencies and tools
--   **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper function architecture details
--   **[Technology Primer](../technology-primer.md)** - Understanding the full stack
+- **[Environment Setup](environment-setup.md)** - Development configuration
+- **[Development Commands](development-commands.md)** - All development commands
+- **[Package Management](package-management.md)** - Dependencies and tools
+- **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper function architecture details
+- **[Technology Primer](../technology-primer.md)** - Understanding the full stack

@@ -3,7 +3,7 @@
 Development-focused guide for building and testing GitInspectorGUI's command-line interface.
 
 !!! info "Complete CLI Reference"
-    For complete CLI usage, options, and examples, see the **[User CLI Guide](../user-docs/cli.md)**.
+For complete CLI usage, options, and examples, see the **[User CLI Guide](../user-docs/cli.md)**.
 
 ## Overview
 
@@ -27,9 +27,9 @@ python -m gigui.cli /repo --output-format json
 
 ### Development vs Production CLI
 
--   **Development**: Uses `python -m gigui.cli` with current source code
--   **Production**: Uses standalone executables built from source
--   **Integration**: CLI shares the same analysis engine as the GUI via PyO3
+- **Development**: Uses `python -m gigui.cli` with current source code
+- **Production**: Uses standalone executables built from source
+- **Integration**: CLI shares the same analysis engine as the GUI via PyO3
 
 ## Building CLI from Source
 
@@ -49,6 +49,7 @@ python -m gigui.cli /repo --output-format json
 ### Build Output
 
 Built executables are available in:
+
 - `dist/cli-releases/` - Cross-platform builds
 - `python/dist/` - Current platform builds
 
@@ -97,12 +98,14 @@ python -m memory_profiler -m gigui.cli /repo
 ## CLI Development Workflow
 
 ### 1. Make Changes
+
 ```bash
 # Edit CLI code in python/gigui/cli/
 # Edit analysis code in python/gigui/analysis/
 ```
 
 ### 2. Test Changes
+
 ```bash
 # Quick test with development CLI
 python -m gigui.cli /test/repo
@@ -112,6 +115,7 @@ pnpm run tauri dev
 ```
 
 ### 3. Build and Test Executable
+
 ```bash
 # Build standalone executable
 ./python/tools/build-cli-app.sh
@@ -158,6 +162,6 @@ pnpm run tauri dev
 
 ## Related Documentation
 
--   **[User CLI Guide](../user-docs/cli.md)** - Complete CLI reference and usage
--   **[Development Workflow](../development/development-workflow.md)** - General development patterns
--   **[Build Process](../development/build-process.md)** - Complete build documentation
+- **[User CLI Guide](../user-docs/cli.md)** - Complete CLI reference and usage
+- **[Development Workflow](../development/development-workflow.md)** - General development patterns
+- **[Build Process](../development/build-process.md)** - Complete build documentation

@@ -8,8 +8,8 @@ Development methodology where components include built-in demo modes for both de
 
 Components are built with integrated demo capabilities that serve dual purposes:
 
--   **Development** - Realistic testing with mock data
--   **Documentation** - Interactive examples for users
+- **Development** - Realistic testing with mock data
+- **Documentation** - Interactive examples for users
 
 ## Implementation
 
@@ -37,18 +37,18 @@ export const AnalysisChart = ({
 
 ```typescript
 const generateDemoData = (scenario: string) => {
-    switch (scenario) {
-        case "basic":
-            return { commits: 150, authors: 5, files: 25 };
-        case "complex":
-            return { commits: 5000, authors: 50, files: 500 };
-        case "error":
-            return null; // Trigger error state
-        case "loading":
-            return undefined; // Trigger loading state
-        default:
-            return { commits: 100, authors: 3, files: 15 };
-    }
+  switch (scenario) {
+    case "basic":
+      return { commits: 150, authors: 5, files: 25 };
+    case "complex":
+      return { commits: 5000, authors: 50, files: 500 };
+    case "error":
+      return null; // Trigger error state
+    case "loading":
+      return undefined; // Trigger loading state
+    default:
+      return { commits: 100, authors: 3, files: 15 };
+  }
 };
 ```
 
@@ -82,17 +82,17 @@ src/
 
 ### Development
 
--   **Realistic testing** - Components tested with representative data
--   **Edge case coverage** - Multiple scenarios catch issues early
--   **Faster iteration** - Immediate visual feedback
--   **Consistent boundaries** - Clear component interfaces
+- **Realistic testing** - Components tested with representative data
+- **Edge case coverage** - Multiple scenarios catch issues early
+- **Faster iteration** - Immediate visual feedback
+- **Consistent boundaries** - Clear component interfaces
 
 ### Documentation
 
--   **Always current** - Examples stay synchronized with code
--   **Interactive** - Users can try features before installation
--   **Realistic scenarios** - Demo data represents actual usage
--   **Progressive complexity** - Basic to advanced examples
+- **Always current** - Examples stay synchronized with code
+- **Interactive** - Users can try features before installation
+- **Realistic scenarios** - Demo data represents actual usage
+- **Progressive complexity** - Basic to advanced examples
 
 ## Integration
 
@@ -132,19 +132,19 @@ describe("AnalysisChart", () => {
 
 ### Standard Scenarios
 
--   **basic** - Simple, typical usage
--   **complex** - Large dataset, stress testing
--   **error** - Error states and edge cases
--   **loading** - Loading and pending states
--   **empty** - No data scenarios
+- **basic** - Simple, typical usage
+- **complex** - Large dataset, stress testing
+- **error** - Error states and edge cases
+- **loading** - Loading and pending states
+- **empty** - No data scenarios
 
 ### Custom Scenarios
 
 ```typescript
 const customScenarios = {
-    "large-repo": { commits: 10000, authors: 100, files: 1000 },
-    "single-author": { commits: 50, authors: 1, files: 10 },
-    "many-files": { commits: 200, authors: 5, files: 500 },
+  "large-repo": { commits: 10000, authors: 100, files: 1000 },
+  "single-author": { commits: 50, authors: 1, files: 10 },
+  "many-files": { commits: 200, authors: 5, files: 500 },
 };
 ```
 
@@ -179,15 +179,15 @@ export const Component = ({ data, demoMode, demoScenario }: Props) => {
 
 ### Consistency
 
--   **Single source of truth** - Same demo data across development, testing, docs
--   **Automatic synchronization** - Documentation updates with code changes
--   **Comprehensive coverage** - All component states documented
+- **Single source of truth** - Same demo data across development, testing, docs
+- **Automatic synchronization** - Documentation updates with code changes
+- **Comprehensive coverage** - All component states documented
 
 ### Maintenance
 
--   **Reduced duplication** - No separate mock data for different purposes
--   **Feedback integration** - User interaction improves development quality
--   **Realistic testing** - Demo scenarios based on actual usage patterns
+- **Reduced duplication** - No separate mock data for different purposes
+- **Feedback integration** - User interaction improves development quality
+- **Realistic testing** - Demo scenarios based on actual usage patterns
 
 ## Summary
 

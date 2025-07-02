@@ -1,6 +1,7 @@
 # Package Management
 
-Complete guide to dependency management in GitInspectorGUI using modern package managers.
+Complete guide to dependency management in GitInspectorGUI using modern package
+managers.
 
 ## Quick Setup
 
@@ -13,19 +14,23 @@ uv sync && pnpm install && pnpm run tauri dev
 
 GitInspectorGUI uses separate package managers optimized for each ecosystem:
 
--   **Python backend:** `uv` - 10-100x faster than pip with integrated virtual environments
--   **JavaScript/TypeScript frontend:** `pnpm` - 2x faster than npm with shared dependency storage
+- **Python backend:** `uv` - 10-100x faster than pip with integrated virtual
+  environments
+- **JavaScript/TypeScript frontend:** `pnpm` - 2x faster than npm with shared
+  dependency storage
 
 ## Installation
 
 ### uv (Python)
 
 **macOS/Linux:**
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 **Windows:**
+
 ```powershell
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
@@ -36,7 +41,8 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 corepack enable
 ```
 
-**Note**: Modern Node.js includes Corepack, which creates the `pnpm` command when enabled.
+**Note**: Modern Node.js includes Corepack, which creates the `pnpm` command when
+enabled.
 
 ## Commands
 
@@ -70,7 +76,8 @@ corepack enable
 
 ### Python Environment Setup
 
-Before installing dependencies or working with the project, you need to create and activate a virtual environment:
+Before installing dependencies or working with the project, you need to create and
+activate a virtual environment:
 
 ```bash
 # Create a virtual environment in the .venv directory
@@ -91,7 +98,8 @@ Your terminal prompt should now show `(.venv)` indicating the environment is act
 
 ### Package Management
 
-Once your virtual environment is set up and activated, you can proceed with dependency management:
+Once your virtual environment is set up and activated, you can proceed with dependency
+management:
 
 ```bash
 # Install dependencies
@@ -123,7 +131,8 @@ pnpm run tauri dev
 # - PyO3 integration for Python function calls
 ```
 
-For more detailed development commands, see **[Development Commands](development-commands.md)**.
+For more detailed development commands, see
+**[Development Commands](development-commands.md)**.
 
 ## Key Differences
 
@@ -144,6 +153,7 @@ For more detailed development commands, see **[Development Commands](development
 ### Running Commands
 
 **Python Examples**:
+
 ```bash
 # With environment activated
 source .venv/bin/activate
@@ -156,6 +166,7 @@ uv run pytest
 ```
 
 **JavaScript Examples**:
+
 ```bash
 # Direct execution (automatic dependency resolution)
 node script.js
@@ -171,6 +182,7 @@ pnpm run build
 ### Python Configuration
 
 **`pyproject.toml`** - Main Python project configuration:
+
 ```toml
 [project]
 name = "gitinspectorgui"
@@ -191,6 +203,7 @@ dev-dependencies = [
 ### JavaScript Configuration
 
 **`package.json`** - Main Node.js project configuration:
+
 ```json
 {
   "name": "gitinspectorgui",
@@ -213,11 +226,11 @@ dev-dependencies = [
 
 ## Performance Comparison
 
-| Feature | uv (Python) | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
-|---------|-------------|--------------|-------------------|------------------|
-| **Speed** | 10-100x faster | Baseline | 2x faster | Baseline |
-| **Disk Usage** | Standard | Standard | Shared storage | Duplicated |
-| **Lock Files** | Auto-generated | Manual | Automatic | Automatic |
+| Feature        | uv (Python)    | pip (Python) | pnpm (JavaScript) | npm (JavaScript) |
+| -------------- | -------------- | ------------ | ----------------- | ---------------- |
+| **Speed**      | 10-100x faster | Baseline     | 2x faster         | Baseline         |
+| **Disk Usage** | Standard       | Standard     | Shared storage    | Duplicated       |
+| **Lock Files** | Auto-generated | Manual       | Automatic         | Automatic        |
 
 ## Troubleshooting
 
@@ -254,6 +267,7 @@ uv sync
 ### JavaScript Issues
 
 **Command not found:**
+
 ```bash
 # Enable pnpm
 corepack enable
@@ -263,6 +277,7 @@ npm install -g pnpm
 ```
 
 **Permission issues (macOS/Linux):**
+
 ```bash
 sudo chown -R $(whoami) ~/.local/share/pnpm
 ```
@@ -332,16 +347,20 @@ pnpm install
 
 **VS Code Python Setup:**
 
-When working with Python projects in VS Code, you need to select the correct Python interpreter:
+When working with Python projects in VS Code, you need to select the correct Python
+interpreter:
 
 1. `Ctrl+Shift+P` → "Python: Select Interpreter"
 2. Choose `.venv/bin/python` (or your project's virtual environment)
 
 VS Code handles Python environments differently from terminal-based workflows:
 
--   **Auto-detection**: VS Code often automatically detects virtual environments in common locations (like `.venv/` folders)
--   **Workspace memory**: Once selected, VS Code remembers the interpreter in workspace settings
--   **Terminal integration**: When you open an integrated terminal after selecting a venv interpreter, VS Code usually auto-activates that environment
+- **Auto-detection**: VS Code often automatically detects virtual environments in
+  common locations (like `.venv/` folders)
+- **Workspace memory**: Once selected, VS Code remembers the interpreter in workspace
+  settings
+- **Terminal integration**: When you open an integrated terminal after selecting a
+  venv interpreter, VS Code usually auto-activates that environment
 
 **Best practice workflow:**
 
@@ -350,19 +369,22 @@ VS Code handles Python environments differently from terminal-based workflows:
 3. Choose your project's virtual environment
 4. VS Code will remember this choice and auto-activate the venv in new terminals
 
-You can also create a `.vscode/settings.json` file in your project root for team consistency:
+You can also create a `.vscode/settings.json` file in your project root for team
+consistency:
 
 ```json
 {
-    "python.pythonPath": ".venv/bin/python"
+  "python.pythonPath": ".venv/bin/python"
 }
 ```
 
-This ensures the correct interpreter is automatically selected when anyone opens the project.
+This ensures the correct interpreter is automatically selected when anyone opens the
+project.
 
 ## Related Documentation
 
--   **[Package Management Fundamentals](package-management-fundamentals.md)** - Design philosophy, ecosystem differences, and historical background
--   **[Development Workflow](development-workflow.md)** - Core development patterns
--   **[Environment Setup](environment-setup.md)** - Development configuration
--   **[Development Commands](development-commands.md)** - Common commands reference
+- **[Package Management Fundamentals](package-management-fundamentals.md)** - Design
+  philosophy, ecosystem differences, and historical background
+- **[Development Workflow](development-workflow.md)** - Core development patterns
+- **[Environment Setup](environment-setup.md)** - Development configuration
+- **[Development Commands](development-commands.md)** - Common commands reference

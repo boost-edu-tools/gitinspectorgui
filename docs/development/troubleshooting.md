@@ -120,16 +120,21 @@ RUST_LOG=pyo3=debug pnpm run tauri dev
 python -c "import sys; print(sys.executable)"
 python -c "import sysconfig; print(sysconfig.get_path('include'))"
 ```
+
 # Check PyO3 helper functions
+
 cd src-tauri && cargo test
 
 # Enable PyO3 debug logging
+
 RUST_LOG=pyo3=debug pnpm run tauri dev
 
 # Verify Python environment
+
 python -c "import sys; print(sys.executable)"
 python -c "import sysconfig; print(sysconfig.get_path('include'))"
-```
+
+````
 
 ### Frontend Issues
 
@@ -150,7 +155,7 @@ pnpm type-check
 
 # Check browser console
 # Right-click in app → "Inspect" → "Console" tab
-```
+````
 
 ## Development Issues
 
@@ -279,22 +284,20 @@ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
 **The desktop app shows errors in multiple places:**
 
 1. **Application Error Area** (within the app interface)
-
-    - The app automatically detects and displays most errors here
-    - Look for red error messages in the main interface
-    - Shows user-friendly messages like "Repository path does not exist"
+   - The app automatically detects and displays most errors here
+   - Look for red error messages in the main interface
+   - Shows user-friendly messages like "Repository path does not exist"
 
 2. **Developer Console** (for technical details)
-
-    - Right-click anywhere in the desktop app window
-    - Select "Inspect" from the context menu
-    - Click the "Console" tab in the developer tools panel
-    - Look for detailed error messages and technical information
+   - Right-click anywhere in the desktop app window
+   - Select "Inspect" from the context menu
+   - Click the "Console" tab in the developer tools panel
+   - Look for detailed error messages and technical information
 
 3. **Terminal Output** (for PyO3 and Rust errors)
-    - Check the terminal where you ran `pnpm run tauri dev`
-    - PyO3 errors and Rust compilation issues appear here
-    - Python exceptions are also logged here
+   - Check the terminal where you ran `pnpm run tauri dev`
+   - PyO3 errors and Rust compilation issues appear here
+   - Python exceptions are also logged here
 
 **Troubleshooting Flow:**
 
@@ -454,11 +457,11 @@ cd src-tauri && cargo --version
 ```markdown
 **Environment:**
 
--   OS: [macOS/Windows/Linux version]
--   Python: [version]
--   Node.js: [version]
--   Rust: [version]
--   PyO3: [version if known]
+- OS: [macOS/Windows/Linux version]
+- Python: [version]
+- Node.js: [version]
+- Rust: [version]
+- PyO3: [version if known]
 
 **Steps to Reproduce:**
 
@@ -490,56 +493,55 @@ cd src-tauri && cargo --version
 
 1. **Keep dependencies updated**:
 
-    ```bash
-    rustup update
-    uv sync
-    pnpm update
-    ```
+   ```bash
+   rustup update
+   uv sync
+   pnpm update
+   ```
 
 2. **Clean build artifacts regularly**:
 
-    ```bash
-    pnpm clean
-    rm -rf src-tauri/target
-    rm -rf node_modules/.vite
-    ```
+   ```bash
+   pnpm clean
+   rm -rf src-tauri/target
+   rm -rf node_modules/.vite
+   ```
 
 3. **Monitor system resources**:
 
-    ```bash
-    top -p $(pgrep gitinspectorgui)
-    ```
+   ```bash
+   top -p $(pgrep gitinspectorgui)
+   ```
 
 4. **Regular health checks**:
-    ```bash
-    python -c "from gigui.analysis import execute_analysis; print('PyO3 Helper OK')"
-    pnpm run tauri dev  # Should start without errors
-    ```
+   ```bash
+   python -c "from gigui.analysis import execute_analysis; print('PyO3 Helper OK')"
+   pnpm run tauri dev  # Should start without errors
+   ```
 
 ### Debugging Workflow
 
 1. **Isolate the problem**:
-
-    - Python function issue?
-    - PyO3 integration issue?
-    - Frontend display issue?
+   - Python function issue?
+   - PyO3 integration issue?
+   - Frontend display issue?
 
 2. **Test each layer independently**:
 
-    ```bash
-    cd python && python -m pytest  # Python layer
-    cd src-tauri && cargo test      # PyO3 helper layer
-    pnpm test                       # Frontend layer
-    ```
+   ```bash
+   cd python && python -m pytest  # Python layer
+   cd src-tauri && cargo test      # PyO3 helper layer
+   pnpm test                       # Frontend layer
+   ```
 
 3. **Use appropriate debugging tools**:
-    - Python: print statements, pytest, logging
-    - Rust: RUST_LOG=debug, cargo test
-    - Frontend: console.log, React DevTools
+   - Python: print statements, pytest, logging
+   - Rust: RUST_LOG=debug, cargo test
+   - Frontend: console.log, React DevTools
 
 ## Related Documentation
 
--   **[Environment Setup](environment-setup.md)** - Development setup
--   **[Development Workflow](development-workflow.md)** - Development patterns
--   **[Development Commands](development-commands.md)** - Command reference
--   **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper function architecture details
+- **[Environment Setup](environment-setup.md)** - Development setup
+- **[Development Workflow](development-workflow.md)** - Development patterns
+- **[Development Commands](development-commands.md)** - Command reference
+- **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper function architecture details

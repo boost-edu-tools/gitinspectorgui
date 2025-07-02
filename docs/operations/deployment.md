@@ -48,13 +48,13 @@ gh release create v1.2.0 \
 
 ### Prerequisites
 
--   **Python** 3.13+ with uv for package management
--   **Node.js** 22+ with pnpm
--   **Rust** 1.85+ with Cargo
--   **Platform-specific tools**:
-    -   Windows: Visual Studio Build Tools
-    -   macOS: Xcode Command Line Tools
-    -   Linux: Standard build tools (gcc, pkg-config)
+- **Python** 3.13+ with uv for package management
+- **Node.js** 22+ with pnpm
+- **Rust** 1.85+ with Cargo
+- **Platform-specific tools**:
+  - Windows: Visual Studio Build Tools
+  - macOS: Xcode Command Line Tools
+  - Linux: Standard build tools (gcc, pkg-config)
 
 ### Cross-Platform Build
 
@@ -76,9 +76,9 @@ ls dist/releases/
 
 **Platform Requirements:**
 
--   **Windows**: Requires Windows machine or Windows VM
--   **macOS**: Requires macOS machine (code signing requires Apple Developer account)
--   **Linux**: Can be built on any Linux distribution
+- **Windows**: Requires Windows machine or Windows VM
+- **macOS**: Requires macOS machine (code signing requires Apple Developer account)
+- **Linux**: Can be built on any Linux distribution
 
 ### Manual Build Commands
 
@@ -165,24 +165,24 @@ curl -X POST \
 
 #### Windows
 
--   **Microsoft Store**: Requires MSIX packaging
--   **Chocolatey**: Community package manager
--   **Winget**: Windows Package Manager
+- **Microsoft Store**: Requires MSIX packaging
+- **Chocolatey**: Community package manager
+- **Winget**: Windows Package Manager
 
 #### macOS
 
--   **Mac App Store**: Requires Apple Developer account
--   **Homebrew**: Community package manager
-    ```bash
-    # Example Homebrew formula
-    brew install --cask gitinspectorgui
-    ```
+- **Mac App Store**: Requires Apple Developer account
+- **Homebrew**: Community package manager
+  ```bash
+  # Example Homebrew formula
+  brew install --cask gitinspectorgui
+  ```
 
 #### Linux
 
--   **Snap Store**: Universal Linux packages
--   **Flathub**: Flatpak distribution
--   **Distribution repositories**: Debian, Ubuntu, Fedora, etc.
+- **Snap Store**: Universal Linux packages
+- **Flathub**: Flatpak distribution
+- **Distribution repositories**: Debian, Ubuntu, Fedora, etc.
 
 ### 4. Direct Download
 
@@ -190,7 +190,7 @@ Host installers on your own website with download links:
 
 ```html
 <a href="https://releases.example.com/gitinspectorgui-1.0.0-x64.msi">
-    Download for Windows
+  Download for Windows
 </a>
 ```
 
@@ -204,24 +204,24 @@ Host installers on your own website with download links:
 
 **Version Updates:**
 
--   [ ] Update version in `package.json`
--   [ ] Update version in `src-tauri/tauri.conf.json`
--   [ ] Update version in `python/pyproject.toml`
--   [ ] Update `CHANGELOG.md` with new features and fixes
+- [ ] Update version in `package.json`
+- [ ] Update version in `src-tauri/tauri.conf.json`
+- [ ] Update version in `python/pyproject.toml`
+- [ ] Update `CHANGELOG.md` with new features and fixes
 
 **Quality Assurance:**
 
--   [ ] Run full test suite: `python -m pytest && pnpm test`
--   [ ] Test with [Development Commands](../development/development-commands.md)
--   [ ] Test on all target platforms
--   [ ] Verify Python API sidecar builds correctly
--   [ ] Test auto-updater functionality (if enabled)
+- [ ] Run full test suite: `python -m pytest && pnpm test`
+- [ ] Test with [Development Commands](../development/development-commands.md)
+- [ ] Test on all target platforms
+- [ ] Verify Python API sidecar builds correctly
+- [ ] Test auto-updater functionality (if enabled)
 
 **Documentation:**
 
--   [ ] Update API documentation if endpoints changed
--   [ ] Update user guides if UI changed
--   [ ] Verify [Installation Guide](../getting-started/02-installation.md) is current
+- [ ] Update API documentation if endpoints changed
+- [ ] Update user guides if UI changed
+- [ ] Verify [Installation Guide](../getting-started/02-installation.md) is current
 
 ### 2. Automated Release Pipeline
 
@@ -230,98 +230,98 @@ GitHub Actions workflow (`.github/workflows/release.yml`):
 ```yaml
 name: Release
 on:
-    push:
-        tags: ["v*"]
+  push:
+    tags: ["v*"]
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Setup Python
-              uses: actions/setup-python@v4
-              with:
-                  python-version: "3.13"
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-            - name: Setup Rust
-              uses: dtolnay/rust-toolchain@stable
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
 
-            - name: Install uv
-              run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
-            - name: Install dependencies
-              run: |
-                  uv sync
-                  pnpm install
+      - name: Install dependencies
+        run: |
+          uv sync
+          pnpm install
 
-            - name: Run tests
-              run: |
-                  python -m pytest
-                  pnpm test
+      - name: Run tests
+        run: |
+          python -m pytest
+          pnpm test
 
-    build:
-        needs: test
-        strategy:
-            matrix:
-                platform: [macos-latest, ubuntu-latest, windows-latest]
-        runs-on: ${{ matrix.platform }}
+  build:
+    needs: test
+    strategy:
+      matrix:
+        platform: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
 
-        steps:
-            - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Setup Python
-              uses: actions/setup-python@v4
-              with:
-                  python-version: "3.13"
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-            - name: Setup Rust
-              uses: dtolnay/rust-toolchain@stable
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
 
-            - name: Install uv
-              run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
-            - name: Install dependencies
-              run: |
-                  uv sync
-                  pnpm install
+      - name: Install dependencies
+        run: |
+          uv sync
+          pnpm install
 
-            - name: Build app
-              run: pnpm run tauri build
+      - name: Build app
+        run: pnpm run tauri build
 
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: ${{ matrix.platform }}-build
-                  path: src-tauri/target/release/bundle/
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-build
+          path: src-tauri/target/release/bundle/
 
-    release:
-        needs: build
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Download artifacts
-              uses: actions/download-artifact@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
 
-            - name: Create release
-              uses: softprops/action-gh-release@v1
-              with:
-                  files: |
-                      *-build/**/*
-                  generate_release_notes: true
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            *-build/**/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### 3. Manual Release Steps
@@ -414,12 +414,11 @@ echo "Release artifacts tested successfully"
 
 Keep versions synchronized across:
 
--   `package.json` - Frontend version
--   `src-tauri/tauri.conf.json` - App version
--   `python/pyproject.toml` - Python CLI version
+- `package.json` - Frontend version
+- `src-tauri/tauri.conf.json` - App version
+- `python/pyproject.toml` - Python CLI version
 
 ---
-
 
 ## CI/CD Integration
 
@@ -436,9 +435,9 @@ The project uses GitHub Actions for automated testing and deployment. Key featur
 
 **Configuration Files:**
 
--   `.github/workflows/release.yml` - Main release workflow
--   `.github/workflows/test.yml` - Continuous integration testing
--   `scripts/switch-ci.sh` - Switch between CI providers
+- `.github/workflows/release.yml` - Main release workflow
+- `.github/workflows/test.yml` - Continuous integration testing
+- `scripts/switch-ci.sh` - Switch between CI providers
 
 **Environment Variables:**
 

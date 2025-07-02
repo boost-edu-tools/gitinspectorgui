@@ -18,10 +18,10 @@ The two main parts of the GUI are:
 
 There are eight input fields in the GUI where space separated patterns can be entered:
 
--   Input folder path
--   Include files: File patterns
--   Extensions: File extensions to include
--   Five input fields for exclusion patterns
+- Input folder path
+- Include files: File patterns
+- Extensions: File extensions to include
+- Five input fields for exclusion patterns
 
 ### Multiple patterns
 
@@ -73,9 +73,9 @@ If the input folder path is a repository, that repository is analyzed and no sea
 Output file path
 The output file path depends on the selected output prepostfix (see next option). In the example figure, the input folder path is the path of the repository `1dh`. Depending on the selected pre or postfix, the output file path is:
 
--   `Postfix with repo`: `/Users/.../1-repos/grading/1dh-gitinspect`.
--   `Prefix with repo`: `/Users/.../1-repos/grading/gitinspect-1dh`.
--   `No prefix or postfix`: `/Users/.../1-repos/grading/gitinspect`.
+- `Postfix with repo`: `/Users/.../1-repos/grading/1dh-gitinspect`.
+- `Prefix with repo`: `/Users/.../1-repos/grading/gitinspect-1dh`.
+- `No prefix or postfix`: `/Users/.../1-repos/grading/gitinspect`.
 
 Output prepostfix
 Select one of `Postfix with repo`, `Prefix with repo`, `No prefix or postfix` (default).
@@ -117,8 +117,8 @@ For the values `Postfix with repo` and `Prefix with repo`, the output file path 
 Search depth
 Positive integer value that represents the number of levels of subfolders that is searched for repositories, _default_ `5`.
 
--   Search depth `0`: the input folder itself must be a repository.
--   Search depth `1`: only the input folder is searched for repository folders for analysis.
+- Search depth `0`: the input folder itself must be a repository.
+- Search depth `1`: only the input folder is searched for repository folders for analysis.
 
 The remaining options are as specified for the case `input-is-repo`.
 
@@ -168,9 +168,9 @@ By means of this option, excluded blame lines can be hidden, shown or removed fr
 
 Values of the `Exclusions` option are:
 
--   `hide` (default). Excluded lines are shown in the blame sheets as white, uncolored lines.
--   `show`. Excluded lines are attributed to their author as blame lines in the color of the author.
--   `remove`. Excluded lines are removed from the blame lines.
+- `hide` (default). Excluded lines are shown in the blame sheets as white, uncolored lines.
+- `show`. Excluded lines are attributed to their author as blame lines in the color of the author.
+- `remove`. Excluded lines are removed from the blame lines.
 
 Copy move
 This option, with values from 0 to 4, affects only the Excel blame worksheets:
@@ -246,15 +246,15 @@ Only show statistics for commits older than the given date. See Since for the da
 
 Verbosity
 
--   0 (default): Show a dot for each file that is analyzed for each repository.
--   1: Show the file name instead of a dot for each analyzed file.
--   2: Show maximum debug output in the console.
+- 0 (default): Show a dot for each file that is analyzed for each repository.
+- 1: Show the file name instead of a dot for each analyzed file.
+- 2: Show maximum debug output in the console.
 
 Dry run
 
--   0: Normal analysis and output (default).
--   1: Perform all required analysis and show the output in the console, but do not write any output files and do not open any viewers.
--   2: Do not perform any analysis and do not produce any file or viewer output, but do print output lines to the console.
+- 0: Normal analysis and output (default).
+- 1: Perform all required analysis and show the output in the console, but do not write any output files and do not open any viewers.
+- 2: Do not perform any analysis and do not produce any file or viewer output, but do print output lines to the console.
 
 Extensions
 A comma separated list of file extensions to include when computing statistics. The default extensions used are: c, cc, cif, cpp, glsl, h, hh, hpp, java, js, py, rb, sql.

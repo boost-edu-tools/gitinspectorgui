@@ -18,17 +18,17 @@ pnpm run tauri dev
 
 **What happens**:
 
--   Vite builds the React/TypeScript frontend
--   Tauri compiles the Rust wrapper with PyO3 integration
--   Python analysis engine is embedded directly in the application
--   Desktop app opens with fully integrated Python functionality
+- Vite builds the React/TypeScript frontend
+- Tauri compiles the Rust wrapper with PyO3 integration
+- Python analysis engine is embedded directly in the application
+- Desktop app opens with fully integrated Python functionality
 
 ### Verify Integration
 
--   Desktop app opens with GitInspectorGUI interface
--   Python analysis engine is ready for use (no separate server needed)
--   Test with sample repository analysis through the GUI
--   Check that results are displayed properly
+- Desktop app opens with GitInspectorGUI interface
+- Python analysis engine is ready for use (no separate server needed)
+- Test with sample repository analysis through the GUI
+- Check that results are displayed properly
 
 ## Development Commands Reference
 
@@ -49,9 +49,9 @@ pnpm run dev
 
 Now that your environment is working:
 
--   **[Development Workflow](../development/development-workflow.md)** - Learn development patterns
--   **[CLI Development Guide](../development/cli-development-guide.md)** - Command-line development
--   **[API Reference](../api/reference.md)** - Backend API documentation
+- **[Development Workflow](../development/development-workflow.md)** - Learn development patterns
+- **[CLI Development Guide](../development/cli-development-guide.md)** - Command-line development
+- **[API Reference](../api/reference.md)** - Backend API documentation
 
 ## Troubleshooting
 

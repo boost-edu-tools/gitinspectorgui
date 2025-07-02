@@ -41,10 +41,12 @@ mkdocs serve
 ## Troubleshooting
 
 **Build fails:**
+
 - Check GitHub Actions logs: Go to **Actions** tab → Select failed workflow → View logs
 - Run `./scripts/test-docs-build.sh` locally first
 - Manually restart: **Actions** tab → Select workflow → **Re-run all jobs**
 
 **Documentation not updating:**
+
 - Verify GitHub Actions completed successfully
 - Clear browser cache

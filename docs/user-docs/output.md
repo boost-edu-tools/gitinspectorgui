@@ -15,8 +15,8 @@ Output is generated in the form of tables and saved in a file per repository.
 
 ### View option `auto`
 
--   In the case of file output, the output file is opened in the default viewer for the file type.
--   If no file output format is selected, the output is shown in the system web browser. The address is of the form `localhost:8080/?v=reponame-2d0c4e242077`, where `reponame` is the name of the repository and `2d0c4e242077` is a random unique 12-character string. When the user no longer needs the generated page(s), the page(s) should be closed, or the web browser can be closed, so that the server can be stopped and gitinspectorgui is ready for analysis of another repository.
+- In the case of file output, the output file is opened in the default viewer for the file type.
+- If no file output format is selected, the output is shown in the system web browser. The address is of the form `localhost:8080/?v=reponame-2d0c4e242077`, where `reponame` is the name of the repository and `2d0c4e242077` is a random unique 12-character string. When the user no longer needs the generated page(s), the page(s) should be closed, or the web browser can be closed, so that the server can be stopped and gitinspectorgui is ready for analysis of another repository.
 
 ### View option `dynamic blame history`
 

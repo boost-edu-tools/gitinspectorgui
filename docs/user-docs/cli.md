@@ -35,10 +35,10 @@ Display help and exit. This has priority over the other settings.
 
 There are eight options where space separated patterns can be entered:
 
--   `PATH ...`: Path patterns to input repositories or folders
--   `--include-files PATTERNS`: File patterns to include
--   `--extensions EXTENSIONS`: File extensions to include
--   `--ex-... PATTERNS`: Five input fields for exclusion patterns
+- `PATH ...`: Path patterns to input repositories or folders
+- `--include-files PATTERNS`: File patterns to include
+- `--extensions EXTENSIONS`: File extensions to include
+- `--ex-... PATTERNS`: Five input fields for exclusion patterns
 
 ### Multiple patterns
 
@@ -86,8 +86,8 @@ If `PATH` is a folder, but not a repository, all folder and subfolders up to the
 `-d N` `--depth N`
 Integer value bigger or equal to zero, that represents the number of levels of subfolders that is searched for repositories, _default_ `5`.
 
--   `-d 0`: the input folder itself must be a repository.
--   `-d 1`: only the input folder is searched for repository folders for analysis.
+- `-d 0`: the input folder itself must be a repository.
+- `-d 1`: only the input folder is searched for repository folders for analysis.
 
 `--subfolder SUBFOLDER`
 Restrict analysis of the files of the repository to the files in this folder and its subfolders. Remove the subfolder from the path of the files in the output.
@@ -105,9 +105,9 @@ The output filename, without extension and without parents is `FILEBASE`. Defaul
 
 `--fix {prefix,postfix,nofix}`
 
-> -   `-f prefix` output file name is `REPONAME-FILEBASE`.
-> -   `-f postfix` output file name is `FILEBASE-REPONAME`.
-> -   `-f nofix` output file name is `FILEBASE`.
+> - `-f prefix` output file name is `REPONAME-FILEBASE`.
+> - `-f postfix` output file name is `FILEBASE-REPONAME`.
+> - `-f nofix` output file name is `FILEBASE`.
 
 ## Output generation and viewing
 
@@ -247,15 +247,15 @@ Only show statistics for commits older than a specific date. See `--since` for t
 `-v {0,1,2}`, `--verbosity {0,1,2}`
 More verbose output for each `v`: `-v`, `-vv` or `-vvv`<span class="title-ref">. The maximum value 3 of the verbosity option in the GUI corresponds to </span><span class="title-ref">-vvv</span>\` in the CLI.
 
--   0 (default): Show a dot for each file that is analyzed for each repository.
--   1: Show the file name instead of a dot for each analyzed file.
--   2: Show maximum debug output in the console.
+- 0 (default): Show a dot for each file that is analyzed for each repository.
+- 1: Show the file name instead of a dot for each analyzed file.
+- 2: Show maximum debug output in the console.
 
 `--dry-run {0,1,2}`
 
--   0: Normal analysis and output (default).
--   1: Perform all required analysis and show the output in the console, but do not write any output files and do not open any viewers.
--   2: Do not perform any analysis and do not produce any file or viewer output, but do print output lines to the console.
+- 0: Normal analysis and output (default).
+- 1: Perform all required analysis and show the output in the console, but do not write any output files and do not open any viewers.
+- 2: Do not perform any analysis and do not produce any file or viewer output, but do print output lines to the console.
 
 `-e EXTENSIONS`, `--extensions EXTENSIONS`
 A comma separated list of file extensions to include when computing statistics. The default extensions used are: `c, cc, cif, cpp, glsl, h, hh, hpp, java, js, py, rb, sql`.

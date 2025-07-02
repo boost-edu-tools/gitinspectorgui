@@ -139,7 +139,7 @@ sudo chown -R $(whoami) ~/.local/share/pnpm
 After successful installation:
 
 1. **[Quick Start](03-quick-start.md)** - Get the development environment running in 3 steps
-3. **[Development Workflow](../development/development-workflow.md)** - Learn development patterns
+2. **[Development Workflow](../development/development-workflow.md)** - Learn development patterns
 
 ## Summary
 

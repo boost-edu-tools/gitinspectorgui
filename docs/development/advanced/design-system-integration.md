@@ -35,7 +35,7 @@ The deployment uses GitHub Actions for automated deployment:
 name: Deploy to GitHub Pages
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -45,7 +45,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
       - name: Install Figma CLI
         run: npm install -g @figma/design-tokens-cli
       - name: Export Figma tokens
@@ -80,7 +80,7 @@ jobs:
           path: src/design-tokens/
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
       - name: Install dependencies
         run: npm install
       - name: Build with Figma integration
@@ -99,7 +99,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: "./dist"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
@@ -178,7 +178,7 @@ export const DesignSystemComponent = ({
 name: Deploy Documentation and Demo
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -197,7 +197,7 @@ jobs:
       # Build React demo with Figma integration
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
       - name: Install dependencies
         run: npm install
       - name: Check for Figma tokens and build
@@ -213,7 +213,7 @@ jobs:
       # Build documentation
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
       - name: Install Python dependencies
         run: |
           pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
@@ -233,7 +233,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './public'
+          path: "./public"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
@@ -346,7 +346,7 @@ sequenceDiagram
 name: Sync Figma Design Tokens
 on:
   schedule:
-    - cron: '0 9 * * 1'  # Weekly on Monday
+    - cron: "0 9 * * 1" # Weekly on Monday
   workflow_dispatch:
 
 jobs:
@@ -361,8 +361,8 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          title: 'chore: update Figma design tokens'
-          body: 'Automated update of design tokens from Figma'
+          title: "chore: update Figma design tokens"
+          body: "Automated update of design tokens from Figma"
           branch: figma-token-update
 ```
 
@@ -373,7 +373,7 @@ jobs:
 name: Release
 on:
   push:
-    tags: [ 'v*' ]
+    tags: ["v*"]
 
 jobs:
   deploy-demo:

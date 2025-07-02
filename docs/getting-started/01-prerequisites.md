@@ -8,21 +8,21 @@ GitInspectorGUI uses multiple technologies working together. If you're unfamilia
 
 **What you'll be installing**:
 
--   **Python 3.8+** - Analysis engine (embedded via PyO3)
--   **Node.js 22+** - Frontend build tools (React + TypeScript + Vite)
--   **Rust 1.63+** - Desktop framework (Tauri + PyO3)
--   **Git 2.45+** - Repository analysis (you probably already have this)
--   **Modern package managers** - uv (Python), pnpm (Node.js) for faster development
+- **Python 3.8+** - Analysis engine (embedded via PyO3)
+- **Node.js 22+** - Frontend build tools (React + TypeScript + Vite)
+- **Rust 1.63+** - Desktop framework (Tauri + PyO3)
+- **Git 2.45+** - Repository analysis (you probably already have this)
+- **Modern package managers** - uv (Python), pnpm (Node.js) for faster development
 
 ## System Requirements
 
 ### Minimum Requirements
 
--   **OS**: Windows 11+, macOS 15+, Ubuntu 24.04+ LTS
--   **Python**: 3.8+ (for the embedded analysis engine)
--   **Node.js**: 22.0+ (for the frontend build tools)
--   **Rust**: 1.63+ (for the Tauri desktop framework with PyO3)
--   **Git**: 2.45+ (for repository analysis)
+- **OS**: Windows 11+, macOS 15+, Ubuntu 24.04+ LTS
+- **Python**: 3.8+ (for the embedded analysis engine)
+- **Node.js**: 22.0+ (for the frontend build tools)
+- **Rust**: 1.63+ (for the Tauri desktop framework with PyO3)
+- **Git**: 2.45+ (for repository analysis)
 
 ## Installation by Platform
 
@@ -94,11 +94,11 @@ npm install -g pnpm
 
 ## What Each Tool Does
 
--   **Git**: Version control (you probably already have this)
--   **Python + uv**: Analysis engine embedded via PyO3 with fast package management
--   **Node.js + pnpm**: Frontend build tools with efficient package management
--   **Rust**: Required for Tauri desktop framework and PyO3 integration
--   **Build tools**: Compilers needed for native development and PyO3 compilation
+- **Git**: Version control (you probably already have this)
+- **Python + uv**: Analysis engine embedded via PyO3 with fast package management
+- **Node.js + pnpm**: Frontend build tools with efficient package management
+- **Rust**: Required for Tauri desktop framework and PyO3 integration
+- **Build tools**: Compilers needed for native development and PyO3 compilation
 
 ## Next Steps
 

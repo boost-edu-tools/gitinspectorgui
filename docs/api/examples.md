@@ -168,105 +168,109 @@ _tauri_plugin_functions = [
 import { invoke } from "@tauri-apps/api/core";
 
 export interface Settings {
-    input_fstrs: string[];
-    n_files: number;
-    exclude_patterns?: string[];
-    extensions?: string[];
-    since?: string;
-    until?: string;
+  input_fstrs: string[];
+  n_files: number;
+  exclude_patterns?: string[];
+  extensions?: string[];
+  since?: string;
+  until?: string;
 }
 
 export interface AnalysisResult {
-    files: FileData[];
-    authors: AuthorData[];
-    blame_data: BlameData;
-    performance_stats: PerformanceStats;
+  files: FileData[];
+  authors: AuthorData[];
+  blame_data: BlameData;
+  performance_stats: PerformanceStats;
 }
 
 export interface HealthStatus {
-    status: "healthy" | "error";
-    message: string;
-    api_status?: string;
-    backend: string;
+  status: "healthy" | "error";
+  message: string;
+  api_status?: string;
+  backend: string;
 }
 
 export interface EngineInfo {
-    name: string;
-    version: string;
-    backend: string;
-    python_version: string;
-    capabilities: string[];
+  name: string;
+  version: string;
+  backend: string;
+  python_version: string;
+  capabilities: string[];
 }
 
 export async function healthCheck(): Promise<HealthStatus> {
-    try {
-        return await invoke<HealthStatus>("health_check");
-    } catch (error) {
-        console.error("Health check failed:", error);
-        throw new Error(`PyO3 backend is not available: ${error}`);
-    }
+  try {
+    return await invoke<HealthStatus>("health_check");
+  } catch (error) {
+    console.error("Health check failed:", error);
+    throw new Error(`PyO3 backend is not available: ${error}`);
+  }
 }
 
 export async function getEngineInfo(): Promise<EngineInfo> {
-    try {
-        return await invoke<EngineInfo>("get_engine_info");
-    } catch (error) {
-        console.error("Failed to get engine info:", error);
-        throw new Error(`Failed to get engine info: ${error}`);
-    }
+  try {
+    return await invoke<EngineInfo>("get_engine_info");
+  } catch (error) {
+    console.error("Failed to get engine info:", error);
+    throw new Error(`Failed to get engine info: ${error}`);
+  }
 }
 
 export async function executeAnalysis(settings: Settings): Promise<AnalysisResult> {
-    try {
-        return await invoke<AnalysisResult>("execute_analysis", { settings });
-    } catch (error) {
-        console.error("Analysis failed:", error);
+  try {
+    return await invoke<AnalysisResult>("execute_analysis", { settings });
+  } catch (error) {
+    console.error("Analysis failed:", error);
 
-        // Handle specific error types
-        if (error instanceof Error) {
-            if (error.message.includes("No repositories specified")) {
-                throw new Error("Please select at least one repository for analysis.");
-            }
-            if (error.message.includes("Invalid settings format")) {
-                throw new Error("Settings validation failed. Please check your configuration.");
-            }
-            if (error.message.includes("Git command not found")) {
-                throw new Error("Git is not installed or not in PATH. Please install Git and try again.");
-            }
-        }
-
-        throw new Error(`Analysis failed: ${error}`);
+    // Handle specific error types
+    if (error instanceof Error) {
+      if (error.message.includes("No repositories specified")) {
+        throw new Error("Please select at least one repository for analysis.");
+      }
+      if (error.message.includes("Invalid settings format")) {
+        throw new Error("Settings validation failed. Please check your configuration.");
+      }
+      if (error.message.includes("Git command not found")) {
+        throw new Error(
+          "Git is not installed or not in PATH. Please install Git and try again.",
+        );
+      }
     }
+
+    throw new Error(`Analysis failed: ${error}`);
+  }
 }
 
 export async function getSettings(): Promise<Settings> {
-    try {
-        return await invoke<Settings>("get_settings");
-    } catch (error) {
-        console.error("Failed to get settings:", error);
-        throw new Error(`Failed to load settings: ${error}`);
-    }
+  try {
+    return await invoke<Settings>("get_settings");
+  } catch (error) {
+    console.error("Failed to get settings:", error);
+    throw new Error(`Failed to load settings: ${error}`);
+  }
 }
 
 export async function saveSettings(settings: Settings): Promise<void> {
-    try {
-        const result = await invoke<{status: string, message: string}>("save_settings", { settings });
-        if (result.status !== "success") {
-            throw new Error(result.message || "Failed to save settings");
-        }
-    } catch (error) {
-        console.error("Failed to save settings:", error);
-        throw new Error(`Failed to save settings: ${error}`);
+  try {
+    const result = await invoke<{ status: string; message: string }>("save_settings", {
+      settings,
+    });
+    if (result.status !== "success") {
+      throw new Error(result.message || "Failed to save settings");
     }
+  } catch (error) {
+    console.error("Failed to save settings:", error);
+    throw new Error(`Failed to save settings: ${error}`);
+  }
 }
 
 export async function getBlameData(settings: Settings): Promise<any> {
-    try {
-        return await invoke<any>("get_blame_data", { settings });
-    } catch (error) {
-        console.error("Failed to get blame data:", error);
-        throw new Error(`Failed to get blame data: ${error}`);
-    }
+  try {
+    return await invoke<any>("get_blame_data", { settings });
+  } catch (error) {
+    console.error("Failed to get blame data:", error);
+    throw new Error(`Failed to get blame data: ${error}`);
+  }
 }
 ```
 
@@ -544,85 +548,87 @@ def test_execute_analysis_no_repositories():
 
 ```typescript
 // src/lib/__tests__/api.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { executeAnalysis, healthCheck, getEngineInfo } from '../api';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { executeAnalysis, healthCheck, getEngineInfo } from "../api";
 
 // Mock Tauri invoke
-vi.mock('@tauri-apps/api/core', () => ({
-    invoke: vi.fn(),
+vi.mock("@tauri-apps/api/core", () => ({
+  invoke: vi.fn(),
 }));
 
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from "@tauri-apps/api/core";
 
-describe('PyO3 API Integration', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
+describe("PyO3 API Integration", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-    it('should execute analysis successfully', async () => {
-        const mockResult = {
-            files: [],
-            authors: [],
-            blame_data: {},
-            performance_stats: {}
-        };
+  it("should execute analysis successfully", async () => {
+    const mockResult = {
+      files: [],
+      authors: [],
+      blame_data: {},
+      performance_stats: {},
+    };
 
-        vi.mocked(invoke).mockResolvedValue(mockResult);
+    vi.mocked(invoke).mockResolvedValue(mockResult);
 
-        const settings = {
-            input_fstrs: ['.'],
-            n_files: 10
-        };
+    const settings = {
+      input_fstrs: ["."],
+      n_files: 10,
+    };
 
-        const result = await executeAnalysis(settings);
+    const result = await executeAnalysis(settings);
 
-        expect(invoke).toHaveBeenCalledWith('execute_analysis', { settings });
-        expect(result.files).toBeDefined();
-        expect(result.authors).toBeDefined();
-    });
+    expect(invoke).toHaveBeenCalledWith("execute_analysis", { settings });
+    expect(result.files).toBeDefined();
+    expect(result.authors).toBeDefined();
+  });
 
-    it('should handle health check', async () => {
-        const mockHealth = {
-            status: 'healthy',
-            message: 'Python backend is running',
-            backend: 'direct-pyo3'
-        };
+  it("should handle health check", async () => {
+    const mockHealth = {
+      status: "healthy",
+      message: "Python backend is running",
+      backend: "direct-pyo3",
+    };
 
-        vi.mocked(invoke).mockResolvedValue(mockHealth);
+    vi.mocked(invoke).mockResolvedValue(mockHealth);
 
-        const result = await healthCheck();
+    const result = await healthCheck();
 
-        expect(invoke).toHaveBeenCalledWith('health_check');
-        expect(result.status).toBe('healthy');
-        expect(result.backend).toBe('direct-pyo3');
-    });
+    expect(invoke).toHaveBeenCalledWith("health_check");
+    expect(result.status).toBe("healthy");
+    expect(result.backend).toBe("direct-pyo3");
+  });
 
-    it('should get engine info', async () => {
-        const mockInfo = {
-            name: 'GitInspectorGUI Analysis Engine',
-            version: '1.0.0',
-            backend: 'direct-pyo3',
-            python_version: '3.11.0',
-            capabilities: ['repository_analysis']
-        };
+  it("should get engine info", async () => {
+    const mockInfo = {
+      name: "GitInspectorGUI Analysis Engine",
+      version: "1.0.0",
+      backend: "direct-pyo3",
+      python_version: "3.11.0",
+      capabilities: ["repository_analysis"],
+    };
 
-        vi.mocked(invoke).mockResolvedValue(mockInfo);
+    vi.mocked(invoke).mockResolvedValue(mockInfo);
 
-        const result = await getEngineInfo();
+    const result = await getEngineInfo();
 
-        expect(invoke).toHaveBeenCalledWith('get_engine_info');
-        expect(result.name).toBe('GitInspectorGUI Analysis Engine');
-        expect(result.backend).toBe('direct-pyo3');
-    });
+    expect(invoke).toHaveBeenCalledWith("get_engine_info");
+    expect(result.name).toBe("GitInspectorGUI Analysis Engine");
+    expect(result.backend).toBe("direct-pyo3");
+  });
 
-    it('should handle analysis errors', async () => {
-        const mockError = new Error('No repositories specified');
-        vi.mocked(invoke).mockRejectedValue(mockError);
+  it("should handle analysis errors", async () => {
+    const mockError = new Error("No repositories specified");
+    vi.mocked(invoke).mockRejectedValue(mockError);
 
-        const settings = { input_fstrs: [], n_files: 10 };
+    const settings = { input_fstrs: [], n_files: 10 };
 
-        await expect(executeAnalysis(settings)).rejects.toThrow('Please select at least one repository');
-    });
+    await expect(executeAnalysis(settings)).rejects.toThrow(
+      "Please select at least one repository",
+    );
+  });
 });
 ```
 

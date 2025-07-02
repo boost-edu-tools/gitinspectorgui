@@ -5,11 +5,14 @@ Get up and running with GitInspectorGUI in just a few steps.
 ## Installation
 
 ### Option 1: Download Executable (Recommended)
+
 Download the latest release for your platform:
+
 - **[GitHub Releases](https://github.com/davbeek/gitinspectorgui-old/releases)** - GUI apps for Windows and macOS
 - No installation required - just download and run
 
 ### Option 2: Install from PyPI
+
 ```bash
 pip install gitinspectorgui
 ```
@@ -60,6 +63,7 @@ GitInspectorGUI generates comprehensive reports showing:
 ## Common Options
 
 ### Filter by Date Range
+
 ```bash
 # Only commits after 2023-01-01
 gitinspectorgui . --since 2023-01-01
@@ -69,12 +73,14 @@ gitinspectorgui . --until 2023-12-31
 ```
 
 ### Include Specific File Types
+
 ```bash
 # Only Python and JavaScript files
 gitinspectorgui . --file-types py,js
 ```
 
 ### Exclude Authors
+
 ```bash
 # Exclude bot commits
 gitinspectorgui . --exclude-authors "*bot*,*automated*"

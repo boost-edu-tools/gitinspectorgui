@@ -10,10 +10,10 @@ If you're unfamiliar with the technologies used, see the **[Technology Primer](.
 
 **Development environment components**:
 
--   **Frontend**: Tauri (desktop framework) + React (UI library) + TypeScript (typed JavaScript) + Vite (build tool)
--   **Backend**: Python analysis engine embedded via PyO3 helper functions (simplified Rust-Python integration)
--   **Package Management**: uv (fast Python package manager), pnpm (fast JavaScript package manager)
--   **Build System**: Cargo (Rust compiler with PyO3 helpers), Vite (frontend bundler)
+- **Frontend**: Tauri (desktop framework) + React (UI library) + TypeScript (typed JavaScript) + Vite (build tool)
+- **Backend**: Python analysis engine embedded via PyO3 helper functions (simplified Rust-Python integration)
+- **Package Management**: uv (fast Python package manager), pnpm (fast JavaScript package manager)
+- **Build System**: Cargo (Rust compiler with PyO3 helpers), Vite (frontend bundler)
 
 ## Development Configuration
 
@@ -21,12 +21,12 @@ If you're unfamiliar with the technologies used, see the **[Technology Primer](.
 
 ```json
 {
-    "recommendations": [
-        "ms-python.python",
-        "rust-lang.rust-analyzer",
-        "tauri-apps.tauri-vscode",
-        "bradlc.vscode-tailwindcss"
-    ]
+  "recommendations": [
+    "ms-python.python",
+    "rust-lang.rust-analyzer",
+    "tauri-apps.tauri-vscode",
+    "bradlc.vscode-tailwindcss"
+  ]
 }
 ```
 
@@ -118,16 +118,16 @@ pnpm run dev
 
 ```json
 {
-    "name": "Debug Tauri with PyO3",
-    "type": "lldb",
-    "request": "launch",
-    "program": "${workspaceFolder}/src-tauri/target/debug/gitinspectorgui",
-    "args": [],
-    "cwd": "${workspaceFolder}",
-    "env": {
-        "RUST_LOG": "debug",
-        "RUST_BACKTRACE": "1"
-    }
+  "name": "Debug Tauri with PyO3",
+  "type": "lldb",
+  "request": "launch",
+  "program": "${workspaceFolder}/src-tauri/target/debug/gitinspectorgui",
+  "args": [],
+  "cwd": "${workspaceFolder}",
+  "env": {
+    "RUST_LOG": "debug",
+    "RUST_BACKTRACE": "1"
+  }
 }
 ```
 
@@ -148,9 +148,9 @@ def execute_analysis(settings):
 
 ### Frontend Debugging
 
--   **DevTools**: Right-click → "Inspect Element"
--   **Console**: Use `console.log()` for debugging
--   **Breakpoints**: Set in VS Code or browser DevTools
+- **DevTools**: Right-click → "Inspect Element"
+- **Console**: Use `console.log()` for debugging
+- **Breakpoints**: Set in VS Code or browser DevTools
 
 ### PyO3 Helper Function Error Debugging
 
@@ -201,10 +201,10 @@ pnpm run test:coverage
 
 ### Development Tools
 
--   **Tauri DevTools**: Built into development mode
--   **React DevTools**: Available in browser inspector
--   **Rust Analyzer**: VS Code extension for Rust development
--   **Python Debugger**: VS Code Python extension
+- **Tauri DevTools**: Built into development mode
+- **React DevTools**: Available in browser inspector
+- **Rust Analyzer**: VS Code extension for Rust development
+- **Python Debugger**: VS Code Python extension
 
 ### Build Commands
 
@@ -337,7 +337,7 @@ pnpm run tauri build
 
 ## Related Documentation
 
--   **[Development Workflow](development-workflow.md)** - Development patterns and best practices
--   **[Package Management](package-management.md)** - Dependencies and tools
--   **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
--   **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper function architecture details
+- **[Development Workflow](development-workflow.md)** - Development patterns and best practices
+- **[Package Management](package-management.md)** - Dependencies and tools
+- **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
+- **[PyO3 Helper Integration](../architecture/pyo3-integration.md)** - PyO3 helper function architecture details

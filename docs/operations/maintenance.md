@@ -42,14 +42,12 @@ python -c "import gigui.analysis; print('Python engine OK')"
 
 ## Log Locations
 
--   **Python Analysis**: Embedded in desktop app logs
--   **Frontend**: Browser DevTools Console (in development)
--   **Tauri**: Terminal output from `pnpm run tauri dev`
--   **Desktop App**: System logs (varies by platform)
-
-
+- **Python Analysis**: Embedded in desktop app logs
+- **Frontend**: Browser DevTools Console (in development)
+- **Tauri**: Terminal output from `pnpm run tauri dev`
+- **Desktop App**: System logs (varies by platform)
 
 ## Related
 
--   **[Deployment](deployment.md)** - Production deployment
--   **[Troubleshooting](../development/troubleshooting.md)** - Issue resolution
+- **[Deployment](deployment.md)** - Production deployment
+- **[Troubleshooting](../development/troubleshooting.md)** - Issue resolution

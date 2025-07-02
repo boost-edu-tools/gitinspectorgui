@@ -13,9 +13,9 @@ pnpm run tauri dev
 
 **What this starts:**
 
--   Tauri desktop application with embedded Python
--   Vite development server for frontend hot reloading
--   PyO3 bindings for direct Python integration
+- Tauri desktop application with embedded Python
+- Vite development server for frontend hot reloading
+- PyO3 bindings for direct Python integration
 
 ### Production Mode
 
@@ -26,9 +26,9 @@ pnpm run tauri build
 
 **What this creates:**
 
--   Single desktop application executable
--   Embedded Python interpreter
--   All dependencies bundled
+- Single desktop application executable
+- Embedded Python interpreter
+- All dependencies bundled
 
 ## Application Lifecycle
 
@@ -59,13 +59,13 @@ pnpm run tauri dev
 
 **Development:**
 
--   Close the Tauri application window, or
--   Press `Ctrl+C` in the terminal running `pnpm run tauri dev`
+- Close the Tauri application window, or
+- Press `Ctrl+C` in the terminal running `pnpm run tauri dev`
 
 **Production:**
 
--   Close the application window
--   Application terminates cleanly with embedded Python
+- Close the application window
+- Application terminates cleanly with embedded Python
 
 ## Troubleshooting
 
@@ -163,9 +163,9 @@ top -p $(pgrep gitinspectorgui)
 
 **Optimize Analysis Settings:**
 
--   Reduce `n_files` parameter for large repositories
--   Use `ex_files` to exclude unnecessary files
--   Limit `processes` to available CPU cores
+- Reduce `n_files` parameter for large repositories
+- Use `ex_files` to exclude unnecessary files
+- Limit `processes` to available CPU cores
 
 ### File Access Issues
 
@@ -182,9 +182,9 @@ ls -la .git/
 
 **Common Permission Issues:**
 
--   Repository on network drive with limited access
--   Git repository corrupted or incomplete
--   Insufficient permissions to read git objects
+- Repository on network drive with limited access
+- Git repository corrupted or incomplete
+- Insufficient permissions to read git objects
 
 ## Application Configuration
 
@@ -207,12 +207,12 @@ dependencies = [
 
 ```json
 {
-    "build": {
-        "beforeBuildCommand": "pnpm run build",
-        "beforeDevCommand": "pnpm run dev",
-        "devPath": "http://localhost:5173",
-        "distDir": "../dist"
-    }
+  "build": {
+    "beforeBuildCommand": "pnpm run build",
+    "beforeDevCommand": "pnpm run dev",
+    "devPath": "http://localhost:5173",
+    "distDir": "../dist"
+  }
 }
 ```
 
@@ -276,16 +276,15 @@ pnpm run tauri dev
 
 **Important Files to Backup:**
 
--   `python/` - Python analysis engine
--   `src/` - Frontend source code
--   `src-tauri/src/` - Rust integration code
--   Configuration files: `package.json`, `pyproject.toml`, `Cargo.toml`
+- `python/` - Python analysis engine
+- `src/` - Frontend source code
+- `src-tauri/src/` - Rust integration code
+- Configuration files: `package.json`, `pyproject.toml`, `Cargo.toml`
 
 **Settings and Data:**
 
--   User settings are stored in platform-specific locations
--   No database or persistent server state to backup
-
+- User settings are stored in platform-specific locations
+- No database or persistent server state to backup
 
 ## Best Practices
 

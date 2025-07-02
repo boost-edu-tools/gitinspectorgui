@@ -4,24 +4,24 @@
 
 ### Previous Issues with stdout Communication
 
--   **Fragile JSON parsing** - Any print/log statements broke communication
--   **Mixed output streams** - Data and logs interfered with each other
--   **Limited error handling** - Only stderr available for errors
--   **Debugging conflicts** - Logging disabled JSON parsing
+- **Fragile JSON parsing** - Any print/log statements broke communication
+- **Mixed output streams** - Data and logs interfered with each other
+- **Limited error handling** - Only stderr available for errors
+- **Debugging conflicts** - Logging disabled JSON parsing
 
 ### Previous Issues with HTTP Architecture
 
--   **Network overhead** - HTTP serialization/deserialization costs
--   **Process management** - Separate server process complexity
--   **Error boundary** - HTTP status codes vs native exceptions
--   **Development complexity** - Multiple processes to coordinate
+- **Network overhead** - HTTP serialization/deserialization costs
+- **Process management** - Separate server process complexity
+- **Error boundary** - HTTP status codes vs native exceptions
+- **Development complexity** - Multiple processes to coordinate
 
 ### Previous Issues with Plugin Architecture
 
--   **Plugin dependency complexity** - External plugin maintenance and compatibility
--   **API compatibility issues** - Plugin API changes breaking builds
--   **Build system complexity** - Plugin registration and configuration overhead
--   **Limited control** - Plugin abstractions hiding important details
+- **Plugin dependency complexity** - External plugin maintenance and compatibility
+- **API compatibility issues** - Plugin API changes breaking builds
+- **Build system complexity** - Plugin registration and configuration overhead
+- **Limited control** - Plugin abstractions hiding important details
 
 ### Current Simplified PyO3 Helper Function Integration
 
@@ -44,26 +44,26 @@ graph TD
 
 #### Performance
 
--   **Zero IPC overhead** - Direct function calls through PyO3 bindings
--   **Native memory access** - No serialization between components
--   **Embedded interpreter** - Python runs within the same process via PyO3
--   **Type-safe conversion** - Automatic Python ↔ Rust type conversion via helper functions
+- **Zero IPC overhead** - Direct function calls through PyO3 bindings
+- **Native memory access** - No serialization between components
+- **Embedded interpreter** - Python runs within the same process via PyO3
+- **Type-safe conversion** - Automatic Python ↔ Rust type conversion via helper functions
 
 #### Development
 
--   **Single process** - Simplified debugging and development
--   **Integrated logging** - Python logging works seamlessly with Rust
--   **Clean abstractions** - Helper functions eliminate PyO3 boilerplate
--   **Hot reload** - Frontend changes don't require backend restart
--   **No external dependencies** - Direct PyO3 integration without plugin complexity
+- **Single process** - Simplified debugging and development
+- **Integrated logging** - Python logging works seamlessly with Rust
+- **Clean abstractions** - Helper functions eliminate PyO3 boilerplate
+- **Hot reload** - Frontend changes don't require backend restart
+- **No external dependencies** - Direct PyO3 integration without plugin complexity
 
 #### Deployment
 
--   **Single executable** - No separate server process to manage
--   **Simplified distribution** - Embedded Python interpreter
--   **Cross-platform consistency** - Same architecture on all platforms
--   **Reduced attack surface** - No network communication required
--   **No plugin dependencies** - Direct PyO3 integration reduces build complexity
+- **Single executable** - No separate server process to manage
+- **Simplified distribution** - Embedded Python interpreter
+- **Cross-platform consistency** - Same architecture on all platforms
+- **Reduced attack surface** - No network communication required
+- **No plugin dependencies** - Direct PyO3 integration reduces build complexity
 
 ## Implementation
 
@@ -200,48 +200,46 @@ def get_blame_data(settings_json):
 import { invoke } from "@tauri-apps/api/core";
 
 interface Settings {
-    input_fstrs: string[];
-    n_files: number;
-    exclude_patterns?: string[];
+  input_fstrs: string[];
+  n_files: number;
+  exclude_patterns?: string[];
 }
 
 interface AnalysisResult {
-    files: any[];
-    authors: any[];
-    blame_data: any;
-    performance_stats: any;
+  files: any[];
+  authors: any[];
+  blame_data: any;
+  performance_stats: any;
 }
 
-export async function executeAnalysis(
-    settings: Settings
-): Promise<AnalysisResult> {
-    try {
-        const result = await invoke<AnalysisResult>("execute_analysis", {
-            settings,
-        });
-        return result;
-    } catch (error) {
-        console.error("Analysis failed:", error);
-        throw new Error(`Analysis failed: ${error}`);
-    }
+export async function executeAnalysis(settings: Settings): Promise<AnalysisResult> {
+  try {
+    const result = await invoke<AnalysisResult>("execute_analysis", {
+      settings,
+    });
+    return result;
+  } catch (error) {
+    console.error("Analysis failed:", error);
+    throw new Error(`Analysis failed: ${error}`);
+  }
 }
 
 export async function healthCheck(): Promise<any> {
-    try {
-        return await invoke<any>("health_check");
-    } catch (error) {
-        console.error("Health check failed:", error);
-        throw new Error(`Health check failed: ${error}`);
-    }
+  try {
+    return await invoke<any>("health_check");
+  } catch (error) {
+    console.error("Health check failed:", error);
+    throw new Error(`Health check failed: ${error}`);
+  }
 }
 
 export async function getEngineInfo(): Promise<any> {
-    try {
-        return await invoke<any>("get_engine_info");
-    } catch (error) {
-        console.error("Failed to get engine info:", error);
-        throw new Error(`Failed to get engine info: ${error}`);
-    }
+  try {
+    return await invoke<any>("get_engine_info");
+  } catch (error) {
+    console.error("Failed to get engine info:", error);
+    throw new Error(`Failed to get engine info: ${error}`);
+  }
 }
 ```
 
@@ -276,32 +274,26 @@ def execute_analysis(settings_json):
 ### Frontend Error Handling
 
 ```typescript
-export async function executeAnalysis(
-    settings: Settings
-): Promise<AnalysisResult> {
-    try {
-        const result = await invoke<AnalysisResult>("execute_analysis", {
-            settings,
-        });
-        return result;
-    } catch (error) {
-        // PyO3 helper functions automatically convert Python exceptions to JavaScript errors
-        if (error instanceof Error) {
-            if (
-                error.message.includes("Invalid or inaccessible repositories")
-            ) {
-                throw new Error(
-                    "Repository validation failed. Please check your repository paths."
-                );
-            }
-            if (error.message.includes("Invalid settings format")) {
-                throw new Error(
-                    "Settings validation failed. Please check your configuration."
-                );
-            }
-        }
-        throw new Error(`Analysis failed: ${error}`);
+export async function executeAnalysis(settings: Settings): Promise<AnalysisResult> {
+  try {
+    const result = await invoke<AnalysisResult>("execute_analysis", {
+      settings,
+    });
+    return result;
+  } catch (error) {
+    // PyO3 helper functions automatically convert Python exceptions to JavaScript errors
+    if (error instanceof Error) {
+      if (error.message.includes("Invalid or inaccessible repositories")) {
+        throw new Error(
+          "Repository validation failed. Please check your repository paths.",
+        );
+      }
+      if (error.message.includes("Invalid settings format")) {
+        throw new Error("Settings validation failed. Please check your configuration.");
+      }
     }
+    throw new Error(`Analysis failed: ${error}`);
+  }
 }
 ```
 
@@ -344,27 +336,27 @@ def execute_analysis(settings_json: str) -> str:
 
 ```typescript
 interface EngineInfo {
-    name: string;
-    version: string;
-    backend: string;
+  name: string;
+  version: string;
+  backend: string;
 }
 
 interface HealthStatus {
-    status: "healthy" | "error";
-    message: string;
+  status: "healthy" | "error";
+  message: string;
 }
 
 interface Settings {
-    input_fstrs: string[];
-    n_files: number;
-    exclude_patterns?: string[];
+  input_fstrs: string[];
+  n_files: number;
+  exclude_patterns?: string[];
 }
 
 interface AnalysisResult {
-    files: FileData[];
-    authors: AuthorData[];
-    blame_data: BlameData;
-    performance_stats: PerformanceStats;
+  files: FileData[];
+  authors: AuthorData[];
+  blame_data: BlameData;
+  performance_stats: PerformanceStats;
 }
 ```
 
@@ -459,37 +451,37 @@ import { executeAnalysis, healthCheck } from "./api";
 
 // Mock the Tauri invoke function
 vi.mock("@tauri-apps/api/core", () => ({
-    invoke: vi.fn(),
+  invoke: vi.fn(),
 }));
 
 describe("PyO3 API Integration", () => {
-    it("should execute analysis successfully", async () => {
-        const mockResult = {
-            files: [],
-            authors: [],
-            blame_data: {},
-            performance_stats: {},
-        };
+  it("should execute analysis successfully", async () => {
+    const mockResult = {
+      files: [],
+      authors: [],
+      blame_data: {},
+      performance_stats: {},
+    };
 
-        vi.mocked(invoke).mockResolvedValue(mockResult);
+    vi.mocked(invoke).mockResolvedValue(mockResult);
 
-        const settings = {
-            input_fstrs: ["."],
-            n_files: 10,
-        };
+    const settings = {
+      input_fstrs: ["."],
+      n_files: 10,
+    };
 
-        const result = await executeAnalysis(settings);
-        expect(result.files).toBeDefined();
-        expect(result.authors).toBeDefined();
-    });
+    const result = await executeAnalysis(settings);
+    expect(result.files).toBeDefined();
+    expect(result.authors).toBeDefined();
+  });
 
-    it("should handle health check", async () => {
-        const mockHealth = { status: "healthy", message: "OK" };
-        vi.mocked(invoke).mockResolvedValue(mockHealth);
+  it("should handle health check", async () => {
+    const mockHealth = { status: "healthy", message: "OK" };
+    vi.mocked(invoke).mockResolvedValue(mockHealth);
 
-        const result = await healthCheck();
-        expect(result.status).toBe("healthy");
-    });
+    const result = await healthCheck();
+    expect(result.status).toBe("healthy");
+  });
 });
 ```
 
@@ -508,7 +500,7 @@ describe("PyO3 API Integration", () => {
 
 ## Related Documentation
 
--   **[Architecture Overview](overview.md)** - Complete system architecture
--   **[Development Workflow](../development/development-workflow.md)** - PyO3 development patterns
--   **[API Reference](../api/reference.md)** - Function signatures and examples
--   **[Technology Stack](technology-stack.md)** - PyO3 and build dependencies
+- **[Architecture Overview](overview.md)** - Complete system architecture
+- **[Development Workflow](../development/development-workflow.md)** - PyO3 development patterns
+- **[API Reference](../api/reference.md)** - Function signatures and examples
+- **[Technology Stack](technology-stack.md)** - PyO3 and build dependencies

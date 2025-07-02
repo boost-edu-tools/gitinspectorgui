@@ -356,11 +356,11 @@ _tauri_plugin_functions = [
 
 **Critical Requirements:**
 
--   Entry point must be `src-tauri/src-python/main.py`
--   Function names must match exactly (case-sensitive)
--   All functions must accept/return JSON strings (except health_check and get_engine_info)
--   Functions must be listed in `_tauri_plugin_functions` list
--   Functions must handle JSON parsing/serialization internally
+- Entry point must be `src-tauri/src-python/main.py`
+- Function names must match exactly (case-sensitive)
+- All functions must accept/return JSON strings (except health_check and get_engine_info)
+- Functions must be listed in `_tauri_plugin_functions` list
+- Functions must handle JSON parsing/serialization internally
 
 ## Frontend Integration
 
@@ -486,7 +486,7 @@ def memory_efficient_analysis(settings_json: str) -> str:
 
 ## Related Documentation
 
--   **[Technology Primer](../technology-primer.md)** - Understanding the plugin architecture
--   **[Development Workflow](../development/development-workflow.md)** - Development patterns
--   **[Error Handling](error-handling.md)** - Comprehensive error handling patterns
--   **[Examples](examples.md)** - Detailed implementation examples with plugin integration
+- **[Technology Primer](../technology-primer.md)** - Understanding the plugin architecture
+- **[Development Workflow](../development/development-workflow.md)** - Development patterns
+- **[Error Handling](error-handling.md)** - Comprehensive error handling patterns
+- **[Examples](examples.md)** - Detailed implementation examples with plugin integration

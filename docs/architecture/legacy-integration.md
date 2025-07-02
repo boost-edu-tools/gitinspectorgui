@@ -38,11 +38,11 @@ python/gigui/
 
 ### Key Features
 
--   **Person identity merging** - Handles multiple author identities
--   **Advanced statistics** - Comprehensive metrics calculation
--   **Blame integration** - Line-by-line attribution
--   **Performance optimization** - Efficient git operations
--   **Filtering capabilities** - Author/file/commit exclusions
+- **Person identity merging** - Handles multiple author identities
+- **Advanced statistics** - Comprehensive metrics calculation
+- **Blame integration** - Line-by-line attribution
+- **Performance optimization** - Efficient git operations
+- **Filtering capabilities** - Author/file/commit exclusions
 
 ## Data Flow
 
@@ -115,6 +115,6 @@ dev-dependencies = [
 
 ### Commands
 
--   `uv sync` - Install dependencies
--   `uv add <package>` - Add new dependency
--   `uv run python -m gigui.api` - Run analysis engine
+- `uv sync` - Install dependencies
+- `uv add <package>` - Add new dependency
+- `uv run python -m gigui.api` - Run analysis engine
