@@ -113,6 +113,8 @@ For JavaScript/TypeScript dependencies in CI/CD pipelines:
 -   Uses `pnpm install --frozen-lockfile` in CI
 -   Lock file: `pnpm-lock.yaml` (commit to version control)
 -   All build scripts use pnpm commands
+-   The faster execution of pnpm commands in CI/CD pipelines is especially
+    relevant, since pipelines run at every push.
 
 > **Note**: "Frozen lockfile" means dependencies are installed exactly as specified in the lock file, ensuring consistent builds across environments.
 
@@ -131,6 +133,26 @@ For JavaScript/TypeScript dependencies in CI/CD pipelines:
 - name: Build application
   run: pnpm run tauri build
 ```
+
+## Package Manager Consistency
+
+**Important**: This project uses pnpm exclusively. Never mix pnpm and npm commands as this creates conflicting lock files (`pnpm-lock.yaml` vs `package-lock.json`) and breaks dependency resolution.
+
+### Preventing Accidental npm Usage
+
+Add to `package.json`:
+
+```json
+{
+  "engines": {
+    "npm": "please-use-pnpm",
+    "pnpm": ">=8.0.0"
+  }
+}
+```
+
+This makes npm commands fail with a clear error message. If you do see
+`package-lock.json`, remove it: `rm package-lock.json && pnpm install`
 
 ## Related Documentation
 
