@@ -5,13 +5,25 @@ use std::process::Command;
 fn main() {
     // Get Python configuration from the current Python executable
     let python_exe = env::var("PYO3_PYTHON")
-        .or_else(|_| env::var("VIRTUAL_ENV").map(|venv| format!("{}/bin/python3", venv)))
+        .or_else(|_| env::var("VIRTUAL_ENV").map(|venv| {
+            if cfg!(windows) {
+                format!("{}/Scripts/python.exe", venv)
+            } else {
+                format!("{}/bin/python3", venv)
+            }
+        }))
         .unwrap_or_else(|_| {
             // Try to find the project's virtual environment
             let current_dir = env::current_dir().unwrap();
-            let venv_python = current_dir.join(".venv").join("bin").join("python3");
+            let venv_python = if cfg!(windows) {
+                current_dir.join(".venv").join("Scripts").join("python.exe")
+            } else {
+                current_dir.join(".venv").join("bin").join("python3")
+            };
             if venv_python.exists() {
                 venv_python.to_string_lossy().to_string()
+            } else if cfg!(windows) {
+                "python.exe".to_string()
             } else {
                 "python3".to_string()
             }
@@ -35,7 +47,11 @@ fn main() {
             println!("cargo:rustc-env=PYTHONPATH={}", python_path);
 
             // Also set the library path for linking
-            let lib_path = PathBuf::from(python_prefix).join("lib");
+            let lib_path = if cfg!(windows) {
+                PathBuf::from(python_prefix).join("libs")
+            } else {
+                PathBuf::from(python_prefix).join("lib")
+            };
             if lib_path.exists() {
                 println!("cargo:rustc-link-search=native={}", lib_path.display());
             }
