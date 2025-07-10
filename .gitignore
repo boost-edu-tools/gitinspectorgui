@@ -162,6 +162,7 @@ test-build/
 
 
 # VSCode settings and launch configuration
+.vscode/
 .vscode/launch.json
 .vscode/settings.json
 
@@ -178,3 +179,7 @@ test-build/
 src-tauri/Cargo.lock
 pnpm-lock.yaml
 uv.lock
+
+# Ignore Cline files, as each developer can have their own configuration
+.clinerules/
+.clineignore
