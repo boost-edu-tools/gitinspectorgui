@@ -265,18 +265,25 @@ where
         let sys = py.import_bound("sys")?;
         let path = sys.getattr("path")?;
 
-        // Get the current working directory and add python subdirectory
-        let current_dir = std::env::current_dir()
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Failed to get current directory: {}", e)))?;
-        let python_dir = current_dir.join("python");
+        let exe_dir = std::env::current_exe()
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(
+                format!("Failed to get current exe directory: {}", e)
+            ))?
+            .parent()
+            .ok_or_else(|| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(
+                "Failed to get parent directory of executable"
+            ))?
+            .to_path_buf();
 
-        debug!("Adding Python path: {}", python_dir.display());
-        path.call_method1("insert", (0, python_dir.to_string_lossy().as_ref()))?;
+        // Add API/ directory to sys.path
+        let api_dir = exe_dir.join("API");
+        debug!("Adding Python API path: {}", api_dir.display());
+        path.call_method1("insert", (0, api_dir.to_string_lossy().as_ref()))?;
 
-        // Import the main module from src-tauri/src-python/
-        let src_python_dir = current_dir.join("src-tauri").join("src-python");
-        debug!("Adding src-python path: {}", src_python_dir.display());
-        path.call_method1("insert", (0, src_python_dir.to_string_lossy().as_ref()))?;
+        // Add /GitInspectorEngine directory to sys.path
+        let engine_dir = exe_dir.join("GitInspectorEngine");
+        debug!("Adding Python Engine path: {}", engine_dir.display());
+        path.call_method1("insert", (0, engine_dir.to_string_lossy().as_ref()))?;
 
         debug!("Importing Python main module");
         let main_module = py.import_bound("main")?;
@@ -312,22 +319,29 @@ where
     debug!("Calling Python function (no args): {}", function_name);
 
     Python::with_gil(|py| -> PyResult<R> {
-        // Add the project's Python directory to the path
+        // Add the project's Python directory to the path (same as call_python_function)
         let sys = py.import_bound("sys")?;
         let path = sys.getattr("path")?;
 
-        // Get the current working directory and add python subdirectory
-        let current_dir = std::env::current_dir()
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Failed to get current directory: {}", e)))?;
-        let python_dir = current_dir.join("python");
+        let exe_dir = std::env::current_exe()
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(
+                format!("Failed to get current exe directory: {}", e)
+            ))?
+            .parent()
+            .ok_or_else(|| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(
+                "Failed to get parent directory of executable"
+            ))?
+            .to_path_buf();
 
-        debug!("Adding Python path: {}", python_dir.display());
-        path.call_method1("insert", (0, python_dir.to_string_lossy().as_ref()))?;
+        // Add API/ directory to sys.path
+        let api_dir = exe_dir.join("API");
+        debug!("Adding Python API path: {}", api_dir.display());
+        path.call_method1("insert", (0, api_dir.to_string_lossy().as_ref()))?;
 
-        // Import the main module from src-tauri/src-python/
-        let src_python_dir = current_dir.join("src-tauri").join("src-python");
-        debug!("Adding src-python path: {}", src_python_dir.display());
-        path.call_method1("insert", (0, src_python_dir.to_string_lossy().as_ref()))?;
+        // Add /GitInspectorEngine directory to sys.path
+        let engine_dir = exe_dir.join("GitInspectorEngine");
+        debug!("Adding Python Engine path: {}", engine_dir.display());
+        path.call_method1("insert", (0, engine_dir.to_string_lossy().as_ref()))?;
 
         debug!("Importing Python main module");
         let main_module = py.import_bound("main")?;
