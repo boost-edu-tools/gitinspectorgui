@@ -18,7 +18,8 @@
                 "minWidth": 800,
                 "minHeight": 600,
                 "resizable": true,
-                "fullscreen": false
+                "fullscreen": false,
+                "devtools": true
             }
         ],
         "security": {
@@ -37,7 +38,7 @@
         ],
         "resources": {
             "../python": "./GitInspectorEngine",
-            "./python": "./API"
+            "./python/*": "./API"
         },
         "copyright": "Copyright © 2025 GitInspectorGUI. All rights reserved.",
         "category": "DeveloperTool",
