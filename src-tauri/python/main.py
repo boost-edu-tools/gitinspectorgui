@@ -9,16 +9,21 @@ from dataclasses import asdict
 from pathlib import Path
 
 # Add the project's Python directory to the path
-project_root = Path(__file__).parent.parent.parent
-python_dir = project_root / "python"
-sys.path.insert(0, str(python_dir))
+# We only add the gigui directory to the path when running as a standalone script,
+# not when running tauri as our commands.rs script will handle this.
+if __name__ == "__main__":
+    project_root = Path(__file__).parent.parent.parent
+    # Setting it properly for build environments
+    project_root = Path(__file__).resolve().parent
+    python_dir = project_root / "python"
+    sys.path.insert(0, str(python_dir))
 
 # Import the real analysis API
 try:
     from gigui.api.main import GitInspectorAPI
     from gigui.api.types import Settings
 
-    print(f"Successfully imported GitInspectorAPI from {python_dir}")
+    print(f"Successfully imported GitInspectorAPI")
 except ImportError as e:
     print(f"Failed to import GitInspectorAPI: {e}")
     GitInspectorAPI = None
