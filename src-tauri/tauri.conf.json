@@ -35,7 +35,9 @@
             "icons/icon.icns",
             "icons/icon.ico"
         ],
-        "resources": [],
+        "resources": {
+            "../python": "./python"
+        },
         "copyright": "Copyright © 2025 GitInspectorGUI. All rights reserved.",
         "category": "DeveloperTool",
         "shortDescription": "Modern git repository analysis tool",

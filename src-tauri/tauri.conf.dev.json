@@ -36,7 +36,7 @@
       "icons/icon.ico"
     ],
     "resources": {
-      "../python": "./"
+      "../python": "./python"
     },
     "copyright": "Copyright © 2025 GitInspectorGUI. All rights reserved.",
     "category": "DeveloperTool",
