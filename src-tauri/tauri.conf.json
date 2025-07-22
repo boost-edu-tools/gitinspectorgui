@@ -4,8 +4,8 @@
     "version": "0.1.0",
     "identifier": "com.gitinspectorgui.app",
     "build": {
-        "beforeDevCommand": "pnpm dev",
-        "beforeBuildCommand": "pnpm build",
+        "beforeDevCommand": "npm run dev",
+        "beforeBuildCommand": "npm run build",
         "devUrl": "http://localhost:1420",
         "frontendDist": "../dist"
     },
@@ -36,10 +36,6 @@
             "icons/icon.icns",
             "icons/icon.ico"
         ],
-        "resources": {
-            "../python": "./GitInspectorEngine",
-            "./python/*": "./API"
-        },
         "copyright": "Copyright © 2025 GitInspectorGUI. All rights reserved.",
         "category": "DeveloperTool",
         "shortDescription": "Modern git repository analysis tool",
