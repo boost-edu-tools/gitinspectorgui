@@ -111,8 +111,7 @@ src-tauri/bin/gitinspector-api-sidecar*
 # Debug and testing build artifacts
 debug_pyo3/*/target/
 debug_pyo3/temp_builds/
-**/target/debug/
-**/target/release/
+**/target/
 
 # Python
 __pycache__/
