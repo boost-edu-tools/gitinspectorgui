@@ -1,8 +1,15 @@
 # GitInspectorGUI rewrite
-**Installation and Running Instructions will follow here soon!**
-<br></br>
 
-This README will describe what will happen to each of the GitinspectorGUI components, and how.
+## How to Run
+For now, only the GUI can be launched. One can do this as follows:
+1. Make sure Rust, Node.js and pnpm are installed. If not, installing the latest (or LTS) versions will do.
+2. From the base directory, do `cd ./gui`
+3. Then, install all packages by running `pnpm install`
+4. Once installed, run the GUI by running `pnpm tauri dev`
+
+**More installation and running instructions will follow here soon!**
+
+## Global Component Overview
 
 ### GUI
 Within this rewrite branch, the GUI will stay as it is until it works on the new engine.
