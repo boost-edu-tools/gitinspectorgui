@@ -1,15 +1,10 @@
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useResultsStore } from "@/stores/resultsStore";
-import { useServerStatus } from "@/hooks/useServerStatus";
 import { Button } from "@/components/ui/button";
-import { isDemoMode } from "@/lib/demo";
 
 export function ExecuteButton() {
     const { settings } = useSettingsStore();
     const { runAnalysis, isAnalyzing } = useResultsStore();
-    const { status } = useServerStatus();
-
-    const isDemo = isDemoMode();
 
     const handleExecute = async () => {
         console.log(
@@ -22,21 +17,12 @@ export function ExecuteButton() {
             return;
         }
 
-        // In non-demo mode, check if server is running
-        if (!isDemo && !status.isRunning) {
-            alert(
-                "Python backend is not available. Please restart the application."
-            );
-            return;
-        }
-
         await runAnalysis(settings);
     };
 
     const isDisabled = () => {
         if (isAnalyzing) return true;
         if (settings.input_fstrs.length === 0) return true;
-        if (!isDemo && !status.isRunning) return true;
         return false;
     };
 
@@ -48,9 +34,6 @@ export function ExecuteButton() {
                     Analyzing...
                 </div>
             );
-        }
-        if (!isDemo && !status.isRunning) {
-            return "Server Required";
         }
         return "Execute Analysis";
     };

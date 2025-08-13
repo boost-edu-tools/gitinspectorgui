@@ -73,26 +73,6 @@ export async function getPerformanceStats(): Promise<any> {
     }
 }
 
-export async function healthCheck(): Promise<{
-    status: string;
-    version: string;
-}> {
-    try {
-        console.log("Starting health check with Tauri invoke...");
-        const result = await invoke<any>("health_check");
-        console.log("Health check result:", result);
-        return result;
-    } catch (error) {
-        console.error("Failed to perform health check:", error);
-        console.error("Error details:", {
-            name: error instanceof Error ? error.name : "Unknown",
-            message: error instanceof Error ? error.message : String(error),
-            stack: error instanceof Error ? error.stack : undefined,
-        });
-        throw new Error(`Health check failed: ${error}`);
-    }
-}
-
 export async function getBlameData(settings: Settings): Promise<any> {
     try {
         const blameData = await invoke<any>("get_blame_data", { settings });
