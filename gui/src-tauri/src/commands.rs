@@ -25,11 +25,6 @@ pub async fn get_performance_stats() -> Result<serde_json::Value, String> {
 }
 
 #[tauri::command]
-pub async fn health_check() -> Result<serde_json::Value, String> {
-    Err("Python backend has been removed from this application.".to_string())
-}
-
-#[tauri::command]
 pub async fn get_blame_data(_settings: serde_json::Value) -> Result<serde_json::Value, String> {
     Err("Python backend has been removed from this application.".to_string())
 }

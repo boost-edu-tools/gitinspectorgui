@@ -82,18 +82,3 @@ export async function getBlameData(settings: Settings): Promise<any> {
         throw new Error(`Failed to get blame data: ${error}`);
     }
 }
-
-// Add a simple test function to debug the communication
-export async function testInvoke(): Promise<any> {
-    try {
-        console.log("Testing basic Tauri invoke communication...");
-
-        // Try the simplest possible call
-        const result = await invoke<any>("health_check");
-        console.log("Invoke test successful:", result);
-        return result;
-    } catch (error) {
-        console.error("Invoke test failed:", error);
-        throw error;
-    }
-}

@@ -15,7 +15,6 @@ pub fn run() {
             commands::save_settings,
             commands::get_engine_info,
             commands::get_performance_stats,
-            commands::health_check,
             commands::get_blame_data
         ])
         .plugin(tauri_plugin_shell::init())
