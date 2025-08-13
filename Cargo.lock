@@ -489,6 +489,9 @@ dependencies = [
 [[package]]
 name = "core"
 version = "0.1.0"
+dependencies = [
+ "git-wrapper",
+]
 
 [[package]]
 name = "core-foundation"
@@ -1298,6 +1301,16 @@ dependencies = [
  "libc",
  "system-deps",
  "winapi",
+]
+
+[[package]]
+name = "git-wrapper"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "63036aac0d4d3e7a0a269eb08920dcb9230070ca423081445991ec616b9676ef"
+dependencies = [
+ "posix-errors",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -2737,6 +2750,12 @@ checksum = "d8a2f0d8d040d7848a709caf78912debcc3f33ee4b3cac47d73d1e1069e83507"
 dependencies = [
  "portable-atomic",
 ]
+
+[[package]]
+name = "posix-errors"
+version = "1.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f2338a801647f2b07c5b4584accd6705f219fbbc73a6217e26d97e1437b60c5"
 
 [[package]]
 name = "potential_utf"
