@@ -1,8 +1,7 @@
 [package]
-name = "gitinspectorgui"
+name = "gui"
 version = "0.1.0"
-description = "A modern desktop application for git repository analysis"
-authors = ["Bert van Beek <d.a.v.beek@tue.nl>"]
+authors = ["Bert van Beek <d.a.v.beek@tue.nl>", "Max den Oudsten"]
 license = "MIT"
 repository = "https://github.com/davbeek/gitinspectorgui"
 edition = "2021"
@@ -23,8 +22,3 @@ serde_json = "1.0"
 tokio = { version = "1", features = ["full"] }
 env_logger = "0.11"
 log = "0.4"
-
-[features]
-# this feature is used for production builds or when `devPath` points to the filesystem
-# DO NOT REMOVE!!
-custom-protocol = ["tauri/custom-protocol"]

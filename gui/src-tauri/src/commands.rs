@@ -1,8 +1,3 @@
-use serde::{Deserialize, Serialize};
-// Removed pyo3 integration
-use log::{debug, error};
-
-
 // All Tauri commands now return an error indicating Python backend is removed
 #[tauri::command]
 pub async fn execute_analysis(_settings: serde_json::Value) -> Result<serde_json::Value, String> {
