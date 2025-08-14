@@ -491,6 +491,7 @@ name = "core"
 version = "0.1.0"
 dependencies = [
  "git-wrapper",
+ "serde",
 ]
 
 [[package]]
@@ -3439,13 +3440,6 @@ dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest",
-]
-
-[[package]]
-name = "shared-types"
-version = "0.1.0"
-dependencies = [
- "serde",
 ]
 
 [[package]]
