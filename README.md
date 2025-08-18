@@ -18,7 +18,8 @@ Within this rewrite branch, the GUI will stay as it is until it works on the new
 For sake of completeness, as @Jelco-C already made a start on a rust-based CLI, we will include it in this branch, to make testing the Core easier. This will be placed in the `cli` crate. The CLI functionality will grow with the core functionality, staying relatively similar to the gitinspectorgui-old syntax.
 
 ### Core
-We will rewrite the whole Gitinspectorgui in Rust. Due to Rust being fundamentally different to Python, the [old Gitinspectorgui engine](https://github.com/boost-edu-tools/gitinspectorgui-old/tree/main/src/gigui) (not the engine found in this repository!) will be broken down in parts, and rebuilt piece by piece. We will reimplement the features in the following order:
+We will rewrite the whole Gitinspectorgui in Rust. Due to Rust being fundamentally different to Python, the [old Gitinspectorgui engine](https://github.com/boost-edu-tools/gitinspectorgui-old/tree/main/src/gigui) (not the engine found in this repository!) will be broken down in parts, and rebuilt piece by piece. 
+First, we'll implement an API file in the core, for the cli and gui to be built on. Then, we will reimplement the features in `lib.rs` in the following order:
 
 1. `repo_base.py` functionality: This file contains the main analysis, which is the first we'll rebuild. In the Python implementation, it uses data classes. In Rust, we will implement these in their respective data structures in the the `shared-types`, while the repo_base functionality will be written in the `core` crate. The `person_data` functionality will be skipped, instead, each author will be seen as distinct person.
 
