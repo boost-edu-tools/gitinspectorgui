@@ -1,7 +1,7 @@
 
 ## For GitinspectorGUI
 
-Version 0.1  
+Version 0.2 
 Prepared by Max den Oudsten
 20-08-2025
 
@@ -23,25 +23,25 @@ Prepared by Max den Oudsten
 * 3 [Requirements](#3-requirements)
   * 3.1 [External Interfaces](#31-external-interfaces)
     * 3.1.1 [User Interfaces](#311-user-interfaces)
-    * 3.1.2 [Software Interfaces](#313-software-interfaces)
+    * 3.1.2 [Software Interfaces](#312-software-interfaces)
   * 3.2 [Functional](#32-functional)
   * 3.3 [Quality of Service](#33-quality-of-service)
     * 3.3.1 [Performance](#331-performance)
     * 3.3.2 [Security](#332-security)
     * 3.3.3 [Reliability](#333-reliability)
-  * 3.4 [Design and Implementation](#35-design-and-implementation)
-    * 3.4.1 [Installation](#351-installation)
-    * 3.4.2 [Distribution](#352-distribution)
-    * 3.4.3 [Maintainability & Reusability](#353-maintainability)
-    * 3.4.4 [Deadline](#357-deadline)
+  * 3.4 [Design and Implementation](#34-design-and-implementation)
+    * 3.4.1 [Installation](#341-installation)
+    * 3.4.2 [Distribution](#342-distribution)
+    * 3.4.3 [Maintainability & Reusability](#343-maintainability-&-reusability)
+    * 3.4.4 [Deadline](#344-deadline)
 * 4 [Verification](#4-verification)
 
 ## Revision History
-| Name            | Date       | Reason For Changes | Version |
-| --------------- | ---------- | ------------------ | ------- |
-| Max den Oudsten | 20-08-2025 | Initial setup.     | v0.1    |
-|                 |            |                    |         |
-|                 |            |                    |         |
+| Name            | Date       | Reason For Changes      | Version |
+| --------------- | ---------- | ----------------------- | ------- |
+| Max den Oudsten | 19-08-2025 | Initial setup.          | v0.1    |
+| Max den Oudsten | 20-08-2025 | Fix broken links in ToC | v0.2    |
+|                 |            |                         |         |
 
 ## 1. Introduction
 ---
