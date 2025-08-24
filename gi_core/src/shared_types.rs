@@ -6,6 +6,14 @@ pub struct Settings {
     pub depth: usize,
 }
 
+impl Default for Settings {
+    fn default() -> Self {
+        Settings {
+            depth: 3,
+        }
+    }
+}
+
 // Old stuff
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct AuthorStat {
