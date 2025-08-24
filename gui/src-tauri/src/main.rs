@@ -12,10 +12,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::execute_analysis,
             commands::get_settings,
-            commands::save_settings,
-            commands::get_engine_info,
-            commands::get_performance_stats,
-            commands::get_blame_data
+            commands::save_settings
         ])
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())

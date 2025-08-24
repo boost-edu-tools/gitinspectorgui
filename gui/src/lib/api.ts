@@ -52,33 +52,3 @@ export async function saveSettings(settings: Settings): Promise<void> {
         throw new Error(`Failed to save settings: ${error}`);
     }
 }
-
-export async function getEngineInfo(): Promise<any> {
-    try {
-        const info = await invoke<any>("get_engine_info");
-        return info;
-    } catch (error) {
-        console.error("Failed to get engine info:", error);
-        throw new Error(`Failed to get engine info: ${error}`);
-    }
-}
-
-export async function getPerformanceStats(): Promise<any> {
-    try {
-        const stats = await invoke<any>("get_performance_stats");
-        return stats;
-    } catch (error) {
-        console.error("Failed to get performance stats:", error);
-        throw new Error(`Failed to get performance stats: ${error}`);
-    }
-}
-
-export async function getBlameData(settings: Settings): Promise<any> {
-    try {
-        const blameData = await invoke<any>("get_blame_data", { settings });
-        return blameData;
-    } catch (error) {
-        console.error("Failed to get blame data:", error);
-        throw new Error(`Failed to get blame data: ${error}`);
-    }
-}
