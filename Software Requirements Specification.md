@@ -108,7 +108,6 @@ The requirements specify the functionality of the software such that implementat
 This subsection defines all the inputs into and outputs requirements of the software system.
 #### 3.1.1 User interfaces
 - 1.1 GitinspectorGUI shall provide a Graphical User Interface (GUI).
-	- 1.1.1 The GUI shall provide 
 - 1.2 GitInspectorGUI shall provide a Command Line Interface (CLI).
 
 #### 3.1.2 Software interfaces
