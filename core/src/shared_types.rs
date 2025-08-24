@@ -1,5 +1,12 @@
 use serde::{Serialize, Deserialize};
 
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Settings {
+    pub depth: usize,
+}
+
+// Old stuff
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct AuthorStat {
     pub name: String,
@@ -48,15 +55,15 @@ pub struct AnalysisResult {
     pub error: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct Settings {
-    // Repository and Input Settings
-    pub input_fstrs: Vec<String>,
-    pub depth: i32,
-    pub subfolder: String,
+// #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+// pub struct Settings {
+//     // Repository and Input Settings
+//     pub input_fstrs: Vec<String>,
+//     pub depth: i32,
+//     pub subfolder: String,
 
-    // File Analysis Settings
-    pub n_files: i32,
-    pub include_files: Vec<String>,
-    // ...rest of fields...
-}
+//     // File Analysis Settings
+//     pub n_files: i32,
+//     pub include_files: Vec<String>,
+//     // ...rest of fields...
+// }
