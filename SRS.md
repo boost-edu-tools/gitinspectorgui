@@ -1,9 +1,9 @@
 
-## For GitinspectorGUI
+# Software Requirements Specification for GitinspectorGUI
 
-Version 0.2 
-Prepared by Max den Oudsten
-20-08-2025
+* Version 0.2
+* Prepared by Max den Oudsten
+* 20-08-2025
 
 ## Table of Contents
 ---
@@ -70,26 +70,26 @@ From here on, a more specific product overview is given, followed by the softwar
 This section should describe the general factors that affect the product and its requirements. This section does not state specific requirements. Instead, it provides a background for those requirements, which are defined in detail in Section 3, and makes them easier to understand.
 
 ### 2.1 Product Perspective
-GitinspectorGUI originates from the need of Version Control support in a Mechanical Engineering course at the TU/e. The tool should specifically make the workflow of gathering statistics on multiple repositories quicker and easier. Although GitinspectorGUI is part of a project under TU/e's BOOST initiative, it will serve as a self-contained product, as the software may be of use in many other settings, besides the university setting. 
+GitinspectorGUI originates from the need of Version Control support in a Mechanical Engineering course at the TU/e. The tool should specifically make the workflow of gathering statistics on multiple repositories quicker and easier. Although GitinspectorGUI is part of a project under TU/e's BOOST initiative, it will serve as a self-contained product, as the software may be of use in many other settings, besides the university setting.
 
 ### 2.2 Product Functions
 GitinspectorGUI will have the following major functions:
-- Open one or more Git repositories, by either selecting the folder of the Git repository or selecting a folder containing folders of Git repositories.
-- Generate global repository statistics, like amount of branches, amount of contributors, total LOCs and file type distributions.
-- Generate statistics per author, like LOCs written, amount of insertions and deletions, percentage of contributions.
-- Display these statistics in the GUI, using easy-to-read graphs and diagrams where these provide added value.
-- Generate outputs from the CLI, allowing different formats.
-- Configure settings which are saved and used between sessions.
+* Open one or more Git repositories, by either selecting the folder of the Git repository or selecting a folder containing folders of Git repositories.
+* Generate global repository statistics, like amount of branches, amount of contributors, total LOCs and file type distributions.
+* Generate statistics per author, like LOCs written, amount of insertions and deletions, percentage of contributions.
+* Display these statistics in the GUI, using easy-to-read graphs and diagrams where these provide added value.
+* Generate outputs from the CLI, allowing different formats.
+* Configure settings which are saved and used between sessions.
 
 ### 2.3 Product Constraints
 GitinspectorGUI has the following constraints:
-- Users will be on Windows, MacOS or Linux, all of which should be supported.
-- Statistics generated should be deterministic.
-- Interfaces will be in English.
-- Repository analysis time should not be linear to the amount of repositories to be analysed.
-- The software shall be open source.
-- The software will be released as Rust crate.
-- The software will be distributed through platform-specific installers.
+* Users will be on Windows, MacOS or Linux, all of which should be supported.
+* Statistics generated should be deterministic.
+* Interfaces will be in English.
+* Repository analysis time should not be linear to the amount of repositories to be analysed.
+* The software shall be open source.
+* The software will be released as Rust crate.
+* The software will be distributed through platform-specific installers.
 
 ### 2.4 User Characteristics
 There are two main user classes which will make use of GitinspectorGUI. They are listed in order of importance:
@@ -102,91 +102,91 @@ A few assumptions are made for this software to work properly:
 
 ## 3. Requirements
 ---
-The requirements specify the functionality of the software such that implementation details are excluded, leaving these to the developers' interpretations. Furthermore, they are specific enough for testers to test whether the software satisfies the requirements. 
+The requirements specify the functionality of the software such that implementation details are excluded, leaving these to the developers' interpretations. Furthermore, they are specific enough for testers to test whether the software satisfies the requirements.
 
 ### 3.1 External Interfaces
 This subsection defines all the inputs into and outputs requirements of the software system.
 #### 3.1.1 User interfaces
-- 1.1 GitinspectorGUI shall provide a Graphical User Interface (GUI).
-- 1.2 GitInspectorGUI shall provide a Command Line Interface (CLI).
+1. GitinspectorGUI shall provide a Graphical User Interface (GUI).
+2. GitInspectorGUI shall provide a Command Line Interface (CLI).
 
 #### 3.1.2 Software interfaces
 GitinspectorGUI will interface with the following software:
-- Windows, specifically versions 10 and 11.
-- Linux, specifically Debian based distributions.
-- MacOS, version 10.13 and above.
-- Git, version 2.45 and above.
-- Rust, version 1.89 and above.
-- Node.js, version 22.18.0 (LTS)
+* Windows, specifically versions 10 and 11.
+* Linux, specifically Debian based distributions.
+* MacOS, version 10.13 and above.
+* Git, version 2.45 and above.
+* Rust, version 1.89 and above.
+* Node.js, version 22.18.0 (LTS)
 
 
 ### 3.2 Functional
 This section specifies the requirements of functional effects that the software-to-be is to have on its environment.
 
-- 1. GitinspectorGUI shall provide functionality to analyse Git repositories.
-	- 1.1 GitinspectorGUI shall provide the following information on the Git repository's authors:
-		- Name
-		- Email
-	- 1.2 GitinspectorGUI shall provide the following statistics on the Git repository's authors:
-		- LOCs assigned to author
-		- Amount of insertions
-		- Amount of deletions
-		- Amount of commits
-		- Percentage of LOCs, insertions, deletions and commits among all authors
-	- 1.3 GitinspectorGUI shall provide the following overview on the Git repository's files:
-		- File name
-		- File path
-		- File extension
-		- LOCs
-		- SLOCs (for supported extensions only)
-		- Amount of commits that affected the file
-		- Authors that worked on it
-		- Percentage of LOCs, SLOCs, insertions, deletions and commits among all authors
-	- 1.4 GitinspectorGUI shall provide information per file in the Git repository.
-		- 1.4.1 GitinspectorGUI shall provide the following information per line:
-			- Line number
-			- Author
-			- Date
-			- Commit message
-			- Commit SHA
-			- Commit number
-			- Code written in the line
-		- 1.4.2: GitinspectorGUI shall provide the information mentioned in requirement 1.4.1 on a per commit basis.
-- 2. GitinspectorGUI shall allow the user to select one or more repositories to analyse.
-	- 2.1 GitinspectorGUI shall allow the user to select a single Git repository.
-	- 2.2 GitinspectorGUI shall allow the user to select multiple Git repositories at the same time.
-	- 2.3 GitinspectorGUI shall not allow the user to select any other file that is not a Git repository.
-- 3. GitinspectorGUI shall allow the user to manipulate settings regarding the analysis process.
-	- 3.1 GitinspectorGUI shall allow the user to change settings regarding the analysis process through all its interfaces.
-	- 3.2 GitinspectorGUI shall provide the user with a method to export the currently selected settings.
-	- 3.3 GitinspectorGUI shall provide the user with a method to import settings.
-- 4. GitinspectorGUI shall allow the user to analyse all selected Git repositories.
-	- 4.1 GitinspectorGUI shall display the results of the analysis in the GUI interface.
-		- 4.1.1 In case of multiple repositories analysed, GitinspectorGUI will provide a way to select one of the analysed repositories.
-	- 4.2 GitinspectorGUI shall output the results of the analysis in the CLI console.
-- 5. GitinspectorGUI shall allow the user to export the results of the analysis.
-	- 5.1 GitinspectorGUI shall provide two export formats: HTML and JSON.
-- 6. GitinspectorGUI shall allow the user to import the results of the analysis.
-	- 6.1 GitinspectorGUI shall only allow the user to import JSON files.
-- 7. GitinspectorGUI shall allow the user to update the software in-app.
-	- 7.1 GitinspectorGUI shall allow a user using the GUI to update the software through the GUI interface.
-	- 7.2 GitinspectorGUI shall contain a command for a user to update the software through the CLI interface.
+1. GitinspectorGUI shall provide functionality to analyse Git repositories.
+  1.1 GitinspectorGUI shall provide the following information on the Git repository's authors:
+    * Name
+    * Email
+  1.2 GitinspectorGUI shall provide the following statistics on the Git repository's authors:
+    * LOCs assigned to author
+    * Amount of insertions
+    * Amount of deletions
+    * Amount of commits
+    * Percentage of LOCs, insertions, deletions and commits among all authors
+  1.3 GitinspectorGUI shall provide the following overview on the Git repository's files:
+    * File name
+    * File path
+    * File extension
+    * LOCs
+    * SLOCs (for supported extensions only)
+    * Amount of commits that affected the file
+    * Authors that worked on it
+    * Percentage of LOCs, SLOCs, insertions, deletions and commits among all authors
+  1.4 GitinspectorGUI shall provide information per file in the Git repository.
+    1.4.1 GitinspectorGUI shall provide the following information per line:
+      * Line number
+      * Author
+      * Date
+      * Commit message
+      * Commit SHA
+      * Commit number
+      * Code written in the line
+    1.4.2 GitinspectorGUI shall provide the information mentioned in requirement 1.4.1 on a per commit basis.
+2. GitinspectorGUI shall allow the user to select one or more repositories to analyse.
+  2.1 GitinspectorGUI shall allow the user to select a single Git repository.
+  2.2 GitinspectorGUI shall allow the user to select multiple Git repositories at the same time.
+  2.3 GitinspectorGUI shall not allow the user to select any other file that is not a Git repository.
+3. GitinspectorGUI shall allow the user to manipulate settings regarding the analysis process.
+  3.1 GitinspectorGUI shall allow the user to change settings regarding the analysis process through all its interfaces.
+  3.2 GitinspectorGUI shall provide the user with a method to export the currently selected settings.
+  3.3 GitinspectorGUI shall provide the user with a method to import settings.
+4. GitinspectorGUI shall allow the user to analyse all selected Git repositories.
+  4.1 GitinspectorGUI shall display the results of the analysis in the GUI interface.
+    4.1.1 In case of multiple repositories analysed, GitinspectorGUI will provide a way to select one of the analysed repositories.
+  4.2 GitinspectorGUI shall output the results of the analysis in the CLI console.
+5. GitinspectorGUI shall allow the user to export the results of the analysis.
+  5.1 GitinspectorGUI shall provide two export formats: HTML and JSON.
+6. GitinspectorGUI shall allow the user to import the results of the analysis.
+  6.1 GitinspectorGUI shall only allow the user to import JSON files.
+7. GitinspectorGUI shall allow the user to update the software in-app.
+  7.1 GitinspectorGUI shall allow a user using the GUI to update the software through the GUI interface.
+  7.2 GitinspectorGUI shall contain a command for a user to update the software through the CLI interface.
 ### 3.3 Quality of Service
 This section states additional, quality-related property requirements that the functional effects of the software should present.
 
 #### 3.3.1 Performance
-- 1. If multiple repositories need to be analysed, GitinspectorGUI will do this concurrently.
-- 2. If multiple repositories need to be analysed, GitinspectorGUI will do this dynamically. <!-- Meaning we don't wait for all repositories to finish, we instead display results of each repository once finished -->
+1. If multiple repositories need to be analysed, GitinspectorGUI will do this concurrently.
+2. If multiple repositories need to be analysed, GitinspectorGUI will do this dynamically. <!-- Meaning we don't wait for all repositories to finish, we instead display results of each repository once finished -->
 
 #### 3.3.2 Security
-- 1. GitinspectorGUI shall be available offline.
-	- 1.1 GitinspectorGUI shall require an internet connection for updating the software.
-- 2. GitinspectorGUI shall only access files appointed to by the user.
-- 3. GitinspectorGUI shall only manipulate processes which it started itself.
+1. GitinspectorGUI shall be available offline.
+  1.1 GitinspectorGUI shall require an internet connection for updating the software.
+2. GitinspectorGUI shall only access files appointed to by the user.
+3. GitinspectorGUI shall only manipulate processes which it started itself.
 
 #### 3.3.3 Reliability
-- 1. If one or more repositories fail to analyse, GitinspectorGUI shall give the user the option to restart the analysis.
-- 2. GitinspectorGUI shall run the analysis process separately from the interfaces.
+1. If one or more repositories fail to analyse, GitinspectorGUI shall give the user the option to restart the analysis.
+2. GitinspectorGUI shall run the analysis process separately from the interfaces.
 
 
 ### 3.4 Design and Implementation
@@ -197,9 +197,9 @@ Constraints to ensure that the software-to-be will run smoothly on the target im
 
 #### 3.4.2 Distribution
 Constraints on software components to fit the geographically distributed structure of the host organization, the distribution of data to be processed, or the distribution of devices to be controlled.
-- 1. GitinspectorGUI's codebase shall be made available through GitHub.
-- 2. GitinspectorGUI's installers shall be made available through GitHub.
-- 3. GitinspectorGUI's updates shall be made available through the interfaces.
+1. GitinspectorGUI's codebase shall be made available through GitHub.
+2. GitinspectorGUI's installers shall be made available through GitHub.
+3. GitinspectorGUI's updates shall be made available through the interfaces.
 
 #### 3.4.3 Maintainability & Reusability
 1. The interfaces shall never be coupled together.
