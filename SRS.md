@@ -6,7 +6,9 @@
 * 20-08-2025
 
 ## Table of Contents
+
 ---
+
 * [Revision History](#revision-history)
 * 1 [Introduction](#1-introduction)
   * 1.1 [Document Purpose](#11-document-purpose)
@@ -37,6 +39,7 @@
 * 4 [Verification](#4-verification)
 
 ## Revision History
+
 | Name            | Date       | Reason For Changes      | Version |
 | --------------- | ---------- | ----------------------- | ------- |
 | Max den Oudsten | 19-08-2025 | Initial setup.          | v0.1    |
@@ -44,14 +47,19 @@
 |                 |            |                         |         |
 
 ## 1. Introduction
+
 ---
+
 ### 1.1 Document Purpose
+
 Describe the purpose of the SRS and its intended audience. GitinspectorGUI is a rust-based git repository analysis tool, meant for professors, assistant professors or student assistants at Eindhoven University of Technology (TU/e) having to grade git-based assignments. Although GitinspectorGUI tailored for the [4TC00 Model-based Systems Engineering](https://boost.tue.nl/projects/model-based-systems-engineering/) course, it is open-source and available for anyone willing to analyse their git repositories.
 
 ### 1.2 Product Scope
+
 GitinspectorGUI's mission is to make the process of grading git-based assignments easier for the end user. It tries to achieve this by analysing git-based repositories, and generate several statistics, as well as git blames per commit. This makes Git a dependency, meaning it has to be installed prior to using GitinspectorGUI. Users can interact with the software through two interfaces, a GUI and CLI. Both interfaces rely on the same core logic, meaning both interfaces will have access to the full feature set. The software will lessen the workload for (assistant) professors or student assistants on grading assignments by providing a clear and coherent overview the students' work. Furthermore, it will work on most desktop operating systems, namely Windows, MacOS and Linux.
 
 ### 1.3 Definitions, Acronyms and Abbreviations
+
 1. **"GitinspectorGUI"**: name of the software subject to this software requirements specification.
 2. **"The software"**: refers to GitinspectorGUI.
 3. **GUI**: Graphical User interface.
@@ -63,17 +71,22 @@ GitinspectorGUI's mission is to make the process of grading git-based assignment
 <!-- List any other documents or Web addresses to which this SRS refers. These may include user interface style guides, contracts, standards, system requirements specifications, use case documents, or a vision and scope document. Provide enough information so that the reader could access a copy of each reference, including title, author, version number, date, and source or location. -->
 
 ### 1.5 Document Overview
+
 From here on, a more specific product overview is given, followed by the software's requirements, ending with a verification section, describing the methods used to verify the requirements.
 
 ## 2. Product Overview
+
 ---
 This section should describe the general factors that affect the product and its requirements. This section does not state specific requirements. Instead, it provides a background for those requirements, which are defined in detail in Section 3, and makes them easier to understand.
 
 ### 2.1 Product Perspective
+
 GitinspectorGUI originates from the need of Version Control support in a Mechanical Engineering course at the TU/e. The tool should specifically make the workflow of gathering statistics on multiple repositories quicker and easier. Although GitinspectorGUI is part of a project under TU/e's BOOST initiative, it will serve as a self-contained product, as the software may be of use in many other settings, besides the university setting.
 
 ### 2.2 Product Functions
+
 GitinspectorGUI will have the following major functions:
+
 * Open one or more Git repositories, by either selecting the folder of the Git repository or selecting a folder containing folders of Git repositories.
 * Generate global repository statistics, like amount of branches, amount of contributors, total LOCs and file type distributions.
 * Generate statistics per author, like LOCs written, amount of insertions and deletions, percentage of contributions.
@@ -82,7 +95,9 @@ GitinspectorGUI will have the following major functions:
 * Configure settings which are saved and used between sessions.
 
 ### 2.3 Product Constraints
+
 GitinspectorGUI has the following constraints:
+
 * Users will be on Windows, MacOS or Linux, all of which should be supported.
 * Statistics generated should be deterministic.
 * Interfaces will be in English.
@@ -92,26 +107,37 @@ GitinspectorGUI has the following constraints:
 * The software will be distributed through platform-specific installers.
 
 ### 2.4 User Characteristics
+
 There are two main user classes which will make use of GitinspectorGUI. They are listed in order of importance:
+
 1. **University staff**: this class includes professors, assistant professors and student assistants. This is the most important class, given the origin of this software. Proper knowledge on Git or Version Control in general cannot be assumed for this class. This class is expected to use the GUI almost exclusively.
 2. **Developers**: this class captures anyone with some Computer Science knowledge, specifically with proper knowledge on Git. Besides using the GUI occasionally, this class is expected to use the CLI a lot more than **university staff**, given the somewhat more complicated nature of a CLI.
+
 ### 2.5 Assumptions and Dependencies
+
 A few assumptions are made for this software to work properly:
+
 1. The user has Git installed.
 2. The user is on Windows, MacOS or Linux.
 
 ## 3. Requirements
+
 ---
 The requirements specify the functionality of the software such that implementation details are excluded, leaving these to the developers' interpretations. Furthermore, they are specific enough for testers to test whether the software satisfies the requirements.
 
 ### 3.1 External Interfaces
+
 This subsection defines all the inputs into and outputs requirements of the software system.
+
 #### 3.1.1 User interfaces
+
 1. GitinspectorGUI shall provide a Graphical User Interface (GUI).
 2. GitInspectorGUI shall provide a Command Line Interface (CLI).
 
 #### 3.1.2 Software interfaces
+
 GitinspectorGUI will interface with the following software:
+
 * Windows, specifically versions 10 and 11.
 * Linux, specifically Debian based distributions.
 * MacOS, version 10.13 and above.
@@ -119,8 +145,8 @@ GitinspectorGUI will interface with the following software:
 * Rust, version 1.89 and above.
 * Node.js, version 22.18.0 (LTS)
 
-
 ### 3.2 Functional
+
 This section specifies the requirements of functional effects that the software-to-be is to have on its environment.
 
 1. GitinspectorGUI shall provide functionality to analyse Git repositories.
@@ -171,47 +197,59 @@ This section specifies the requirements of functional effects that the software-
 7. GitinspectorGUI shall allow the user to update the software in-app.
   7.1 GitinspectorGUI shall allow a user using the GUI to update the software through the GUI interface.
   7.2 GitinspectorGUI shall contain a command for a user to update the software through the CLI interface.
+
 ### 3.3 Quality of Service
+
 This section states additional, quality-related property requirements that the functional effects of the software should present.
 
 #### 3.3.1 Performance
+
 1. If multiple repositories need to be analysed, GitinspectorGUI will do this concurrently.
 2. If multiple repositories need to be analysed, GitinspectorGUI will do this dynamically. <!-- Meaning we don't wait for all repositories to finish, we instead display results of each repository once finished -->
 
 #### 3.3.2 Security
+
 1. GitinspectorGUI shall be available offline.
   1.1 GitinspectorGUI shall require an internet connection for updating the software.
 2. GitinspectorGUI shall only access files appointed to by the user.
 3. GitinspectorGUI shall only manipulate processes which it started itself.
 
 #### 3.3.3 Reliability
+
 1. If one or more repositories fail to analyse, GitinspectorGUI shall give the user the option to restart the analysis.
 2. GitinspectorGUI shall run the analysis process separately from the interfaces.
-
 
 ### 3.4 Design and Implementation
 
 #### 3.4.1 Installation
+
 Constraints to ensure that the software-to-be will run smoothly on the target implementation platform.
+
 1. GitinspectorGUI shall be compiled on devices running the target operating systems.
 
 #### 3.4.2 Distribution
+
 Constraints on software components to fit the geographically distributed structure of the host organization, the distribution of data to be processed, or the distribution of devices to be controlled.
+
 1. GitinspectorGUI's codebase shall be made available through GitHub.
 2. GitinspectorGUI's installers shall be made available through GitHub.
 3. GitinspectorGUI's updates shall be made available through the interfaces.
 
 #### 3.4.3 Maintainability & Reusability
+
 1. The interfaces shall never be coupled together.
 2. All subsystems of the software shall communicate using pre-defined types.
 
 #### 3.4.4 Deadline
+
 1. On October 1st, a soft deadline has been set, assuming a working prototype to be finished to be shown in a demo during an event.
 2. December 31st 2026 is the hard deadline of this project.
 
 ## 4. Verification
+
 ---
 The software will be tested against the set requirements using the following methods:
+
 1. Testing: unit, integration and system tests will be written to test the codebase against the applicable requirements.
 2. Reviews: involve stakeholders to test particular features against the set requirements.
 3. Analysis: Static and dynamic analysis of the codebase helps verify the software against the set requirements.
