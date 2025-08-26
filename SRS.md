@@ -34,7 +34,7 @@
   * 3.4 [Design and Implementation](#34-design-and-implementation)
     * 3.4.1 [Installation](#341-installation)
     * 3.4.2 [Distribution](#342-distribution)
-    * 3.4.3 [Maintainability & Reusability](#343-maintainability-&-reusability)
+    * 3.4.3 [Maintainability and Reusability](#343-maintainability-and-reusability)
     * 3.4.4 [Deadline](#344-deadline)
 * 4 [Verification](#4-verification)
 
@@ -316,7 +316,7 @@ the distribution of devices to be controlled.
 2. GitinspectorGUI's installers shall be made available through GitHub.
 3. GitinspectorGUI's updates shall be made available through the interfaces.
 
-#### 3.4.3 Maintainability & Reusability
+#### 3.4.3 Maintainability and Reusability
 
 1. The interfaces shall never be coupled together.
 2. All subsystems of the software shall communicate using pre-defined types.
