@@ -66,7 +66,7 @@ fn main() {
 
     // Create settings from command-line arguments
     let settings = Settings {
-        // input_fstrs: repositories.clone(),
+        repositories: repositories.clone(),
         depth,
         /* n_files,
         include_files,

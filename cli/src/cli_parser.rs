@@ -18,7 +18,7 @@ pub fn create_parser() -> Command {
                 .help("Maximum directory depth to search for repositories")
                 .value_name("DEPTH")
                 .default_value("3")
-                .value_parser(clap::value_parser!(u32))
+                .value_parser(clap::value_parser!(usize))
         )
         .arg(
             Arg::new("n-files")
