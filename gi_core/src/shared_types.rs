@@ -3,12 +3,14 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
+    pub repositories: Vec<String>,
     pub depth: usize,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Settings {
+            repositories: vec![],
             depth: 3,
         }
     }
