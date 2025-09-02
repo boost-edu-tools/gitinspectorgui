@@ -171,7 +171,7 @@ test-build/
 # Comment the following lines if you want to include lock files in your project.
 # src-tauri/Cargo.lock
 # pnpm-lock.yaml
-# uv.lock
+uv.lock
 
 # Ignore Cline files, as each developer can have their own configuration
 .clinerules/
