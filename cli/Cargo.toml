@@ -1,16 +1,16 @@
 [package]
 name = "cli"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 authors = ["Jelco Claessens jelcoclaessens@gmail.com"]
 description = "Modern git repository analysis tool CLI in Rust"
 readme = "README.md"
-homepage = "https://github.com/yourusername/git-inspector-gui"
-repository = "https://github.com/yourusername/git-inspector-gui"
+homepage = "https://github.com/boost-edu-tools/gitinspectorgui"
+repository = "https://github.com/boost-edu-tools/gitinspectorgui/tree/rewrite/cli"
 license = "MIT"
 keywords = ["git", "analysis", "statistics", "cli", "repository"]
 categories = ["command-line-utilities", "development-tools"]
-rust-version = "1.70"
+rust-version = "1.88.0"
 
 [dependencies]
 # Command-line argument parsing
