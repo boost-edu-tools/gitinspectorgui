@@ -1,7 +1,7 @@
 
 # Software Requirements Specification for GitinspectorGUI
 
-* Version 0.2
+* Version 0.3
 * Prepared by Max den Oudsten
 * 20-08-2025
 
@@ -40,11 +40,11 @@
 
 ## Revision History
 
-| Name            | Date       | Reason For Changes      | Version |
-| --------------- | ---------- | ----------------------- | ------- |
-| Max den Oudsten | 19-08-2025 | Initial setup.          | v0.1    |
-| Max den Oudsten | 20-08-2025 | Fix broken links in ToC | v0.2    |
-|                 |            |                         |         |
+| Name            | Date       | Reason For Changes             | Version |
+| --------------- | ---------- | ------------------------------ | ------- |
+| Max den Oudsten | 19-08-2025 | Initial setup.                 | v0.1    |
+| Max den Oudsten | 20-08-2025 | Fix broken links in ToC        | v0.2    |
+| Max den Oudsten | 05-09-2025 | Edited maintainability section | v0.3    |
 
 ## 1. Introduction
 
@@ -318,12 +318,13 @@ the distribution of devices to be controlled.
 
 #### 3.4.3 Maintainability and Reusability
 
-1. The interfaces shall never be coupled together.
-2. All subsystems of the software shall communicate using pre-defined types.
+1. The CLI and GUI are separate components and shall not interact with each other.
+2. The CLI and GUI shall exclusively interact with the Core through an API.
+3. All subsystems of the software shall communicate using pre-defined types.
 
 #### 3.4.4 Deadline
 
-1. On October 1st, a soft deadline has been set, assuming a working prototype to
+1. On October 1st 2025, a soft deadline has been set, assuming a working prototype to
    be finished to be shown in a demo during an event.
 2. December 31st 2026 is the hard deadline of this project.
 
