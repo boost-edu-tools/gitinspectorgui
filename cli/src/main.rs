@@ -1,5 +1,4 @@
 mod cli_parser;
-mod api;
 use cli_parser::create_parser;
 // use crate::api::PythonApiClient;
 use gi_core::Settings;
