@@ -1,0 +1,31 @@
+[package]
+name = "cli"
+version = "0.1.0"
+edition = "2024"
+authors = ["Jelco Claessens jelcoclaessens@gmail.com"]
+description = "Modern git repository analysis tool CLI in Rust"
+readme = "README.md"
+homepage = "https://github.com/boost-edu-tools/gitinspectorgui"
+repository = "https://github.com/boost-edu-tools/gitinspectorgui/tree/rewrite/cli"
+license = "MIT"
+keywords = ["git", "analysis", "statistics", "cli", "repository"]
+categories = ["command-line-utilities", "development-tools"]
+rust-version = "1.88.0"
+
+[dependencies]
+# Command-line argument parsing
+clap = { version = "4.0", features = ["derive"] }
+
+# Serialization/deserialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Inter-process communication
+interprocess = "2.2"
+
+# Gitinspector core
+gi_core = { path = "../gi_core" }
+
+# [lib]
+# name = "gitinspectorgui_cli"
+# path = "src/lib.rs"

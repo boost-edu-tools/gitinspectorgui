@@ -1,59 +1,36 @@
-# GitInspectorGUI
+# GitInspectorGUI rewrite
 
-Modern desktop application for git repository analysis with Tauri + React + TypeScript frontend and embedded Python backend via PyO3 helper functions.
+## How to Run
+For now, only the GUI can be launched. One can do this as follows:
+1. Make sure Rust, Node.js and pnpm are installed. If not, installing the latest (or LTS) versions will do.
+2. From the base directory, do `cd ./gui`
+3. Then, install all packages by running `pnpm install`
+4. Once installed, run the GUI by running `pnpm tauri dev`
 
-## ⚠️ IMPORTANT NOTICE
+**More installation and running instructions will follow here soon!**
 
-**This version of GitInspectorGUI is currently under development and not yet ready for production use.**
+## Global Component Overview
 
-For the stable, production-ready version, please use the original GitInspectorGUI which has been renamed and relocated to:
-[https://github.com/boost-edu-tools/gitinspectorgui-old](https://github.com/boost-edu-tools/gitinspectorgui-old)
+### GUI
+Within this rewrite branch, the GUI will stay as it is until it works on the new engine.
 
-## 🚀 Quick Links
+### CLI
+For sake of completeness, as @Jelco-C already made a start on a rust-based CLI, we will include it in this branch, to make testing the Core easier. This will be placed in the `cli` crate. The CLI functionality will grow with the core functionality, staying relatively similar to the gitinspectorgui-old syntax.
 
-- **📖 Documentation**: [boost-edu-tools.github.io/gitinspectorgui/](https://boost-edu-tools.github.io/gitinspectorgui/)
-- **🎮 Live Demo**: [boost-edu-tools.github.io/gitinspectorgui/demo](https://boost-edu-tools.github.io/gitinspectorgui/demo)
+### Core
+We will rewrite the whole Gitinspectorgui in Rust. Due to Rust being fundamentally different to Python, the [old Gitinspectorgui engine](https://github.com/boost-edu-tools/gitinspectorgui-old/tree/main/src/gigui) (not the engine found in this repository!) will be broken down in parts, and rebuilt piece by piece. 
+First, we'll implement an API file in the core, for the cli and gui to be built on. Then, we will reimplement the features in `lib.rs` in the following order:
 
-## ⚡ Quick Start
+1. `repo_base.py` functionality: This file contains the main analysis, which is the first we'll rebuild. In the Python implementation, it uses data classes. In Rust, we will implement these in their respective data structures in the the `shared-types`, while the repo_base functionality will be written in the `core` crate. The `person_data` functionality will be skipped, instead, each author will be seen as distinct person.
 
-### Prerequisites
+2. A module in the `core` crate will be made to deal with inputs and outputs from the GUI and CLI, the so-called API. This API will grow with the expansion of the core.
 
-- Python 3.11+
-- Node.js 20+ with pnpm
-- Rust 1.75+
-- Git 2.40+
+3. Building upon `repo_base.py`, we will implement the functionality of `repo_data.py`. Again, the `person_data.py` functionality will be skipped.
 
-### Development
+4. `repo_blame.py` functionality will be made. 
 
-```bash
-# Install dependencies and start development
-pnpm install
-pnpm run tauri dev
-```
+5. `person_data.py` functionality will be the last major function to be re-implemented. 
 
-## 🏗️ Architecture
+<br></br>
+This branch has reached its goal when it functions at least as well as the current implementation in the main branch.
 
-**PyO3 Helper Function Architecture (v2.0)**
-
-- Frontend: Tauri + React + TypeScript + shadcn/ui
-- Backend: Embedded Python analysis engine via PyO3 helper functions
-- Communication: Direct function calls (zero IPC overhead)
-
-## ✨ Features
-
-- **Desktop GUI**: Modern Tauri + React interface with real-time progress
-- **Standalone CLI**: Portable command-line tool for automation and CI/CD
-- Multi-repository analysis with 100+ configuration options
-- Real-time progress indicators and interactive tables
-- Robust error handling with retry mechanisms
-- Cross-platform support (macOS, Windows, Linux)
-- Production-ready monitoring and deployment
-
-## 📞 Support
-
-- **Documentation**: [Complete guides and API reference](https://boost-edu-tools.github.io/gitinspectorgui/)
-- **Issues**: Use GitHub Issues for bug reports and feature requests
-
----
-
-**Version**: Alpha | **Status**: In Development | **License**: MIT
