@@ -75,6 +75,19 @@ pub struct AnalysisParameters {
     pub exclude_files: Vec<&File>,       
 }
 
+impl Default for AnalysisParameters {
+    fn default() -> Self {
+        AnalysisParameters {
+            from_time: None,
+            to_time: None,
+            from_commit: None,
+            to_commit: None,
+            exclude_authors: vec![],
+            exclude_files: vec![],
+        }
+    }
+}
+
 pub struct AnalysisResult {
     pub repository: Repository,
     pub authors: Vec<Author>,
