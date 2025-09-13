@@ -2,6 +2,7 @@ mod filesystem;
 mod shared_types;
 pub use filesystem::*;
 pub use shared_types::*;
+pub use analysis::*;
 
 use std::fs;
 use std::path::{Path, PathBuf};
