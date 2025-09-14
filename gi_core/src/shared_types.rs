@@ -72,8 +72,8 @@ pub struct AnalysisParameters {
     pub from_commit: Option<String>,
     pub to_commit: Option<String>,
     // TODO: Check if Vec<&T> is appropriate here or if we should use Vec<String> or similar
-    pub exclude_authors: Vec<&Author>,
-    pub exclude_files: Vec<&File>,       
+    pub exclude_authors: Vec<Author>,
+    pub exclude_files: Vec<File>,       
 }
 
 impl Default for AnalysisParameters {
