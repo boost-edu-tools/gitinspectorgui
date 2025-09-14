@@ -62,27 +62,27 @@
 
 pub use shared_types::*;
 
-func analyse_between_timestamps() {
+fn analyse_between_timestamps() {
     // Placeholder for future implementation
 }
 
-func analyse_between_commits() {
+fn analyse_between_commits() {
     // Placeholder for future implementation
 }
 
-func filter_authors(result: AnalysisResult) {
+fn filter_authors(result: AnalysisResult) {
     // Placeholder for future implementation
 }
 
-func filter_files(result: AnalysisResult) {
+fn filter_files(result: AnalysisResult) {
     // Placeholder for future implementation
 }
 
-func filter_metrics(result: AnalysisResult) {
+fn filter_metrics(result: AnalysisResult) {
     // Placeholder for future implementation
 }
 
-func retrieve_blames_per_commit() {
+fn retrieve_blames_per_commit() {
     // Placeholder for future implementation
 }
 
