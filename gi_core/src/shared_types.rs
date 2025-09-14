@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-
+/// The Settings struct holds configuration settings for the analysis.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
     pub repositories: Vec<String>,
@@ -19,20 +19,32 @@ impl Default for Settings {
     }
 }
 
+/// The Author struct represents an author of commits in the repository.
 pub struct Author {
     pub name: String,
     pub email: String,
 }
 
+/// The Line struct represents a line in a file with its associated data.
+pub struct Line {
+    pub number: usize,
+    pub content: String,
+    pub author: Author,
+    pub commit_hash: String,
+    pub date: String,
+}
+
+/// The File struct represents a file in the repository with its associated data.
 pub struct File {
     pub name: String,
     pub extension: String,
     pub path: String,
     pub file_size: usize,
-    pub lines: usize,
+    pub lines: Vec<Line>,
     pub metrics: Metrics,
 }
 
+/// The Commit struct represents a git commit with its associated data.
 pub struct Commit {
     pub hash: String,
     pub author: Author,
@@ -42,6 +54,7 @@ pub struct Commit {
     pub metrics: Metrics,
 }
 
+/// The Repository struct represents a git repository with its associated data.
 pub struct Repository {
     pub name: String,
     pub path: String,
@@ -65,6 +78,7 @@ pub struct Metrics {
     pub total_files: Option<usize>,
 }
 
+/// The AnalysisParameters struct defines parameters for filtering the analysis of a repository.
 pub struct AnalysisParameters {
     pub from_time: Option<String>, // e.g., "2023-01-01"
     pub to_time: Option<String>,   // e.g., "2023-12-31"
@@ -88,6 +102,9 @@ impl Default for AnalysisParameters {
     }
 }
 
+/// The AnalysisResult struct encapsulates the results of analyzing a repository.
+/// It includes the full repository (unfiltered), lists of authors, commits, and files involved in the analysis,
+/// as well as aggregated metrics, which can be filtered based on the analysis parameters.
 pub struct AnalysisResult {
     pub repository: Repository,
     pub authors: Vec<Author>,
