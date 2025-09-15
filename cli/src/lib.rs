@@ -58,3 +58,30 @@ pub fn create_parser() -> Command {
         .arg(Arg::new("ignored-file-extensions")
             .long("ignored-file-extensions"))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn empty_repos_should_fail() {
+        // Simulate no repos
+        let cmd = create_parser().try_get_matches_from(vec!["gi-core"]);
+        assert!(cmd.is_err());
+    }
+
+    #[test]
+    fn parses_repositories() {
+        let cmd = create_parser().try_get_matches_from(vec![
+            "gi-core",
+            "repo1",
+            "repo2",
+            "--depth", "5",
+            "--ignored_extensions", "exe",
+        ]);
+        assert!(cmd.is_ok());
+        let m = cmd.unwrap();
+        let repos: Vec<_> = m.get_many::<String>("repositories").unwrap().collect();
+        assert_eq!(repos, vec!["repo1", "repo2"]);
+    }
+}
