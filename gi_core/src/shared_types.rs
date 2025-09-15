@@ -56,7 +56,7 @@ pub struct Author {
 pub struct Metrics {
     pub loc: Option<usize>,
     pub sloc: Option<usize>,
-    pub cloc: Option<usize>,
+    pub cloc: Option<usize>, // cloc = loc - sloc
     pub insertions: Option<usize>,
     pub deletions: Option<usize>,
     pub total_commits: Option<usize>,
@@ -94,11 +94,8 @@ impl Default for AnalysisParameters {
 /// It includes the full repository (unfiltered), lists of authors, commits, and files involved in the analysis,
 /// as well as aggregated metrics, which can be filtered based on the analysis parameters.
 pub struct AnalysisResult {
+    pub parameters: AnalysisParameters,
     pub repository: Repository,
-    pub authors: Vec<Author>,
-    pub commits: Vec<Commit>,
-    pub files: Vec<File>,
-    pub metrics: Metrics,
 }
 
 
@@ -117,6 +114,7 @@ impl Default for Settings {
             repositories: vec![],
             search_depth: 3,
             ignored_file_extensions: vec![],
+            allowed_file_extensions: vec![],
         }
     }
 }
