@@ -1,12 +1,12 @@
 use gi_core::Settings;
-use clap::{Arg, ArgAction, Command};
+use clap::{Arg, Command};
 use std::{error::Error};
 
 
 pub struct Config {
     pub repositories: Vec<String>,
     pub depth: usize,
-    pub ignored_file_extensions: Option<String>,
+    pub ignored_file_extensions: Vec<String>,
 }
 
 impl Config {
@@ -26,8 +26,11 @@ impl Config {
         Ok(Self {
             repositories,
             depth: *matches.get_one::<usize>("depth").unwrap(),
-            ignored_file_extensions: matches.get_one::<String>("ignored-file-extensions")
-            .cloned(),
+            ignored_file_extensions: matches
+                .get_many::<String>("ignored-file-extensions")
+                .unwrap_or_default()
+                .map(|s| s.to_string())
+                .collect(),
         })
 
     }
@@ -56,7 +59,8 @@ pub fn create_parser() -> Command {
             .value_parser(clap::value_parser!(usize))
             .default_value("1"))
         .arg(Arg::new("ignored-file-extensions")
-            .long("ignored-file-extensions"))
+            .long("ignored-file-extensions")
+            .num_args(1..))
 }
 
 #[cfg(test)]
@@ -71,17 +75,36 @@ mod tests {
     }
 
     #[test]
-    fn parses_repositories() {
-        let cmd = create_parser().try_get_matches_from(vec![
+    fn parses_full_cmd() {
+        let cmd = create_parser().try_get_matches_from(vec![ // Simulate cmdline typing
             "gi-core",
             "repo1",
             "repo2",
             "--depth", "5",
-            "--ignored_extensions", "exe",
+            "--ignored-file-extensions", "exe",
         ]);
         assert!(cmd.is_ok());
         let m = cmd.unwrap();
         let repos: Vec<_> = m.get_many::<String>("repositories").unwrap().collect();
         assert_eq!(repos, vec!["repo1", "repo2"]);
+
+        let depth = m.get_one::<usize>("depth").unwrap();
+        assert_eq!(*depth, 5);
+
+        let ignored_extensions = m.get_one::<String>("ignored-file-extensions")
+            .unwrap();
+        assert_eq!(ignored_extensions, "exe");
+    }
+
+    #[test]
+    fn default_depth_is_1() {
+        let cmd = create_parser().try_get_matches_from(vec![
+            "gi-core",
+            "repo1",
+        ]);
+        assert!(cmd.is_ok());
+        let m = cmd.unwrap();
+        let depth = m.get_one::<usize>("depth").unwrap();
+        assert_eq!(*depth, 1);
     }
 }
