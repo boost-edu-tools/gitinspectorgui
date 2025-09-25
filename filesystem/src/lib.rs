@@ -33,6 +33,21 @@ pub fn is_git_repository(path: &Path) -> bool {
     }
 }
 
+pub fn load_file(path: &Path) -> Result<String, String> { // TODO: Change return type to gi_core::File
+    fs::read_to_string(path)
+        .map_err(|error| format!("Error loading file: {}", error))
+}
+
+pub fn save_file(content: String, path: &Path) -> Result<PathBuf, String> { // TODO: Check return type
+    match fs::write(&path, content) {
+        Ok(_) => Ok(path.to_path_buf()),
+        Err(error) => {
+            Err(format!("Error saving file: {}", error))
+        }
+    }
+}
+
+// TODO: Add save_file test functions
 
 #[cfg(test)]
 
@@ -96,5 +111,28 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
 
         assert!(!is_git_repository(temp_dir.path()));
+    }
+
+    #[test]
+    fn file_should_load() {
+        let temp_dir = TempDir::new().unwrap();
+        let test_file = temp_dir.path().join("test.txt");
+        let content = "Hello, world!";
+        fs::write(&test_file, content).unwrap();
+
+        let result = load_file(&test_file);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), content);
+    }
+
+    #[test]
+    fn file_load_should_fail() {
+        let temp_dir = TempDir::new().unwrap();
+        let non_existent = temp_dir.path().join("does-not-exist.txt");
+
+        let result = load_file(&non_existent);
+        assert!(result.is_err());
+        let error_message = result.unwrap_err();
+        assert!(error_message.starts_with("Error loading file:"));
     }
 }
