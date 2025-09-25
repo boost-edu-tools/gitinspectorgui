@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use std::io;
 use serde_json;
 use gi_core::Settings;
+use csv;
 
 pub fn is_existing_path(path: &Path) -> bool {
     match path.try_exists() {
@@ -54,7 +55,28 @@ pub fn convert_to_json<T: serde::Serialize>(object_to_convert: &T) -> Result<Str
         .map_err(|error| format!("Error converting to JSON: {}", error))
 }
 
+// TODO: Functie schrijven die automatisch een vector maakt van data, gebaseerd op welke filters de user in de GUI heeft geselecteerd
+pub fn convert_to_csv<T: serde::Serialize>(object_to_convert: &[T]) -> Result<String, String> {
+    let mut writer = csv::Writer::from_writer(Vec::new());
+
+    // Write all entries
+    for entry in object_to_convert {
+        writer.serialize(entry)
+            .map_err(|error| format!("Error serializing record to CSV: {}", error))?;
+    }
+
+    // Extract CSV data from writer
+    let data = writer.into_inner()
+        .map_err(|error| format!("Error consuming CSV writer: {}", error))?;
+
+    // Convert data from string
+    String::from_utf8(data)
+        .map_err(|error| format!("Error converting CSV bytes to string: {}", error))
+
+}
+
 // TODO: Add save_file test functions
+// TODO: Create CSV conversion testing function that tests representative input for the final application
 
 #[cfg(test)]
 
@@ -159,5 +181,21 @@ mod tests {
         assert!(json_string.contains("\"ignored_file_extensions\""));
         assert!(json_string.contains("\"txt\""));
         assert!(json_string.contains("\"log\""));
+    }
+
+    #[test]
+    fn convert_to_csv_should_work_with_multiple_records() {
+        let data_vec = vec![
+            "Test test".to_string(),
+            "Hoi, hallo daar".to_string(),
+        ];
+
+        let result = convert_to_csv(&data_vec);
+        assert!(result.is_ok());
+
+        let csv_string = result.unwrap();
+
+        assert!(csv_string.contains("Test test"));
+        assert!(csv_string.contains("Hoi, hallo daar"));
     }
 }
