@@ -1,6 +1,8 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::io;
+use serde_json;
+use gi_core::Settings;
 
 pub fn is_existing_path(path: &Path) -> bool {
     match path.try_exists() {
@@ -45,6 +47,11 @@ pub fn save_file(content: String, path: &Path) -> Result<PathBuf, String> { // T
             Err(format!("Error saving file: {}", error))
         }
     }
+}
+
+pub fn convert_to_json<T: serde::Serialize>(object_to_convert: &T) -> Result<String, String> {
+    serde_json::to_string_pretty(object_to_convert)
+        .map_err(|error| format!("Error converting to JSON: {}", error))
 }
 
 // TODO: Add save_file test functions
@@ -134,5 +141,23 @@ mod tests {
         assert!(result.is_err());
         let error_message = result.unwrap_err();
         assert!(error_message.starts_with("Error loading file:"));
+    }
+
+    #[test]
+    fn convert_to_json_should_work() {
+        let settings = Settings {
+            repositories: vec!["test.txt".to_string()],
+            search_depth: 10,
+            ignored_file_extensions: vec!["txt".to_string(), "log".to_string()],
+        };
+
+        let result = convert_to_json(&settings);
+        assert!(result.is_ok());
+
+        let json_string = result.unwrap();
+        assert!(json_string.contains("\"search_depth\": 10"));
+        assert!(json_string.contains("\"ignored_file_extensions\""));
+        assert!(json_string.contains("\"txt\""));
+        assert!(json_string.contains("\"log\""));
     }
 }
