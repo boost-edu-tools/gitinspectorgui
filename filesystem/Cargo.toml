@@ -1,0 +1,12 @@
+[package]
+name = "filesystem"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gi_core = { version = "0.1.0", path = "../gi_core" }
+tempfile = "3.22.0"
+
+# [lib]
+# name = "filesystem"
+# path = "src/lib.rs"
