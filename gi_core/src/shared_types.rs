@@ -105,7 +105,7 @@ pub struct Settings {
     pub repositories: Vec<String>,
     pub search_depth: usize,
     pub ignored_file_extensions: Vec<String>,
-
+    pub allowed_file_extensions: Vec<String>,
 }
 
 impl Default for Settings {
