@@ -28,7 +28,7 @@ pub struct Repository {
     pub path: String,
     pub authors: Vec<Author>,
     pub commits: Vec<Commit>,
-    pub files: Vec<File>,
+    pub files: Vec<String>,
     pub metrics: Metrics,
 }
 
@@ -62,6 +62,22 @@ pub struct Metrics {
     pub total_commits: Option<usize>,
     pub total_authors: Option<usize>,
     pub total_files: Option<usize>,
+}
+
+// Implement a default empty Metrics struct
+impl Default for Metrics {
+    fn default() -> Self {
+        Metrics {
+            loc: None,
+            sloc: None,
+            cloc: None,
+            insertions: None,
+            deletions: None,
+            total_commits: None,
+            total_authors: None,
+            total_files: None,
+        }
+    }
 }
 
 
