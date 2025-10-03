@@ -1,72 +1,86 @@
 pub use crate::shared_types::*;
 
-    // fn make_dummy_analysis_result() -> AnalysisResult {
-    //     let author1 = Author { name: "Author1".to_string(), email: "author1@example.com".to_string() };
-    //     let author2 = Author { name: "Author2".to_string(), email: "author2@example.com".to_string() };
-    //     let file1 = File {
-    //         name: "file1.rs".to_string(),
-    //         extension: "rs".to_string(),
-    //         path: "/repo/file1.rs".to_string(),
-    //         file_size: 123,
-    //         lines: 10,
-    //         metrics: Metrics { loc: Some(10), sloc: Some(8), cloc: Some(2), insertions: Some(5), deletions: Some(1), total_commits: Some(2), total_authors: Some(1), total_files: Some(2) },
-    //     };
-    //     let file2 = File {
-    //         name: "file2.txt".to_string(),
-    //         extension: "txt".to_string(),
-    //         path: "/repo/file2.txt".to_string(),
-    //         file_size: 50,
-    //         lines: 5,
-    //         metrics: Metrics { loc: Some(5), sloc: Some(5), cloc: Some(0), insertions: Some(2), deletions: Some(0), total_commits: Some(1), total_authors: Some(1), total_files: Some(2) },
-    //     };
-    //     let commit1 = Commit {
-    //         hash: "abc123".to_string(),
-    //         author: author1.clone(),
-    //         date: "2023-01-01".to_string(),
-    //         message: "Initial commit".to_string(),
-    //         files_changed: vec![file1.clone(), file2.clone()],
-    //         metrics: Metrics { loc: Some(15), sloc: Some(13), cloc: Some(2), insertions: Some(7), deletions: Some(1), total_commits: Some(2), total_authors: Some(1), total_files: Some(2) },
-    //     };
-    //     let commit2 = Commit {
-    //         hash: "def456".to_string(),
-    //         author: author2.clone(),
-    //         date: "2023-01-02".to_string(),
-    //         message: "Edit file2 only".to_string(),
-    //         files_changed: vec![file2.clone()],
-    //         metrics: Metrics { loc: Some(5), sloc: Some(5), cloc: Some(0), insertions: Some(2), deletions: Some(0), total_commits: Some(1), total_authors: Some(1), total_files: Some(1) },
-    //     };
-    //     let commit3 = Commit {
-    //         hash: "ghi789".to_string(),
-    //         author: author1.clone(),
-    //         date: "2023-01-03".to_string(),
-    //         message: "Edit file1 only".to_string(),
-    //         files_changed: vec![file1.clone()],
-    //         metrics: Metrics { loc: Some(10), sloc: Some(8), cloc: Some(2), insertions: Some(3), deletions: Some(1), total_commits: Some(1), total_authors: Some(1), total_files: Some(1) },
-    //     };
-    //     let repo = Repository {
-    //         name: "dummy_repo".to_string(),
-    //         path: "/repo".to_string(),
-    //         authors: vec![author1.clone(), author2.clone()],
-    //         commits: vec![commit1.clone(), commit2.clone(), commit3.clone()],
-    //         files: vec![file1.clone(), file2.clone()],
-    //         metrics: Metrics { loc: Some(15), sloc: Some(13), cloc: Some(2), insertions: Some(7), deletions: Some(1), total_commits: Some(3), total_authors: Some(2), total_files: Some(2) },
-    //     };
-    //     AnalysisResult {
-    //         repository: repo,
-    //         authors: vec![author1, author2],
-    //         commits: vec![commit1, commit2, commit3],
-    //         files: vec![file1, file2],
-    //         metrics: Metrics { loc: Some(15), sloc: Some(13), cloc: Some(2), insertions: Some(7), deletions: Some(1), total_commits: Some(3), total_authors: Some(2), total_files: Some(2) },
-    //     }
-    // }
+use std::str;
+use crate::shared_types::{Commit, Author, File, Metrics};
 
+use std::path::Path;
+use std::collections::HashSet;
+use std::process::Command;
 
-fn analyse_between_timestamps() {
+fn analyse_between_timestamps(repo: &Path, start: &str, end: &str, params: &AnalysisParameters) {// -> Repository {
     // Placeholder for future implementation
 }
 
-fn analyse_between_commits() {
-    // Placeholder for future implementation
+fn analyse_between_commits(repo: &Path, start: &str, end: &str) {
+    // Run git log to get commit info and changed files, separated by empty lines
+    let output = Command::new("git")
+        .current_dir(repo)
+        .args([
+            "log",
+            // &format!("{}..{}", start, end),
+            "--pretty=format:%h / %an <%ae> / %ad / %s",
+            "--date=short",
+            "--name-only",
+        ])
+        .output()
+        .expect("Failed to run git log");
+
+    if output.status.success() {
+        let stdout = str::from_utf8(&output.stdout).unwrap();
+        let commit_strings: Vec<&str> = stdout.split("\n\n").filter(|s| !s.trim().is_empty()).collect();
+        let mut commits = Vec::new();
+        for commit_str in commit_strings {
+            let mut lines = commit_str.lines();
+            if let Some(header) = lines.next() {
+                let mut parts = header.splitn(4, " / ");
+                let hash = parts.next().unwrap_or("").trim().to_string();
+                let author_str = parts.next().unwrap_or("").trim().to_string();
+                let date = parts.next().unwrap_or("").trim().to_string();
+                let message = parts.next().unwrap_or("").trim().to_string();
+                // Parse author name and email
+                let (author_name, author_email) = if let Some(start) = author_str.find('<') {
+                    let end = author_str.find('>').unwrap_or(author_str.len());
+                    (
+                        author_str[..start].trim().to_string(),
+                        author_str[start+1..end].trim().to_string(),
+                    )
+                } else {
+                    (author_str.clone(), String::new())
+                };
+                let author = Author { name: author_name, email: author_email };
+                // Parse files (as File structs with only name/path, others default)
+                let files_changed: Vec<File> = lines
+                    .map(|l| l.trim())
+                    .filter(|l| !l.is_empty())
+                    .map(|file_path| File {
+                        name: file_path.split('/').last().unwrap_or("").to_string(),
+                        extension: file_path.split('.').last().unwrap_or("").to_string(),
+                        path: file_path.to_string(),
+                        file_size: 0,
+                        lines: vec![],
+                        metrics: Metrics::default(),
+                    })
+                    .collect();
+                let metrics = Metrics::default();
+                commits.push(Commit {
+                    hash,
+                    author,
+                    date,
+                    message,
+                    files_changed,
+                    metrics,
+                });
+            }
+        }
+        // For demonstration, print the parsed commits
+        for commit in &commits {
+            println!("hash: {} | author: {} <{}> | date: {} | message: {} | files: {:?}",
+                commit.hash, commit.author.name, commit.author.email, commit.date, commit.message, commit.files_changed.iter().map(|f| &f.path).collect::<Vec<_>>());
+        }
+    } else {
+        let stderr = str::from_utf8(&output.stderr).unwrap();
+        eprintln!("Git log failed: {}", stderr);
+    }
 }
 
 fn filter_authors(result: AnalysisResult) {
@@ -92,13 +106,19 @@ mod tests {
     #[test]
     fn test_analyse_between_timestamps() {
         // Placeholder test
-        analyse_between_timestamps();
+        // analyse_between_timestamps();
     }
 
     #[test]
     fn test_analyse_between_commits() {
         // Placeholder test
-        analyse_between_commits();
+        // Run analysis between two commit hashes in a known repository
+        let repo_path = Path::new("C:\\Users\\MDOpc\\Repositories\\gitinspectorgui");
+        let start_commit = "abc123";
+        let end_commit = "def456";
+        // Print the result of the analysis
+        let result = analyse_between_commits(&repo_path, start_commit, end_commit);
+        println!("{:?}", result);
     }
 
     #[test]
