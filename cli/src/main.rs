@@ -17,7 +17,7 @@ fn main() {
         .map(|s| s.to_string())
         .collect();
 
-    let depth = *matches.get_one::<usize>("depth").unwrap();
+    let search_depth = *matches.get_one::<usize>("search_depth").unwrap();
     let n_files = *matches.get_one::<u32>("n-files").unwrap();
     
     let include_files: Vec<String> = matches
@@ -64,22 +64,22 @@ fn main() {
     };
 
     // Create settings from command-line arguments
-    let settings = Settings {
-        repositories: repositories.clone(),
-        depth,
-        /* n_files,
-        include_files,
-        ex_files: exclude_files,
-        ex_authors: exclude_authors,
-        ex_emails: exclude_emails,
-        ex_revisions: Vec::new(),
-        ex_messages: Vec::new(),
-        copy_move,
-        scaled_percentages,
-        blame_exclusions: if blame_exclusions { "show" } else { "hide" }.to_string(),
-        view: view.to_string(),
-        dryrun: dry_run,*/
-    };
+    // let settings = Settings {
+    //     repositories: repositories.clone(),
+    //     search_depth,
+    //     /* n_files,
+    //     include_files,
+    //     ex_files: exclude_files,
+    //     ex_authors: exclude_authors,
+    //     ex_emails: exclude_emails,
+    //     ex_revisions: Vec::new(),
+    //     ex_messages: Vec::new(),
+    //     copy_move,
+    //     scaled_percentages,
+    //     blame_exclusions: if blame_exclusions { "show" } else { "hide" }.to_string(),
+    //     view: view.to_string(),
+    //     dryrun: dry_run,*/
+    // };
 
     if repositories.is_empty() {
         eprintln!("Error: No repositories specified");
@@ -88,7 +88,7 @@ fn main() {
     }
 
     // Execute analysis
-    api::run_core(&settings);
+    // api::run_core(&settings);
 
     // Output results
     /*if let Err(e) = print_analysis(&result, output_format) {
