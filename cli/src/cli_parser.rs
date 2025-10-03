@@ -13,8 +13,8 @@ pub fn create_parser() -> Command {
                 .value_hint(ValueHint::DirPath)
         )
         .arg(
-            Arg::new("depth")
-                .long("depth")
+            Arg::new("search_depth")
+                .long("search_depth")
                 .help("Maximum directory depth to search for repositories")
                 .value_name("DEPTH")
                 .default_value("3")
