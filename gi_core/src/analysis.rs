@@ -13,6 +13,9 @@ fn analyse_between_timestamps(repo: &Path, start: &str, end: &str, params: &Anal
 
 fn analyse_between_commits(repo: &Path, start: &str, end: &str) {
     // Run git log to get commit info and changed files, separated by empty lines
+    // We define a custom format to make parsing easier
+    // This format is: short hash / author name <email> / date / message
+    // Followed by the list of changed files, one per line
     let output = Command::new("git")
         .current_dir(repo)
         .args([
@@ -28,15 +31,20 @@ fn analyse_between_commits(repo: &Path, start: &str, end: &str) {
     if output.status.success() {
         let stdout = str::from_utf8(&output.stdout).unwrap();
         let commit_strings: Vec<&str> = stdout.split("\n\n").filter(|s| !s.trim().is_empty()).collect();
+
         let mut commits = Vec::new();
+        let mut unique_authors: HashSet<Author> = HashSet::new();
+
         for commit_str in commit_strings {
             let mut lines = commit_str.lines();
             if let Some(header) = lines.next() {
+                // Parsing the header line
                 let mut parts = header.splitn(4, " / ");
                 let hash = parts.next().unwrap_or("").trim().to_string();
                 let author_str = parts.next().unwrap_or("").trim().to_string();
                 let date = parts.next().unwrap_or("").trim().to_string();
                 let message = parts.next().unwrap_or("").trim().to_string();
+                
                 // Parse author name and email
                 let (author_name, author_email) = if let Some(start) = author_str.find('<') {
                     let end = author_str.find('>').unwrap_or(author_str.len());
@@ -47,7 +55,11 @@ fn analyse_between_commits(repo: &Path, start: &str, end: &str) {
                 } else {
                     (author_str.clone(), String::new())
                 };
+
                 let author = Author { name: author_name, email: author_email };
+                // Insert into unique authors set
+                unique_authors.insert(author.clone());
+
                 // Parse files (as File structs with only name/path, others default)
                 let files_changed: Vec<File> = lines
                     .map(|l| l.trim())
@@ -61,7 +73,10 @@ fn analyse_between_commits(repo: &Path, start: &str, end: &str) {
                         metrics: Metrics::default(),
                     })
                     .collect();
+
                 let metrics = Metrics::default();
+                
+                // Move parsed values into the commits vector (no cloning required)
                 commits.push(Commit {
                     hash,
                     author,
@@ -78,16 +93,10 @@ fn analyse_between_commits(repo: &Path, start: &str, end: &str) {
                 commit.hash, commit.author.name, commit.author.email, commit.date, commit.message, commit.files_changed.iter().map(|f| &f.path).collect::<Vec<_>>());
         }
 
-        // Collect unique authors and print them
-        let mut unique_authors: HashSet<String> = HashSet::new();
-        for commit in &commits {
-            let author_repr = format!("{} <{}>", commit.author.name, commit.author.email);
-            unique_authors.insert(author_repr);
-        }
-
+        // Print unique authors collected during parsing
         println!("\nUnique authors ({}):", unique_authors.len());
         for author in &unique_authors {
-            println!("{}", author);
+            println!("{} <{}>", author.name, author.email);
         }
     } else {
         let stderr = str::from_utf8(&output.stderr).unwrap();
