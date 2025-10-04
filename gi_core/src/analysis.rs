@@ -77,6 +77,18 @@ fn analyse_between_commits(repo: &Path, start: &str, end: &str) {
             println!("hash: {} | author: {} <{}> | date: {} | message: {} | files: {:?}",
                 commit.hash, commit.author.name, commit.author.email, commit.date, commit.message, commit.files_changed.iter().map(|f| &f.path).collect::<Vec<_>>());
         }
+
+        // Collect unique authors and print them
+        let mut unique_authors: HashSet<String> = HashSet::new();
+        for commit in &commits {
+            let author_repr = format!("{} <{}>", commit.author.name, commit.author.email);
+            unique_authors.insert(author_repr);
+        }
+
+        println!("\nUnique authors ({}):", unique_authors.len());
+        for author in &unique_authors {
+            println!("{}", author);
+        }
     } else {
         let stderr = str::from_utf8(&output.stderr).unwrap();
         eprintln!("Git log failed: {}", stderr);
