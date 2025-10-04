@@ -44,6 +44,8 @@ pub struct Commit {
 }
 
 /// The Author struct represents an author of commits in the repository.
+/// We derive Hash and Eq to allow usage in HashSet for uniqueness.
+#[derive(Debug, Clone, PartialEq, Eq, std::hash::Hash)]
 pub struct Author {
     pub name: String,
     pub email: String,
