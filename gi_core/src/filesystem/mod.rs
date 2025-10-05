@@ -1,8 +1,6 @@
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::io;
 use serde_json;
-use gi_core::Settings;
 use csv;
 
 pub fn is_existing_path(path: &Path) -> bool {
@@ -84,6 +82,7 @@ mod tests {
     use super::*;
     use tempfile::TempDir;
     use std::fs;
+    use crate::Settings;
 
     #[test]
     fn directory_path_should_exist() {
