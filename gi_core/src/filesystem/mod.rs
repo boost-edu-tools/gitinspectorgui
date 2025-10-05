@@ -170,6 +170,7 @@ mod tests {
             repositories: vec!["test.txt".to_string()],
             search_depth: 10,
             ignored_file_extensions: vec!["txt".to_string(), "log".to_string()],
+            allowed_file_extensions: vec!["hoi".to_string(), "csv".to_string()],
         };
 
         let result = convert_to_json(&settings);
