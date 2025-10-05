@@ -20,7 +20,7 @@ fn analyse_between_commits(repo: &Path, start: &str, end: &str) {
         .current_dir(repo)
         .args([
             "log",
-            // &format!("{}..{}", start, end),
+            &format!("{}..{}", start, end),
             "--pretty=format:%h / %an <%ae> / %ad / %s",
             "--date=short",
             "--name-only",
@@ -135,8 +135,9 @@ mod tests {
         // Placeholder test
         // Run analysis between two commit hashes in a known repository
         let repo_path = Path::new("C:\\Users\\MDOpc\\Repositories\\gitinspectorgui");
-        let start_commit = "abc123";
-        let end_commit = "def456";
+        // Excluding start, including end
+        let start_commit = "02c101f";
+        let end_commit = "c1dd7cd";
         // Print the result of the analysis
         let result = analyse_between_commits(&repo_path, start_commit, end_commit);
         println!("{:?}", result);
