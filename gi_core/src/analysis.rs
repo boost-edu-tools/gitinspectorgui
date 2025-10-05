@@ -144,6 +144,30 @@ mod tests {
     }
 
     #[test]
+    fn test_analyse_between_commits_start_end_same() {
+        // Run analysis between two identical commit hashes in a known repository
+        let repo_path = Path::new("C:\\Users\\MDOpc\\Repositories\\gitinspectorgui");
+        let start_commit = "02c101f";
+        let end_commit = "02c101f";
+        // Running the analysis should error because the git log will be empty
+        // for a range with the same start and end
+        let result = analyse_between_commits(&repo_path, start_commit, end_commit);
+        println!("{:?}", result);
+    }
+
+    #[test]
+    fn test_analyse_between_commits_end_before_start() {
+        // Run analysis between two commit hashes in a known repository where end is before start
+        let repo_path = Path::new("C:\\Users\\MDOpc\\Repositories\\gitinspectorgui");
+        let start_commit = "c1dd7cd";
+        let end_commit = "02c101f";
+        // Running the analysis should error because the git log will be empty
+        // for a range where the end is before the start
+        let result = analyse_between_commits(&repo_path, start_commit, end_commit);
+        println!("{:?}", result);
+    }
+
+    #[test]
     fn test_filter_authors() {
         // Placeholder test
         // let dummy = make_dummy_analysis_result();
