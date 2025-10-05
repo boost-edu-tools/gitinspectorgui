@@ -1,7 +1,7 @@
 pub use crate::shared_types::*;
 
 use std::str;
-use crate::shared_types::{Commit, Author, File, Metrics};
+use crate::shared_types::{AnalysisParameters, Commit, Author, File, Metrics};
 
 use std::path::Path;
 use std::collections::HashSet;
@@ -11,20 +11,36 @@ fn analyse_between_timestamps(repo: &Path, start: &str, end: &str, params: &Anal
     // Placeholder for future implementation
 }
 
-fn analyse_between_commits(repo: &Path, start: &str, end: &str) {
+fn analyse_between_commits(params: &AnalysisParameters) {
+    // Resolve repo path and commit range from params
+    let repo = Path::new(&params.repo_path);
+    let start = params.from_commit.as_deref().unwrap_or("");
+    let end = params.to_commit.as_deref().unwrap_or("");
+    
     // Run git log to get commit info and changed files, separated by empty lines
     // We define a custom format to make parsing easier
     // This format is: short hash / author name <email> / date / message
     // Followed by the list of changed files, one per line
+
+    // Build the Git Log command
+    let mut args: Vec<String> = Vec::new();
+    args.push("log".to_string());
+
+    // Add the commit range if (partially) specified
+    if !(start.is_empty() && end.is_empty()) {
+    let range = format!("{}..{}", start, end);
+    args.push(range);
+    }
+
+    // Add the pretty format and other flags
+    args.push("--pretty=format:%h / %an <%ae> / %ad / %s".to_string());
+    args.push("--date=short".to_string());
+    args.push("--name-only".to_string());
+
+    // Run the command
     let output = Command::new("git")
         .current_dir(repo)
-        .args([
-            "log",
-            &format!("{}..{}", start, end),
-            "--pretty=format:%h / %an <%ae> / %ad / %s",
-            "--date=short",
-            "--name-only",
-        ])
+        .args(&args)
         .output()
         .expect("Failed to run git log");
 
