@@ -7,6 +7,7 @@ pub struct Config {
     pub repositories: Vec<String>,
     pub depth: usize,
     pub ignored_file_extensions: Vec<String>,
+    pub allowed_file_extensions: Vec<String>,
 }
 
 impl Config {
@@ -31,6 +32,11 @@ impl Config {
                 .unwrap_or_default()
                 .map(|s| s.to_string())
                 .collect(),
+            allowed_file_extensions: matches
+                .get_many::<String>("ignored-file-extensions")
+                .unwrap_or_default()
+                .map(|s| s.to_string())
+                .collect(),
         })
 
     }
@@ -41,6 +47,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         repositories: config.repositories.clone(),
         search_depth: config.depth,
         ignored_file_extensions: config.ignored_file_extensions.clone(),
+        allowed_file_extensions: config.allowed_file_extensions.clone(),
     };
 
     //TODO: RUN CORE
