@@ -97,6 +97,7 @@ pub struct AnalysisParameters {
 impl Default for AnalysisParameters {
     fn default() -> Self {
         AnalysisParameters {
+            repo_path: String::new(),
             from_time: None,
             to_time: None,
             from_commit: None,
