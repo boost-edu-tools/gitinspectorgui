@@ -43,7 +43,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         ignored_file_extensions: config.ignored_file_extensions.clone(),
     };
 
-    // RUN CORE
+    //TODO: RUN CORE
 
     Ok(())
 }
