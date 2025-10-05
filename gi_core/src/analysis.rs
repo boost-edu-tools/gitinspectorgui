@@ -154,9 +154,12 @@ mod tests {
         // Excluding start, including end
         let start_commit = "02c101f";
         let end_commit = "c1dd7cd";
-        // Print the result of the analysis
-        let result = analyse_between_commits(&repo_path, start_commit, end_commit);
-        println!("{:?}", result);
+        // Build AnalysisParameters and run analysis
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+        analyse_between_commits(&params);
     }
 
     #[test]
@@ -167,8 +170,11 @@ mod tests {
         let end_commit = "02c101f";
         // Running the analysis should error because the git log will be empty
         // for a range with the same start and end
-        let result = analyse_between_commits(&repo_path, start_commit, end_commit);
-        println!("{:?}", result);
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+        analyse_between_commits(&params);
     }
 
     #[test]
@@ -179,8 +185,11 @@ mod tests {
         let end_commit = "02c101f";
         // Running the analysis should error because the git log will be empty
         // for a range where the end is before the start
-        let result = analyse_between_commits(&repo_path, start_commit, end_commit);
-        println!("{:?}", result);
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+        analyse_between_commits(&params);
     }
 
     #[test]
