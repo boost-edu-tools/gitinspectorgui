@@ -152,6 +152,7 @@ fn retrieve_blames_per_commit() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
     #[test]
     fn test_analyse_between_timestamps() {
@@ -163,7 +164,10 @@ mod tests {
     fn test_analyse_between_commits() {
         // Placeholder test
         // Run analysis between two commit hashes in a known repository
-        let repo_path = Path::new("C:\\Users\\MDOpc\\Repositories\\gitinspectorgui");
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
         // Excluding start, including end
         let start_commit = "02c101f";
         let end_commit = "c1dd7cd";
@@ -178,7 +182,10 @@ mod tests {
     #[test]
     fn test_analyse_between_commits_start_end_same() {
         // Run analysis between two identical commit hashes in a known repository
-        let repo_path = Path::new("C:\\Users\\MDOpc\\Repositories\\gitinspectorgui");
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
         let start_commit = "02c101f";
         let end_commit = "02c101f";
         // Running the analysis should error because the git log will be empty
@@ -193,7 +200,10 @@ mod tests {
     #[test]
     fn test_analyse_between_commits_end_before_start() {
         // Run analysis between two commit hashes in a known repository where end is before start
-        let repo_path = Path::new("C:\\Users\\MDOpc\\Repositories\\gitinspectorgui");
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
         let start_commit = "c1dd7cd";
         let end_commit = "02c101f";
         // Running the analysis should error because the git log will be empty
