@@ -120,9 +120,10 @@ fn analyse_between_commits(params: &AnalysisParameters) {
     }
 }
 
-fn filter_authors(mut result: AnalysisResult, authors_to_exclude: &[Author]) -> AnalysisResult {
-    let exclude_set: HashSet<&Author> = authors_to_exclude.iter().collect();
-
+fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Result<AnalysisResult, String> {
+    let mut result = result;
+    let exclude_set: HashSet<Author> = authors_to_exclude.into_iter().collect();
+    
     // Keep only the commits whose author is NOT in authors_to_exclude
     result.repository.commits.retain(|commit| !exclude_set.contains(&commit.author));
 
@@ -131,7 +132,6 @@ fn filter_authors(mut result: AnalysisResult, authors_to_exclude: &[Author]) -> 
         .iter()
         .map(|commit| commit.author.clone())
         .collect();
-
     result.repository.authors = unique_authors.into_iter().collect();
     
     result
