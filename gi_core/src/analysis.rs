@@ -11,7 +11,7 @@ fn analyse_between_timestamps(repo: &Path, start: &str, end: &str, params: &Anal
     // Placeholder for future implementation
 }
 
-fn analyse_between_commits(params: &AnalysisParameters) {
+fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult, String> {
     // Resolve repo path and commit range from params
     let repo = Path::new(&params.repo_path);
     let start = params.from_commit.as_deref().unwrap_or("");
@@ -114,9 +114,29 @@ fn analyse_between_commits(params: &AnalysisParameters) {
         for author in &unique_authors {
             println!("{} <{}>", author.name, author.email);
         }
+
+        // Build the Repository and AnalysisResult to return
+        let repo_name = repo.file_name()
+            .and_then(|os| os.to_str())
+            .unwrap_or("")
+            .to_string();
+
+        let repository = Repository {
+            name: repo_name,
+            path: params.repo_path.clone(),
+            authors: unique_authors.clone().into_iter().collect(),
+            commits: commits.clone(),
+            files: commits.iter().flat_map(|c| c.files_changed.iter().map(|f| f.path.clone())).collect(),
+            metrics: Metrics::default(),
+        };
+
+        Ok(AnalysisResult {
+            parameters: params.clone(),
+            repository,
+        })
     } else {
-        let stderr = str::from_utf8(&output.stderr).unwrap();
-        eprintln!("Git log failed: {}", stderr);
+        let stderr = str::from_utf8(&output.stderr).unwrap_or("Unknown error");
+        Err(format!("Git log failed: {}", stderr))
     }
 }
 
@@ -145,7 +165,7 @@ fn filter_metrics(result: AnalysisResult) {
     // Placeholder for future implementation
 }
 
-fn retrieve_blames_per_commit() {
+fn retrieve_blames_per_commit(result: &AnalysisResult, params: &AnalysisParameters) {
     // Placeholder for future implementation
 }
 
@@ -176,7 +196,15 @@ mod tests {
         params.repo_path = repo_path.to_string_lossy().to_string();
         params.from_commit = Some(start_commit.to_string());
         params.to_commit = Some(end_commit.to_string());
-        analyse_between_commits(&params);
+        let result = analyse_between_commits(&params);
+        match result {
+            Ok(analysis) => {
+                println!("AnalysisResult: commits={}, authors={}", analysis.repository.commits.len(), analysis.repository.authors.len());
+            },
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
     }
 
     #[test]
@@ -194,7 +222,15 @@ mod tests {
         params.repo_path = repo_path.to_string_lossy().to_string();
         params.from_commit = Some(start_commit.to_string());
         params.to_commit = Some(end_commit.to_string());
-        analyse_between_commits(&params);
+        let result = analyse_between_commits(&params);
+        match result {
+            Ok(analysis) => {
+                println!("AnalysisResult: commits={}, authors={}", analysis.repository.commits.len(), analysis.repository.authors.len());
+            },
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
     }
 
     #[test]
@@ -212,7 +248,15 @@ mod tests {
         params.repo_path = repo_path.to_string_lossy().to_string();
         params.from_commit = Some(start_commit.to_string());
         params.to_commit = Some(end_commit.to_string());
-        analyse_between_commits(&params);
+        let result = analyse_between_commits(&params);
+        match result {
+            Ok(analysis) => {
+                println!("AnalysisResult: commits={}, authors={}", analysis.repository.commits.len(), analysis.repository.authors.len());
+            },
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
     }
 
     #[test]
