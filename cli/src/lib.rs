@@ -50,7 +50,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         allowed_file_extensions: config.allowed_file_extensions.clone(),
     };
 
-    //TODO: RUN CORE
+    // RUN CORE
 
     Ok(())
 }
