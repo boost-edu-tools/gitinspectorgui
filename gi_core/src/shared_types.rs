@@ -84,6 +84,7 @@ impl Default for Metrics {
 
 
 /// The AnalysisParameters struct defines parameters for filtering the analysis of a repository.
+#[derive(Clone)]
 pub struct AnalysisParameters {
     pub repo_path: String,
     pub from_time: Option<String>, // e.g., "2023-01-01"
