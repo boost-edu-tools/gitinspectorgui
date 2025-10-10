@@ -170,7 +170,7 @@ fn filter_metrics(result: AnalysisResult) {
     // Placeholder for future implementation
 }
 
-fn retrieve_blames_per_commit(result: &AnalysisResult, params: &AnalysisParameters) {
+fn retrieve_blames_between_commits(result: &AnalysisResult) {
     // Placeholder for future implementation
 }
 
