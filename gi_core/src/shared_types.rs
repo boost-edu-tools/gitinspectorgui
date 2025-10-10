@@ -2,6 +2,7 @@ use serde::{Serialize, Deserialize};
 
 
 /// The File struct represents a file in the repository with its associated data.
+#[derive(Clone)]
 pub struct File {
     pub name: String,
     pub extension: String,
@@ -13,6 +14,7 @@ pub struct File {
 
 
 /// The Line struct represents a line in a file with its associated data.
+#[derive(Clone)]
 pub struct Line {
     pub number: usize,
     pub content: String,
@@ -34,6 +36,7 @@ pub struct Repository {
 
 
 /// The Commit struct represents a git commit with its associated data.
+#[derive(Clone)]
 pub struct Commit {
     pub hash: String,
     pub author: Author,
@@ -55,6 +58,7 @@ pub struct Author {
 /// The Metrics struct stores metrics in the context of the struct it is used in.
 /// For example, in the context of a Repository, it stores overall repository metrics.
 /// All metrics are optional and can be None if not calculated or not applicable.
+#[derive(Clone)]
 pub struct Metrics {
     pub loc: Option<usize>,
     pub sloc: Option<usize>,
