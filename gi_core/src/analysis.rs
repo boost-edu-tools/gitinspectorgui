@@ -134,7 +134,18 @@ fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Re
         .collect();
     result.repository.authors = unique_authors.into_iter().collect();
     
-    result
+    // Get files from commits
+    let commit_files: HashSet<String> = result.repository.commits
+        .iter()
+        .flat_map(|commit| commit.files_changed.iter())
+        .map(|file| file.path.clone())
+        .collect();
+
+    result.repository.files = commit_files.into_iter().collect();
+
+    // TODO: Calculate repository-level metrics
+    // result.repository.metrics = calculate_metrics();
+    Ok(result)
 }
 
 fn filter_files(result: AnalysisResult) {
