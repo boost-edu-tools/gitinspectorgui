@@ -1,17 +1,12 @@
-import {
-  Plus, Folder} from "lucide-react"
-
+import {Plus, Folder} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-
-import { Button } from "@/components/ui/button"
-
-import { Input } from "@/components/ui/input"
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +21,7 @@ import {
 
 
 export function DataImport() {
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Data import</SidebarGroupLabel>
@@ -39,7 +35,7 @@ export function DataImport() {
                   className="w-full justify-start"
                   aria-label="Start a new analysis"
                 >
-                  <Plus className="mr-2 h-4 w-4" />
+                  <Plus className="mr-2 h-3 w-3" />
                   New analysis
                 </Button>
             </AlertDialogTrigger>
@@ -66,7 +62,9 @@ export function DataImport() {
         <SidebarMenuItem>
           <div className="min-w-0 px-2 py-1 text-xs text-muted-foreground flex items-center gap-2">
             <Folder className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">C:/path/to/repo</span>
+              <span className="truncate">
+                /home/user/projects
+              </span>
           </div>
         </SidebarMenuItem>
       </SidebarMenu>

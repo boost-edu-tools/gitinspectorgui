@@ -1,0 +1,9 @@
+{
+  "repositories": [
+    "/home/user/projects/awesome-repo",
+    "/home/user/projects/another-repo"
+  ],
+  "search_depth": 3,
+  "ignored_file_extensions": ["png", "jpg", "svg", "lock"],
+  "allowed_file_extensions": ["rs", "toml", "md"]
+}
