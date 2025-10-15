@@ -12,17 +12,34 @@ pub struct File {
     pub metrics: Metrics,
 }
 
+impl File {
+    /// Retrieves a line by its number from the file.
+    /// Returns None if the line number does not exist.
+    pub fn get_line_by_number(&self, number: usize) -> Option<&Line> {
+        self.lines.iter().find(|line| line.number == number)
+    }
+
+    /// 
+}
+
 
 /// The Line struct represents a line in a file with its associated data.
 #[derive(Clone)]
 pub struct Line {
     pub number: usize,
     pub content: String,
-    pub author: Author,
+    pub author_id: Integer,
     pub commit_hash: String,
     pub date: String,
+    pub line_type: LineType,
 }
 
+
+pub enum LineType {
+    SLOC,
+    CLOC
+}
+    
 
 /// The Repository struct represents a git repository with its associated data.
 pub struct Repository {
@@ -39,7 +56,7 @@ pub struct Repository {
 #[derive(Clone)]
 pub struct Commit {
     pub hash: String,
-    pub author: Author,
+    pub author_id: Integer,
     pub date: String,
     pub message: String,
     pub files_changed: Vec<File>,
@@ -50,8 +67,12 @@ pub struct Commit {
 /// We derive Hash and Eq to allow usage in HashSet for uniqueness.
 #[derive(Debug, Clone, PartialEq, Eq, std::hash::Hash)]
 pub struct Author {
+    pub id: Integer,
     pub name: String,
     pub email: String,
+    pub commit_hashes: Vec<String>, // List of commit hashes authored by this author
+    pub files: Vec<String>,   // List of file paths modified by this author
+    pub metrics: Metrics,
 }
 
 
@@ -118,8 +139,9 @@ impl Default for AnalysisParameters {
 /// It includes the full repository (unfiltered), lists of authors, commits, and files involved in the analysis,
 /// as well as aggregated metrics, which can be filtered based on the analysis parameters.
 pub struct AnalysisResult {
+    pub original_repository: Repository, // The full repository (unfiltered)
     pub parameters: AnalysisParameters,
-    pub repository: Repository,
+    pub repository: Repository, // The filtered repository based on analysis parameters
 }
 
 
