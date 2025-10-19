@@ -12,16 +12,6 @@ pub struct File {
     pub metrics: Metrics,
 }
 
-impl File {
-    /// Retrieves a line by its number from the file.
-    /// Returns None if the line number does not exist.
-    pub fn get_line_by_number(&self, number: usize) -> Option<&Line> {
-        self.lines.iter().find(|line| line.number == number)
-    }
-
-    /// 
-}
-
 
 /// The Line struct represents a line in a file with its associated data.
 #[derive(Clone)]
@@ -31,14 +21,14 @@ pub struct Line {
     pub author_id: Integer,
     pub commit_hash: String,
     pub date: String,
-    pub line_type: LineType,
+    // pub line_type: LineType,
 }
 
 
-pub enum LineType {
-    SLOC,
-    CLOC
-}
+// pub enum LineType {
+//     SLOC,
+//     CLOC
+// }
     
 
 /// The Repository struct represents a git repository with its associated data.
