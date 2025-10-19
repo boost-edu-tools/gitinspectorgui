@@ -53,7 +53,6 @@ pub fn convert_to_json<T: serde::Serialize>(object_to_convert: &T) -> Result<Str
         .map_err(|error| format!("Error converting to JSON: {}", error))
 }
 
-// TODO: Functie schrijven die automatisch een vector maakt van data, gebaseerd op welke filters de user in de GUI heeft geselecteerd
 pub fn convert_to_csv<T: serde::Serialize>(object_to_convert: &[T]) -> Result<String, String> {
     let mut writer = csv::Writer::from_writer(Vec::new());
 
