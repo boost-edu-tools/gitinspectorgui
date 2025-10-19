@@ -18,7 +18,7 @@ pub struct File {
 pub struct Line {
     pub number: usize,
     pub content: String,
-    pub author_id: Integer,
+    pub author_id: usize,
     pub commit_hash: String,
     pub date: String,
     // pub line_type: LineType,
@@ -46,7 +46,7 @@ pub struct Repository {
 #[derive(Clone)]
 pub struct Commit {
     pub hash: String,
-    pub author_id: Integer,
+    pub author_id: usize,
     pub date: String,
     pub message: String,
     pub files_changed: Vec<File>,
@@ -55,9 +55,9 @@ pub struct Commit {
 
 /// The Author struct represents an author of commits in the repository.
 /// We derive Hash and Eq to allow usage in HashSet for uniqueness.
-#[derive(Debug, Clone, PartialEq, Eq, std::hash::Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Author {
-    pub id: Integer,
+    pub id: usize,
     pub name: String,
     pub email: String,
     pub commit_hashes: Vec<String>, // List of commit hashes authored by this author
@@ -69,7 +69,7 @@ pub struct Author {
 /// The Metrics struct stores metrics in the context of the struct it is used in.
 /// For example, in the context of a Repository, it stores overall repository metrics.
 /// All metrics are optional and can be None if not calculated or not applicable.
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Metrics {
     pub loc: Option<usize>,
     pub sloc: Option<usize>,
@@ -129,7 +129,7 @@ impl Default for AnalysisParameters {
 /// It includes the full repository (unfiltered), lists of authors, commits, and files involved in the analysis,
 /// as well as aggregated metrics, which can be filtered based on the analysis parameters.
 pub struct AnalysisResult {
-    pub original_repository: Repository, // The full repository (unfiltered)
+    // pub original_repository: Repository, // The full repository (unfiltered)
     pub parameters: AnalysisParameters,
     pub repository: Repository, // The filtered repository based on analysis parameters
 }
