@@ -5,7 +5,7 @@ use std::{error::Error};
 
 pub struct Config {
     pub repositories: Vec<String>,
-    pub depth: usize,
+    pub search_depth: usize,
     pub ignored_file_extensions: Vec<String>,
     pub allowed_file_extensions: Vec<String>,
 }
@@ -26,14 +26,14 @@ impl Config {
 
         Ok(Self {
             repositories,
-            depth: *matches.get_one::<usize>("depth").unwrap(),
+            search_depth: *matches.get_one::<usize>("search-depth").unwrap(),
             ignored_file_extensions: matches
                 .get_many::<String>("ignored-file-extensions")
                 .unwrap_or_default()
                 .map(|s| s.to_string())
                 .collect(),
             allowed_file_extensions: matches
-                .get_many::<String>("ignored-file-extensions")
+                .get_many::<String>("allowed-file-extensions")
                 .unwrap_or_default()
                 .map(|s| s.to_string())
                 .collect(),
@@ -45,7 +45,7 @@ impl Config {
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let settings = Settings {
         repositories: config.repositories.clone(),
-        search_depth: config.depth,
+        search_depth: config.search_depth,
         ignored_file_extensions: config.ignored_file_extensions.clone(),
         allowed_file_extensions: config.allowed_file_extensions.clone(),
     };
@@ -61,12 +61,15 @@ pub fn create_parser() -> Command {
         .arg(Arg::new("repositories")
             .num_args(1..)
             .required(true))
-        .arg(Arg::new("depth")
-            .long("depth")
+        .arg(Arg::new("search-depth")
+            .long("search-depth")
             .value_parser(clap::value_parser!(usize))
-            .default_value("1"))
+            .default_value(&Settings::default().search_depth.to_string()))
         .arg(Arg::new("ignored-file-extensions")
             .long("ignored-file-extensions")
+            .num_args(1..))
+        .arg(Arg::new("allowed-file-extensions")
+            .long("allowed-file-extensions")
             .num_args(1..))
 }
 
@@ -82,12 +85,12 @@ mod tests {
     }
 
     #[test]
-    fn parses_full_cmd() {
+    fn test_full_cli_command_parsing() {
         let cmd = create_parser().try_get_matches_from(vec![ // Simulate cmdline typing
             "gi-core",
             "repo1",
             "repo2",
-            "--depth", "5",
+            "--search-depth", "5",
             "--ignored-file-extensions", "exe",
         ]);
         assert!(cmd.is_ok());
@@ -95,8 +98,8 @@ mod tests {
         let repos: Vec<_> = m.get_many::<String>("repositories").unwrap().collect();
         assert_eq!(repos, vec!["repo1", "repo2"]);
 
-        let depth = m.get_one::<usize>("depth").unwrap();
-        assert_eq!(*depth, 5);
+        let search_depth = m.get_one::<usize>("search-depth").unwrap();
+        assert_eq!(*search_depth, 5);
 
         let ignored_extensions = m.get_one::<String>("ignored-file-extensions")
             .unwrap();
@@ -104,14 +107,14 @@ mod tests {
     }
 
     #[test]
-    fn default_depth_is_1() {
+    fn default_search_depth_is_from_settings() {
         let cmd = create_parser().try_get_matches_from(vec![
             "gi-core",
             "repo1",
         ]);
         assert!(cmd.is_ok());
         let m = cmd.unwrap();
-        let depth = m.get_one::<usize>("depth").unwrap();
-        assert_eq!(*depth, 1);
+        let search_depth = m.get_one::<usize>("search-depth").unwrap();
+        assert_eq!(*search_depth, Settings::default().search_depth);
     }
 }
