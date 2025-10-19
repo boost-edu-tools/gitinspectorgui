@@ -64,7 +64,8 @@ pub fn create_parser() -> Command {
         .arg(Arg::new("search-depth")
             .long("search-depth")
             .value_parser(clap::value_parser!(usize))
-            .default_value(&Settings::default().search_depth.to_string()))
+            // Make sure default value matches Settings default
+            .default_value("3"))
         .arg(Arg::new("ignored-file-extensions")
             .long("ignored-file-extensions")
             .num_args(1..))
@@ -92,6 +93,7 @@ mod tests {
             "repo2",
             "--search-depth", "5",
             "--ignored-file-extensions", "exe",
+            "--allowed-file-extensions", "rs", "js",
         ]);
         assert!(cmd.is_ok());
         let m = cmd.unwrap();
@@ -108,6 +110,8 @@ mod tests {
 
     #[test]
     fn default_search_depth_is_from_settings() {
+        // This test ensures that if search-depth is not provided, it defaults to Settings default
+        // Also tests whether the settings struct and cli default are in sync
         let cmd = create_parser().try_get_matches_from(vec![
             "gi-core",
             "repo1",
