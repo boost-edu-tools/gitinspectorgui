@@ -52,7 +52,8 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
     let mut commits = Vec::new();
     // Use a map keyed by (name, email) so we can update existing authors with additional commits/files
     let mut author_map: HashMap<(String, String), Author> = HashMap::new();
-    let mut next_id = 1; // incremental id for authors
+    let mut next_author_id = 1; // incremental id for authors
+    let mut next_commit_id = 1; // incremental id for commits
 
         for commit_str in commit_strings {
             let mut lines = commit_str.lines();
@@ -83,7 +84,7 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
                         name: file_path.split('/').last().unwrap_or("").to_string(),
                         extension: file_path.split('.').last().unwrap_or("").to_string(),
                         path: file_path.to_string(),
-                        file_size: 0,
+                        file_size: Some(0),
                         lines: vec![],
                         metrics: Metrics::default(),
                     })
@@ -92,8 +93,8 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
                 // Ensure an Author entry exists (or update existing). Use (name,email) as the key.
                 let key = (author_name.clone(), author_email.clone());
                 let author_entry = author_map.entry(key).or_insert_with(|| {
-                    let id = next_id;
-                    next_id += 1;
+                    let id = next_author_id;
+                    next_author_id += 1;
                     Author {
                         id,
                         name: author_name.clone(),
@@ -120,6 +121,7 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
                 
                 // Move parsed values into the commits vector (no cloning required)
                 commits.push(Commit {
+                    id: next_commit_id,
                     hash,
                     author_id: author_entry.id,
                     date,
@@ -127,12 +129,20 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
                     files_changed,
                     metrics,
                 });
+                next_commit_id += 1;
             }
         }
+        // Reassign commit ids so the oldest commit receives id=1.
+        // Git log returns commits newest->oldest, so we map the last element to id=1.
+        let total_commits = commits.len();
+        for (i, commit) in commits.iter_mut().enumerate() {
+            commit.id = total_commits.saturating_sub(i);
+        }
+
         // For demonstration, print the parsed commits (showing author_id rather than full author object)
         for commit in &commits {
-            println!("hash: {} | author_id: {} | date: {} | message: {} | files: {:?}",
-                commit.hash, commit.author_id, commit.date, commit.message, commit.files_changed.iter().map(|f| &f.path).collect::<Vec<_>>());
+            println!("id {} | hash: {} | author_id: {} | date: {} | message: {} | files: {:?}",
+                commit.id, commit.hash, commit.author_id, commit.date, commit.message, commit.files_changed.iter().map(|f| &f.path).collect::<Vec<_>>());
         }
 
         // Print unique authors collected during parsing

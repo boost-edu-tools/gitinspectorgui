@@ -45,6 +45,7 @@ pub struct Repository {
 /// The Commit struct represents a git commit with its associated data.
 #[derive(Clone)]
 pub struct Commit {
+    pub id: usize,
     pub hash: String,
     pub author_id: usize,
     pub date: String,
