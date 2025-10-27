@@ -205,16 +205,21 @@ mod tests {
         assert!(csv_string.contains("Hoi, hallo daar"));
     }
 
-    #[test]
-    fn test_convert_from_json() {
-        let json_string = r#"{
+    #[cfg(test)]
+    fn create_test_settings_json() -> String {
+        r#"{
             "repositories": ["repo1", "repo2"],
             "search_depth": 15,
             "ignored_file_extensions": ["log", "tmp"],
             "allowed_file_extensions": ["rs", "toml"]
-        }"#;
+        }"#.to_string()
+    }
 
-        let result: Result<Settings, String> = convert_from_json(json_string);
+    #[test]
+    fn test_convert_from_json() {
+        let json_string = create_test_settings_json();
+
+        let result: Result<Settings, String> = convert_from_json(&json_string);
         assert!(result.is_ok());
 
         let settings = result.unwrap();
