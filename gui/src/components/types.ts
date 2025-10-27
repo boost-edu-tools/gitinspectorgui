@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 
+
 export type SelectedFullProps = { 
   allAuthors: Set<string>;
   selectedAuthors: string[];
@@ -28,9 +29,16 @@ export type Metrics = {
   loc?: number;
   sloc?: number;
   cloc?: number;
+
+
+  commits?: number;
+
   total_commits?: number;
   total_authors?: number;
   total_files?: number;
+
+  stability?: number;
+  age?: number;
 };
 
 export type AuthorFileMetrics = {
@@ -38,48 +46,61 @@ export type AuthorFileMetrics = {
   metrics: Metrics;
 };
 
+
 export type AuthorId = string;
 
 export type Author = {
-  id: AuthorId;         
+  id: AuthorId;
   name: string;
   email: string;
   metrics: Metrics;
   files?: AuthorFileMetrics[];
 };
 
+
 export type LineEntry = {
   number: number;
   content: string;
-  authorId: AuthorId;   
-  commit_hash: string;
-  date: string;
+  authorId: AuthorId;
+  commitHash: string;       
+  commitMessage: string;   
+  date: string;            
+  line_type: number
 };
+
 
 export type FileEntry = {
-  name: string;
-  extension: string;
   path: string;
-  file_size: number;
   lines: LineEntry[];
+  metrics?: Metrics;        
+};
+
+
+export type FileMetadataEntry = {
+  path: string;
   metrics: Metrics;
 };
 
+
 export type Commit = {
+  number: number;
   hash: string;
-  authorId: AuthorId;    
-  date: string;
+  authorId: AuthorId;
   message: string;
-  files_changed: FileEntry[];
-  metrics: Metrics;
+  date: string;             // ISO
+  insertions: number;
+  deletions: number;
+  changesPercent: number;
 };
+
 
 export type Repository = {
   name: string;
   path: string;
   authors: Author[];
   commits: Commit[];
-  files: string[];
+  files: FileEntry[];              
+  files_metadata?: FileMetadataEntry[];
   metrics: Metrics;
 };
 
@@ -90,9 +111,8 @@ export type AnalysisResult = {
     to_time: string;
     from_commit: string;
     to_commit: string;
-    exclude_authors: AuthorId[];  
+    exclude_authors: AuthorId[];
     exclude_files: any[];
   };
   repository: Repository;
 };
-

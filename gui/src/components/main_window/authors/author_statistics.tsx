@@ -8,23 +8,46 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Info } from "lucide-react"
 import { getAuthorColor } from "@/components/helpers/AuthorColors"
 import { SelectedFullProps, AnalysisResult, Author } from "@/components/types"
 import { useAnalysis } from "@/hooks/useAnalysis"
+import { METRIC_DESCRIPTIONS } from "@/components/main_window/metrics_descriptions"
 
 type SelectedProps = Pick<
   SelectedFullProps,
   "allAuthors" | "selectedAuthors" | "filterData" | "selectedRepo"
 >
 
-type RowOut = {
-  name: string
-  commits: number
-  insertions: number
-  deletions: number
-  percentage_of_changes: string
-  rows: number                 // showing SLOC in the "LOCs" column
-  percentage_in_comments: string // approx: (LOC - SLOC)/LOC
+type MetricKey = keyof typeof METRIC_DESCRIPTIONS
+
+function MetricHeader({ metricKey }: { metricKey: MetricKey }) {
+  const info = METRIC_DESCRIPTIONS[metricKey]
+  
+  return (
+    <div className="flex items-center gap-1 justify-end">
+      <span>{info.label}</span>
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-xs">
+            <p className="text-xs">{info.description}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </div>
+  )
 }
 
 export function Overview({
@@ -33,106 +56,165 @@ export function Overview({
   filterData,
   selectedRepo,
 }: SelectedProps) {
+  const [showRelative, setShowRelative] = React.useState(true)
   const { analysis } = useAnalysis(selectedRepo)
   const repo = (analysis as AnalysisResult | undefined)?.repository
   const authors: Author[] = repo?.authors ?? []
 
-  // Build rows directly from author.metrics
-  const perAuthor = React.useMemo<RowOut[]>(() => {
-    if (!authors.length) return []
-
-    // normalize metrics for each author
-    const normalized = authors.map((a) => {
-      const m = a.metrics ?? {
-        insertions: 0,
-        deletions: 0,
-        total_commits: 0,
-        loc: 0,
-        sloc: 0,
-      }
+  // Calculate totals for relative percentages
+  const totals = React.useMemo(() => {
+    if (!authors.length) {
       return {
-        name: a.name ?? "Unknown",
-        insertions: m.insertions ?? 0,
-        deletions: m.deletions ?? 0,
-        total_commits: m.total_commits ?? 0,
-        loc: m.loc ?? 0,
-        sloc: m.sloc ?? 0,
+        commits: 1,
+        insertions: 1,
+        deletions: 1,
+        loc: 1,
+        sloc: 1,
       }
-    })
+    }
 
-    const totalChanges =
-      normalized.reduce((acc, a) => acc + a.insertions + a.deletions, 0) || 1
-
-    const rows = normalized.map((a) => {
-      const pctChanges = ((a.insertions + a.deletions) / totalChanges) * 100
-      const commentApprox = a.loc > 0 ? ((a.loc - a.sloc) / a.loc) * 100 : 0
-
-      return {
-        name: a.name,
-        commits: a.total_commits,
-        insertions: a.insertions,
-        deletions: a.deletions,
-        percentage_of_changes: `${pctChanges.toFixed(1)}%`,
-        rows: a.sloc, // display SLOC
-        percentage_in_comments: `${commentApprox.toFixed(1)}%`,
-      }
-    })
-
-    // Sort by most total changes
-    rows.sort(
-      (x, y) => y.insertions + y.deletions - (x.insertions + x.deletions)
+    return authors.reduce(
+      (acc, author) => {
+        const m = author.metrics ?? {}
+        return {
+          commits: acc.commits + (m.total_commits ?? 0),
+          insertions: acc.insertions + (m.insertions ?? 0),
+          deletions: acc.deletions + (m.deletions ?? 0),
+          loc: acc.loc + (m.loc ?? 0),
+          sloc: acc.sloc + (m.sloc ?? 0),
+        }
+      },
+      { commits: 0, insertions: 0, deletions: 0, loc: 0, sloc: 0 }
     )
-    return rows
+  }, [authors])
+
+  // Sort authors by total changes (insertions + deletions)
+  const sortedAuthors = React.useMemo(() => {
+    return [...authors].sort((a, b) => {
+      const aTotal = (a.metrics?.insertions ?? 0) + (a.metrics?.deletions ?? 0)
+      const bTotal = (b.metrics?.insertions ?? 0) + (b.metrics?.deletions ?? 0)
+      return bTotal - aTotal
+    })
   }, [authors])
 
   // Filter to visible authors (selected vs all)
   const filtered = React.useMemo(() => {
     const names = filterData ? selectedAuthors : Array.from(allAuthors)
     const allow = new Set(names)
-    return perAuthor.filter((a) => allow.has(a.name))
-  }, [perAuthor, filterData, selectedAuthors, allAuthors])
+    return sortedAuthors.filter((author) => allow.has(author.name ?? ""))
+  }, [sortedAuthors, filterData, selectedAuthors, allAuthors])
 
+  const formatMetric = (value: number, total: number): string => {
+    if (showRelative) {
+      const percentage = total > 0 ? (value / total) * 100 : 0
+      return `${percentage.toFixed(0)}%`
+    }
+    return value.toString()
+
+  
+  }
+
+  const [showRenames, setShowRenames] = React.useState<boolean>(false)
+  
   return (
     <Card>
       <CardHeader className="space-y-0">
-        <CardTitle className="text-sm">Author Statistics</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm">Author Statistics</CardTitle>
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="relative-mode" className="text-sm">Show renames</Label>
+            <Switch id="show-renames" checked={showRenames} onCheckedChange={setShowRenames} />
+            
+            <Label htmlFor="relative-mode" className="text-sm">
+              Relative
+            </Label>
+            <Switch
+              id="relative-mode"
+              checked={showRelative}
+              onCheckedChange={setShowRelative}
+            />
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent>
-        <div className="grid w-full [&>div]:border [&>div]:rounded">
+        <div className="grid w-full [&>div]:border [&>div]:rounded overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="*:whitespace-nowrap hover:bg-background">
-                <TableHead className="pl-4 sticky left-0 bg-background min-w-[50px]">
+                <TableHead className="pl-4 sticky left-0 bg-background min-w-[150px] z-10">
                   Name
                 </TableHead>
-                <TableHead>Commits</TableHead>
-                <TableHead>Insertions</TableHead>
-                <TableHead>Deletions</TableHead>
-                <TableHead>% of changes</TableHead>
-                <TableHead>LOCs</TableHead>
-                <TableHead>% in comments</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead className="text-right">
+                  <MetricHeader metricKey="commits" />
+                </TableHead>
+                <TableHead className="text-right">
+                  <MetricHeader metricKey="insertions" />
+                </TableHead>
+                <TableHead className="text-right">
+                  <MetricHeader metricKey="deletions" />
+                </TableHead>
+                <TableHead className="text-right">
+                  <MetricHeader metricKey="loc" />
+                </TableHead>
+                <TableHead className="text-right">
+                  <MetricHeader metricKey="sloc" />
+                </TableHead>
+                <TableHead className="text-right">
+                  <MetricHeader metricKey="stability" />
+                </TableHead>
+                <TableHead className="text-right">
+                  <MetricHeader metricKey="age" />
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="overflow-hidden">
-              {filtered.map((author) => (
-                <TableRow
-                  key={author.name}
-                  className="group odd:bg-muted [&>td]:whitespace-nowrap hover:[&>td]:bg-blue-100 dark:hover:[&>td]:bg-blue-400"
-                >
-                  <TableCell className="pl-4 sticky left-0 bg-background group-odd:bg-muted group-hover:bg-blue-100">
-                    <span style={{ color: getAuthorColor(author.name).color }}>
-                      {author.name}
-                    </span>
-                  </TableCell>
-                  <TableCell>{author.commits}</TableCell>
-                  <TableCell>{author.insertions}</TableCell>
-                  <TableCell>{author.deletions}</TableCell>
-                  <TableCell>{author.percentage_of_changes}</TableCell>
-                  <TableCell>{author.rows}</TableCell>
-                  <TableCell>{author.percentage_in_comments}</TableCell>
-                </TableRow>
-              ))}
+              {filtered.map((author) => {
+                const metrics = author.metrics ?? {}
+                const commits = metrics.total_commits ?? 0
+                const insertions = metrics.insertions ?? 0
+                const deletions = metrics.deletions ?? 0
+                const loc = metrics.loc ?? 0
+                const sloc = metrics.sloc ?? 0
+                const stability = metrics.stability ?? null
+                const age = metrics.age ?? null
+
+                return (
+                  <TableRow
+                    key={author.id}
+                    className="group odd:bg-muted [&>td]:whitespace-nowrap hover:[&>td]:bg-blue-100 dark:hover:[&>td]:bg-blue-400"
+                  >
+                    <TableCell className="pl-4 sticky left-0 bg-background group-odd:bg-muted group-hover:bg-blue-100 dark:group-hover:bg-blue-400 z-10">
+                      <span style={{ color: getAuthorColor(author.name ?? "").color }}>
+                        {author.name ?? "Unknown"}
+                      </span>
+                    </TableCell>
+                    <TableCell>{author.email ?? "Unknown"}</TableCell>
+                    <TableCell className="text-right">
+                      {formatMetric(commits, totals.commits)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatMetric(insertions, totals.insertions)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatMetric(deletions, totals.deletions)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatMetric(loc, totals.loc)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatMetric(sloc, totals.sloc)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {stability}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {age}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </div>

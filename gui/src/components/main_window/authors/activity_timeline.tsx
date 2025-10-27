@@ -1,6 +1,5 @@
-import * as React from "react"
 import { useMemo, useState } from "react"
-import { GitCommit, Plus, Minus } from "lucide-react"
+import { GitCommit, Percent } from "lucide-react"
 import {
   ScatterChart,
   Scatter,
@@ -11,28 +10,29 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
+
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getAuthorColor } from "@/components/helpers/AuthorColors"
-import { SelectedFullProps, AnalysisResult, Commit, Author } from "@/components/types"
+import type { SelectedFullProps, AnalysisResult, Author } from "@/components/types"
 import { useAnalysis } from "@/hooks/useAnalysis"
 
-type MetricKey = "commits" | "insertions" | "deletions"
+type MetricKey = "commits" | "percent"
+type ViewMode = "authors" | "repo"
 
-type SelectedProps = Pick<
-  SelectedFullProps,
-  | "allAuthors"
-  | "selectedAuthors"
-  | "filterData"
-  | "selectedRepo"
-  | "startCommitHash"
-  | "endCommitHash"
->
-
-const dayKey = (isoOrDate: string | Date) => {
-  const d = typeof isoOrDate === "string" ? new Date(isoOrDate) : isoOrDate
-  return d.getTime()
+const dayKey = (iso: string | number | Date) => {
+  const d = new Date(iso)
+  d.setHours(0, 0, 0, 0)
+  return +d
 }
+
+const formatDate = (ts: number) => {
+  const d = new Date(ts)
+  const pad = (n: number) => String(n).padStart(2, "0")
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+const formatNumber = (n: number) => Math.round(n).toLocaleString()
+const formatPercent = (p: number) => `${p.toFixed(2)}%`
 
 export function Timeline({
   allAuthors,
@@ -41,210 +41,172 @@ export function Timeline({
   selectedRepo,
   startCommitHash,
   endCommitHash,
-}: SelectedProps) {
-  const [metric, setMetric] = useState<MetricKey>("commits")
+}: Pick<
+  SelectedFullProps,
+  "allAuthors" | "selectedAuthors" | "filterData" | "selectedRepo" | "startCommitHash" | "endCommitHash"
+>) {
+  const [metric, setMetric] = useState<MetricKey>("percent")
+  const [viewMode, setViewMode] = useState<ViewMode>("repo")
   const { analysis } = useAnalysis(selectedRepo)
+  
 
-  const { scatterData, summary, authorsList, dateRange } = useMemo(() => {
-    const analysisResult = analysis as AnalysisResult | undefined
-    const repo = analysisResult?.repository
-    const allCommits: Commit[] = repo?.commits ?? []
+  const {
+    perCommit,
+    totalCommits,
+    authorsSorted,
+    dateMin,
+    dateMax,
+  } = useMemo(() => {
+    const repo = (analysis as AnalysisResult | undefined)?.repository
+    const commits = repo?.commits ?? []
     const authorsArr: Author[] = repo?.authors ?? []
-
-    // Build a quick lookup from authorId -> Author
     const authorById = new Map(authorsArr.map((a) => [a.id, a]))
 
-    // Sort commits chronologically (oldest → newest)
-    const sortedCommits = [...allCommits].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    )
-
-    // Commit bounds
-    let startIndex = 0
-    let endIndex = sortedCommits.length - 1
+    // sort + slice by commit range
+    const sorted = [...commits].sort((a, b) => +new Date(a.date) - +new Date(b.date))
+    let start = 0
+    let end = sorted.length - 1
     if (startCommitHash) {
-      const idx = sortedCommits.findIndex((c) => c.hash === startCommitHash)
-      if (idx !== -1) startIndex = idx
+      const i = sorted.findIndex((c) => c.hash === startCommitHash)
+      if (i !== -1) start = i
     }
     if (endCommitHash) {
-      const idx = sortedCommits.findIndex((c) => c.hash === endCommitHash)
-      if (idx !== -1) endIndex = idx
+      const i = sorted.findIndex((c) => c.hash === endCommitHash)
+      if (i !== -1) end = i
     }
-
-    const commits = sortedCommits.slice(startIndex, endIndex + 1)
+    const ranged = sorted.slice(start, end + 1)
 
     const authorsSet = new Set<string>()
-    const dataPoints: Array<{
-      date: number
-      author: string
-      authorIndex: number
-      value: number
-      message: string
-      hash: string
-      insertions?: number
-      deletions?: number
-    }> = []
+    let min = Infinity
+    let max = -Infinity
 
-    let totalCommits = 0
-    let totalInsertions = 0
-    let totalDeletions = 0
-
-    // Collect authors present in the filtered commits
-    for (const c of commits) {
-      const a = authorById.get(c.authorId)
-      const authorName = a?.name ?? "Unknown"
-      authorsSet.add(authorName)
-    }
-
-    const authorsArray = Array.from(authorsSet).sort()
-    const authorToIndex = new Map(authorsArray.map((a, i) => [a, i]))
-
-    let minDate = Infinity
-    let maxDate = -Infinity
-
-    // Build points
-    for (const c of commits) {
-      const timestamp = dayKey(c.date)
-      const a = authorById.get(c.authorId)
-      const authorName = a?.name ?? "Unknown"
-      const authorIndex = authorToIndex.get(authorName) ?? 0
-
-      minDate = Math.min(minDate, timestamp)
-      maxDate = Math.max(maxDate, timestamp)
-
-      let ins = 0
-      let del = 0
-      if (Array.isArray(c.files_changed) && c.files_changed.length > 0) {
-        for (const f of c.files_changed) {
-          const fm = f.metrics || {}
-          ins += Number(fm.insertions ?? 0)
-          del += Number(fm.deletions ?? 0)
-        }
-      } else if (c.metrics) {
-        ins += Number(c.metrics.insertions ?? 0)
-        del += Number(c.metrics.deletions ?? 0)
-      }
-
-      totalInsertions += ins
-      totalDeletions += del
-
-      dataPoints.push({
-        date: timestamp,
-        author: authorName,
-        authorIndex,
-        value: 1,
+    const points = ranged.map((c) => {
+      const ts = +new Date(c.date)
+      const author = authorById.get(c.authorId)?.name ?? "Unknown"
+      authorsSet.add(author)
+      if (ts < min) min = ts
+      if (ts > max) max = ts
+      return {
+        date: ts,
+        day: dayKey(ts),
+        author,
+        authorIndex: 0, // filled after filtering
+        valuePercent: c.changesPercent ?? 0,
+        valueCommits: 1,
         message: c.message ?? "",
         hash: c.hash,
-        insertions: ins,
-        deletions: del,
-      })
-      totalCommits++
-    }
+      }
+    })
 
     return {
-      scatterData: dataPoints,
-      summary: {
-        totalCommits,
-        totalInsertions,
-        totalDeletions,
-      },
-      authorsList: authorsArray,
-      dateRange: {
-        min: minDate === Infinity ? 0 : minDate,
-        max: maxDate === -Infinity ? 0 : maxDate,
-      },
+      perCommit: points,
+      totalCommits: points.length,
+      authorsSorted: Array.from(authorsSet).sort(),
+      dateMin: min === Infinity ? 0 : min,
+      dateMax: max === -Infinity ? 0 : max,
     }
   }, [analysis, startCommitHash, endCommitHash])
 
-  const authorsToPlot = React.useMemo(
+  // who to plot
+  const authorsToPlot = useMemo(
     () => (filterData ? selectedAuthors : Array.from(allAuthors)),
     [filterData, selectedAuthors, allAuthors]
   )
-
-  const filteredData = useMemo(() => {
-    return scatterData
-      .filter((p) => authorsToPlot.includes(p.author))
-      .map((p) => {
-        let value = p.value
-        if (metric === "insertions") value = p.insertions || 0
-        else if (metric === "deletions") value = p.deletions || 0
-        if (value === 0) return null
-        return { ...p, value }
-      })
-      .filter((p): p is NonNullable<typeof p> => p !== null)
-  }, [scatterData, authorsToPlot, metric])
-
-  const filteredAuthorsList = useMemo(
-    () => authorsList.filter((a) => authorsToPlot.includes(a)),
-    [authorsList, authorsToPlot]
+  const filteredAuthors = useMemo(
+    () => authorsSorted.filter((a) => authorsToPlot.includes(a)),
+    [authorsSorted, authorsToPlot]
+  )
+  const indexByAuthor = useMemo(
+    () => new Map(filteredAuthors.map((a, i) => [a, i] as const)),
+    [filteredAuthors]
   )
 
-  const filteredAuthorToIndex = useMemo(
-    () => new Map(filteredAuthorsList.map((a, i) => [a, i] as const)),
-    [filteredAuthorsList]
-  )
-
-  const remappedData = useMemo(
-    () =>
-      filteredData.map((point) => ({
-        ...point,
-        authorIndex: filteredAuthorToIndex.get(point.author) ?? 0,
-      })),
-    [filteredData, filteredAuthorToIndex]
-  )
-
-  const scaleParams = useMemo(() => {
-    const minDotSize = 30
-    const maxDotSize = 80
-    if (remappedData.length === 0) return { min: 1, max: 100, range: 99, minDotSize, maxDotSize }
-    const values = remappedData.map((d) => d.value).filter((v) => v > 0)
-    if (values.length === 0) return { min: 1, max: 100, range: 99, minDotSize, maxDotSize }
-    const minValue = Math.min(...values)
-    const maxValue = Math.max(...values)
-    const range = maxValue - minValue
-    return { min: minValue, max: maxValue, range: range || 1, minDotSize, maxDotSize }
-  }, [remappedData])
-
-  const formatDate = (ts: number) => {
-    try {
-      return new Date(ts).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: dateRange.max - dateRange.min > 365 * 24 * 60 * 60 * 1000 ? "numeric" : undefined,
-      })
-    } catch {
-      return ""
+  // data for chart (repo = per commit; authors = per author/day aggregate)
+  const data = useMemo(() => {
+    if (viewMode === "repo") {
+      return perCommit
+        .filter((p) => filteredAuthors.includes(p.author))
+        .map((p) => ({
+          ...p,
+          authorIndex: indexByAuthor.get(p.author) ?? 0,
+          value: metric === "percent" ? p.valuePercent : p.valueCommits,
+        }))
     }
+    const byKey = new Map<string, { date: number; author: string; authorIndex: number; value: number }>()
+    for (const p of perCommit) {
+      if (!filteredAuthors.includes(p.author)) continue
+      const k = `${p.author}:${p.day}`
+      const base =
+        byKey.get(k) ??
+        { date: p.day, author: p.author, authorIndex: indexByAuthor.get(p.author) ?? 0, value: 0 }
+      base.value += metric === "percent" ? p.valuePercent : p.valueCommits
+      byKey.set(k, base)
+    }
+    return Array.from(byKey.values())
+  }, [viewMode, metric, perCommit, filteredAuthors, indexByAuthor])
+
+  // dot size: fixed in repo view; sqrt-scaled in authors view
+  const { minVal, maxVal } = useMemo(() => {
+    if (viewMode !== "authors" || data.length === 0) return { minVal: 0, maxVal: 1 }
+    let min = Infinity
+    let max = -Infinity
+    for (const d of data) {
+      const v = d.value ?? 0
+      if (v < min) min = v
+      if (v > max) max = v
+    }
+    return { minVal: Math.max(0, isFinite(min) ? min : 0), maxVal: Math.max(1, isFinite(max) ? max : 1) }
+  }, [viewMode, data])
+
+  const getDotSize = (value: number) => {
+    if (viewMode === "repo") return 3.5
+    const s = Math.sqrt(Math.max(0, value))
+    const sMin = Math.sqrt(minVal)
+    const sMax = Math.sqrt(maxVal)
+    const t = (s - sMin) / Math.max(1e-9, sMax - sMin)
+    const px = 20 + t * (100 - 20) // 20..100 px
+    return px / 10 // radius for svg
   }
 
-  const formatNumber = (num: number) =>
-    Math.abs(num) >= 1000 ? `${(num / 1000).toFixed(1)}k` : num.toLocaleString()
+  // legend values (authors view)
+  const legendVals = useMemo(() => {
+    if (viewMode !== "authors") return [] as number[]
+    const mid = minVal + (maxVal - minVal) / 2
+    if (metric === "commits") {
+      const a = Math.max(1, Math.round(minVal))
+      const b = Math.max(a, Math.round(mid))
+      const c = Math.max(b, Math.round(maxVal))
+      return Array.from(new Set([a, b, c]))
+    }
+    const a = Math.max(0.01, +minVal.toFixed(2))
+    const b = Math.max(a, +mid.toFixed(2))
+    const c = Math.max(b, +maxVal.toFixed(2))
+    return Array.from(new Set([a, b, c]))
+  }, [viewMode, metric, minVal, maxVal])
+
+  const MetricIcon = ({ type }: { type: MetricKey }) =>
+    type === "commits" ? <GitCommit className="h-4 w-4" /> : <Percent className="h-4 w-4" />
 
   const CustomTooltip = ({ active, payload }: any) => {
-    if (!active || !payload || !payload.length) return null
-    const data = payload[0].payload
-    const metricLabel = metric === "commits" ? "Commit" : metric === "insertions" ? "Additions" : "Deletions"
+    if (!active || !payload?.length) return null
+    const d = payload[0].payload
+    const label = metric === "commits" ? "Commits" : "% Changed"
     return (
       <Card className="shadow-lg">
         <CardContent className="p-3 space-y-2">
-          <div className="font-semibold text-sm border-b pb-2">{data.author}</div>
+          <div className="font-semibold text-sm border-b pb-2">
+            {viewMode === "authors" ? d.author : d.author || "Repository"}
+          </div>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">Date:</span>
-              <span className="font-medium">{formatDate(data.date)}</span>
+              <span className="font-medium">{formatDate(d.date)}</span>
             </div>
             <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">{metricLabel}:</span>
-              <span className="font-mono font-medium">{formatNumber(data.value)}</span>
-            </div>
-            {data.message && (
-              <div className="pt-2 border-t">
-                <div className="text-muted-foreground mb-1">Message:</div>
-                <div className="text-xs line-clamp-3">{data.message}</div>
-              </div>
-            )}
-            <div className="text-[10px] text-muted-foreground font-mono pt-1">
-              {data.hash.slice(0, 7)}
+              <span className="text-muted-foreground">{label}:</span>
+              <span className="font-mono font-medium">
+                {metric === "commits" ? formatNumber(d.value) : formatPercent(d.value)}
+              </span>
             </div>
           </div>
         </CardContent>
@@ -252,32 +214,27 @@ export function Timeline({
     )
   }
 
-  const MetricIcon = ({ type }: { type: MetricKey }) => {
-    switch (type) {
-      case "commits":
-        return <GitCommit className="h-4 w-4" />
-      case "insertions":
-        return <Plus className="h-4 w-4" />
-      case "deletions":
-        return <Minus className="h-4 w-4" />
-    }
-  }
-
-  const getDotSize = (value: number) => {
-    const { min, max, range, minDotSize, maxDotSize } = scaleParams
-    if (metric === "commits") {
-      if (range === 0) return minDotSize / 10
-      const normalized = (value - min) / range
-      return (minDotSize + normalized * (maxDotSize - minDotSize)) / 10
-    }
-    if (range === 0) return minDotSize / 10
-    const sqrtValue = Math.sqrt(value)
-    const sqrtMin = Math.sqrt(min)
-    const sqrtMax = Math.sqrt(max)
-    const sqrtRange = sqrtMax - sqrtMin || 1
-    const normalized = (sqrtValue - sqrtMin) / sqrtRange
-    return (minDotSize + normalized * (maxDotSize - minDotSize)) / 10
-  }
+  const yAxisProps =
+    viewMode === "authors"
+      ? {
+          type: "number" as const,
+          dataKey: "authorIndex",
+          domain: filteredAuthors.length ? [0, filteredAuthors.length - 1] : [0, 0],
+          ticks: filteredAuthors.map((_, i) => i),
+          tickFormatter: (i: number) => filteredAuthors[i] || "",
+          tick: { fontSize: 10 },
+          width: 110,
+          name: "Author",
+        }
+      : {
+          type: "number" as const,
+          dataKey: "value",
+          domain: [0, "auto"] as [number, any],
+          tick: { fontSize: 10 },
+          width: 110,
+          label: { value: metric === "commits" ? "Nr of commits" : "Changes (%)", angle: -90, offset: 40 },
+          allowDecimals: metric !== "commits",
+        }
 
   return (
     <Card>
@@ -285,17 +242,22 @@ export function Timeline({
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <CardTitle className="text-sm">Activity Timeline</CardTitle>
+
             <Tabs value={metric} onValueChange={(v) => setMetric(v as MetricKey)} className="w-auto">
               <TabsList className="h-7 bg-muted/50 p-0.5">
                 <TabsTrigger value="commits" className="h-6 px-2 text-[10px] gap-1">
                   <MetricIcon type="commits" /> Commits
                 </TabsTrigger>
-                <TabsTrigger value="insertions" className="h-6 px-2 text-[10px] gap-1">
-                  <MetricIcon type="insertions" /> Insertions
+                <TabsTrigger value="percent" className="h-6 px-2 text-[10px] gap-1">
+                  <MetricIcon type="percent" /> Changes
                 </TabsTrigger>
-                <TabsTrigger value="deletions" className="h-6 px-2 text-[10px] gap-1">
-                  <MetricIcon type="deletions" /> Deletions
-                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)} className="w-auto">
+              <TabsList className="h-7 bg-muted/50 p-0.5 ml-2">
+                <TabsTrigger value="repo" className="h-6 px-2 text-[10px]">All authors</TabsTrigger>
+                <TabsTrigger value="authors" className="h-6 px-2 text-[10px]">Per author</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -303,64 +265,74 @@ export function Timeline({
           <div className="flex gap-1.5 text-[10px]">
             <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
               <GitCommit className="h-3 w-3" />
-              <span className="font-mono">{summary.totalCommits}</span>
-            </div>
-            <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-green-500/10 text-green-700 dark:text-green-400">
-              <Plus className="h-3 w-3" />
-              <span className="font-mono">{formatNumber(summary.totalInsertions)}</span>
-            </div>
-            <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-red-500/10 text-red-700 dark:text-red-400">
-              <Minus className="h-3 w-3" />
-              <span className="font-mono">{formatNumber(summary.totalDeletions)}</span>
+              <span className="font-mono">{totalCommits}</span>
             </div>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="pt-2 pb-3">
-        <div className="h-50 w-full">
+        {/* legend: author colors (repo) */}
+        {viewMode === "repo" && filteredAuthors.length > 0 && (
+          <div className="mb-2 flex flex-wrap items-center gap-3 text-[10px]">
+            {filteredAuthors.map((a) => {
+              const { color } = getAuthorColor(a)
+              return (
+                <div key={a} className="flex items-center gap-1">
+                  <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: color }} />
+                  <span>{a}</span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* legend: dot size (authors) */}
+        {viewMode === "authors" && legendVals.length > 0 && (
+          <div className="flex items-center gap-4 mb-2 text-[10px]">
+            <span className="text-muted-foreground">
+              Dot size; {metric === "commits" ? "nr of commits" : "% changed"}
+            </span>
+            {legendVals.map((v, i) => {
+              const r = Math.max(2, Math.round(getDotSize(Number(v))))
+              const s = r * 2 + 6
+              return (
+                <div key={`${v}-${i}`} className="flex items-center gap-1">
+                  <svg width={s} height={s} className="opacity-70">
+                    <circle cx={s / 2} cy={s / 2} r={r} />
+                  </svg>
+                  <span className="font-mono">
+                    {metric === "commits" ? formatNumber(Number(v)) : formatPercent(Number(v))}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        <div className="h-56 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 5, right: 20, left: 100, bottom: 5 }}>
+            <ScatterChart margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis
                 type="number"
                 dataKey="date"
-                domain={[dateRange.min, dateRange.max]}
+                domain={[dateMin, dateMax]}
                 tickFormatter={formatDate}
                 tick={{ fontSize: 10 }}
                 name="Date"
                 height={30}
+                label = {{ value: 'Date', position: 'insideBottom', offset: -5 }}
               />
-              <YAxis
-                type="number"
-                dataKey="authorIndex"
-                domain={
-                  filteredAuthorsList.length > 0
-                    ? [0, Math.max(0, filteredAuthorsList.length - 1)]
-                    : [0, 0]
-                }
-                ticks={filteredAuthorsList.map((_, i) => i)}
-                tickFormatter={(index) => filteredAuthorsList[index] || ""}
-                tick={{ fontSize: 10 }}
-                width={95}
-                name="Author"
-              />
+              <YAxis {...(yAxisProps as any)} />
               <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: "3 3" }} />
               <Scatter
-                data={remappedData}
+                data={data}
                 isAnimationActive={false}
-                shape={(props: any) => {
-                  const { cx, cy, payload } = props
-                  const radius = getDotSize(payload.value)
-                  return (
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r={radius}
-                      fill={getAuthorColor(payload.author).color}
-                      fillOpacity={0.7}
-                    />
-                  )
+                shape={({ cx, cy, payload }: any) => {
+                  const r = getDotSize(payload.value)
+                  const fill = viewMode === "repo" ? getAuthorColor(payload.author).color : "#030303"
+                  return <circle cx={cx} cy={cy} r={r} fill={fill} fillOpacity={0.8} />
                 }}
               />
             </ScatterChart>

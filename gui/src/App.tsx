@@ -48,7 +48,7 @@ export default function App() {
     const settingsFiles = (settings as any)?.files;
     const analysisFiles = (currentAnalysis as any)?.repository?.files ?? [];
     const base = Array.isArray(settingsFiles) && settingsFiles.length > 0 ? settingsFiles : analysisFiles;
-    return unique<string>(base.map((p: any) => String(p).trim()).filter(Boolean));
+    return unique<string>(base.map((p: any) => String(p.path).trim()).filter(Boolean));
   }, [currentAnalysis]);
 
   // Initialize colors for the authors of the selected repo
@@ -105,8 +105,6 @@ export default function App() {
         onEndCommitChange={setEndCommitHash}
       />
 
-      {/* If your inner components still import a fixed analysis file,
-          pass the current analysis down so they can use it instead. */}
       <AppMainWindow
         allAuthors={allAuthors}
         selectedAuthors={selectedAuthors}

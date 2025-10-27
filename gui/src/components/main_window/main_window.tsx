@@ -9,7 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 import { Overview } from "@/components/main_window/authors/author_statistics"
 import { Timeline } from "@/components/main_window/authors/activity_timeline"
-import { UnifiedFilesView } from "@/components/main_window/files/file_statistics"
+import { UnifiedFilesView } from "@/components/main_window/files/file_statistics_main"
 
 import type { SelectedFullProps } from "@/components/types"
 

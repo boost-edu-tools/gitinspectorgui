@@ -112,8 +112,47 @@ export function FilterRange({
     [authorById]
   )
 
-  // Build unique, time-sorted commit list (oldest → newest), filtered by selectedAuthors if provided
-  const allCommits = React.useMemo<Commit[]>(() => {
+  // Reset to full repo range whenever the repo actually changes
+  const prevRepoIdRef = React.useRef<string | null>(null)
+
+  React.useEffect(() => {
+    // identify the repo stably
+    const repoId = repo?.path ?? repo?.name ?? selectedRepo
+    if (!repo || !repo?.commits?.length || !repoId) return
+
+    if (prevRepoIdRef.current !== repoId) {
+      // compute full, unfiltered time span for the new repo
+      const sorted = [...repo.commits]
+        .filter(c => c?.hash && c?.date)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+      if (sorted.length) {
+        const first = sorted[0]
+        const last = sorted[sorted.length - 1]
+        const firstDate = new Date(first.date)
+        const lastDate = new Date(last.date)
+
+        onStartDateChange(startOfDay(firstDate))
+        onEndDateChange(endOfDay(lastDate))
+        onStartCommitChange(first.hash)
+        onEndCommitChange(last.hash)
+      }
+
+      prevRepoIdRef.current = repoId
+    }
+  }, [
+    repo?.path,
+    repo?.name,
+    selectedRepo,
+    repo?.commits,           
+    onStartDateChange,
+    onEndDateChange,
+    onStartCommitChange,
+    onEndCommitChange,
+  ])
+
+
+    const allCommits = React.useMemo<Commit[]>(() => {
     const list: Commit[] = repo?.commits ?? []
     const out: Commit[] = []
     const seen = new Set<string>()
@@ -124,7 +163,6 @@ export function FilterRange({
       if (!d) continue
       seen.add(c.hash)
 
-      // Filter by selectedAuthors (compare against author name via authorId)
       if (selectedAuthors && selectedAuthors.length > 0) {
         const name = getAuthorName(c.authorId)
         if (!selectedAuthors.includes(name)) continue
@@ -171,7 +209,7 @@ export function FilterRange({
   }, [allCommits, startDate, endDate])
 
   // Local UI state
-  const [mode, setMode] = React.useState<"date" | "commit">("date")
+  const [mode, setMode] = React.useState<"date" | "commit">("commit")
   const [commitEdge, setCommitEdge] = React.useState<"start" | "end">("start")
   const [dateDialogOpen, setDateDialogOpen] = React.useState(false)
 
@@ -278,13 +316,29 @@ export function FilterRange({
           <TabsList className="inline-grid grid-cols-2 w-full h-7 p-2 bg-transparent">
             <TabsTrigger
               value="date"
-              className="h-6 px-2 text-[11px] rounded-sm data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:ring-1 data-[state=active]:ring-primary"
-            >
+               className="
+                h-6 px-2 text-[10px] rounded-sm
+                data-[state=active]:text-foreground
+                data-[state=active]:font-medium
+                data-[state=active]:border-b-2
+                data-[state=active]:border-primary/70
+                data-[state=inactive]:text-muted-foreground
+                transition-colors
+              "
+                 >
               Date
             </TabsTrigger>
             <TabsTrigger
               value="commit"
-              className="h-6 px-2 text-[11px] rounded-sm data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:ring-1 data-[state=active]:ring-primary"
+              className="
+                h-6 px-2 text-[10px] rounded-sm
+                data-[state=active]:text-foreground
+                data-[state=active]:font-medium
+                data-[state=active]:border-b-2
+                data-[state=active]:border-primary/70
+                data-[state=inactive]:text-muted-foreground
+                transition-colors
+              "
             >
               Commits
             </TabsTrigger>

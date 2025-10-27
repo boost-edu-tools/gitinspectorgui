@@ -1,421 +1,123 @@
 {
   "parameters": {
-    "repo_path": "/home/user/projects/data-pipeline",
-    "from_time": "2024-02-01",
-    "to_time": "2024-12-31",
-    "from_commit": "d0011111dddd2222eeeea1",
-    "to_commit": "d0011111dddd2222eeeea6",
+    "repo_path": "/home/user/projects/tiny-repo",
+    "from_time": "2024-03-01",
+    "to_time": "2024-03-14",
+    "from_commit": "c101",
+    "to_commit": "c112",
     "exclude_authors": [],
     "exclude_files": []
   },
   "repository": {
-    "name": "data-pipeline",
-    "path": "/home/user/projects/data-pipeline",
+    "name": "example-repo-2",
+    "path": "/home/user/projects/tiny-repo",
     "authors": [
       {
-        "id": "alice@example.com",
-        "name": "Alice",
-        "email": "alice@example.com",
+        "id": "author1",
+        "name": "author1",
+        "email": "author1@example.com",
         "metrics": {
-          "insertions": 4100,
-          "deletions": 900,
-          "total_commits": 40,
-          "loc": 20000,
-          "sloc": 15000
+          "insertions": 5,
+          "deletions": 0,
+          "total_commits": 4,
+          "loc": 6,
+          "sloc": 4,
+          "stability": 0.7,
+          "age": 13
         },
         "files": [
-          {
-            "file_path": "src/ingest.py",
-            "metrics": {
-              "insertions": 1300,
-              "deletions": 300,
-              "loc": 4200,
-              "sloc": 3100
-            }
-          },
-          {
-            "file_path": "src/utils/helpers.py",
-            "metrics": {
-              "insertions": 2800,
-              "deletions": 600,
-              "loc": 9800,
-              "sloc": 7200
-            }
-          }
+          { "file_path": "src/a.ts", "metrics": { "insertions": 4, "deletions": 0, "loc": 4, "sloc": 3, "commits": 3 } },
+          { "file_path": "src/b.ts", "metrics": { "insertions": 1, "deletions": 0, "loc": 2, "sloc": 1, "commits": 1 } }
         ]
       },
       {
-        "id": "bob@example.com",
-        "name": "Bob",
-        "email": "bob@example.com",
+        "id": "author2",
+        "name": "author2",
+        "email": "author2@example.com",
         "metrics": {
-          "insertions": 3200,
-          "deletions": 800,
-          "total_commits": 35,
-          "loc": 16000,
-          "sloc": 11800
+          "insertions": 5,
+          "deletions": 1,
+          "total_commits": 4,
+          "loc": 6,
+          "sloc": 3,
+          "stability": 0.65,
+          "age": 12
         },
         "files": [
-          {
-            "file_path": "src/transform.py",
-            "metrics": {
-              "insertions": 1800,
-              "deletions": 400,
-              "loc": 6400,
-              "sloc": 4900
-            }
-          },
-          {
-            "file_path": "tests/test_transform.py",
-            "metrics": {
-              "insertions": 1400,
-              "deletions": 400,
-              "loc": 5000,
-              "sloc": 3900
-            }
-          }
+          { "file_path": "src/a.ts", "metrics": { "insertions": 2, "deletions": 1, "loc": 2, "sloc": 1, "commits": 2 } },
+          { "file_path": "src/b.ts", "metrics": { "insertions": 3, "deletions": 0, "loc": 4, "sloc": 2, "commits": 2 } }
         ]
       },
       {
-        "id": "carol@example.com",
-        "name": "Carol",
-        "email": "carol@example.com",
+        "id": "author3",
+        "name": "author3",
+        "email": "author3@example.com",
         "metrics": {
-          "insertions": 2500,
-          "deletions": 500,
-          "total_commits": 28,
-          "loc": 11000,
-          "sloc": 8000
+          "insertions": 4,
+          "deletions": 1,
+          "total_commits": 4,
+          "loc": 6,
+          "sloc": 3,
+          "stability": 0.72,
+          "age": 11
         },
         "files": [
-          {
-            "file_path": "README.md",
-            "metrics": {
-              "insertions": 500,
-              "deletions": 100,
-              "loc": 1200,
-              "sloc": 1000,
-              "cloc": 200
-            }
-          },
-          {
-            "file_path": "docs/architecture.md",
-            "metrics": {
-              "insertions": 2000,
-              "deletions": 400,
-              "loc": 4600,
-              "sloc": 3900,
-              "cloc": 700
-            }
-          }
-        ]
-      },
-      {
-        "id": "dave@example.com",
-        "name": "Dave",
-        "email": "dave@example.com",
-        "metrics": {
-          "insertions": 2800,
-          "deletions": 600,
-          "total_commits": 30,
-          "loc": 13000,
-          "sloc": 9600
-        },
-        "files": [
-          {
-            "file_path": "src/export.py",
-            "metrics": {
-              "insertions": 1400,
-              "deletions": 200,
-              "loc": 5000,
-              "sloc": 3800
-            }
-          },
-          {
-            "file_path": "tests/test_export.py",
-            "metrics": {
-              "insertions": 1400,
-              "deletions": 400,
-              "loc": 4800,
-              "sloc": 3600
-            }
-          }
+          { "file_path": "src/a.ts", "metrics": { "insertions": 1, "deletions": 1, "loc": 0, "sloc": 0, "commits": 1 } },
+          { "file_path": "src/b.ts", "metrics": { "insertions": 3, "deletions": 0, "loc": 4, "sloc": 3, "commits": 3 } }
         ]
       }
+    ],
+    "files_metadata": [
+      { "path": "src/a.ts", "metrics": { "commits": 6, "insertions": 6, "deletions": 1, "loc": 6, "sloc": 3, "stability": 0.78, "age": 13 } },
+      { "path": "src/b.ts", "metrics": { "commits": 5, "insertions": 6, "deletions": 0, "loc": 6, "sloc": 3, "stability": 0.8,  "age": 12 } }
     ],
     "commits": [
-      {
-        "hash": "d0011111dddd2222eeeea1",
-        "authorId": "alice@example.com",
-        "date": "2024-02-05T09:00:00Z",
-        "message": "feat(ingest): initial data ingestion script",
-        "files_changed": [
-          {
-            "name": "ingest.py",
-            "extension": "py",
-            "path": "src/ingest.py",
-            "file_size": 840,
-            "lines": [
-              {
-                "number": 1,
-                "content": "def load_csv(path):",
-                "authorId": "alice@example.com",
-                "commit_hash": "d0011111dddd2222eeeea1",
-                "date": "2024-02-05T09:00:00Z"
-              },
-              {
-                "number": 2,
-                "content": "    return pd.read_csv(path)",
-                "authorId": "alice@example.com",
-                "commit_hash": "d0011111dddd2222eeeea1",
-                "date": "2024-02-05T09:00:00Z"
-              }
-            ],
-            "metrics": {
-              "loc": 2,
-              "sloc": 2,
-              "insertions": 2,
-              "deletions": 0
-            }
-          }
-        ],
-        "metrics": {
-          "insertions": 2,
-          "deletions": 0,
-          "total_commits": 1,
-          "total_files": 1
-        }
-      },
-      {
-        "hash": "d0011111dddd2222eeeea2",
-        "authorId": "bob@example.com",
-        "date": "2024-02-20T10:30:00Z",
-        "message": "feat(transform): add data normalization",
-        "files_changed": [
-          {
-            "name": "transform.py",
-            "extension": "py",
-            "path": "src/transform.py",
-            "file_size": 1020,
-            "lines": [
-              {
-                "number": 1,
-                "content": "def normalize(df):",
-                "authorId": "bob@example.com",
-                "commit_hash": "d0011111dddd2222eeeea2",
-                "date": "2024-02-20T10:30:00Z"
-              },
-              {
-                "number": 2,
-                "content": "    return (df - df.mean()) / df.std()",
-                "authorId": "bob@example.com",
-                "commit_hash": "d0011111dddd2222eeeea2",
-                "date": "2024-02-20T10:30:00Z"
-              }
-            ],
-            "metrics": {
-              "loc": 2,
-              "sloc": 2,
-              "insertions": 2,
-              "deletions": 0
-            }
-          }
-        ],
-        "metrics": {
-          "insertions": 2,
-          "deletions": 0,
-          "total_commits": 1,
-          "total_files": 1
-        }
-      },
-      {
-        "hash": "d0011111dddd2222eeeea3",
-        "authorId": "carol@example.com",
-        "date": "2024-03-05T15:00:00Z",
-        "message": "docs: add architecture overview",
-        "files_changed": [
-          {
-            "name": "architecture.md",
-            "extension": "md",
-            "path": "docs/architecture.md",
-            "file_size": 450,
-            "lines": [
-              {
-                "number": 1,
-                "content": "# Architecture Overview",
-                "authorId": "carol@example.com",
-                "commit_hash": "d0011111dddd2222eeeea3",
-                "date": "2024-03-05T15:00:00Z"
-              },
-              {
-                "number": 2,
-                "content": "This document describes the main pipeline components.",
-                "authorId": "carol@example.com",
-                "commit_hash": "d0011111dddd2222eeeea3",
-                "date": "2024-03-05T15:00:00Z"
-              }
-            ],
-            "metrics": {
-              "loc": 2,
-              "sloc": 2,
-              "insertions": 2,
-              "deletions": 0
-            }
-          }
-        ],
-        "metrics": {
-          "insertions": 2,
-          "deletions": 0,
-          "total_commits": 1,
-          "total_files": 1
-        }
-      },
-      {
-        "hash": "d0011111dddd2222eeeea4",
-        "authorId": "dave@example.com",
-        "date": "2024-03-22T11:10:00Z",
-        "message": "feat(export): implement CSV exporter",
-        "files_changed": [
-          {
-            "name": "export.py",
-            "extension": "py",
-            "path": "src/export.py",
-            "file_size": 720,
-            "lines": [
-              {
-                "number": 1,
-                "content": "def export_csv(df, path):",
-                "authorId": "dave@example.com",
-                "commit_hash": "d0011111dddd2222eeeea4",
-                "date": "2024-03-22T11:10:00Z"
-              },
-              {
-                "number": 2,
-                "content": "    df.to_csv(path, index=False)",
-                "authorId": "dave@example.com",
-                "commit_hash": "d0011111dddd2222eeeea4",
-                "date": "2024-03-22T11:10:00Z"
-              }
-            ],
-            "metrics": {
-              "loc": 2,
-              "sloc": 2,
-              "insertions": 2,
-              "deletions": 0
-            }
-          }
-        ],
-        "metrics": {
-          "insertions": 2,
-          "deletions": 0,
-          "total_commits": 1,
-          "total_files": 1
-        }
-      },
-      {
-        "hash": "d0011111dddd2222eeeea5",
-        "authorId": "bob@example.com",
-        "date": "2024-04-10T16:45:00Z",
-        "message": "test(transform): add export tests",
-        "files_changed": [
-          {
-            "name": "test_export.py",
-            "extension": "py",
-            "path": "tests/test_export.py",
-            "file_size": 530,
-            "lines": [
-              {
-                "number": 1,
-                "content": "def test_export(tmp_path):",
-                "authorId": "bob@example.com",
-                "commit_hash": "d0011111dddd2222eeeea5",
-                "date": "2024-04-10T16:45:00Z"
-              },
-              {
-                "number": 2,
-                "content": "    assert True",
-                "authorId": "bob@example.com",
-                "commit_hash": "d0011111dddd2222eeeea5",
-                "date": "2024-04-10T16:45:00Z"
-              }
-            ],
-            "metrics": {
-              "loc": 2,
-              "sloc": 2,
-              "insertions": 2,
-              "deletions": 0
-            }
-          }
-        ],
-        "metrics": {
-          "insertions": 2,
-          "deletions": 0,
-          "total_commits": 1,
-          "total_files": 1
-        }
-      },
-      {
-        "hash": "d0011111dddd2222eeeea6",
-        "authorId": "carol@example.com",
-        "date": "2024-05-02T09:20:00Z",
-        "message": "docs: update README with badges and install guide",
-        "files_changed": [
-          {
-            "name": "README.md",
-            "extension": "md",
-            "path": "README.md",
-            "file_size": 400,
-            "lines": [
-              {
-                "number": 1,
-                "content": "# data-pipeline",
-                "authorId": "carol@example.com",
-                "commit_hash": "d0011111dddd2222eeeea6",
-                "date": "2024-05-02T09:20:00Z"
-              },
-              {
-                "number": 2,
-                "content": "A modular Python ETL pipeline for structured data.",
-                "authorId": "carol@example.com",
-                "commit_hash": "d0011111dddd2222eeeea6",
-                "date": "2024-05-02T09:20:00Z"
-              }
-            ],
-            "metrics": {
-              "loc": 2,
-              "sloc": 2,
-              "insertions": 2,
-              "deletions": 0
-            }
-          }
-        ],
-        "metrics": {
-          "insertions": 2,
-          "deletions": 0,
-          "total_commits": 1,
-          "total_files": 1
-        }
-      }
+      { "number": 1,  "hash": "c101", "authorId": "author1", "message": "init a.ts header",                "date": "2024-03-01T09:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 5.0 },
+      { "number": 2,  "hash": "c102", "authorId": "author2", "message": "add blank line to a.ts",          "date": "2024-03-02T10:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.0 },
+      { "number": 3,  "hash": "c103", "authorId": "author1", "message": "add const A to a.ts",             "date": "2024-03-02T14:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.0 },
+      { "number": 4,  "hash": "c104", "authorId": "author2", "message": "init b.ts header + blank",        "date": "2024-03-03T11:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 4.0 },
+      { "number": 5,  "hash": "c105", "authorId": "author3", "message": "add type B to b.ts",              "date": "2024-03-04T11:30:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.0 },
+      { "number": 6,  "hash": "c106", "authorId": "author3", "message": "tidy a.ts spacing",               "date": "2024-03-05T13:00:00Z", "insertions": 1, "deletions": 1, "changesPercent": 0.8 },
+      { "number": 7,  "hash": "c107", "authorId": "author1", "message": "add fa() to a.ts",                "date": "2024-03-06T09:30:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.2 },
+      { "number": 8,  "hash": "c108", "authorId": "author1", "message": "add gb() to b.ts",                "date": "2024-03-07T10:15:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.1 },
+      { "number": 9,  "hash": "c109", "authorId": "author2", "message": "refactor a.ts minor",             "date": "2024-03-08T09:45:00Z", "insertions": 1, "deletions": 1, "changesPercent": 0.9 },
+      { "number": 10, "hash": "c110", "authorId": "author2", "message": "default export in a.ts",          "date": "2024-03-10T12:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.0 },
+      { "number": 11, "hash": "c111", "authorId": "author3", "message": "add blank + footer area in b.ts", "date": "2024-03-11T16:20:00Z", "insertions": 1, "deletions": 0, "changesPercent": 0.7 },
+      { "number": 12, "hash": "c112", "authorId": "author3", "message": "default export in b.ts",          "date": "2024-03-12T09:10:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.0 }
     ],
     "files": [
-      "src/ingest.py",
-      "src/transform.py",
-      "src/export.py",
-      "src/utils/helpers.py",
-      "tests/test_export.py",
-      "tests/test_transform.py",
-      "README.md",
-      "docs/architecture.md"
+      {
+        "path": "src/a.ts",
+        "lines": [
+          { "number": 1, "content": "// a header",                "commitHash": "c101", "commitMessage": "init a.ts header",       "authorId": "author1", "date": "2024-03-01T09:00:00Z", "line_type": 1 },
+          { "number": 2, "content": "",                           "commitHash": "c102", "commitMessage": "add blank line to a.ts", "authorId": "author2", "date": "2024-03-02T10:00:00Z", "line_type": 0 },
+          { "number": 3, "content": "export const A = 1;",        "commitHash": "c103", "commitMessage": "add const A to a.ts",    "authorId": "author1", "date": "2024-03-02T14:00:00Z", "line_type": 2 },
+          { "number": 4, "content": "export function fa(){return A}", "commitHash": "c107", "commitMessage": "add fa() to a.ts", "authorId": "author1", "date": "2024-03-06T09:30:00Z", "line_type": 2 },
+          { "number": 5, "content": "",                           "commitHash": "c106", "commitMessage": "tidy a.ts spacing",     "authorId": "author3", "date": "2024-03-05T13:00:00Z", "line_type": 0 },
+          { "number": 6, "content": "export default fa;",         "commitHash": "c110", "commitMessage": "default export in a.ts", "authorId": "author2", "date": "2024-03-10T12:00:00Z", "line_type": 2 }
+        ]
+      },
+      {
+        "path": "src/b.ts",
+        "lines": [
+          { "number": 1, "content": "// b header",                 "commitHash": "c104", "commitMessage": "init b.ts header + blank", "authorId": "author2", "date": "2024-03-03T11:00:00Z", "line_type": 1 },
+          { "number": 2, "content": "",                            "commitHash": "c104", "commitMessage": "init b.ts header + blank", "authorId": "author2", "date": "2024-03-03T11:00:00Z", "line_type": 0 },
+          { "number": 3, "content": "export type B = string;",     "commitHash": "c105", "commitMessage": "add type B to b.ts",       "authorId": "author3", "date": "2024-03-04T11:30:00Z", "line_type": 2 },
+          { "number": 4, "content": "export const gb = ()=>'ok';", "commitHash": "c108", "commitMessage": "add gb() to b.ts",         "authorId": "author1", "date": "2024-03-07T10:15:00Z", "line_type": 2 },
+          { "number": 5, "content": "",                            "commitHash": "c111", "commitMessage": "add blank + footer area in b.ts", "authorId": "author3", "date": "2024-03-11T16:20:00Z", "line_type": 0 },
+          { "number": 6, "content": "export default gb;",          "commitHash": "c112", "commitMessage": "default export in b.ts",  "authorId": "author3", "date": "2024-03-12T09:10:00Z", "line_type": 2 }
+        ]
+      }
     ],
     "metrics": {
-      "loc": 40,
-      "sloc": 38,
+      "loc": 12,
+      "sloc": 6,
       "cloc": 2,
-      "insertions": 40,
-      "deletions": 5,
-      "total_commits": 24,
-      "total_authors": 4,
-      "total_files": 8
+      "insertions": 14,
+      "deletions": 2,
+      "total_commits": 12,
+      "total_authors": 3,
+      "total_files": 2
     }
   }
 }
