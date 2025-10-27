@@ -7,7 +7,7 @@ pub struct File {
     pub name: String,
     pub extension: String,
     pub path: String,
-    pub file_size: usize,
+    pub file_size: Option<usize>,
     pub lines: Vec<Line>,
     pub metrics: Metrics,
 }
@@ -84,7 +84,7 @@ pub struct Metrics {
 // Implement a default empty Metrics struct
 impl Default for Metrics {
     fn default() -> Self {
-        Metrics {
+        Metrics { 
             loc: None,
             sloc: None,
             cloc: None,
