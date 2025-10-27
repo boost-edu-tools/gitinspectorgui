@@ -48,9 +48,16 @@ pub fn save_file(content: String, path: &Path) -> Result<PathBuf, String> { // T
     }
 }
 
+/// Converts a serializable type into a JSON string.
 pub fn convert_to_json<T: serde::Serialize>(object_to_convert: &T) -> Result<String, String> {
     serde_json::to_string_pretty(object_to_convert)
         .map_err(|error| format!("Error converting to JSON: {}", error))
+}
+
+/// Converts a JSON string into a deserializable type.
+pub fn convert_from_json<T: serde::de::DeserializeOwned>(json_string: &str) -> Result<T, String> {
+    serde_json::from_str(json_string)
+        .map_err(|error| format!("Error parsing JSON: {}", error))
 }
 
 pub fn convert_to_csv<T: serde::Serialize>(object_to_convert: &[T]) -> Result<String, String> {
@@ -196,5 +203,35 @@ mod tests {
 
         assert!(csv_string.contains("Test test"));
         assert!(csv_string.contains("Hoi, hallo daar"));
+    }
+
+    #[test]
+    fn test_convert_from_json() {
+        let json_string = r#"{
+            "repositories": ["repo1", "repo2"],
+            "search_depth": 15,
+            "ignored_file_extensions": ["log", "tmp"],
+            "allowed_file_extensions": ["rs", "toml"]
+        }"#;
+
+        let result: Result<Settings, String> = convert_from_json(json_string);
+        assert!(result.is_ok());
+
+        let settings = result.unwrap();
+
+        // Verify all fields are accessible and have correct values
+        assert_eq!(settings.repositories, vec!["repo1", "repo2"]);
+        assert_eq!(settings.search_depth, 15);
+    }
+
+    #[test]
+    fn test_convert_from_json_with_invalid_json() {
+        let invalid_json = "This is not JSON.";
+
+        let result: Result<Settings, String> = convert_from_json(invalid_json);
+        assert!(result.is_err());
+
+        let error = result.unwrap_err();
+        assert!(error.starts_with("Error parsing JSON:"));
     }
 }
