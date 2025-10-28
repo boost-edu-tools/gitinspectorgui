@@ -32,6 +32,7 @@ pub struct Line {
     
 
 /// The Repository struct represents a git repository with its associated data.
+#[derive(Clone)]
 pub struct Repository {
     pub name: String,
     pub path: String,
@@ -130,7 +131,7 @@ impl Default for AnalysisParameters {
 /// It includes the full repository (unfiltered), lists of authors, commits, and files involved in the analysis,
 /// as well as aggregated metrics, which can be filtered based on the analysis parameters.
 pub struct AnalysisResult {
-    // pub original_repository: Repository, // The full repository (unfiltered)
+    pub original_repository: Option<Repository>, // The full repository (unfiltered). None until set.
     pub parameters: AnalysisParameters,
     pub repository: Repository, // The filtered repository based on analysis parameters
 }

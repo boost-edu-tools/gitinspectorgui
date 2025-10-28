@@ -42,6 +42,13 @@ pub fn retrieve_repositories(path_str: &str, depth: usize) -> Result<Vec<PathBuf
     Ok(repos)
 }
 
+// A function for running an analysis on a repository given certain parameters.
+// This will return an AnalysisResult with the original repository set to None.
+
+
+// A function for rerunning an already performed analysis with new parameters.
+// This will preserve the original repository in the AnalysisResult under original_repository.
+
 
 #[cfg(test)]
 mod tests {

@@ -167,6 +167,7 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
         };
 
         Ok(AnalysisResult {
+            original_repository: None,
             parameters: params.clone(),
             repository,
         })
