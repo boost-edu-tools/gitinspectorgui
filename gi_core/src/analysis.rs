@@ -36,7 +36,7 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
     // Add the pretty format and other flags
     args.push("--pretty=format:%h / %an <%ae> / %ad / %s".to_string());
     args.push("--date=short".to_string());
-    args.push("--name-only".to_string());
+    args.push("--numstat".to_string());
 
     // Run the command
     let output = Command::new("git")
@@ -76,19 +76,61 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
                     (author_str.clone(), String::new())
                 };
 
-                // Parse files (as File structs with only name/path, others default)
-                let files_changed: Vec<File> = lines
-                    .map(|l| l.trim())
-                    .filter(|l| !l.is_empty())
-                    .map(|file_path| File {
-                        name: file_path.split('/').last().unwrap_or("").to_string(),
-                        extension: file_path.split('.').last().unwrap_or("").to_string(),
-                        path: file_path.to_string(),
-                        file_size: Some(0),
-                        lines: vec![],
-                        metrics: Metrics::default(),
-                    })
-                    .collect();
+                // Parse files and --numstat entries. numstat lines look like:
+                // "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
+                let mut files_changed: Vec<File> = Vec::new();
+                let mut commit_insertions: usize = 0;
+                let mut commit_deletions: usize = 0;
+                let mut commit_total_files: usize = 0;
+
+                for raw in lines {
+                    let line = raw.trim();
+                    if line.is_empty() {
+                        continue;
+                    }
+
+                    // Add to total files count
+                    commit_total_files = commit_total_files.saturating_add(1);
+
+                    // Split on tab as produced by --numstat
+                    let parts: Vec<&str> = line.split('\t').collect();
+                    if parts.len() >= 3 {
+                        let ins_str = parts[0];
+                        let del_str = parts[1];
+                        let path_str = parts[2];
+
+                        let ins = if ins_str == "-" { 0 } else { ins_str.parse::<usize>().unwrap_or(0) };
+                        let del = if del_str == "-" { 0 } else { del_str.parse::<usize>().unwrap_or(0) };
+
+                        commit_insertions = commit_insertions.saturating_add(ins);
+                        commit_deletions = commit_deletions.saturating_add(del);
+
+                        let path = path_str.to_string();
+                        let mut file_metrics = Metrics::default();
+                        file_metrics.insertions = Some(ins);
+                        file_metrics.deletions = Some(del);
+
+                        files_changed.push(File {
+                            name: path.split('/').last().unwrap_or("").to_string(),
+                            extension: path.split('.').last().unwrap_or("").to_string(),
+                            path: path.clone(),
+                            file_size: Some(0),
+                            lines: vec![],
+                            metrics: file_metrics,
+                        });
+                    } else {
+                        // Fallback: treat whole line as a path
+                        let path = line.to_string();
+                        files_changed.push(File {
+                            name: path.split('/').last().unwrap_or("").to_string(),
+                            extension: path.split('.').last().unwrap_or("").to_string(),
+                            path: path.clone(),
+                            file_size: Some(0),
+                            lines: vec![],
+                            metrics: Metrics::default(),
+                        });
+                    }
+                }
 
                 // Ensure an Author entry exists (or update existing). Use (name,email) as the key.
                 let key = (author_name.clone(), author_email.clone());
@@ -117,7 +159,10 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
                     }
                 }
 
-                let metrics = Metrics::default();
+                let mut metrics = Metrics::default();
+                metrics.insertions = Some(commit_insertions);
+                metrics.deletions = Some(commit_deletions);
+                metrics.total_files_changed = Some(commit_total_files);
                 
                 // Move parsed values into the commits vector (no cloning required)
                 commits.push(Commit {
@@ -141,8 +186,17 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
 
         // For demonstration, print the parsed commits (showing author_id rather than full author object)
         for commit in &commits {
-            println!("id {} | hash: {} | author_id: {} | date: {} | message: {} | files: {:?}",
-                commit.id, commit.hash, commit.author_id, commit.date, commit.message, commit.files_changed.iter().map(|f| &f.path).collect::<Vec<_>>());
+            println!(
+                "id {} | hash: {} | author_id: {} | date: {} | message: {} | files: {:?} | metrics: insertions={}, deletions={}",
+                commit.id,
+                commit.hash,
+                commit.author_id,
+                commit.date,
+                commit.message,
+                commit.files_changed.iter().map(|f| &f.path).collect::<Vec<_>>(),
+                commit.metrics.insertions.unwrap_or(0),
+                commit.metrics.deletions.unwrap_or(0)
+            );
         }
 
         // Print unique authors collected during parsing
