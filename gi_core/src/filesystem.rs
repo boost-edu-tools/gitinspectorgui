@@ -301,4 +301,28 @@ mod tests {
         assert_eq!(settings.ignored_file_extensions, vec!["log", "tmp"]);
         assert_eq!(settings.allowed_file_extensions, vec!["rs", "toml"]);        
     }
+
+    #[test]
+    fn test_save_settings_json() {
+        let temp_dir = TempDir::new().unwrap();
+        let settings_file = temp_dir.path().join("settings_output.json");
+
+        let settings = Settings {
+            repositories: vec!["repo1".to_string(), "repo2".to_string()],
+            search_depth: 15,
+            ignored_file_extensions: vec!["log".to_string(), "tmp".to_string()],
+            allowed_file_extensions: vec!["rs".to_string(), "toml".to_string()],
+        };
+
+        let result = save_settings_json(&settings, &settings_file);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), settings_file);
+
+        // Verify the file was written and can be loaded back
+        let loaded_settings = load_settings_json(&settings_file).unwrap();
+        assert_eq!(loaded_settings.repositories, settings.repositories);
+        assert_eq!(loaded_settings.search_depth, settings.search_depth);
+        assert_eq!(loaded_settings.ignored_file_extensions, settings.ignored_file_extensions);
+        assert_eq!(loaded_settings.allowed_file_extensions, settings.allowed_file_extensions);
+    }
 }
