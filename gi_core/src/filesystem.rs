@@ -262,6 +262,8 @@ mod tests {
         // Verify all fields are accessible and have correct values
         assert_eq!(settings.repositories, vec!["repo1", "repo2"]);
         assert_eq!(settings.search_depth, 15);
+        assert_eq!(settings.ignored_file_extensions, vec!["log", "tmp"]);
+        assert_eq!(settings.allowed_file_extensions, vec!["rs", "toml"]);
     }
 
     #[test]
