@@ -87,6 +87,12 @@ pub fn load_settings_json(path: &Path) -> Result<Settings, String> {
     convert_from_json(&json_string)
 }
 
+// Saves a Settings struct to a JSON file.
+pub fn save_settings_json(settings: &Settings, path: &Path) -> Result<PathBuf, String> {
+    let json_string = convert_to_json(settings)?;
+    save_file(json_string, path)
+}
+
 // TODO: Create CSV conversion testing function that tests representative input for the final application
 
 #[cfg(test)]
