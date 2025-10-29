@@ -171,6 +171,34 @@ mod tests {
     }
 
     #[test]
+    fn test_save_file() {
+        let temp_dir = TempDir::new().unwrap();
+        let test_file = temp_dir.path().join("output.txt");
+        let content = "Hellp, world!".to_string();
+
+        let result = save_file(content.clone(), &test_file);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), test_file);
+
+        // Verify the file was actually written
+        let saved_content = fs::read_to_string(&test_file).unwrap();
+        assert_eq!(saved_content, content);
+    }
+
+    #[test]
+    fn test_save_file_to_invalid_path() {
+        let temp_dir = TempDir::new().unwrap();
+        let invalid_path = temp_dir.path().join("nonexistent_dir").join("test.txt");
+        let content = "Hello, world!".to_string();
+
+        let result = save_file(content, &invalid_path);
+        assert!(result.is_err());
+
+        let error_message = result.unwrap_err();
+        assert!(error_message.starts_with("Error saving file:"));
+    }
+
+    #[test]
     fn convert_to_json_should_work() {
         let settings = Settings {
             repositories: vec!["test.txt".to_string()],
