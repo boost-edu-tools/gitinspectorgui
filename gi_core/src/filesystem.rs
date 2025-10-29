@@ -274,4 +274,23 @@ mod tests {
         let error = result.unwrap_err();
         assert!(error.starts_with("Error parsing JSON:"));
     }
+
+    #[test]
+    fn test_load_settings_json() {
+        let temp_dir = TempDir::new().unwrap();
+        let settings_file = temp_dir.path().join("settings.json");
+
+        let json_content = create_test_settings_json();
+        fs::write(&settings_file, json_content).unwrap();
+
+        let result = load_settings_json(&settings_file);
+        assert!(result.is_ok());
+
+        let settings = result.unwrap();
+        // Verify all fields are accessible and have correct values
+        assert_eq!(settings.repositories, vec!["repo1", "repo2"]);
+        assert_eq!(settings.search_depth, 15);
+        assert_eq!(settings.ignored_file_extensions, vec!["log", "tmp"]);
+        assert_eq!(settings.allowed_file_extensions, vec!["rs", "toml"]);        
+    }
 }
