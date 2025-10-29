@@ -3,6 +3,8 @@ use std::path::{Path, PathBuf};
 use serde_json;
 use csv;
 
+use crate::Settings;
+
 pub fn is_existing_path(path: &Path) -> bool {
     match path.try_exists() {
         Ok(exists) => exists,
@@ -79,7 +81,12 @@ pub fn convert_to_csv<T: serde::Serialize>(object_to_convert: &[T]) -> Result<St
 
 }
 
-// TODO: Add save_file test functions
+/// Loads a Settings struct from a JSON file.
+pub fn load_settings_json(path: &Path) -> Result<Settings, String> {
+    let json_string = load_file(path)?;
+    convert_from_json(&json_string)
+}
+
 // TODO: Create CSV conversion testing function that tests representative input for the final application
 
 #[cfg(test)]
