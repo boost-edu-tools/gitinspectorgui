@@ -35,7 +35,8 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
 
     // Add the pretty format and other flags
     args.push("--pretty=format:%h / %an <%ae> / %ad / %s".to_string());
-    args.push("--date=short".to_string());
+    // TODO: ADD TIME
+    args.push("--date=iso".to_string());
     args.push("--numstat".to_string());
 
     // Run the command
@@ -62,7 +63,18 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
                 let mut parts = header.splitn(4, " / ");
                 let hash = parts.next().unwrap_or("").trim().to_string();
                 let author_str = parts.next().unwrap_or("").trim().to_string();
-                let date = parts.next().unwrap_or("").trim().to_string();
+                // date may include time and timezone when using --date=iso
+                let date_full = parts.next().unwrap_or("").trim().to_string();
+                // split into date, time, timezone where possible
+                let mut date_only = String::new();
+                let mut time_only = String::new();
+                let mut tz_only = String::new();
+                let date_parts: Vec<&str> = date_full.split_whitespace().collect();
+                // We assume date_parts always has 3 parts. This may change if the git output changes.
+                date_only = date_parts[0].to_string();
+                time_only = date_parts[1].to_string();
+                tz_only = date_parts[2].to_string();
+
                 let message = parts.next().unwrap_or("").trim().to_string();
                 
                 // Parse author name and email
@@ -85,6 +97,7 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
 
                 for raw in lines {
                     let line = raw.trim();
+                    
                     if line.is_empty() {
                         continue;
                     }
@@ -94,42 +107,33 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
 
                     // Split on tab as produced by --numstat
                     let parts: Vec<&str> = line.split('\t').collect();
-                    if parts.len() >= 3 {
-                        let ins_str = parts[0];
-                        let del_str = parts[1];
-                        let path_str = parts[2];
+                    // We assume well-formed numstat lines have 3 parts, this may change if git output changes.
+                    let ins_str = parts[0];
+                    let del_str = parts[1];
+                    let path_str = parts[2];
 
-                        let ins = if ins_str == "-" { 0 } else { ins_str.parse::<usize>().unwrap_or(0) };
-                        let del = if del_str == "-" { 0 } else { del_str.parse::<usize>().unwrap_or(0) };
+                    let ins = if ins_str == "-" { 0 } else { ins_str.parse::<usize>().unwrap_or(0) };
+                    let del = if del_str == "-" { 0 } else { del_str.parse::<usize>().unwrap_or(0) };
 
-                        commit_insertions = commit_insertions.saturating_add(ins);
-                        commit_deletions = commit_deletions.saturating_add(del);
+                    commit_insertions = commit_insertions.saturating_add(ins);
+                    commit_deletions = commit_deletions.saturating_add(del);
 
-                        let path = path_str.to_string();
-                        let mut file_metrics = Metrics::default();
-                        file_metrics.insertions = Some(ins);
-                        file_metrics.deletions = Some(del);
+                    let path = path_str.to_string();
+                    let mut file_metrics = Metrics::default();
+                    file_metrics.insertions = Some(ins);
+                    file_metrics.deletions = Some(del);
 
-                        files_changed.push(File {
-                            name: path.split('/').last().unwrap_or("").to_string(),
-                            extension: path.split('.').last().unwrap_or("").to_string(),
-                            path: path.clone(),
-                            file_size: Some(0),
-                            lines: vec![],
-                            metrics: file_metrics,
-                        });
-                    } else {
-                        // Fallback: treat whole line as a path
-                        let path = line.to_string();
-                        files_changed.push(File {
-                            name: path.split('/').last().unwrap_or("").to_string(),
-                            extension: path.split('.').last().unwrap_or("").to_string(),
-                            path: path.clone(),
-                            file_size: Some(0),
-                            lines: vec![],
-                            metrics: Metrics::default(),
-                        });
-                    }
+                    files_changed.push(File {
+                        name: path.split('/').last().unwrap_or("").to_string(),
+                        extension: path.split('.').last().unwrap_or("").to_string(),
+                        path: path.clone(),
+                        file_size: Some(0),
+                        lines: vec![],
+                        metrics: file_metrics,
+                        last_modified_date: date_only.clone(),
+                        last_modified_time: time_only.clone(),
+                        last_modified_timezone: tz_only.clone(),
+                    });
                 }
 
                 // Ensure an Author entry exists (or update existing). Use (name,email) as the key.
@@ -162,14 +166,16 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
                 let mut metrics = Metrics::default();
                 metrics.insertions = Some(commit_insertions);
                 metrics.deletions = Some(commit_deletions);
-                metrics.total_files_changed = Some(commit_total_files);
+                metrics.total_files = Some(commit_total_files);
                 
                 // Move parsed values into the commits vector (no cloning required)
                 commits.push(Commit {
                     id: next_commit_id,
                     hash,
                     author_id: author_entry.id,
-                    date,
+                    date: date_only.clone(),
+                    time: time_only.clone(),
+                    timezone: tz_only.clone(),
                     message,
                     files_changed,
                     metrics,
@@ -187,17 +193,19 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
         // For demonstration, print the parsed commits (showing author_id rather than full author object)
         for commit in &commits {
             println!(
-                "id {} | hash: {} | author_id: {} | date: {} | message: {} | files: {:?} | metrics: insertions={}, deletions={}",
+                "id {} | hash: {} | author_id: {} | date: {} time: {} tz: {} | message: {} | files: {:?} | metrics: insertions={}, deletions={}",
                 commit.id,
                 commit.hash,
                 commit.author_id,
                 commit.date,
+                commit.time,
+                commit.timezone,
                 commit.message,
                 commit.files_changed.iter().map(|f| &f.path).collect::<Vec<_>>(),
                 commit.metrics.insertions.unwrap_or(0),
                 commit.metrics.deletions.unwrap_or(0)
             );
-        }
+        }  
 
         // Print unique authors collected during parsing
         println!("\nUnique authors ({}):", author_map.len());
@@ -342,6 +350,7 @@ mod tests {
         // Excluding start, including end
         let start_commit = "02c101f";
         let end_commit = "c1dd7cd";
+        
         // Build AnalysisParameters and run analysis
         let mut params = AnalysisParameters::default();
         params.repo_path = repo_path.to_string_lossy().to_string();
