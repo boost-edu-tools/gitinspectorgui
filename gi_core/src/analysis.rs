@@ -35,7 +35,6 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
 
     // Add the pretty format and other flags
     args.push("--pretty=format:%h / %an <%ae> / %ad / %s".to_string());
-    // TODO: ADD TIME
     args.push("--date=iso".to_string());
     args.push("--numstat".to_string());
 
@@ -219,14 +218,49 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
             .unwrap_or("")
             .to_string();
 
+        // Compute repository-level aggregates
+        let all_files: Vec<String> = commits.iter()
+            .flat_map(|c| c.files_changed.iter().map(|f| f.path.clone()))
+            .collect();
+        let unique_files_set: HashSet<String> = all_files.iter().cloned().collect();
+
+        let total_commits = commits.len();
+        let total_files = unique_files_set.len();
+        let total_authors = author_map.len();
+
+        let total_insertions: usize = commits.iter()
+            .map(|c| c.metrics.insertions.unwrap_or(0))
+            .sum();
+        let total_deletions: usize = commits.iter()
+            .map(|c| c.metrics.deletions.unwrap_or(0))
+            .sum();
+
+        let mut repo_metrics = Metrics::default();
+        repo_metrics.total_commits = Some(total_commits);
+        repo_metrics.total_files = Some(total_files);
+        repo_metrics.total_authors = Some(total_authors);
+        repo_metrics.insertions = Some(total_insertions);
+        repo_metrics.deletions = Some(total_deletions);
+
         let repository = Repository {
             name: repo_name,
             path: params.repo_path.clone(),
             authors: author_map.values().cloned().collect(),
             commits: commits.clone(),
-            files: commits.iter().flat_map(|c| c.files_changed.iter().map(|f| f.path.clone())).collect(),
-            metrics: Metrics::default(),
+            files: unique_files_set.into_iter().collect(),
+            metrics: repo_metrics,
         };
+
+        // Print the repo summary and metrics for verification
+        println!("\nRepository: {} at {}", repository.name, repository.path);
+        println!(
+            "Total commits: {}, authors: {}, files: {}, insertions: {}, deletions: {}",
+            repository.metrics.total_commits.unwrap_or(0),
+            repository.metrics.total_authors.unwrap_or(0),
+            repository.metrics.total_files.unwrap_or(0),
+            repository.metrics.insertions.unwrap_or(0),
+            repository.metrics.deletions.unwrap_or(0),
+        );
 
         Ok(AnalysisResult {
             original_repository: None,
