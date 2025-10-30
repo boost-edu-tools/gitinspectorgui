@@ -10,6 +10,9 @@ pub struct File {
     pub file_size: Option<usize>,
     pub lines: Vec<Line>,
     pub metrics: Metrics,
+    pub last_modified_date: String,
+    pub last_modified_time: String,
+    pub last_modified_timezone: String,
 }
 
 
@@ -50,6 +53,8 @@ pub struct Commit {
     pub hash: String,
     pub author_id: usize,
     pub date: String,
+    pub time: String,
+    pub timezone: String,
     pub message: String,
     pub files_changed: Vec<File>,
     pub metrics: Metrics,
