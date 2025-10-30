@@ -2,6 +2,15 @@ use serde::{Serialize, Deserialize};
 
 
 /// The File struct represents a file in the repository with its associated data.
+/// Metrics of a file:
+/// - Lines of Code (LOC)
+/// - Source Lines of Code (SLOC)
+/// - Comment Lines of Code (CLOC)
+/// - Whitespace Lines
+/// - Insertions
+/// - Deletions
+/// - Total commits affecting the file
+/// - Total number of authors who modified the file
 #[derive(Clone)]
 pub struct File {
     pub name: String,
@@ -35,6 +44,12 @@ pub struct Line {
     
 
 /// The Repository struct represents a git repository with its associated data.
+/// Metrics of a repository:
+/// - Total number of files
+/// - Total number of authors
+/// - Total number of commits
+/// - Total number of insertions
+/// - Total number of deletions
 #[derive(Clone)]
 pub struct Repository {
     pub name: String,
@@ -47,6 +62,10 @@ pub struct Repository {
 
 
 /// The Commit struct represents a git commit with its associated data.
+/// Metrics of a commit:
+/// - Number of files changed
+/// - Number of insertions
+/// - Number of deletions
 #[derive(Clone)]
 pub struct Commit {
     pub id: usize,
@@ -78,9 +97,10 @@ pub struct Author {
 /// All metrics are optional and can be None if not calculated or not applicable.
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Metrics {
-    pub loc: Option<usize>,
-    pub sloc: Option<usize>,
-    pub cloc: Option<usize>, // cloc = loc - sloc
+    pub loc: Option<usize>,         // Lines of Code
+    pub sloc: Option<usize>,        // sloc = loc - cloc - whitespace
+    pub cloc: Option<usize>,        // cloc = loc - sloc
+    pub whitespace: Option<usize>,  // whitespace = loc - sloc - cloc
     pub insertions: Option<usize>,
     pub deletions: Option<usize>,
     pub total_commits: Option<usize>,
@@ -95,6 +115,7 @@ impl Default for Metrics {
             loc: None,
             sloc: None,
             cloc: None,
+            whitespace: None,
             insertions: None,
             deletions: None,
             total_commits: None,
