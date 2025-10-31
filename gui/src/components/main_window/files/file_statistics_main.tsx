@@ -226,6 +226,23 @@ export function UnifiedFilesView({
                   </TabsList>
                 </Tabs>
 
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="relative-mode" className="text-sm">Show renames</Label>
+                  <Switch id="show-renames" checked={showRenames} onCheckedChange={setShowRenames} />
+                  
+                  
+                  <Label htmlFor="display-mode" className="text-sm">
+                    Relative
+                  </Label>
+                  <Switch
+                    id="display-mode"
+                    checked={displayMode === "percentage"}
+                    onCheckedChange={(checked) => setDisplayMode(checked ? "percentage" : "absolute")}
+                  />
+                </div>
+              </div>
+            </div>
+
                 {viewMode === "author-file" && (
                   <div className="flex items-center gap-2">
                     <Label htmlFor="metric-type" className="text-sm">
@@ -251,22 +268,6 @@ export function UnifiedFilesView({
                   </div>
                 )}
 
-                <div className="flex items-center space-x-2">
-                  <Label htmlFor="relative-mode" className="text-sm">Show renames</Label>
-                  <Switch id="show-renames" checked={showRenames} onCheckedChange={setShowRenames} />
-                  
-                  
-                  <Label htmlFor="display-mode" className="text-sm">
-                    Relative
-                  </Label>
-                  <Switch
-                    id="display-mode"
-                    checked={displayMode === "percentage"}
-                    onCheckedChange={(checked) => setDisplayMode(checked ? "percentage" : "absolute")}
-                  />
-                </div>
-              </div>
-            </div>
 
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">
