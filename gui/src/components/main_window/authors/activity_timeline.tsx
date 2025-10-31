@@ -223,7 +223,7 @@ export function Timeline({
           ticks: filteredAuthors.map((_, i) => i),
           tickFormatter: (i: number) => filteredAuthors[i] || "",
           tick: { fontSize: 10 },
-          width: 110,
+          width: 70,
           name: "Author",
         }
       : {
@@ -231,7 +231,7 @@ export function Timeline({
           dataKey: "value",
           domain: [0, "auto"] as [number, any],
           tick: { fontSize: 10 },
-          width: 110,
+          width: 70,
           label: { value: metric === "commits" ? "Nr of commits" : "Changes (%)", angle: -90, offset: 40 },
           allowDecimals: metric !== "commits",
         }
@@ -310,9 +310,9 @@ export function Timeline({
           </div>
         )}
 
-        <div className="h-56 w-full">
+        <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
+            <ScatterChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis
                 type="number"
@@ -321,7 +321,7 @@ export function Timeline({
                 tickFormatter={formatDate}
                 tick={{ fontSize: 10 }}
                 name="Date"
-                height={30}
+                height={50}
                 label = {{ value: 'Date', position: 'insideBottom', offset: -5 }}
               />
               <YAxis {...(yAxisProps as any)} />

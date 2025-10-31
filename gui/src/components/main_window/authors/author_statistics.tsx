@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardTitle} from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 
@@ -118,14 +118,21 @@ export function Overview({
   
   return (
     <Card>
-      <CardHeader className="space-y-0">
+      <CardContent className="pt-2 pb-3">
+        <div className="space-y-2 py-2">
         <div className="flex items-center justify-between">
+          
           <CardTitle className="text-sm">Author Statistics</CardTitle>
-          <div className="flex items-center space-x-2">
+
+          <div className="flex items-center gap-4">
+
+          <div className="flex items-center space-x-2 border-r pr-4">
             <Label htmlFor="relative-mode" className="text-sm">Show renames</Label>
             <Switch id="show-renames" checked={showRenames} onCheckedChange={setShowRenames} />
-            
-            <Label htmlFor="relative-mode" className="text-sm">
+          </div>
+
+          <div className="flex items-center space-x-2">            
+            <Label htmlFor="display-mode" className="text-sm">
               Relative
             </Label>
             <Switch
@@ -134,11 +141,12 @@ export function Overview({
               onCheckedChange={setShowRelative}
             />
           </div>
-        </div>
-      </CardHeader>
 
-      <CardContent>
-        <div className="grid w-full [&>div]:border [&>div]:rounded overflow-x-auto">
+        </div>
+        </div>
+        
+
+        <div className="grid w-full [&>div]:border [&>div]:rounded overflow-x-auto py-4">
           <Table>
             <TableHeader>
               <TableRow className="*:whitespace-nowrap hover:bg-background">
@@ -217,6 +225,7 @@ export function Overview({
               })}
             </TableBody>
           </Table>
+        </div>
         </div>
       </CardContent>
     </Card>

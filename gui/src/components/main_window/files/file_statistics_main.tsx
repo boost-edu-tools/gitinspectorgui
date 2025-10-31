@@ -10,6 +10,7 @@ import type { AnalysisResult, SelectedFullProps } from "@/components/types"
 
 import { RepositoryViewTable, AuthorFileViewTable } from "@/components/main_window/files/files_table"
 import { BlameTabsView } from "@/components/main_window/files/blame_view_tabs"
+import { FileActivityChart } from "@/components/main_window/files/file_activity"
 
 /* -------- helpers -------- */
 
@@ -209,90 +210,104 @@ export function UnifiedFilesView({
     )
   }
 
-
-  // Otherwise, show the tables as usual.
+  // Otherwise, show the visualization and tables
   return (
-    <Card>
-      <CardContent className="pt-2 pb-3">
-        <div className="space-y-2 py-4">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm">File Statistics</CardTitle>
-              <div className="flex items-center gap-4">
-                <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "repo" | "author-file")}>
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="repo">All authors</TabsTrigger>
-                    <TabsTrigger value="author-file">Per author</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+    <div className="space-y-4">
+      {/* File Activity Chart */}
+      <FileActivityChart
+        allAuthors={allAuthorsSet}
+        selectedAuthors={selectedAuthors}
+        allFiles={allFilesSet}
+        selectedFiles={selectedFiles}
+        filterData={filterData}
+        selectedRepo={selectedRepo}
+        startCommitHash={startCommitHash}
+        endCommitHash={endCommitHash}
+      />
 
-                <div className="flex items-center space-x-2">
-                  <Label htmlFor="relative-mode" className="text-sm">Show renames</Label>
-                  <Switch id="show-renames" checked={showRenames} onCheckedChange={setShowRenames} />
+      {/* File Statistics Table */}
+      <Card>
+        <CardContent className="pt-2 pb-3">
+          <div className="space-y-2 py-4">
+
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm">File Statistics</CardTitle>
+                <div className="flex items-center gap-4">
+                  <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "repo" | "author-file")}>
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="repo">All authors</TabsTrigger>
+                      <TabsTrigger value="author-file">Per author</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+
+                  <div className="flex items-center space-x-2 border-r pr-4">
+                    <Label htmlFor="show-renames" className="text-sm">Show renames</Label>
+                    <Switch id="show-renames" checked={showRenames} onCheckedChange={setShowRenames} />
+                  </div>
                   
-                  
-                  <Label htmlFor="display-mode" className="text-sm">
-                    Relative
-                  </Label>
-                  <Switch
-                    id="display-mode"
-                    checked={displayMode === "percentage"}
-                    onCheckedChange={(checked) => setDisplayMode(checked ? "percentage" : "absolute")}
-                  />
+                  <div className="flex items-center space-x-2">
+                    <Label htmlFor="display-mode" className="text-sm">
+                      Relative
+                    </Label>
+                    <Switch
+                      id="display-mode"
+                      checked={displayMode === "percentage"}
+                      onCheckedChange={(checked) => setDisplayMode(checked ? "percentage" : "absolute")}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-                {viewMode === "author-file" && (
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="metric-type" className="text-sm">
-                      Metric:
-                    </Label>
-                    <Select
-                      value={authorFileMetricType}
-                      onValueChange={(v) =>
-                        setAuthorFileMetricType(v as "commits" | "insertions" | "deletions" | "loc" | "sloc")
-                      }
-                    >
-                      <SelectTrigger id="metric-type" className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="commits">Commits</SelectItem>
-                        <SelectItem value="loc">LOC</SelectItem>
-                        <SelectItem value="sloc">SLOC</SelectItem>
-                        <SelectItem value="insertions">Insertions</SelectItem>
-                        <SelectItem value="deletions">Deletions</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              {viewMode === "author-file" && (
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="metric-type" className="text-sm">
+                    Metric:
+                  </Label>
+                  <Select
+                    value={authorFileMetricType}
+                    onValueChange={(v) =>
+                      setAuthorFileMetricType(v as "commits" | "insertions" | "deletions" | "loc" | "sloc")
+                    }
+                  >
+                    <SelectTrigger id="metric-type" className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="commits">Commits</SelectItem>
+                      <SelectItem value="loc">LOC</SelectItem>
+                      <SelectItem value="sloc">SLOC</SelectItem>
+                      <SelectItem value="insertions">Insertions</SelectItem>
+                      <SelectItem value="deletions">Deletions</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  Click on any file in the table below to view its detailed blame information
+                </p>
+
+                {viewMode === "repo" ? (
+                  <RepositoryViewTable
+                    fileMetadata={fileMetadata}
+                    displayMode={displayMode}
+                    onFileSelect={(path) => setSelectedFile(path)}
+                  />
+                ) : (
+                  <AuthorFileViewTable
+                    rows={authorFileRows}
+                    allAuthors={displayedAuthors}
+                    metricType={authorFileMetricType}
+                    displayMode={displayMode}
+                    onFileSelect={(path) => setSelectedFile(path)}
+                  />
                 )}
 
-
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">
-                Click on any file in the table below to view its detailed blame information
-              </p>
-
-              {viewMode === "repo" ? (
-                <RepositoryViewTable
-                  fileMetadata={fileMetadata}
-                  displayMode={displayMode}
-                  onFileSelect={(path) => setSelectedFile(path)}
-                />
-              ) : (
-                <AuthorFileViewTable
-                  rows={authorFileRows}
-                  allAuthors={displayedAuthors}
-                  metricType={authorFileMetricType}
-                  displayMode={displayMode}
-                  onFileSelect={(path) => setSelectedFile(path)}
-                />
-              )}
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
