@@ -152,7 +152,7 @@ export function FilterRange({
   ])
 
 
-    const allCommits = React.useMemo<Commit[]>(() => {
+  const allCommits = React.useMemo<Commit[]>(() => {
     const list: Commit[] = repo?.commits ?? []
     const out: Commit[] = []
     const seen = new Set<string>()
@@ -193,8 +193,9 @@ export function FilterRange({
     }
   }, [allCommits])
 
-  // Filter commits by selected date range
-  const commits = React.useMemo<Commit[]>(() => {
+  const commits = allCommits
+
+  const commitsInDateRange = React.useMemo<Commit[]>(() => {
     if (!startDate || !endDate) return allCommits
 
     const start = startOfDay(startDate)
@@ -234,10 +235,10 @@ export function FilterRange({
 
   // Auto-select first and last commits when date range changes
   React.useEffect(() => {
-    if (commits.length === 0) return
+    if (commitsInDateRange.length === 0) return
 
-    const firstCommit = commits[0]
-    const lastCommit = commits[commits.length - 1]
+    const firstCommit = commitsInDateRange[0]
+    const lastCommit = commitsInDateRange[commitsInDateRange.length - 1]
 
     if (firstCommit.hash !== startCommitHash) {
       onStartCommitChange(firstCommit.hash)
@@ -247,9 +248,9 @@ export function FilterRange({
       onEndCommitChange(lastCommit.hash)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commits, onStartCommitChange, onEndCommitChange])
+  }, [commitsInDateRange, onStartCommitChange, onEndCommitChange])
 
-  // Indices for current commit selection within filtered commits
+  // Indices for current commit selection within all commits
   const startIdxRaw = commits.findIndex((c) => c.hash === startCommitHash)
   const endIdxRaw = commits.findIndex((c) => c.hash === endCommitHash)
   const safeStartIdx = commits.length ? (startIdxRaw >= 0 ? startIdxRaw : 0) : -1
@@ -376,9 +377,9 @@ export function FilterRange({
                         <span className="font-medium text-foreground">
                           {fmtDate(absoluteMaxDate)}
                         </span>
-                        {commits.length < allCommits.length && (
+                        {commitsInDateRange.length < allCommits.length && (
                           <span className="block mt-1 text-muted-foreground">
-                            {commits.length} of {allCommits.length} commits in selected range
+                            {commitsInDateRange.length} of {allCommits.length} commits in selected range
                           </span>
                         )}
                       </>
