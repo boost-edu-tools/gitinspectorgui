@@ -211,7 +211,8 @@ export function UnifiedFilesView({
 
   // Otherwise, show the visualization and tables
   return (
-    <div className="space-y-4">
+    <div className="mt-4 px-8">
+      <div className="p-4">
       {/* File Activity Chart */}
       <FileActivityChart
         allAuthors={allAuthorsSet}
@@ -223,8 +224,10 @@ export function UnifiedFilesView({
         startCommitHash={startCommitHash}
         endCommitHash={endCommitHash}
       />
+      </div>
 
       {/* File Statistics Table */}
+      <div className="p-4">
       <Card>
         <CardContent className="pt-2 pb-3">
           <div className="space-y-2 py-2">
@@ -307,6 +310,7 @@ export function UnifiedFilesView({
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }

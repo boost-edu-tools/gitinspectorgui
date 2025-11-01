@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
-import { Overview } from "@/components/main_window/authors/author_statistics"
+import { AuthorStatisticsOverview} from "@/components/main_window/authors/author_statistics"
 import { Timeline } from "@/components/main_window/authors/activity_timeline"
 import { UnifiedFilesView } from "@/components/main_window/files/file_statistics_main"
 
@@ -88,7 +88,7 @@ export function AppMainWindow({
                   />
                 </div>
                 <div className="p-4">
-                  <Overview
+                  <AuthorStatisticsOverview
                     allAuthors={allAuthors}
                     selectedAuthors={selectedAuthors}
                     filterData={filterData}
@@ -98,8 +98,7 @@ export function AppMainWindow({
               </div>
             </TabsContent>
 
-            <TabsContent value="files" className="mt-4 px-8">
-              <div className="p-4">
+            <TabsContent value="files" className="py-0">
                 <UnifiedFilesView
                   allAuthors={allAuthors}
                   selectedAuthors={selectedAuthors}
@@ -110,7 +109,6 @@ export function AppMainWindow({
                   startCommitHash={startCommitHash}
                   endCommitHash={endCommitHash}
                 />
-              </div>
             </TabsContent>
           </Tabs>
         {/* )} */}
