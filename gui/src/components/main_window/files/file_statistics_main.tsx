@@ -228,7 +228,7 @@ export function UnifiedFilesView({
       {/* File Statistics Table */}
       <Card>
         <CardContent className="pt-2 pb-3">
-          <div className="space-y-2 py-4">
+          <div className="space-y-2 py-2">
 
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm">File Statistics</CardTitle>
@@ -283,7 +283,7 @@ export function UnifiedFilesView({
                 </div>
               )}
 
-              <div className="space-y-2">
+              <div className="grid w-full [&>div]:border [&>div]:rounded overflow-x-auto py-4">
                 <p className="text-xs text-muted-foreground">
                   Click on any file in the table below to view its detailed blame information
                 </p>
