@@ -170,9 +170,6 @@ export function Overview({
                   <MetricHeader metricKey="sloc" />
                 </TableHead>
                 <TableHead className="text-right">
-                  <MetricHeader metricKey="stability" />
-                </TableHead>
-                <TableHead className="text-right">
                   <MetricHeader metricKey="age" />
                 </TableHead>
               </TableRow>
@@ -185,7 +182,6 @@ export function Overview({
                 const deletions = metrics.deletions ?? 0
                 const loc = metrics.loc ?? 0
                 const sloc = metrics.sloc ?? 0
-                const stability = metrics.stability ?? null
                 const age = metrics.age ?? null
 
                 return (
@@ -213,9 +209,6 @@ export function Overview({
                     </TableCell>
                     <TableCell className="text-right">
                       {formatMetric(sloc, totals.sloc)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {stability}
                     </TableCell>
                     <TableCell className="text-right">
                       {age}

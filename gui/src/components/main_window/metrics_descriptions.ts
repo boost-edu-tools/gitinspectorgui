@@ -5,7 +5,6 @@ export const METRIC_DESCRIPTIONS = {
   deletions: { label: "Deletions", description: "Total number of lines removed from this file across all commits" },
   loc:       { label: "LOC",       description: "Total lines including blanks and comments" },
   sloc:      { label: "SLOC",      description: "Source lines (excludes blanks/comments)" },
-  stability: { label: "Stability (%)", description: "Ratio of lines/insertions (%)" },
-  age:       { label: "Age (Y:M:D)",description: "The average of the age of the inserted lines" },
+  age:       { label: "Last modified (Y:M:D)",description: "Time elapsed since the last commit, shown in years, months, and days" },
 } as const
 

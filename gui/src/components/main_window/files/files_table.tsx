@@ -38,7 +38,7 @@ export function RepositoryViewTable({
   displayMode,
   onFileSelect,
 }: {
-  fileMetadata: Array<{ path: string; commits: number; insertions: number; deletions: number; loc: number; sloc: number; stability: number; age: number }>
+  fileMetadata: Array<{ path: string; commits: number; insertions: number; deletions: number; loc: number; sloc: number; age: number }>
   displayMode: "absolute" | "percentage"
   onFileSelect: (fileName: string) => void
 }) {
@@ -68,7 +68,6 @@ export function RepositoryViewTable({
             <TableHead className="text-right"><MetricHeader metricKey="deletions" /></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="loc"/></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="sloc" /></TableHead>
-            <TableHead className="text-right"><MetricHeader metricKey="stability" /></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="age" /></TableHead>
           </TableRow>
         </TableHeader>
@@ -102,7 +101,6 @@ export function RepositoryViewTable({
               <TableCell className="text-right">{fmt(f.deletions, totals.deletions)}</TableCell>
               <TableCell className="text-right">{fmt(f.loc, totals.loc)}</TableCell>
               <TableCell className="text-right">{fmt(f.sloc, totals.sloc)}</TableCell>
-              <TableCell className="text-right"><span>{f.stability.toFixed(0)}</span></TableCell>
               <TableCell className="text-right">{f.age}</TableCell>
             </TableRow>
           ))}

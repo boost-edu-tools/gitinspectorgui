@@ -37,7 +37,6 @@ export type Metrics = {
   total_authors?: number;
   total_files?: number;
 
-  stability?: number;
   age?: number;
 };
 

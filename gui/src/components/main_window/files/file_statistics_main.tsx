@@ -60,7 +60,6 @@ function extractFileMetadata(analysis: AnalysisResult | undefined, fileIdsToShow
       deletions: f.metrics?.deletions ?? 0,
       loc: f.metrics?.loc ?? 0,
       sloc: f.metrics?.sloc ?? 0,
-      stability: f.metrics?.stability ?? 0,
       age: f.metrics?.age ?? 0,
     }))
     .sort((a, b) => b.commits - a.commits)
