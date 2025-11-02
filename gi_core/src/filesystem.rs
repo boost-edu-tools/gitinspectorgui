@@ -1,7 +1,9 @@
 use std::fs;
 use std::path::{Path, PathBuf};
+use git_wrapper::Repository;
 use serde_json;
 use csv;
+use git2::Repository;
 
 use crate::Settings;
 
@@ -25,15 +27,9 @@ pub fn is_directory(path: &Path) -> bool {
     }
 }
 
+/// Returns true if the given directory (as Path) is a git repository, false otherwise.
 pub fn is_git_repository(path: &Path) -> bool {
-    let git_dir = path.join(".git");
-    match git_dir.try_exists() {
-        Ok(exists) => exists,
-        Err(error) => {
-            eprintln!("Error checking for .git directory: {}", error);
-            false
-        }
-    }
+    Repository::discover(path).is_ok()
 }
 
 pub fn load_file(path: &Path) -> Result<String, String> {
