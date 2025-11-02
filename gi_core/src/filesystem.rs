@@ -308,34 +308,24 @@ mod tests {
 
         let csv_string = result.unwrap();
 
-        // Verify CSV headers
-        assert!(csv_string.contains("loc"));
-        assert!(csv_string.contains("sloc"));
-        assert!(csv_string.contains("cloc"));
-        assert!(csv_string.contains("insertions"));
-        assert!(csv_string.contains("deletions"));
-        assert!(csv_string.contains("total_commits"));
-        assert!(csv_string.contains("total_authors"));
-        assert!(csv_string.contains("total_files"));
-
-        // Verify metric values are present
-        assert!(csv_string.contains("500"));
-        assert!(csv_string.contains("400"));
-        assert!(csv_string.contains("100"));
-        assert!(csv_string.contains("200"));
-        assert!(csv_string.contains("150"));
-        assert!(csv_string.contains("20"));
-        assert!(csv_string.contains("3"));
-        assert!(csv_string.contains("45"));
-
-        assert!(csv_string.contains("800"));
-        assert!(csv_string.contains("650"));
-        assert!(csv_string.contains(""));
-        assert!(csv_string.contains("900"));
-        assert!(csv_string.contains(""));
-        assert!(csv_string.contains("75"));
-        assert!(csv_string.contains("3"));
-        assert!(csv_string.contains("20"));
+        let mut missing = Vec::new();
+        for expected in [
+            // CSV headers
+            "loc", "sloc", "cloc", "insertions", "deletions",
+            "total_commits", "total_authors", "total_files",
+            // Metric values
+            "500", "400", "100", "200", "150", "20", "3", "45",
+            "800", "650", "", "900", "", "75", "3", "20",
+        ] {
+            if !csv_string.contains(expected) {
+                missing.push(expected);
+            }
+        }
+        assert!(
+            missing.is_empty(),
+            "CSV output missing expected values: {:?}",
+            missing
+        );
 
         // Verify row count (1 header + 2 data rows)
         assert_eq!(csv_string.lines().count(), 3);
