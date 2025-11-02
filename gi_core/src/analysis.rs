@@ -38,11 +38,10 @@ fn build_git_log_args(params: &AnalysisParameters) -> Result<Vec<String>, String
 }
 
 
-// analyse_between_timestamps removed — use build_git_log_args + analyse_repository instead
-
-/// This function analyses a git repository between two commit hashes (from_commit to to_commit).
+/// This function analyses a git repository between two commit hashes or time stamps.
 /// If from_commit is None, analysis starts from the first commit.
 /// If to_commit is None, analysis goes up to the latest commit.
+/// If from_time or to_time are specified, they are used instead of commit hashes.
 /// It returns an AnalysisResult containing the parsed commits, authors, and files.
 /// Files are just fetched, not processed by the analysis. This functionality is handled by retrieve_blames_between_commits()
 fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, String> {
