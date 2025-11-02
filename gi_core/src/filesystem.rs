@@ -284,6 +284,95 @@ mod tests {
     }
 
     #[test]
+    fn test_convert_author_to_csv() {
+        // Create test authors
+        let authors = vec![
+            Author {
+                name: "Alice".to_string(),
+                email: "alice@gitinspector.com".to_string(),
+            },
+        ];
+
+        let result = convert_to_csv(&authors);
+        assert!(result.is_ok());
+
+        let csv_string = result.unwrap();
+
+        // Verify CSV structure
+        assert!(csv_string.contains("name"));
+        assert!(csv_string.contains("email"));
+        assert!(csv_string.contains("Alice"));
+        assert!(csv_string.contains("alice@gitinspector.com"));
+
+        // Verify row count (1 header + 1 data row)
+        assert_eq!(csv_string.lines().count(), 2);
+    }
+
+    #[test]
+    fn test_convert_metrics_to_csv() {
+        // Create representative test metrics
+        let metrics = vec![
+            Metrics {
+                loc: Some(500),
+                sloc: Some(400),
+                cloc: Some(100),
+                insertions: Some(200),
+                deletions: Some(150),
+                total_commits: Some(20),
+                total_authors: Some(3),
+                total_files: Some(45),
+            },
+            Metrics {
+                loc: Some(800),
+                sloc: Some(650),
+                cloc: None,
+                insertions: Some(900),
+                deletions: None,
+                total_commits: Some(75),
+                total_authors: Some(3),
+                total_files: Some(20), 
+            },
+        ];
+
+        let result = convert_to_csv(&metrics);
+        assert!(result.is_ok());
+
+        let csv_string = result.unwrap();
+
+        // Verify CSV headers
+        assert!(csv_string.contains("loc"));
+        assert!(csv_string.contains("sloc"));
+        assert!(csv_string.contains("cloc"));
+        assert!(csv_string.contains("insertions"));
+        assert!(csv_string.contains("deletions"));
+        assert!(csv_string.contains("total_commits"));
+        assert!(csv_string.contains("total_authors"));
+        assert!(csv_string.contains("total_files"));
+
+        // Verify metric values are present
+        assert!(csv_string.contains("500"));
+        assert!(csv_string.contains("400"));
+        assert!(csv_string.contains("100"));
+        assert!(csv_string.contains("200"));
+        assert!(csv_string.contains("150"));
+        assert!(csv_string.contains("20"));
+        assert!(csv_string.contains("3"));
+        assert!(csv_string.contains("45"));
+
+        assert!(csv_string.contains("800"));
+        assert!(csv_string.contains("650"));
+        assert!(csv_string.contains(""));
+        assert!(csv_string.contains("900"));
+        assert!(csv_string.contains(""));
+        assert!(csv_string.contains("75"));
+        assert!(csv_string.contains("3"));
+        assert!(csv_string.contains("20"));
+
+        // Verify row count (1 header + 2 data rows)
+        assert_eq!(csv_string.lines().count(), 3);
+    }
+
+    #[test]
     fn test_load_settings_json() {
         let temp_dir = TempDir::new().unwrap();
         let settings_file = temp_dir.path().join("settings.json");
