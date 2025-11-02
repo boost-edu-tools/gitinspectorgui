@@ -36,12 +36,12 @@ pub fn is_git_repository(path: &Path) -> bool {
     }
 }
 
-pub fn load_file(path: &Path) -> Result<String, String> { // TODO: Change return type to gi_core::File
+pub fn load_file(path: &Path) -> Result<String, String> {
     fs::read_to_string(path)
         .map_err(|error| format!("Error loading file: {}", error))
 }
 
-pub fn save_file(content: String, path: &Path) -> Result<PathBuf, String> { // TODO: Check return type
+pub fn save_file(content: String, path: &Path) -> Result<PathBuf, String> {
     match fs::write(&path, content) {
         Ok(_) => Ok(path.to_path_buf()),
         Err(error) => {
