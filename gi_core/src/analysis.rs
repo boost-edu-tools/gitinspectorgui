@@ -1,8 +1,13 @@
 pub use crate::shared_types::*;
 
 use std::path::{Path, PathBuf};
-use std::{str, collections::{HashSet, HashMap}, process::Command, fs::File as FsFile, io::{BufRead, BufReader}};
-
+use std::{
+    collections::{HashMap, HashSet},
+    fs::File as FsFile,
+    io::{BufRead, BufReader},
+    process::Command,
+    str,
+};
 
 /// This function builds the git log arguments based on the provided AnalysisParameters
 fn build_git_log_args(params: &AnalysisParameters) -> Result<Vec<String>, String> {
@@ -10,7 +15,9 @@ fn build_git_log_args(params: &AnalysisParameters) -> Result<Vec<String>, String
     let has_commit_range = params.from_commit.is_some() || params.to_commit.is_some();
     let has_time_range = params.from_time.is_some() || params.to_time.is_some();
     if has_commit_range && has_time_range {
-        return Err("Cannot mix commit-range and time-range parameters in git log args".to_string());
+        return Err(
+            "Cannot mix commit-range and time-range parameters in git log args".to_string(),
+        );
     }
 
     let mut args: Vec<String> = Vec::new();
@@ -37,7 +44,6 @@ fn build_git_log_args(params: &AnalysisParameters) -> Result<Vec<String>, String
     Ok(args)
 }
 
-
 /// This function analyses a git repository between two commit hashes or time stamps.
 /// If from_commit is None, analysis starts from the first commit.
 /// If to_commit is None, analysis goes up to the latest commit.
@@ -49,7 +55,7 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
     let repo = Path::new(&params.repo_path);
     let start = params.from_commit.as_deref().unwrap_or("");
     let end = params.to_commit.as_deref().unwrap_or("");
-    
+
     // Run git log to get commit info and changed files, separated by empty lines
     // We define a custom format to make parsing easier
     // This format is: short hash / author name <email> / date / message
@@ -70,13 +76,16 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
 
     if output.status.success() {
         let stdout = str::from_utf8(&output.stdout).unwrap();
-        let commit_strings: Vec<&str> = stdout.split("\n\n").filter(|s| !s.trim().is_empty()).collect();
+        let commit_strings: Vec<&str> = stdout
+            .split("\n\n")
+            .filter(|s| !s.trim().is_empty())
+            .collect();
 
-    let mut commits = Vec::new();
-    // Use a map keyed by (name, email) so we can update existing authors with additional commits/files
-    let mut author_map: HashMap<(String, String), Author> = HashMap::new();
-    let mut next_author_id = 1; // incremental id for authors
-    let mut next_commit_id = 1; // incremental id for commits
+        let mut commits = Vec::new();
+        // Use a map keyed by (name, email) so we can update existing authors with additional commits/files
+        let mut author_map: HashMap<(String, String), Author> = HashMap::new();
+        let mut next_author_id = 1; // incremental id for authors
+        let mut next_commit_id = 1; // incremental id for commits
 
         for commit_str in commit_strings {
             let mut lines = commit_str.lines();
@@ -98,13 +107,13 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                 tz_only = date_parts[2].to_string();
 
                 let message = parts.next().unwrap_or("").trim().to_string();
-                
+
                 // Parse author name and email
                 let (author_name, author_email) = if let Some(start) = author_str.find('<') {
                     let end = author_str.find('>').unwrap_or(author_str.len());
                     (
                         author_str[..start].trim().to_string(),
-                        author_str[start+1..end].trim().to_string(),
+                        author_str[start + 1..end].trim().to_string(),
                     )
                 } else {
                     (author_str.clone(), String::new())
@@ -119,7 +128,7 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
 
                 for raw in lines {
                     let line = raw.trim();
-                    
+
                     if line.is_empty() {
                         continue;
                     }
@@ -134,8 +143,16 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                     let del_str = parts[1];
                     let path_str = parts[2];
 
-                    let ins = if ins_str == "-" { 0 } else { ins_str.parse::<usize>().unwrap_or(0) };
-                    let del = if del_str == "-" { 0 } else { del_str.parse::<usize>().unwrap_or(0) };
+                    let ins = if ins_str == "-" {
+                        0
+                    } else {
+                        ins_str.parse::<usize>().unwrap_or(0)
+                    };
+                    let del = if del_str == "-" {
+                        0
+                    } else {
+                        del_str.parse::<usize>().unwrap_or(0)
+                    };
 
                     commit_insertions = commit_insertions.saturating_add(ins);
                     commit_deletions = commit_deletions.saturating_add(del);
@@ -189,7 +206,7 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                 metrics.insertions = Some(commit_insertions);
                 metrics.deletions = Some(commit_deletions);
                 metrics.total_files = Some(commit_total_files);
-                
+
                 // Move parsed values into the commits vector (no cloning required)
                 commits.push(Commit {
                     id: next_commit_id,
@@ -223,26 +240,35 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                 commit.time,
                 commit.timezone,
                 commit.message,
-                commit.files_changed.iter().map(|f| &f.path).collect::<Vec<_>>(),
+                commit
+                    .files_changed
+                    .iter()
+                    .map(|f| &f.path)
+                    .collect::<Vec<_>>(),
                 commit.metrics.insertions.unwrap_or(0),
                 commit.metrics.deletions.unwrap_or(0)
             );
-        }  
+        }
 
         // Print unique authors collected during parsing
         println!("\nUnique authors ({}):", author_map.len());
         for author in author_map.values() {
-            println!("{} <{}> id={} commits={:?} files={:?}", author.name, author.email, author.id, author.commit_hashes, author.files);
+            println!(
+                "{} <{}> id={} commits={:?} files={:?}",
+                author.name, author.email, author.id, author.commit_hashes, author.files
+            );
         }
 
         // Build the Repository and AnalysisResult to return
-        let repo_name = repo.file_name()
+        let repo_name = repo
+            .file_name()
             .and_then(|os| os.to_str())
             .unwrap_or("")
             .to_string();
 
         // Compute repository-level aggregates
-        let all_files: Vec<String> = commits.iter()
+        let all_files: Vec<String> = commits
+            .iter()
             .flat_map(|c| c.files_changed.iter().map(|f| f.path.clone()))
             .collect();
         let unique_files_set: HashSet<String> = all_files.iter().cloned().collect();
@@ -251,10 +277,12 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
         let total_files = unique_files_set.len();
         let total_authors = author_map.len();
 
-        let total_insertions: usize = commits.iter()
+        let total_insertions: usize = commits
+            .iter()
             .map(|c| c.metrics.insertions.unwrap_or(0))
             .sum();
-        let total_deletions: usize = commits.iter()
+        let total_deletions: usize = commits
+            .iter()
             .map(|c| c.metrics.deletions.unwrap_or(0))
             .sum();
 
@@ -296,27 +324,10 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Result<AnalysisResult, String> {
 //     let mut result = result;
 //     let exclude_set: HashSet<Author> = authors_to_exclude.into_iter().collect();
-    
+
 //     // Keep only the commits whose author is NOT in authors_to_exclude
 //     result.repository.commits.retain(|commit| !exclude_set.contains(&commit.author));
 
@@ -326,7 +337,7 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
 //         .map(|commit| commit.author.clone())
 //         .collect();
 //     result.repository.authors = unique_authors.into_iter().collect();
-    
+
 //     // Get files from commits
 //     let commit_files: HashSet<String> = result.repository.commits
 //         .iter()
@@ -418,17 +429,21 @@ mod tests {
         // Excluding start, including end
         let start_commit = "02c101f";
         let end_commit = "c1dd7cd";
-        
+
         // Build AnalysisParameters and run analysis
         let mut params = AnalysisParameters::default();
         params.repo_path = repo_path.to_string_lossy().to_string();
         params.from_commit = Some(start_commit.to_string());
         params.to_commit = Some(end_commit.to_string());
-    let result = analyse_repository(&params);
+        let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
-                println!("AnalysisResult: commits={}, authors={}", analysis.repository.commits.len(), analysis.repository.authors.len());
-            },
+                println!(
+                    "AnalysisResult: commits={}, authors={}",
+                    analysis.repository.commits.len(),
+                    analysis.repository.authors.len()
+                );
+            }
             Err(e) => {
                 println!("Error: {}", e);
             }
@@ -453,8 +468,12 @@ mod tests {
         let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
-                println!("AnalysisResult: commits={}, authors={}", analysis.repository.commits.len(), analysis.repository.authors.len());
-            },
+                println!(
+                    "AnalysisResult: commits={}, authors={}",
+                    analysis.repository.commits.len(),
+                    analysis.repository.authors.len()
+                );
+            }
             Err(e) => {
                 println!("Error: {}", e);
             }
@@ -479,8 +498,12 @@ mod tests {
         let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
-                println!("AnalysisResult: commits={}, authors={}", analysis.repository.commits.len(), analysis.repository.authors.len());
-            },
+                println!(
+                    "AnalysisResult: commits={}, authors={}",
+                    analysis.repository.commits.len(),
+                    analysis.repository.authors.len()
+                );
+            }
             Err(e) => {
                 println!("Error: {}", e);
             }
@@ -554,7 +577,7 @@ mod tests {
     //     let analysis_result = create_test_analysis_result();
     //     let author_alice = analysis_result.repository.authors[0].clone();
     //     let author_bert = analysis_result.repository.authors[1].clone();
-        
+
     //     let filtered = filter_authors(analysis_result, vec![author_alice]).unwrap();
 
     //     // Should have only 1 commit (from Bert)
@@ -597,7 +620,7 @@ mod tests {
     //         files: vec![],
     //         metrics: Metrics::default(),
     //     };
-        
+
     //     let analysis_result = AnalysisResult {
     //         parameters: AnalysisParameters::default(),
     //         repository,
