@@ -1,5 +1,4 @@
-use serde::{Serialize, Deserialize};
-
+use serde::{Deserialize, Serialize};
 
 /// The File struct represents a file in the repository with its associated data.
 /// Metrics of a file:
@@ -24,7 +23,6 @@ pub struct File {
     pub last_modified_timezone: String,
 }
 
-
 /// The Line struct represents a line in a file with its associated data.
 #[derive(Clone)]
 pub struct Line {
@@ -36,12 +34,10 @@ pub struct Line {
     // pub line_type: LineType,
 }
 
-
 // pub enum LineType {
 //     SLOC,
 //     CLOC
 // }
-    
 
 /// The Repository struct represents a git repository with its associated data.
 /// Metrics of a repository:
@@ -59,7 +55,6 @@ pub struct Repository {
     pub files: Vec<String>,
     pub metrics: Metrics,
 }
-
 
 /// The Commit struct represents a git commit with its associated data.
 /// Metrics of a commit:
@@ -87,20 +82,19 @@ pub struct Author {
     pub name: String,
     pub email: String,
     pub commit_hashes: Vec<String>, // List of commit hashes authored by this author
-    pub files: Vec<String>,   // List of file paths modified by this author
+    pub files: Vec<String>,         // List of file paths modified by this author
     pub metrics: Metrics,
 }
-
 
 /// The Metrics struct stores metrics in the context of the struct it is used in.
 /// For example, in the context of a Repository, it stores overall repository metrics.
 /// All metrics are optional and can be None if not calculated or not applicable.
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Metrics {
-    pub loc: Option<usize>,         // Lines of Code
-    pub sloc: Option<usize>,        // sloc = loc - cloc - whitespace
-    pub cloc: Option<usize>,        // cloc = loc - sloc
-    pub whitespace: Option<usize>,  // whitespace = loc - sloc - cloc
+    pub loc: Option<usize>,        // Lines of Code
+    pub sloc: Option<usize>,       // sloc = loc - cloc - whitespace
+    pub cloc: Option<usize>,       // cloc = loc - sloc
+    pub whitespace: Option<usize>, // whitespace = loc - sloc - cloc
     pub insertions: Option<usize>,
     pub deletions: Option<usize>,
     pub total_commits: Option<usize>,
@@ -111,7 +105,7 @@ pub struct Metrics {
 // Implement a default empty Metrics struct
 impl Default for Metrics {
     fn default() -> Self {
-        Metrics { 
+        Metrics {
             loc: None,
             sloc: None,
             cloc: None,
@@ -125,7 +119,6 @@ impl Default for Metrics {
     }
 }
 
-
 /// The AnalysisParameters struct defines parameters for filtering the analysis of a repository.
 #[derive(Clone)]
 pub struct AnalysisParameters {
@@ -135,7 +128,7 @@ pub struct AnalysisParameters {
     pub from_commit: Option<String>,
     pub to_commit: Option<String>,
     pub exclude_authors: Vec<Author>,
-    pub exclude_files: Vec<File>,       
+    pub exclude_files: Vec<File>,
 }
 
 impl Default for AnalysisParameters {
@@ -152,7 +145,6 @@ impl Default for AnalysisParameters {
     }
 }
 
-
 /// The AnalysisResult struct encapsulates the results of analyzing a repository.
 /// It includes the full repository (unfiltered), lists of authors, commits, and files involved in the analysis,
 /// as well as aggregated metrics, which can be filtered based on the analysis parameters.
@@ -161,7 +153,6 @@ pub struct AnalysisResult {
     pub parameters: AnalysisParameters,
     pub repository: Repository, // The filtered repository based on analysis parameters
 }
-
 
 /// The Settings struct holds configuration settings for the analysis.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
