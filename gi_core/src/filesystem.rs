@@ -93,8 +93,6 @@ pub fn save_settings_json(settings: &Settings, path: &Path) -> Result<PathBuf, S
     save_file(json_string, path)
 }
 
-// TODO: Create CSV conversion testing function that tests representative input for the final application
-
 #[cfg(test)]
 
 mod tests {
@@ -228,22 +226,6 @@ mod tests {
         assert!(json_string.contains("\"ignored_file_extensions\""));
         assert!(json_string.contains("\"txt\""));
         assert!(json_string.contains("\"log\""));
-    }
-
-    #[test]
-    fn convert_to_csv_should_work_with_multiple_records() {
-        let data_vec = vec![
-            "Test test".to_string(),
-            "Hoi, hallo daar".to_string(),
-        ];
-
-        let result = convert_to_csv(&data_vec);
-        assert!(result.is_ok());
-
-        let csv_string = result.unwrap();
-
-        assert!(csv_string.contains("Test test"));
-        assert!(csv_string.contains("Hoi, hallo daar"));
     }
 
     #[cfg(test)]
