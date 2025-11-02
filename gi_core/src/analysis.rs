@@ -490,8 +490,7 @@ mod tests {
     }
 
     #[test]
-    fn test_analyse_repository() {
-        // Placeholder test
+    fn test_analyse_repository_commit_range() {
         // Run analysis between two commit hashes in a known repository
         let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
@@ -522,7 +521,7 @@ mod tests {
     }
 
     #[test]
-    fn test_analyse_repository_start_end_same() {
+    fn test_analyse_repository_commit_range_start_end_same() {
         // Run analysis between two identical commit hashes in a known repository
         let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
@@ -552,7 +551,7 @@ mod tests {
     }
 
     #[test]
-    fn test_analyse_repository_end_before_start() {
+    fn test_analyse_repository_commit_range_end_before_start() {
         // Run analysis between two commit hashes in a known repository where end is before start
         let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
@@ -571,6 +570,96 @@ mod tests {
             Ok(analysis) => {
                 println!(
                     "AnalysisResult: commits={}, authors={}",
+                    analysis.repository.commits.len(),
+                    analysis.repository.authors.len()
+                );
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_analyse_repository_time_range() {
+        // Run analysis between two timestamps in a known repository
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+
+        let from_ts = "2025-10-03T17:38:10+0200";
+        let to_ts = "2025-10-05T00:49:14+0200";
+
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_time = Some(from_ts.to_string());
+        params.to_time = Some(to_ts.to_string());
+
+        let result = analyse_repository(&params);
+        match result {
+            Ok(analysis) => {
+                println!(
+                    "AnalysisResult (time range): commits={}, authors={}",
+                    analysis.repository.commits.len(),
+                    analysis.repository.authors.len()
+                );
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_analyse_repository_time_range_start_end_same() {
+        // Run analysis where from_time == to_time
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+        let ts = "2025-10-03T17:38:10+0200";
+
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_time = Some(ts.to_string());
+        params.to_time = Some(ts.to_string());
+
+        let result = analyse_repository(&params);
+        match result {
+            Ok(analysis) => {
+                println!(
+                    "AnalysisResult (time same): commits={}, authors={}",
+                    analysis.repository.commits.len(),
+                    analysis.repository.authors.len()
+                );
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_analyse_repository_time_range_end_before_start() {
+        // from_time after to_time -> likely empty result
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+        let from_ts = "2025-10-05T00:49:14+0200";
+        let to_ts = "2025-10-03T17:38:10+0200";
+
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_time = Some(from_ts.to_string());
+        params.to_time = Some(to_ts.to_string());
+
+        let result = analyse_repository(&params);
+        match result {
+            Ok(analysis) => {
+                println!(
+                    "AnalysisResult (time end before start): commits={}, authors={}",
                     analysis.repository.commits.len(),
                     analysis.repository.authors.len()
                 );
