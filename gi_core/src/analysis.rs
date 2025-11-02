@@ -51,10 +51,8 @@ fn build_git_log_args(params: &AnalysisParameters) -> Result<Vec<String>, String
 /// It returns an AnalysisResult containing the parsed commits, authors, and files.
 /// Files are just fetched, not processed by the analysis. This functionality is handled by retrieve_blames_between_commits()
 fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, String> {
-    // Resolve repo path and commit range from params
+    // Resolve repo path
     let repo = Path::new(&params.repo_path);
-    let start = params.from_commit.as_deref().unwrap_or("");
-    let end = params.to_commit.as_deref().unwrap_or("");
 
     // Run git log to get commit info and changed files, separated by empty lines
     // We define a custom format to make parsing easier
