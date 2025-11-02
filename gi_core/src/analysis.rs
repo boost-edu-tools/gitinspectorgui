@@ -3,16 +3,49 @@ pub use crate::shared_types::*;
 use std::path::{Path, PathBuf};
 use std::{str, collections::{HashSet, HashMap}, process::Command, fs::File as FsFile, io::{BufRead, BufReader}};
 
-fn analyse_between_timestamps(repo: &Path, start: &str, end: &str, params: &AnalysisParameters) {// -> Repository {
-    // Placeholder for future implementation
+
+/// This function builds the git log arguments based on the provided AnalysisParameters
+fn build_git_log_args(params: &AnalysisParameters) -> Result<Vec<String>, String> {
+    // Disallow mixing commit-range and time-range parameters
+    let has_commit_range = params.from_commit.is_some() || params.to_commit.is_some();
+    let has_time_range = params.from_time.is_some() || params.to_time.is_some();
+    if has_commit_range && has_time_range {
+        return Err("Cannot mix commit-range and time-range parameters in git log args".to_string());
+    }
+
+    let mut args: Vec<String> = Vec::new();
+    args.push("log".to_string());
+
+    // If both from_commit and to_commit specified, add as range
+    if let (Some(from), Some(to)) = (&params.from_commit, &params.to_commit) {
+        let range = format!("{}..{}", from, to);
+        args.push(range);
+    }
+
+    args.push("--pretty=format:%h / %an <%ae> / %ad / %s".to_string());
+    args.push("--date=iso".to_string());
+    args.push("--numstat".to_string());
+
+    // Time stamps should be in ISO 8601 format: "YYYY-MM-DDTHH:MM:SS+HHMM"
+    if let Some(start) = &params.from_time {
+        args.push(format!("--since={}", start));
+    }
+    if let Some(end) = &params.to_time {
+        args.push(format!("--until={}", end));
+    }
+
+    Ok(args)
 }
+
+
+// analyse_between_timestamps removed — use build_git_log_args + analyse_repository instead
 
 /// This function analyses a git repository between two commit hashes (from_commit to to_commit).
 /// If from_commit is None, analysis starts from the first commit.
 /// If to_commit is None, analysis goes up to the latest commit.
 /// It returns an AnalysisResult containing the parsed commits, authors, and files.
 /// Files are just fetched, not processed by the analysis. This functionality is handled by retrieve_blames_between_commits()
-fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult, String> {
+fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, String> {
     // Resolve repo path and commit range from params
     let repo = Path::new(&params.repo_path);
     let start = params.from_commit.as_deref().unwrap_or("");
@@ -23,20 +56,11 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
     // This format is: short hash / author name <email> / date / message
     // Followed by the list of changed files, one per line
 
-    // Build the Git Log command
-    let mut args: Vec<String> = Vec::new();
-    args.push("log".to_string());
-
-    // Add the commit range if (partially) specified
-    if !(start.is_empty() && end.is_empty()) {
-    let range = format!("{}..{}", start, end);
-    args.push(range);
-    }
-
-    // Add the pretty format and other flags
-    args.push("--pretty=format:%h / %an <%ae> / %ad / %s".to_string());
-    args.push("--date=iso".to_string());
-    args.push("--numstat".to_string());
+    // Build the Git Log command args
+    let args = match build_git_log_args(params) {
+        Ok(a) => a,
+        Err(e) => return Err(e),
+    };
 
     // Run the command
     let output = Command::new("git")
@@ -273,6 +297,23 @@ fn analyse_between_commits(params: &AnalysisParameters) -> Result<AnalysisResult
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Result<AnalysisResult, String> {
 //     let mut result = result;
 //     let exclude_set: HashSet<Author> = authors_to_exclude.into_iter().collect();
@@ -368,13 +409,7 @@ mod tests {
     use std::path::PathBuf;
 
     #[test]
-    fn test_analyse_between_timestamps() {
-        // Placeholder test
-        // analyse_between_timestamps();
-    }
-
-    #[test]
-    fn test_analyse_between_commits() {
+    fn test_analyse_repository() {
         // Placeholder test
         // Run analysis between two commit hashes in a known repository
         let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -390,7 +425,7 @@ mod tests {
         params.repo_path = repo_path.to_string_lossy().to_string();
         params.from_commit = Some(start_commit.to_string());
         params.to_commit = Some(end_commit.to_string());
-        let result = analyse_between_commits(&params);
+    let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
                 println!("AnalysisResult: commits={}, authors={}", analysis.repository.commits.len(), analysis.repository.authors.len());
@@ -402,7 +437,7 @@ mod tests {
     }
 
     #[test]
-    fn test_analyse_between_commits_start_end_same() {
+    fn test_analyse_repository_start_end_same() {
         // Run analysis between two identical commit hashes in a known repository
         let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
@@ -416,7 +451,7 @@ mod tests {
         params.repo_path = repo_path.to_string_lossy().to_string();
         params.from_commit = Some(start_commit.to_string());
         params.to_commit = Some(end_commit.to_string());
-        let result = analyse_between_commits(&params);
+        let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
                 println!("AnalysisResult: commits={}, authors={}", analysis.repository.commits.len(), analysis.repository.authors.len());
@@ -428,7 +463,7 @@ mod tests {
     }
 
     #[test]
-    fn test_analyse_between_commits_end_before_start() {
+    fn test_analyse_repository_end_before_start() {
         // Run analysis between two commit hashes in a known repository where end is before start
         let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
@@ -442,7 +477,7 @@ mod tests {
         params.repo_path = repo_path.to_string_lossy().to_string();
         params.from_commit = Some(start_commit.to_string());
         params.to_commit = Some(end_commit.to_string());
-        let result = analyse_between_commits(&params);
+        let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
                 println!("AnalysisResult: commits={}, authors={}", analysis.repository.commits.len(), analysis.repository.authors.len());
