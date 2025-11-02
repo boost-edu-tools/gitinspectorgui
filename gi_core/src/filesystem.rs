@@ -3,7 +3,6 @@ use std::path::{Path, PathBuf};
 use git_wrapper::Repository;
 use serde_json;
 use csv;
-use git2::Repository;
 
 use crate::Settings;
 
