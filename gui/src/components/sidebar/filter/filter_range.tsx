@@ -33,6 +33,27 @@ type FilterRangeProps = Pick<
   | "onEndCommitChange"
 >
 
+const getFullRepoRange = (commits: Commit[]) => {
+  const sorted = commits
+    .filter(c => c?.hash && c?.date)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+  if (!sorted.length) return null
+
+  const first = sorted[0]
+  const last = sorted[sorted.length - 1]
+  const firstDate = new Date(first.date)
+  const lastDate = new Date(last.date)
+
+  return {
+    startHash: first.hash,
+    endHash: last.hash,
+    startDate: startOfDay(firstDate),
+    endDate: endOfDay(lastDate),
+  }
+}
+
+
 const shortHash = (h: string) => h.slice(0, 7)
 
 const fmtDate = (d?: Date | null) => {
@@ -112,44 +133,37 @@ export function FilterRange({
     [authorById]
   )
 
-  // Reset to full repo range whenever the repo actually changes
-  const prevRepoIdRef = React.useRef<string | null>(null)
+  // Identify the repo stably (path > name > selectedRepo)
+const repoId = React.useMemo(
+  () => repo?.path ?? repo?.name ?? selectedRepo ?? null,
+  [repo?.path, repo?.name, selectedRepo]
+)
 
-  React.useEffect(() => {
-    // identify the repo stably
-    const repoId = repo?.path ?? repo?.name ?? selectedRepo
-    if (!repo || !repo?.commits?.length || !repoId) return
+const lastRepoIdRef = React.useRef<string | null>(null)
 
-    if (prevRepoIdRef.current !== repoId) {
-      // compute full, unfiltered time span for the new repo
-      const sorted = [...repo.commits]
-        .filter(c => c?.hash && c?.date)
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+React.useEffect(() => {
+  if (!repo || !repo?.commits?.length || !repoId) return
 
-      if (sorted.length) {
-        const first = sorted[0]
-        const last = sorted[sorted.length - 1]
-        const firstDate = new Date(first.date)
-        const lastDate = new Date(last.date)
-
-        onStartDateChange(startOfDay(firstDate))
-        onEndDateChange(endOfDay(lastDate))
-        onStartCommitChange(first.hash)
-        onEndCommitChange(last.hash)
-      }
-
-      prevRepoIdRef.current = repoId
+  // Only run when repo actually changes
+  if (lastRepoIdRef.current !== repoId) {
+    const range = getFullRepoRange(repo.commits)
+    if (range) {
+      onStartCommitChange(range.startHash)
+      onEndCommitChange(range.endHash)
+      onStartDateChange(range.startDate)
+      onEndDateChange(range.endDate)
     }
-  }, [
-    repo?.path,
-    repo?.name,
-    selectedRepo,
-    repo?.commits,           
-    onStartDateChange,
-    onEndDateChange,
-    onStartCommitChange,
-    onEndCommitChange,
-  ])
+    lastRepoIdRef.current = repoId
+  }
+}, [
+  repoId,
+  repo?.commits,            // ensure new commit list triggers
+  onStartCommitChange,
+  onEndCommitChange,
+  onStartDateChange,
+  onEndDateChange,
+])
+
 
 
   const allCommits = React.useMemo<Commit[]>(() => {
