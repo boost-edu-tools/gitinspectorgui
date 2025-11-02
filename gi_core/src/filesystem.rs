@@ -62,6 +62,7 @@ pub fn convert_from_json<T: serde::de::DeserializeOwned>(json_string: &str) -> R
         .map_err(|error| format!("Error parsing JSON: {}", error))
 }
 
+/// Converts a serializable type into csv.
 pub fn convert_to_csv<T: serde::Serialize>(object_to_convert: &[T]) -> Result<String, String> {
     let mut writer = csv::Writer::from_writer(Vec::new());
 
@@ -82,12 +83,14 @@ pub fn convert_to_csv<T: serde::Serialize>(object_to_convert: &[T]) -> Result<St
 }
 
 /// Loads a Settings struct from a JSON file.
+/// This is a wrapper function that chains the load_file() and convert_from_json() functions for convenience.
 pub fn load_settings_json(path: &Path) -> Result<Settings, String> {
     let json_string = load_file(path)?;
     convert_from_json(&json_string)
 }
 
-// Saves a Settings struct to a JSON file.
+/// Saves a Settings struct to a JSON file.
+/// This is a wrapper function that chains the convert_to_json() and save_file() functions for convenience.
 pub fn save_settings_json(settings: &Settings, path: &Path) -> Result<PathBuf, String> {
     let json_string = convert_to_json(settings)?;
     save_file(json_string, path)
@@ -100,6 +103,8 @@ mod tests {
     use tempfile::TempDir;
     use std::fs;
     use crate::Settings;
+    use crate::Author;
+    use crate::Metrics;
 
     #[test]
     fn directory_path_should_exist() {
