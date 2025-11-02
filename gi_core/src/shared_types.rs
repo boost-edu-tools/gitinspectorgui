@@ -44,6 +44,7 @@ pub struct Commit {
 }
 
 /// The Author struct represents an author of commits in the repository.
+#[derive(Serialize)]
 pub struct Author {
     pub name: String,
     pub email: String,
@@ -53,6 +54,7 @@ pub struct Author {
 /// The Metrics struct stores metrics in the context of the struct it is used in.
 /// For example, in the context of a Repository, it stores overall repository metrics.
 /// All metrics are optional and can be None if not calculated or not applicable.
+#[derive(Serialize)]
 pub struct Metrics {
     pub loc: Option<usize>,
     pub sloc: Option<usize>,
