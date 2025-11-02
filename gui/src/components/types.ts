@@ -62,9 +62,7 @@ export type LineEntry = {
   number: number;
   content: string;
   authorId: AuthorId;
-  commitHash: string;       
-  commitMessage: string;   
-  date: string;            
+  commitid: number;
   line_type: number
 };
 

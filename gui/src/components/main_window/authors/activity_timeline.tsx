@@ -238,8 +238,8 @@ export function Timeline({
 
   return (
     <Card>
-      <CardHeader className="pb-2 space-y-0">
-        <div className="flex items-center justify-between gap-4">
+      <CardHeader className="pb-2 space-y-0 ">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <CardTitle className="text-sm">Activity Timeline</CardTitle>
 
@@ -310,7 +310,7 @@ export function Timeline({
           </div>
         )}
 
-        <div className="h-[300px] w-full">
+        <div className="h-[250px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
@@ -321,7 +321,7 @@ export function Timeline({
                 tickFormatter={formatDate}
                 tick={{ fontSize: 10 }}
                 name="Date"
-                height={50}
+                height={30}
                 label = {{ value: 'Date', position: 'insideBottom', offset: -5 }}
               />
               <YAxis {...(yAxisProps as any)} />

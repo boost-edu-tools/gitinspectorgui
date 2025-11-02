@@ -3,36 +3,30 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { getAuthorColor } from "@/components/helpers/AuthorColors"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import type { AuthorId, Author, FileEntry, LineEntry, Commit } from "@/components/types"
+import { useAnalysis } from "@/hooks/useAnalysis"
+import type { AnalysisResult, AuthorId, Author, FileEntry, LineEntry, Commit } from "@/components/types"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 /** group adjacent lines by commit hash (using line metadata) */
 function groupByCommit(lines: LineEntry[]) {
   const groups: Array<{
-    commitHash: string
-    commitMessage: string
+    commitid: number
     authorId: AuthorId
-    timestamp: string
     lines: LineEntry[]
   }> = []
   for (const ln of lines) {
     const last = groups[groups.length - 1]
-    if (last && last.commitHash === ln.commitHash) {
+    if (last && last.commitid === ln.commitid) {
       last.lines.push(ln)
     } else {
       groups.push({
-        commitHash: ln.commitHash,
-        commitMessage: ln.commitMessage ?? "",
+        commitid: ln.commitid,
         authorId: ln.authorId,
-        timestamp: ln.date ?? "",
         lines: [ln],
       })
     }
   }
   return groups
-}
-
-function shortHash(hash: string) {
-  return hash?.slice(0, 7) ?? ""
 }
 
 function formatCompact(ts: string) {
@@ -43,22 +37,26 @@ function formatCompact(ts: string) {
 }
 
 export function BlameView({
+  selectedRepo,
   file,
   authorsById,
-  commitsByHash,
   selectedAuthors,
 }: {
+  selectedRepo: string | null
   file: FileEntry
   authorsById: Map<AuthorId, Author>
-  commitsByHash: Map<string, Commit>
   selectedAuthors: string[]
 }) {
+  const { analysis } = useAnalysis(selectedRepo)
   const [showMetadata, setShowMetadata] = React.useState(true)
   const [hideEmpty, setHideEmpty] = React.useState(false)
   const [hideComments, setHideComments] = React.useState(false)
   const [colorize, setColorize] = React.useState(true)
 
   const authorName = (id: AuthorId) => authorsById.get(id)?.name ?? "Unknown"
+
+  const repo = (analysis as AnalysisResult | undefined)?.repository
+  const fullCommits: Commit[] = repo?.commits ?? []
 
   // filter lines by line_type before grouping
   const filteredLines = React.useMemo(() => {
@@ -86,10 +84,10 @@ export function BlameView({
 
   const visibleAuthors = authorStats.filter(({ author }) => selectedAuthors.includes(author))
 
-  // Metadata columns (narrower) now include Author:
-  // [No.] [SHA] [Author] [Date] [Message] | [Line] | [Code]
+  // Metadata columns (narrower) now include a single Commit column:
+  // [Author] [Date] [Commit] | [Line] | [Code]
   const metaCols = showMetadata
-    ? "120px 84px 44px 60px 160px 30px 1fr"
+    ? "120px 200px 48px 1fr"
     : "48px 1fr"
 
   return (
@@ -184,19 +182,14 @@ export function BlameView({
               style={{ gridTemplateColumns: metaCols }}
             >
               {showMetadata && (
-                <>                 
-
+                <>
                   <div className="px-2">Author</div>
-                  <div className="px-2">Date</div>
-                  <div className="px-2">No.</div>
-                  <div className="px-2">SHA</div>
-                  <div className="px-2">Message</div>
+                  <div className="px-2">Commit</div>
                 </>
               )}
               <div className="px-2 text-right">Line</div>
               <div className="px-2">Code</div>
             </div>
-
           </div>
         </div>
 
@@ -206,7 +199,13 @@ export function BlameView({
               const name = authorName(g.authorId)
               const info = getAuthorColor(name) ?? { color: "#000" }
               const isSelected = selectedAuthors.includes(name)
-              const commitNum = commitsByHash.get(g.commitHash)?.number
+              const fullCommit = fullCommits.find(c => c.number === g.commitid)
+              const commitHash = fullCommit?.hash ?? ""
+              const commitMessage = fullCommit?.message ?? ""
+              const commitDate = String(fullCommit?.date) ?? ""
+              const commitNum = fullCommit?.number ?? null
+              const paddedNum =
+                commitNum != null ? `#${String(commitNum).padStart(2, "0")}` : "—"
 
               const groupStyle = colorize && isSelected
                 ? {
@@ -220,13 +219,13 @@ export function BlameView({
 
               return (
                 <div
-                  key={`${g.commitHash}-${g.lines[0]?.number ?? 0}-${gi}`}
+                  key={`${commitHash}-${g.lines[0]?.number ?? 0}-${gi}`}
                   className="border-l-2 group transition-opacity"
                   style={groupStyle}
                 >
                   {g.lines.map((ln, idx) => (
                     <div
-                      key={`${g.commitHash}-${ln.number}-${idx}`}
+                      key={`${commitHash}-${ln.number}-${idx}`}
                       className="grid hover:bg-black/5 dark:hover:bg-white/5"
                       style={{ gridTemplateColumns: metaCols }}
                     >
@@ -237,31 +236,33 @@ export function BlameView({
                             {idx === 0 && <span className="text-[10px]">{name}</span>}
                           </div>
 
-                          {/* Date */}
-                          <div className="px-2 py-0.5 text-muted-foreground border-r border-border/40">
-                            {idx === 0 && <span className="text-[10px]">{formatCompact(g.timestamp)}</span>}
-                          </div>
 
-                          {/* Commit number (first line of the group) */}
-                          <div className="px-2 py-0.5 text-muted-foreground border-r border-border/40">
-                            {idx === 0 && <span className="text-[10px]">{commitNum ?? "—"}</span>}
-                          </div>
-
-                          {/* SHA */}
-                          <div className="px-2 py-0.5 text-muted-foreground border-r border-border/40">
-                            {idx === 0 && <code className="text-[10px]">{shortHash(g.commitHash)}</code>}
-                          </div>
-
-                          
-
-                          
-
-                          {/* Message */}
+                        {/* Commit (merged: No + SHA + Message) */}
                           <div className="px-2 py-0.5 text-muted-foreground border-r border-border/40">
                             {idx === 0 && (
-                              <div className="truncate text-[10px]" title={g.commitMessage}>
-                                {g.commitMessage}
-                              </div>
+                              <TooltipProvider delayDuration={200}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div
+                                      className="text-[10px] truncate cursor-help"
+                                    >
+                                      <span className="font-semibold">{paddedNum}</span>
+                                      <span className="mx-1">—</span>
+                                      <span className="align-middle">{commitMessage || "—"}</span>
+                                      
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-sm whitespace-pre-wrap">
+                                    <div className="text-[10px] leading-4">
+                                      <div><span className="font-semibold">Commit No:</span> {commitNum ?? "—"}</div>
+                                      <div><span className="font-semibold">SHA:</span> <code>{commitHash}</code></div>
+                                        <div><span className="font-semibold">Message: </span>{commitMessage || "—"}</div>
+                                        <div><span className="font-semibold">Date:</span> <code>{formatCompact(commitDate)}</code></div>
+                                        
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             )}
                           </div>
                         </>

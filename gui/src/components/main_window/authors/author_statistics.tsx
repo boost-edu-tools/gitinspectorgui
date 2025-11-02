@@ -11,7 +11,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Info } from "lucide-react"
+import { Info, Users, User } from "lucide-react"
 
 import { getAuthorColor } from "@/components/helpers/AuthorColors"
 import { useAnalysis } from "@/hooks/useAnalysis"
@@ -93,7 +93,7 @@ export function AuthorStatisticsOverview({
   filterData,
   selectedRepo,
 }: SelectedProps) {
-  const [displayMode, setDisplayMode] = React.useState<"absolute" | "percentage">("percentage")
+  const [displayMode, setDisplayMode] = React.useState<"absolute" | "percentage">("absolute")
   const { analysis } = useAnalysis(selectedRepo)
   const repo = (analysis as AnalysisResult | undefined)?.repository
   const authors: Author[] = repo?.authors ?? []
@@ -117,9 +117,7 @@ export function AuthorStatisticsOverview({
 
   const sortedAuthors = React.useMemo(() => {
     return [...authors].sort((a, b) => {
-      const aTotal = (a.metrics?.insertions ?? 0) + (a.metrics?.deletions ?? 0)
-      const bTotal = (b.metrics?.insertions ?? 0) + (b.metrics?.deletions ?? 0)
-      return bTotal - aTotal
+      return (b.metrics?.commits ?? 0) - (a.metrics?.commits ?? 0)
     })
   }, [authors])
 
@@ -136,19 +134,17 @@ export function AuthorStatisticsOverview({
 
   return (
     <Card>
-      <CardContent className="pt-2 pb-3">
-        <div className="space-y-2 py-2">
-          {/* Header */}
+      <CardContent className="pt-0">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm">Author Statistics</CardTitle>
 
             <div className="flex items-center space-x-2">
 
             <div className="flex items-center space-x-2  pr-4">
-              <Label htmlFor="show-renames" className="text-sm">Show renames</Label>
+              <Label htmlFor="show-renames" className="text-[13px]">Show renames</Label>
               <Switch id="show-renames" checked={showRenames} onCheckedChange={setShowRenames} />
             </div>
-              <Label htmlFor="display-mode" className="text-sm">
+              <Label htmlFor="display-mode" className="text-[13px]">
                 Relative
               </Label>
               <Switch
@@ -194,7 +190,11 @@ export function AuthorStatisticsOverview({
               <TableBody>
                 <TableRow className="bg-muted/30 border-b-2">
                   <TableCell className="font-semibold sticky left-0 bg-muted/30 border-r z-10">
-                    All Authors ({visibleAuthors.length})
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span>All Authors ({visibleAuthors.length})</span>
+                  </div>
+                    
                   </TableCell>
                   <TableCell />
                   <TableCell className="text-right font-semibold">{totals.commits}</TableCell>
@@ -212,13 +212,16 @@ export function AuthorStatisticsOverview({
                   const aliases = normalizeAliases((a as any).aliases_email)
                   return (
                     <TableRow key={a.id} className="hover:bg-muted/50 transition-colors">
-                      <TableCell className="sticky left-0 bg-background border-r z-10">
-                        <span
-                          style={{ color: getAuthorColor(a.name ?? "").color }}
-                          className="font-medium"
-                        >
-                          {a.name ?? "Unknown"}
-                        </span>
+                      <TableCell className="font-mono text-xs sticky left-0 bg-background border-r z-10">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                          <span
+                            style={{ color: getAuthorColor(a.name ?? "").color }}
+                            className="font-medium"
+                          >
+                            {a.name ?? "Unknown"}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell className="text-xs align-top min-w-[170px] max-w-[170px] w-[170px]">
                         <EmailCell primary={a.email} aliases={aliases} showAliases={showRenames} />
@@ -235,7 +238,6 @@ export function AuthorStatisticsOverview({
               </TableBody>
             </Table>
           </div>
-        </div>
       </CardContent>
     </Card>
   )

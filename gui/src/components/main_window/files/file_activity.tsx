@@ -111,8 +111,6 @@ export function FileActivityChart({
   | "selectedFiles"
   | "filterData"
   | "selectedRepo"
-  | "startCommitHash"
-  | "endCommitHash"
 >) {
   const [metric, setMetric] = useState<MetricKey>("commits")
   const [displayMode, setDisplayMode] = useState<DisplayMode>("absolute")
@@ -252,7 +250,7 @@ export function FileActivityChart({
   return (
     <Card>
       <CardHeader className="pb-2 space-y-0">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between ">
           <div className="flex items-center gap-3">
             <CardTitle className="text-sm">File Activity</CardTitle>
 
@@ -271,7 +269,7 @@ export function FileActivityChart({
             </Tabs>
 
             <div className="flex items-center space-x-2 ml-2">
-              <Label htmlFor="display-mode" className="text-[10px]">
+              <Label htmlFor="display-mode" className="text-[13px]">
                 Relative
               </Label>
               <Switch
@@ -283,16 +281,17 @@ export function FileActivityChart({
           </div>
 
           <div className="flex gap-1.5 text-[10px]">
-            <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
-              <Folder className="h-3 w-3" />
-              <span className="font-mono">{fileMetrics.length} files</span>
-            </div>
             {displayMode === "percentage" && grandTotal > 0 && (
               <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
                 <span className="text-muted-foreground">Total:</span>
                 <span className="font-mono">{formatNumber(grandTotal)}</span>
               </div>
             )}
+            <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
+              <Folder className="h-3 w-3" />
+              <span className="font-mono">{fileMetrics.length} files</span>
+            </div>
+
           </div>
         </div>
       </CardHeader>
@@ -316,7 +315,7 @@ export function FileActivityChart({
           </div>
         )}
 
-        <div className="h-[300px] w-full">
+        <div className="h-[250px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
@@ -329,7 +328,7 @@ export function FileActivityChart({
                 tick={{ fontSize: 10 }}
                 angle={-45}
                 textAnchor="end"
-                height={50}
+                height={30}
                 interval={0}
                 label = {{ value: 'File name', position: 'insideBottom', offset: -5 }}
               />

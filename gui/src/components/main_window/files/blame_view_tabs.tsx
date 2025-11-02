@@ -8,25 +8,26 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { X, Plus, FolderOpen } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { BlameView } from "@/components/main_window/files/blame_view"
-import type { AuthorId, Author, FileEntry, Commit } from "@/components/types"
+import type { AuthorId, Author, FileEntry } from "@/components/types"
 
 type Props = {
+  selectedRepo: string | null
+
   /** all files you want to allow adding (usually visible files after filters/range) */
   availableFiles: FileEntry[]
   /** which file to open first */
-  initialPath: string
+  initialPath: string 
   authorsById: Map<AuthorId, Author>
-  commitsByHash: Map<string, Commit>
   selectedAuthors: string[]
   /** leave the blame area (back to tables) */
   onExit: () => void
 }
 
 export function BlameTabsView({
+  selectedRepo,
   availableFiles,
   initialPath,
   authorsById,
-  commitsByHash,
   selectedAuthors,
   onExit,
 }: Props) {
@@ -124,9 +125,9 @@ export function BlameTabsView({
             <TabsContent key={f.path} value={f.path} className="h-full mt-3">
               <div className="h-full">
                 <BlameView
+                  selectedRepo={selectedRepo}
                   file={f}
                   authorsById={authorsById}
-                  commitsByHash={commitsByHash}
                   selectedAuthors={selectedAuthors}
                 />
               </div>

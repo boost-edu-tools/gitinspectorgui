@@ -12,42 +12,7 @@ import { RepositoryViewTable, AuthorFileViewTable } from "@/components/main_wind
 import { BlameTabsView } from "@/components/main_window/files/blame_view_tabs"
 import { FileActivityChart } from "@/components/main_window/files/file_activity"
 
-/* -------- helpers -------- */
-
-function filesInCommitRange(
-  analysis: AnalysisResult | undefined,
-  startCommitHash?: string,
-  endCommitHash?: string
-) {
-  const repo = analysis?.repository
-  if (!repo) return []
-
-  const commits = repo.commits ?? []
-  const sorted = [...commits].sort((a, b) => +new Date(a.date) - +new Date(b.date))
-
-  let start = 0
-  let end = sorted.length - 1
-  if (startCommitHash) {
-    const i = sorted.findIndex((c) => c.hash === startCommitHash)
-    if (i !== -1) start = i
-  }
-  if (endCommitHash) {
-    const i = sorted.findIndex((c) => c.hash === endCommitHash)
-    if (i !== -1) end = i
-  }
-
-  const allowed = new Set(sorted.slice(start, end + 1).map((c) => c.hash))
-  const limited = (repo.files ?? []).map((f) => {
-    const lines = (f.lines ?? []).filter((ln) =>
-      startCommitHash || endCommitHash ? allowed.has(ln.commitHash) : true
-    )
-    return { ...f, lines }
-  })
-
-  return limited
-    .filter((f) => f.lines.length > 0)
-    .sort((a, b) => a.path.localeCompare(b.path))
-}
+/* -------- helpers (no commit-range filtering) -------- */
 
 function extractFileMetadata(analysis: AnalysisResult | undefined, fileIdsToShow: string[]) {
   const fm = analysis?.repository?.files_metadata ?? []
@@ -104,8 +69,6 @@ export function UnifiedFilesView({
   selectedFiles,
   filterData,
   selectedRepo,
-  startCommitHash,
-  endCommitHash,
 }: Pick<
   SelectedFullProps,
   | "allAuthors"
@@ -114,23 +77,21 @@ export function UnifiedFilesView({
   | "selectedFiles"
   | "filterData"
   | "selectedRepo"
-  | "startCommitHash"
-  | "endCommitHash"
 >) {
-  
   const [selectedFile, setSelectedFile] = React.useState<string | null>(null)
-  const [displayMode, setDisplayMode] = React.useState<"absolute" | "percentage">("percentage")
+  const [displayMode, setDisplayMode] = React.useState<"absolute" | "percentage">("absolute")
   const [authorFileMetricType, setAuthorFileMetricType] = React.useState<
     "commits" | "insertions" | "deletions" | "loc" | "sloc"
-  >("loc")
+  >("commits")
   const [viewMode, setViewMode] = React.useState<"repo" | "author-file">("repo")
 
   const { analysis, isLoading, error } = useAnalysis(selectedRepo)
 
-  const repoFiles = React.useMemo(
-    () => filesInCommitRange(analysis as AnalysisResult | undefined, startCommitHash, endCommitHash),
-    [analysis, startCommitHash, endCommitHash]
-  )
+  // All repo files (no commit-range filtering)
+  const repoFiles = React.useMemo(() => {
+    const files = (analysis as AnalysisResult | undefined)?.repository?.files ?? []
+    return files
+  }, [analysis])
 
   const fileIdsToShow = React.useMemo(
     () => (filterData ? selectedFiles : Array.from(allFilesSet)),
@@ -188,7 +149,7 @@ export function UnifiedFilesView({
     )
   }
 
-  // Build maps once for blame tabs (commit numbers & author names)
+  // Build maps once for blame tabs (author names & commits)
   const repo = (analysis as AnalysisResult | undefined)?.repository
   const authorsById = new Map(repo?.authors?.map((a) => [a.id, a]) ?? [])
   const commitsByHash = new Map(repo?.commits?.map((c) => [c.hash, c]) ?? [])
@@ -196,12 +157,12 @@ export function UnifiedFilesView({
   // If a file is selected from the table, show the multi-file blame view.
   if (selectedFile) {
     return (
-      <div className="space-y-2 py-4">
+      <div className="space-y-2 py-4 mt-4 px-8">
         <BlameTabsView
+          selectedRepo={selectedRepo}
           availableFiles={visibleRepoFiles}
           initialPath={selectedFile}
           authorsById={authorsById}
-          commitsByHash={commitsByHash}
           selectedAuthors={displayedAuthors}
           onExit={() => setSelectedFile(null)}
         />
@@ -213,100 +174,93 @@ export function UnifiedFilesView({
   return (
     <div className="mt-4 px-8">
       <div className="p-4">
-      {/* File Activity Chart */}
-      <FileActivityChart
-        allAuthors={allAuthorsSet}
-        selectedAuthors={selectedAuthors}
-        allFiles={allFilesSet}
-        selectedFiles={selectedFiles}
-        filterData={filterData}
-        selectedRepo={selectedRepo}
-        startCommitHash={startCommitHash}
-        endCommitHash={endCommitHash}
-      />
+        {/* File Activity Chart */}
+        <FileActivityChart
+          allAuthors={allAuthorsSet}
+          selectedAuthors={selectedAuthors}
+          allFiles={allFilesSet}
+          selectedFiles={selectedFiles}
+          filterData={filterData}
+          selectedRepo={selectedRepo}
+          /* no start/end commit hash props */
+        />
       </div>
 
       {/* File Statistics Table */}
       <div className="p-4">
-      <Card>
-        <CardContent className="pt-2 pb-3">
-          <div className="space-y-2 py-2">
+        <Card>
+          <CardContent className="pt-0">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm">File Statistics</CardTitle>
+              <div className="flex items-center gap-4">
+                <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "repo" | "author-file")}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger className="text-[10px]" value="repo">All authors</TabsTrigger>
+                    <TabsTrigger className="text-[10px]" value="author-file">Per author</TabsTrigger>
+                  </TabsList>
+                </Tabs>
 
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm">File Statistics</CardTitle>
-                <div className="flex items-center gap-4">
-                  <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "repo" | "author-file")}>
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="repo">All authors</TabsTrigger>
-                      <TabsTrigger value="author-file">Per author</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-
-
-                  
-                  <div className="flex items-center space-x-2">
-                    <Label htmlFor="display-mode" className="text-sm">
-                      Relative
-                    </Label>
-                    <Switch
-                      id="display-mode"
-                      checked={displayMode === "percentage"}
-                      onCheckedChange={(checked) => setDisplayMode(checked ? "percentage" : "absolute")}
-                    />
-                  </div>
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="display-mode" className="text-[13px]">
+                    Relative
+                  </Label>
+                  <Switch
+                    id="display-mode"
+                    checked={displayMode === "percentage"}
+                    onCheckedChange={(checked) => setDisplayMode(checked ? "percentage" : "absolute")}
+                  />
                 </div>
               </div>
-
-              {viewMode === "author-file" && (
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="metric-type" className="text-sm">
-                    Metric:
-                  </Label>
-                  <Select
-                    value={authorFileMetricType}
-                    onValueChange={(v) =>
-                      setAuthorFileMetricType(v as "commits" | "insertions" | "deletions" | "loc" | "sloc")
-                    }
-                  >
-                    <SelectTrigger id="metric-type" className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="commits">Commits</SelectItem>
-                      <SelectItem value="loc">LOC</SelectItem>
-                      <SelectItem value="sloc">SLOC</SelectItem>
-                      <SelectItem value="insertions">Insertions</SelectItem>
-                      <SelectItem value="deletions">Deletions</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              <div className="grid w-full [&>div]:border [&>div]:rounded overflow-x-auto py-4">
-                <p className="text-xs text-muted-foreground">
-                  Click on any file in the table below to view its detailed blame information
-                </p>
-
-                {viewMode === "repo" ? (
-                  <RepositoryViewTable
-                    fileMetadata={fileMetadata}
-                    displayMode={displayMode}
-                    onFileSelect={(path) => setSelectedFile(path)}
-                  />
-                ) : (
-                  <AuthorFileViewTable
-                    rows={authorFileRows}
-                    allAuthors={displayedAuthors}
-                    metricType={authorFileMetricType}
-                    displayMode={displayMode}
-                    onFileSelect={(path) => setSelectedFile(path)}
-                  />
-                )}
-
             </div>
-          </div>
-        </CardContent>
-      </Card>
+
+            {viewMode === "author-file" && (
+              <div className="flex items-center gap-2 pb-2">
+                <Label htmlFor="metric-type" className="text-sm">
+                  Metric:
+                </Label>
+                <Select
+                  value={authorFileMetricType}
+                  onValueChange={(v) =>
+                    setAuthorFileMetricType(v as "commits" | "insertions" | "deletions" | "loc" | "sloc")
+                  }
+                >
+                  <SelectTrigger id="metric-type" className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="commits">Commits</SelectItem>
+                    <SelectItem value="loc">LOC</SelectItem>
+                    <SelectItem value="sloc">SLOC</SelectItem>
+                    <SelectItem value="insertions">Insertions</SelectItem>
+                    <SelectItem value="deletions">Deletions</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="grid w-full [&>div]:border [&>div]:rounded overflow-x-auto">
+              <p className="text-xs text-muted-foreground pb-4">
+                Click on any file in the table below to view its detailed blame information
+              </p>
+
+              {viewMode === "repo" ? (
+                <RepositoryViewTable
+                  fileMetadata={fileMetadata}
+                  displayMode={displayMode}
+                  onFileSelect={(path) => setSelectedFile(path)}
+                />
+              ) : (
+                <AuthorFileViewTable
+                  rows={authorFileRows}
+                  allAuthors={displayedAuthors}
+                  metricType={authorFileMetricType}
+                  displayMode={displayMode}
+                  onFileSelect={(path) => setSelectedFile(path)}
+                />
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

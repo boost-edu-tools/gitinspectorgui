@@ -62,7 +62,7 @@ export function RepositoryViewTable({
       <Table className="min-w-full">
         <TableHeader>
           <TableRow className="hover:bg-background">
-            <TableHead className="font-semibold sticky left-0 bg-background border-r min-w-[200px] z-10">File</TableHead>
+            <TableHead className="font-semibold sticky left-0 bg-background border-r w-[200px] z-10">File</TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="commits" /></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="insertions" /></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="deletions" /></TableHead>
