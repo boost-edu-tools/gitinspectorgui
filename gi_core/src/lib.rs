@@ -42,10 +42,26 @@ pub fn retrieve_repositories(path_str: &str, depth: usize) -> Result<Vec<PathBuf
     Ok(repos)
 }
 
+/// Loads a Settings struct from a JSON file.
+/// This is a wrapper function that chains the load_file() and convert_from_json() functions for convenience.
+pub fn load_settings_json(path: &Path) -> Result<Settings, String> {
+    let json_string = load_file(path)?;
+    convert_from_json(&json_string)
+}
+
+/// Saves a Settings struct to a JSON file.
+/// This is a wrapper function that chains the convert_to_json() and save_file() functions for convenience.
+pub fn save_settings_json(settings: &Settings, path: &Path) -> Result<PathBuf, String> {
+    let json_string = convert_to_json(settings)?;
+    save_file(json_string, path)
+}
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tempfile::TempDir;
+    
     #[test]
     fn test_retrieve_repositories_with_git_repos() {
         let path_str = "C:/Users/MDOpc/Repositories";
@@ -75,5 +91,58 @@ mod tests {
         assert!(result.is_ok(), "Should succeed for existing directory");
         let repos = result.unwrap();
         assert!(repos.is_empty(), "Should find no git repositories");
+    }
+
+    #[cfg(test)]
+    fn create_test_settings_json() -> String {
+        r#"{
+            "repositories": ["repo1", "repo2"],
+            "search_depth": 15,
+            "ignored_file_extensions": ["log", "tmp"],
+            "allowed_file_extensions": ["rs", "toml"]
+        }"#.to_string()
+    }
+
+    #[test]
+    fn test_load_settings_json() {
+        let temp_dir = TempDir::new().unwrap();
+        let settings_file = temp_dir.path().join("settings.json");
+
+        let json_content = create_test_settings_json();
+        fs::write(&settings_file, json_content).unwrap();
+
+        let result = load_settings_json(&settings_file);
+        assert!(result.is_ok());
+
+        let settings = result.unwrap();
+        // Verify all fields are accessible and have correct values
+        assert_eq!(settings.repositories, vec!["repo1", "repo2"]);
+        assert_eq!(settings.search_depth, 15);
+        assert_eq!(settings.ignored_file_extensions, vec!["log", "tmp"]);
+        assert_eq!(settings.allowed_file_extensions, vec!["rs", "toml"]);        
+    }
+
+    #[test]
+    fn test_save_settings_json() {
+        let temp_dir = TempDir::new().unwrap();
+        let settings_file = temp_dir.path().join("settings_output.json");
+
+        let settings = Settings {
+            repositories: vec!["repo1".to_string(), "repo2".to_string()],
+            search_depth: 15,
+            ignored_file_extensions: vec!["log".to_string(), "tmp".to_string()],
+            allowed_file_extensions: vec!["rs".to_string(), "toml".to_string()],
+        };
+
+        let result = save_settings_json(&settings, &settings_file);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), settings_file);
+
+        // Verify the file was written and can be loaded back
+        let loaded_settings = load_settings_json(&settings_file).unwrap();
+        assert_eq!(loaded_settings.repositories, settings.repositories);
+        assert_eq!(loaded_settings.search_depth, settings.search_depth);
+        assert_eq!(loaded_settings.ignored_file_extensions, settings.ignored_file_extensions);
+        assert_eq!(loaded_settings.allowed_file_extensions, settings.allowed_file_extensions);
     }
 }
