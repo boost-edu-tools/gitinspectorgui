@@ -416,6 +416,79 @@ mod tests {
     use super::*;
     use std::path::PathBuf;
 
+
+    // Tests for build_git_log_args
+    #[test]
+    fn test_build_git_log_args_mutual_exclusive() {
+        let mut params = AnalysisParameters::default();
+        params.repo_path = String::from("/tmp");
+        // set both commit-range and time-range -> should return Err
+        params.from_commit = Some("a1b2c3".to_string());
+        params.to_commit = Some("d4e5f6".to_string());
+        params.from_time = Some("2025-01-01T00:00:00+0000".to_string());
+        params.to_time = Some("2025-01-02T00:00:00+0000".to_string());
+
+        let res = build_git_log_args(&params);
+        assert!(res.is_err());
+        let err = res.err().unwrap();
+        assert!(err.contains("Cannot mix commit-range"));
+    }
+
+    #[test]
+    fn test_build_git_log_args_commit_range_only() {
+        let mut params = AnalysisParameters::default();
+        params.repo_path = String::from("/tmp");
+        params.from_commit = Some("aaaa111".to_string());
+        params.to_commit = Some("bbbb222".to_string());
+
+        let res = build_git_log_args(&params).expect("Should build args for commit range");
+        // first element should be "log"
+        assert_eq!(res.get(0).map(|s| s.as_str()), Some("log"));
+        // should contain the range string
+        let range = format!("{}..{}", "aaaa111", "bbbb222");
+        assert!(res.contains(&range));
+        // should include --numstat
+        assert!(res.contains(&"--numstat".to_string()));
+    }
+
+    #[test]
+    fn test_build_git_log_args_time_range_only() {
+        let mut params = AnalysisParameters::default();
+        params.repo_path = String::from("/tmp");
+        params.from_time = Some("2025-10-03T17:38:00+0200".to_string());
+        params.to_time = Some("2025-10-05T01:30:00+0200".to_string());
+
+        let res = build_git_log_args(&params).expect("Should build args for time range");
+        assert!(res.iter().any(|s| s.starts_with("--since=")));
+        assert!(res.iter().any(|s| s.starts_with("--until=")));
+        assert!(res.contains(&"--numstat".to_string()));
+    }
+
+    #[test]
+    fn test_build_git_log_args_only_from_commit() {
+        let mut params = AnalysisParameters::default();
+        params.repo_path = String::from("/tmp");
+        params.from_commit = Some("onlyfrom".to_string());
+
+        let res = build_git_log_args(&params).expect("Should build args when only from_commit provided");
+        // Since builder only adds a range when both from and to are present, ensure no range present
+        let range = format!("{}..{}", "onlyfrom", "");
+        assert!(!res.iter().any(|s| s.contains("..")) || !res.contains(&range));
+        // still include default flags
+        assert!(res.contains(&"--numstat".to_string()));
+    }
+
+    #[test]
+    fn test_build_git_log_args_only_from_time() {
+        let mut params = AnalysisParameters::default();
+        params.repo_path = String::from("/tmp");
+        params.from_time = Some("2025-12-01T00:00:00+0000".to_string());
+
+        let res = build_git_log_args(&params).expect("Should build args when only from_time provided");
+        assert!(res.iter().any(|s| s.starts_with("--since=")));
+        assert!(!res.iter().any(|s| s.starts_with("--until=")));
+    }
+
     #[test]
     fn test_analyse_repository() {
         // Placeholder test
