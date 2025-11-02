@@ -16,6 +16,7 @@
         "id": "author1",
         "name": "author1",
         "email": "author1@example.com",
+        "aliases_email": ["author1_secondmail@example.com"],
         "metrics": {
           "insertions": 5,
           "deletions": 0,
@@ -34,6 +35,8 @@
         "id": "author2",
         "name": "author2",
         "email": "author2@example.com",
+        "aliases_email": ["author2_secondmail@example.com",
+                          "author2_thirdmail@example.com"],
         "metrics": {
           "insertions": 5,
           "deletions": 1,
@@ -52,6 +55,7 @@
         "id": "author3",
         "name": "author3",
         "email": "author3@example.com",
+        "aliases_email": [],
         "metrics": {
           "insertions": 4,
           "deletions": 1,

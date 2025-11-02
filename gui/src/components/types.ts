@@ -53,6 +53,7 @@ export type Author = {
   name: string;
   email: string;
   metrics: Metrics;
+  aliases_email?: string[];
   files?: AuthorFileMetrics[];
 };
 

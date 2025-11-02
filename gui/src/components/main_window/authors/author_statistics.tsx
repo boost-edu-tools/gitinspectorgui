@@ -44,6 +44,49 @@ function MetricHeader({ metricKey }: { metricKey: MetricKey }) {
   )
 }
 
+function normalizeAliases(aliasCSV: unknown): string[] {
+  if (!aliasCSV) return []
+  return String(aliasCSV)
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
+
+function EmailCell({
+  primary,
+  aliases,
+  showAliases,
+}: {
+  primary?: string | null
+  aliases: string[]
+  showAliases: boolean
+}) {
+  const hasPrimary = !!primary
+  const hasAliases = aliases.length > 0 && showAliases
+
+  if (!hasPrimary && !hasAliases) {
+    return <span className="text-xs">Unknown</span>
+  }
+
+  return (
+    <div className="flex flex-col gap-1 text-xs">
+      {hasPrimary && (
+        <div className="flex items-center gap-2">
+          <span className="font-mono break-all">{primary}</span>
+        </div>
+      )}
+
+      {showAliases &&
+        aliases.map((em, i) => (
+          <div key={`${em}-${i}`} className="flex items-center gap-2">
+            <span className="font-mono break-all">{em}</span>
+          </div>
+        ))}
+    </div>
+  )
+}
+
+
 export function AuthorStatisticsOverview({
   allAuthors,
   selectedAuthors,
@@ -54,6 +97,7 @@ export function AuthorStatisticsOverview({
   const { analysis } = useAnalysis(selectedRepo)
   const repo = (analysis as AnalysisResult | undefined)?.repository
   const authors: Author[] = repo?.authors ?? []
+  const [showRenames, setShowRenames] = React.useState<boolean>(false)
 
   const totals = React.useMemo(() => {
     return authors.reduce(
@@ -99,6 +143,11 @@ export function AuthorStatisticsOverview({
             <CardTitle className="text-sm">Author Statistics</CardTitle>
 
             <div className="flex items-center space-x-2">
+
+            <div className="flex items-center space-x-2  pr-4">
+              <Label htmlFor="show-renames" className="text-sm">Show renames</Label>
+              <Switch id="show-renames" checked={showRenames} onCheckedChange={setShowRenames} />
+            </div>
               <Label htmlFor="display-mode" className="text-sm">
                 Relative
               </Label>
@@ -117,10 +166,10 @@ export function AuthorStatisticsOverview({
             <Table className="min-w-full">
               <TableHeader>
                 <TableRow className="hover:bg-background">
-                  <TableHead className="font-semibold sticky left-0 bg-background border-r min-w-[160px] z-10">
+                  <TableHead className="font-semibold sticky left-0 bg-background border-r w-[200px] z-10">
                     Author
                   </TableHead>
-                  <TableHead>Email</TableHead>
+                  <TableHead className="min-w-[170px] max-w-[170x] w-[170px]">Email(s)</TableHead>
                   <TableHead className="text-right">
                     <MetricHeader metricKey="commits" />
                   </TableHead>
@@ -160,6 +209,7 @@ export function AuthorStatisticsOverview({
 
                 {visibleAuthors.map((a) => {
                   const m = a.metrics ?? {}
+                  const aliases = normalizeAliases((a as any).aliases_email)
                   return (
                     <TableRow key={a.id} className="hover:bg-muted/50 transition-colors">
                       <TableCell className="sticky left-0 bg-background border-r z-10">
@@ -170,7 +220,9 @@ export function AuthorStatisticsOverview({
                           {a.name ?? "Unknown"}
                         </span>
                       </TableCell>
-                      <TableCell className="text-xs">{a.email ?? "Unknown"}</TableCell>
+                      <TableCell className="text-xs align-top min-w-[170px] max-w-[170px] w-[170px]">
+                        <EmailCell primary={a.email} aliases={aliases} showAliases={showRenames} />
+                      </TableCell>
                       <TableCell className="text-right">{fmt(m.total_commits ?? 0, totals.commits)}</TableCell>
                       <TableCell className="text-right">{fmt(m.insertions ?? 0, totals.insertions)}</TableCell>
                       <TableCell className="text-right">{fmt(m.deletions ?? 0, totals.deletions)}</TableCell>

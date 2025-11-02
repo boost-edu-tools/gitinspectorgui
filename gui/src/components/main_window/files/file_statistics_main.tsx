@@ -117,7 +117,7 @@ export function UnifiedFilesView({
   | "startCommitHash"
   | "endCommitHash"
 >) {
-  const [showRenames, setShowRenames] = React.useState<boolean>(false)
+  
   const [selectedFile, setSelectedFile] = React.useState<string | null>(null)
   const [displayMode, setDisplayMode] = React.useState<"absolute" | "percentage">("percentage")
   const [authorFileMetricType, setAuthorFileMetricType] = React.useState<
@@ -242,10 +242,7 @@ export function UnifiedFilesView({
                     </TabsList>
                   </Tabs>
 
-                  <div className="flex items-center space-x-2 border-r pr-4">
-                    <Label htmlFor="show-renames" className="text-sm">Show renames</Label>
-                    <Switch id="show-renames" checked={showRenames} onCheckedChange={setShowRenames} />
-                  </div>
+
                   
                   <div className="flex items-center space-x-2">
                     <Label htmlFor="display-mode" className="text-sm">
