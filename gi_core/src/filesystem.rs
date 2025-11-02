@@ -1,8 +1,8 @@
-use std::fs;
-use std::path::{Path, PathBuf};
+use csv;
 use git_wrapper::Repository;
 use serde_json;
-use csv;
+use std::fs;
+use std::path::{Path, PathBuf};
 
 use crate::Settings;
 
@@ -32,16 +32,13 @@ pub fn is_git_repository(path: &Path) -> bool {
 }
 
 pub fn load_file(path: &Path) -> Result<String, String> {
-    fs::read_to_string(path)
-        .map_err(|error| format!("Error loading file: {}", error))
+    fs::read_to_string(path).map_err(|error| format!("Error loading file: {}", error))
 }
 
 pub fn save_file(content: String, path: &Path) -> Result<PathBuf, String> {
     match fs::write(&path, content) {
         Ok(_) => Ok(path.to_path_buf()),
-        Err(error) => {
-            Err(format!("Error saving file: {}", error))
-        }
+        Err(error) => Err(format!("Error saving file: {}", error)),
     }
 }
 
@@ -53,8 +50,7 @@ pub fn convert_to_json<T: serde::Serialize>(object_to_convert: &T) -> Result<Str
 
 /// Converts a JSON string into a deserializable type.
 pub fn convert_from_json<T: serde::de::DeserializeOwned>(json_string: &str) -> Result<T, String> {
-    serde_json::from_str(json_string)
-        .map_err(|error| format!("Error parsing JSON: {}", error))
+    serde_json::from_str(json_string).map_err(|error| format!("Error parsing JSON: {}", error))
 }
 
 /// Converts a serializable type into csv.
@@ -63,34 +59,35 @@ pub fn convert_to_csv<T: serde::Serialize>(object_to_convert: &[T]) -> Result<St
 
     // Write all entries
     for entry in object_to_convert {
-        writer.serialize(entry)
+        writer
+            .serialize(entry)
             .map_err(|error| format!("Error serializing record to CSV: {}", error))?;
     }
 
     // Extract CSV data from writer
-    let data = writer.into_inner()
+    let data = writer
+        .into_inner()
         .map_err(|error| format!("Error consuming CSV writer: {}", error))?;
 
     // Convert data from string
     String::from_utf8(data)
         .map_err(|error| format!("Error converting CSV bytes to string: {}", error))
-
 }
 
 #[cfg(test)]
 
 mod tests {
     use super::*;
-    use tempfile::TempDir;
-    use std::fs;
-    use crate::Settings;
     use crate::Author;
     use crate::Metrics;
+    use crate::Settings;
+    use std::fs;
+    use tempfile::TempDir;
 
     #[test]
     fn directory_path_should_exist() {
         let temp_dir = TempDir::new().unwrap();
-    
+
         assert!(is_existing_path(temp_dir.path()));
     }
 
@@ -99,7 +96,7 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let test_file = temp_dir.path().join("test.txt");
         fs::write(&test_file, "test content").unwrap();
-    
+
         assert!(is_existing_path(&test_file));
     }
 
@@ -107,7 +104,7 @@ mod tests {
     fn non_path_should_fail() {
         let temp_dir = TempDir::new().unwrap();
         let non_existent = temp_dir.path().join("does-not-exist.mp4");
-    
+
         assert!(!is_existing_path(&non_existent));
     }
 
@@ -123,10 +120,9 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let test_file = temp_dir.path().join("test.txt");
         fs::write(&test_file, "test content").unwrap();
-    
+
         assert!(!is_directory(&test_file));
     }
-
 
     #[test]
     fn git_repo_should_exist() {
@@ -221,7 +217,8 @@ mod tests {
             "search_depth": 15,
             "ignored_file_extensions": ["log", "tmp"],
             "allowed_file_extensions": ["rs", "toml"]
-        }"#.to_string()
+        }"#
+        .to_string()
     }
 
     #[test]
@@ -254,12 +251,10 @@ mod tests {
     #[test]
     fn test_convert_author_to_csv() {
         // Create test authors
-        let authors = vec![
-            Author {
-                name: "Alice".to_string(),
-                email: "alice@gitinspector.com".to_string(),
-            },
-        ];
+        let authors = vec![Author {
+            name: "Alice".to_string(),
+            email: "alice@gitinspector.com".to_string(),
+        }];
 
         let result = convert_to_csv(&authors);
         assert!(result.is_ok());
@@ -298,7 +293,7 @@ mod tests {
                 deletions: None,
                 total_commits: Some(75),
                 total_authors: Some(3),
-                total_files: Some(20), 
+                total_files: Some(20),
             },
         ];
 
@@ -310,11 +305,31 @@ mod tests {
         let mut missing = Vec::new();
         for expected in [
             // CSV headers
-            "loc", "sloc", "cloc", "insertions", "deletions",
-            "total_commits", "total_authors", "total_files",
+            "loc",
+            "sloc",
+            "cloc",
+            "insertions",
+            "deletions",
+            "total_commits",
+            "total_authors",
+            "total_files",
             // Metric values
-            "500", "400", "100", "200", "150", "20", "3", "45",
-            "800", "650", "", "900", "", "75", "3", "20",
+            "500",
+            "400",
+            "100",
+            "200",
+            "150",
+            "20",
+            "3",
+            "45",
+            "800",
+            "650",
+            "",
+            "900",
+            "",
+            "75",
+            "3",
+            "20",
         ] {
             if !csv_string.contains(expected) {
                 missing.push(expected);
