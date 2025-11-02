@@ -670,6 +670,27 @@ mod tests {
         }
     }
 
+    #[test]
+    fn test_analyse_repository_mixed_commit_and_time_range_errors() {
+        // Provide both commit-range and time-range; build_git_log_args should reject this
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some("aaaa111".to_string());
+        params.to_commit = Some("bbbb222".to_string());
+        params.from_time = Some("2025-10-03T17:38:10+0200".to_string());
+        params.to_time = Some("2025-10-05T00:49:14+0200".to_string());
+
+        let result = analyse_repository(&params);
+        assert!(result.is_err());
+        let err = result.err().unwrap();
+        assert!(err.contains("Cannot mix commit-range"));
+    }
+
     // // Helper function to create a complete test AnalysisResult
     // fn create_test_analysis_result() -> AnalysisResult {
     //     let author1 = Author {
