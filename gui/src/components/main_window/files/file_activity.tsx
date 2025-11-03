@@ -135,7 +135,7 @@ export function FileActivityChart({
     )
 
     // Sort by selected metric and take top 20
-    return metrics.sort((a, b) => b[metric] - a[metric]).slice(0, 20)
+    return metrics.sort((a, b) => b[metric] - a[metric])
   }, [analysis, filesToShow, authorsToShow, metric])
 
   // Calculate total across all files for percentage mode
@@ -328,9 +328,9 @@ export function FileActivityChart({
                 tick={{ fontSize: 10 }}
                 angle={-45}
                 textAnchor="end"
-                height={30}
+                height={50}
                 interval={0}
-                label = {{ value: 'File name', position: 'insideBottom', offset: -5 }}
+                label = {{ value: 'File name', position: 'insideBottom', offset: -5, style: { fontSize: 14 } }}
               />
               <YAxis
                 tick={{ fontSize: 10 }}
@@ -347,6 +347,7 @@ export function FileActivityChart({
                       : "Deletions",
                   angle: -90,
                   offset: 0,
+                  style: { fontSize: 14 }
                 }}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(0,0,0,0.05)" }} />

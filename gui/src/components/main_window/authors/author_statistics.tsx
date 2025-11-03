@@ -35,7 +35,7 @@ function MetricHeader({ metricKey }: { metricKey: MetricKey }) {
           <TooltipTrigger asChild>
             <Info className="h-3 w-3 text-muted-foreground cursor-help" />
           </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-xs">
+          <TooltipContent side="top">
             <p className="text-xs">{info.description}</p>
           </TooltipContent>
         </Tooltip>

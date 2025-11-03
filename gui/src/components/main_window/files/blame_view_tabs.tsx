@@ -97,7 +97,7 @@ export function BlameTabsView({
       <Tabs value={active} onValueChange={setActive} className="flex-1 flex flex-col min-h-0">
         <div className="relative">
           <div className="overflow-x-auto scrollbar-thin">
-            <TabsList className="inline-flex min-w-max">
+            <TabsList className="flex flex-wrap">
               {openFileEntries.map((f) => (
                 <div key={f.path} className="relative">
                   <TabsTrigger value={f.path} className="pr-7">
@@ -173,9 +173,9 @@ export function BlameTabsView({
               </div>
             </div>
 
-            <div className="border rounded">
+            <div className="border rounded overflow-x-auto ">
               {/* limit list height so dialog never exceeds viewport */}
-              <ScrollArea className="max-h-[50vh]">
+              <ScrollArea className="max-h-[30vh]">
                 <div className="divide-y">
                   {filteredChoices.map((f) => {
                     const checked = openPaths.includes(f.path)

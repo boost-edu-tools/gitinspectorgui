@@ -184,7 +184,7 @@ export function BlameView({
               {showMetadata && (
                 <>
                   <div className="px-2">Author</div>
-                  <div className="px-2">Commit</div>
+                  <div className="px-2">Commit (hover for details)</div>
                 </>
               )}
               <div className="px-2 text-right">Line</div>
