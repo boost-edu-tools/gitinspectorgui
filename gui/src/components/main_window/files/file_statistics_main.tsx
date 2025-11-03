@@ -25,7 +25,7 @@ function extractFileMetadata(analysis: AnalysisResult | undefined, fileIdsToShow
       deletions: f.metrics?.deletions ?? 0,
       loc: f.metrics?.loc ?? 0,
       sloc: f.metrics?.sloc ?? 0,
-      age: f.metrics?.age ?? 0,
+      age: f.metrics?.age ?? " ",
     }))
     .sort((a, b) => b.commits - a.commits)
 }
@@ -152,7 +152,6 @@ export function UnifiedFilesView({
   // Build maps once for blame tabs (author names & commits)
   const repo = (analysis as AnalysisResult | undefined)?.repository
   const authorsById = new Map(repo?.authors?.map((a) => [a.id, a]) ?? [])
-  const commitsByHash = new Map(repo?.commits?.map((c) => [c.hash, c]) ?? [])
 
   // If a file is selected from the table, show the multi-file blame view.
   if (selectedFile) {

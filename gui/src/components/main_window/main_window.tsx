@@ -106,8 +106,6 @@ export function AppMainWindow({
                   selectedFiles={selectedFiles}
                   filterData={filterData}
                   selectedRepo={selectedRepo}
-                  startCommitHash={startCommitHash}
-                  endCommitHash={endCommitHash}
                 />
             </TabsContent>
           </Tabs>

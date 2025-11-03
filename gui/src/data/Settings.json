@@ -1,7 +1,5 @@
 {"path": "/home/user/projects",
   "repositories": [
-    "/home/user/projects/awesome-repo",
-    "/home/user/projects/another-repo"
   ],
   "search_depth": 5,
   "ignored_file_extensions": [".test"],

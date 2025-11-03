@@ -18,11 +18,8 @@ function unique<T>(arr: T[] = []): T[] {
 }
 
 export default function App() {
-  // Repos come either from settings.json or from the registry keys
-  const repoOptions = React.useMemo<string[]>(() => {
-    const fromRegistry = Object.keys(ANALYSIS_BY_NAME);
-    const merged = [...fromRegistry].filter(Boolean);
-    return unique(merged);
+    const repoOptions = React.useMemo<string[]>(() => {
+    return Object.keys(ANALYSIS_BY_NAME);
   }, []);
 
   const [selectedRepo, setSelectedRepo] = React.useState<string>(repoOptions[0] ?? "");

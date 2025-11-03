@@ -135,8 +135,7 @@
           "deletions": 2,
           "loc": 6,
           "sloc": 3,
-          "stability": 0.78,
-          "age": 13
+          "age": "1:05:05"
         }
       },
       {
@@ -147,8 +146,7 @@
           "deletions": 0,
           "loc": 6,
           "sloc": 3,
-          "stability": 0.8,
-          "age": 12
+          "age": "0:08:05"
         }
       }
     ],

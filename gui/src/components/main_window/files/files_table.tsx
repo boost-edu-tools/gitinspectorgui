@@ -21,7 +21,7 @@ export function MetricHeader({ metricKey }: MetricHeaderProps) {
           <TooltipTrigger asChild>
             <Info className="h-3 w-3 text-muted-foreground cursor-help" />
           </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-xs">
+          <TooltipContent side="top">
             <p className="text-xs">{info.description}</p>
           </TooltipContent>
         </Tooltip>
@@ -38,7 +38,7 @@ export function RepositoryViewTable({
   displayMode,
   onFileSelect,
 }: {
-  fileMetadata: Array<{ path: string; commits: number; insertions: number; deletions: number; loc: number; sloc: number; age: number }>
+  fileMetadata: Array<{ path: string; commits: number; insertions: number; deletions: number; loc: number; sloc: number; age: string }>
   displayMode: "absolute" | "percentage"
   onFileSelect: (fileName: string) => void
 }) {
@@ -85,8 +85,7 @@ export function RepositoryViewTable({
             <TableCell className="text-right font-semibold">{totals.loc}</TableCell>
             <TableCell className="text-right font-semibold">{totals.sloc}</TableCell>
             <TableCell className="text-right font-semibold"><span className="text-muted-foreground">-</span></TableCell>
-            <TableCell className="text-right font-semibold"><span className="text-muted-foreground">-</span></TableCell>
-          </TableRow>
+         </TableRow>
 
           {fileMetadata.map((f) => (
             <TableRow key={f.path} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onFileSelect(f.path)}>
