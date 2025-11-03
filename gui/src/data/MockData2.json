@@ -20,7 +20,7 @@
           "author1_secondmail@example.com"
         ],
         "metrics": {
-          "insertions": 5,
+          "insertions": 15,
           "deletions": 0,
           "total_commits": 4,
           "loc": 6,
@@ -59,7 +59,7 @@
           "author2_thirdmail@example.com"
         ],
         "metrics": {
-          "insertions": 5,
+          "insertions": 9,
           "deletions": 1,
           "total_commits": 4,
           "loc": 6,
@@ -95,7 +95,7 @@
         "email": "author3@example.com",
         "aliases_email": [],
         "metrics": {
-          "insertions": 4,
+          "insertions": 11,
           "deletions": 1,
           "total_commits": 4,
           "loc": 6,
