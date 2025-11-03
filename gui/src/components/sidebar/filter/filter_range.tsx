@@ -309,35 +309,22 @@ export function FilterRange({
     onEndDateChange(setTimeOnDate(endOfDay(d), endTimeStr || "23:59"))
   }
 
+    // state
+  const [nextPick, setNextPick] = React.useState<'start' | 'end'>('start')
+
+
   const handleCommitClick = (idx: number) => {
-    if (!commits.length) return
+  if (!commits.length) return
 
-    if (!hasPickedOnce) {
-      applyStartSelection(idx)
-      setHasPickedOnce(true)
-      return
-    }
-
-    const startIdx = Math.max(0, commits.findIndex((c) => c.hash === startCommitHash))
-    const endIdx = Math.max(0, commits.findIndex((c) => c.hash === endCommitHash))
-
-    if (idx <= startIdx) {
-      applyStartSelection(idx)
-      return
-    }
-    if (idx >= endIdx) {
-      applyEndSelection(idx)
-      return
-    }
-
-    const distToStart = Math.abs(idx - startIdx)
-    const distToEnd = Math.abs(endIdx - idx)
-    if (distToStart <= distToEnd) {
-      applyStartSelection(idx)
-    } else {
-      applyEndSelection(idx)
-    }
+  if (nextPick === 'start') {
+    applyStartSelection(idx)
+    setNextPick('end')
+  } else {
+    applyEndSelection(idx)
+    setNextPick('start')
   }
+}
+
 
   // Default month for calendar
   const defaultMonth = React.useMemo(() => {
@@ -401,9 +388,7 @@ export function FilterRange({
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-[240px] text-[11px] leading-snug">
-                To change the <b>commit range</b>, see the commit list below.<br/>
-                To change the <b>start</b> commit, click on the current start commit once and click on the new start commit next.<br/>
-                To change the <b>end</b> commit, click on the current end commit once and click on the new end commit next. 
+                To change the commit range, see the commit list below.<br/> The first click will set the first commit, the second click will set the last commit.
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
