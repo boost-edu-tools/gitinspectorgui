@@ -1,0 +1,1800 @@
+{
+  "parameters": {
+    "repo_path": "/home/user/projects/example-natural",
+    "from_time": "2024-06-01",
+    "to_time": "2024-07-16",
+    "from_commit": "c3001",
+    "to_commit": "c3048",
+    "exclude_authors": [],
+    "exclude_files": []
+  },
+  "repository": {
+    "name": "example-repo-3",
+    "path": "/home/user/projects/example-natural",
+    "authors": [
+      {
+        "id": "authorA",
+        "name": "authorA",
+        "email": "authorA@example.com",
+        "aliases_email": [
+          "authorA_alt@example.com"
+        ],
+        "metrics": {
+          "insertions": 31,
+          "deletions": 0,
+          "total_commits": 17,
+          "loc": 47,
+          "sloc": 31,
+          "age": "2:06:10"
+        },
+        "files": [
+          {
+            "file_path": "src/module1/f1.ts",
+            "metrics": {
+              "insertions": 2,
+              "deletions": 0,
+              "loc": 5,
+              "sloc": 2,
+              "commits": 3
+            }
+          },
+          {
+            "file_path": "src/module1/f2.ts",
+            "metrics": {
+              "insertions": 3,
+              "deletions": 0,
+              "loc": 5,
+              "sloc": 3,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module1/f3.ts",
+            "metrics": {
+              "insertions": 3,
+              "deletions": 0,
+              "loc": 4,
+              "sloc": 3,
+              "commits": 4
+            }
+          },
+          {
+            "file_path": "src/module1/f4.ts",
+            "metrics": {
+              "insertions": 4,
+              "deletions": 0,
+              "loc": 4,
+              "sloc": 4,
+              "commits": 2
+            }
+          },
+          {
+            "file_path": "src/module2/f5.ts",
+            "metrics": {
+              "insertions": 3,
+              "deletions": 0,
+              "loc": 4,
+              "sloc": 3,
+              "commits": 3
+            }
+          },
+          {
+            "file_path": "src/module2/f6.ts",
+            "metrics": {
+              "insertions": 3,
+              "deletions": 0,
+              "loc": 5,
+              "sloc": 3,
+              "commits": 4
+            }
+          },
+          {
+            "file_path": "src/module2/f7.ts",
+            "metrics": {
+              "insertions": 3,
+              "deletions": 0,
+              "loc": 3,
+              "sloc": 3,
+              "commits": 3
+            }
+          },
+          {
+            "file_path": "src/module2/f8.ts",
+            "metrics": {
+              "insertions": 4,
+              "deletions": 0,
+              "loc": 6,
+              "sloc": 4,
+              "commits": 5
+            }
+          },
+          {
+            "file_path": "src/module3/f10.ts",
+            "metrics": {
+              "insertions": 3,
+              "deletions": 0,
+              "loc": 4,
+              "sloc": 3,
+              "commits": 4
+            }
+          },
+          {
+            "file_path": "src/module3/f11.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 3,
+              "sloc": 1,
+              "commits": 3
+            }
+          },
+          {
+            "file_path": "src/module3/f12.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 2,
+              "sloc": 1,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module3/f9.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 2,
+              "sloc": 1,
+              "commits": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "authorB",
+        "name": "authorB",
+        "email": "authorB@example.com",
+        "aliases_email": [
+          "authorB_alt@example.com"
+        ],
+        "metrics": {
+          "insertions": 17,
+          "deletions": 0,
+          "total_commits": 14,
+          "loc": 31,
+          "sloc": 17,
+          "age": "0:11:06"
+        },
+        "files": [
+          {
+            "file_path": "src/module2/f5.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 1,
+              "sloc": 1,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module2/f7.ts",
+            "metrics": {
+              "insertions": 0,
+              "deletions": 0,
+              "loc": 1,
+              "sloc": 0,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module3/f10.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 1,
+              "sloc": 1,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module3/f11.ts",
+            "metrics": {
+              "insertions": 2,
+              "deletions": 0,
+              "loc": 2,
+              "sloc": 2,
+              "commits": 2
+            }
+          },
+          {
+            "file_path": "src/module3/f12.ts",
+            "metrics": {
+              "insertions": 3,
+              "deletions": 0,
+              "loc": 4,
+              "sloc": 3,
+              "commits": 4
+            }
+          },
+          {
+            "file_path": "src/module3/f9.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 3,
+              "sloc": 1,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module4/f13.ts",
+            "metrics": {
+              "insertions": 3,
+              "deletions": 0,
+              "loc": 4,
+              "sloc": 3,
+              "commits": 2
+            }
+          },
+          {
+            "file_path": "src/module4/f14.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 3,
+              "sloc": 1,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module4/f15.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 2,
+              "sloc": 1,
+              "commits": 2
+            }
+          },
+          {
+            "file_path": "src/module4/f16.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 3,
+              "sloc": 1,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module5/f17.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 2,
+              "sloc": 1,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module5/f18.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 3,
+              "sloc": 1,
+              "commits": 2
+            }
+          },
+          {
+            "file_path": "src/module5/f19.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 2,
+              "sloc": 1,
+              "commits": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "authorC",
+        "name": "authorC",
+        "email": "authorC@example.com",
+        "aliases_email": [],
+        "metrics": {
+          "insertions": 33,
+          "deletions": 0,
+          "total_commits": 17,
+          "loc": 48,
+          "sloc": 33,
+          "age": "0:07:10"
+        },
+        "files": [
+          {
+            "file_path": "src/module1/f3.ts",
+            "metrics": {
+              "insertions": 0,
+              "deletions": 0,
+              "loc": 1,
+              "sloc": 0,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module1/f4.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 2,
+              "sloc": 1,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module2/f7.ts",
+            "metrics": {
+              "insertions": 0,
+              "deletions": 0,
+              "loc": 1,
+              "sloc": 0,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module4/f13.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 1,
+              "sloc": 1,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module4/f14.ts",
+            "metrics": {
+              "insertions": 1,
+              "deletions": 0,
+              "loc": 2,
+              "sloc": 1,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module4/f15.ts",
+            "metrics": {
+              "insertions": 3,
+              "deletions": 0,
+              "loc": 3,
+              "sloc": 3,
+              "commits": 3
+            }
+          },
+          {
+            "file_path": "src/module4/f16.ts",
+            "metrics": {
+              "insertions": 2,
+              "deletions": 0,
+              "loc": 3,
+              "sloc": 2,
+              "commits": 1
+            }
+          },
+          {
+            "file_path": "src/module5/f17.ts",
+            "metrics": {
+              "insertions": 2,
+              "deletions": 0,
+              "loc": 3,
+              "sloc": 2,
+              "commits": 3
+            }
+          },
+          {
+            "file_path": "src/module5/f18.ts",
+            "metrics": {
+              "insertions": 2,
+              "deletions": 0,
+              "loc": 2,
+              "sloc": 2,
+              "commits": 2
+            }
+          },
+          {
+            "file_path": "src/module5/f19.ts",
+            "metrics": {
+              "insertions": 3,
+              "deletions": 0,
+              "loc": 3,
+              "sloc": 3,
+              "commits": 2
+            }
+          },
+          {
+            "file_path": "src/module5/f20.ts",
+            "metrics": {
+              "insertions": 4,
+              "deletions": 0,
+              "loc": 6,
+              "sloc": 4,
+              "commits": 2
+            }
+          },
+          {
+            "file_path": "src/module6/f21.ts",
+            "metrics": {
+              "insertions": 2,
+              "deletions": 0,
+              "loc": 5,
+              "sloc": 2,
+              "commits": 5
+            }
+          },
+          {
+            "file_path": "src/module6/f22.ts",
+            "metrics": {
+              "insertions": 4,
+              "deletions": 0,
+              "loc": 5,
+              "sloc": 4,
+              "commits": 4
+            }
+          },
+          {
+            "file_path": "src/module6/f23.ts",
+            "metrics": {
+              "insertions": 3,
+              "deletions": 0,
+              "loc": 5,
+              "sloc": 3,
+              "commits": 3
+            }
+          },
+          {
+            "file_path": "src/module6/f24.ts",
+            "metrics": {
+              "insertions": 5,
+              "deletions": 0,
+              "loc": 6,
+              "sloc": 5,
+              "commits": 4
+            }
+          }
+        ]
+      }
+    ],
+    "files_metadata": [
+      {
+        "path": "src/module1/f1.ts",
+        "metrics": {
+          "commits": 3,
+          "insertions": 2,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 2,
+          "age": "0:09:14"
+        }
+      },
+      {
+        "path": "src/module1/f2.ts",
+        "metrics": {
+          "commits": 1,
+          "insertions": 3,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 3,
+          "age": "0:02:21"
+        }
+      },
+      {
+        "path": "src/module1/f3.ts",
+        "metrics": {
+          "commits": 5,
+          "insertions": 3,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 3,
+          "age": "0:08:10"
+        }
+      },
+      {
+        "path": "src/module1/f4.ts",
+        "metrics": {
+          "commits": 3,
+          "insertions": 5,
+          "deletions": 0,
+          "loc": 6,
+          "sloc": 5,
+          "age": "0:10:20"
+        }
+      },
+      {
+        "path": "src/module2/f5.ts",
+        "metrics": {
+          "commits": 4,
+          "insertions": 4,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 4,
+          "age": "2:02:23"
+        }
+      },
+      {
+        "path": "src/module2/f6.ts",
+        "metrics": {
+          "commits": 4,
+          "insertions": 3,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 3,
+          "age": "1:01:03"
+        }
+      },
+      {
+        "path": "src/module2/f7.ts",
+        "metrics": {
+          "commits": 5,
+          "insertions": 3,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 3,
+          "age": "1:03:17"
+        }
+      },
+      {
+        "path": "src/module2/f8.ts",
+        "metrics": {
+          "commits": 5,
+          "insertions": 4,
+          "deletions": 0,
+          "loc": 6,
+          "sloc": 4,
+          "age": "2:02:17"
+        }
+      },
+      {
+        "path": "src/module3/f9.ts",
+        "metrics": {
+          "commits": 2,
+          "insertions": 2,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 2,
+          "age": "0:10:15"
+        }
+      },
+      {
+        "path": "src/module3/f10.ts",
+        "metrics": {
+          "commits": 5,
+          "insertions": 4,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 4,
+          "age": "2:09:08"
+        }
+      },
+      {
+        "path": "src/module3/f11.ts",
+        "metrics": {
+          "commits": 5,
+          "insertions": 3,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 3,
+          "age": "2:03:23"
+        }
+      },
+      {
+        "path": "src/module3/f12.ts",
+        "metrics": {
+          "commits": 5,
+          "insertions": 4,
+          "deletions": 0,
+          "loc": 6,
+          "sloc": 4,
+          "age": "2:09:19"
+        }
+      },
+      {
+        "path": "src/module4/f13.ts",
+        "metrics": {
+          "commits": 3,
+          "insertions": 4,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 4,
+          "age": "2:09:15"
+        }
+      },
+      {
+        "path": "src/module4/f14.ts",
+        "metrics": {
+          "commits": 2,
+          "insertions": 2,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 2,
+          "age": "1:03:08"
+        }
+      },
+      {
+        "path": "src/module4/f15.ts",
+        "metrics": {
+          "commits": 5,
+          "insertions": 4,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 4,
+          "age": "0:02:14"
+        }
+      },
+      {
+        "path": "src/module4/f16.ts",
+        "metrics": {
+          "commits": 2,
+          "insertions": 3,
+          "deletions": 0,
+          "loc": 6,
+          "sloc": 3,
+          "age": "1:01:16"
+        }
+      },
+      {
+        "path": "src/module5/f17.ts",
+        "metrics": {
+          "commits": 4,
+          "insertions": 3,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 3,
+          "age": "1:04:11"
+        }
+      },
+      {
+        "path": "src/module5/f18.ts",
+        "metrics": {
+          "commits": 4,
+          "insertions": 3,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 3,
+          "age": "0:10:16"
+        }
+      },
+      {
+        "path": "src/module5/f19.ts",
+        "metrics": {
+          "commits": 3,
+          "insertions": 4,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 4,
+          "age": "2:05:17"
+        }
+      },
+      {
+        "path": "src/module5/f20.ts",
+        "metrics": {
+          "commits": 2,
+          "insertions": 4,
+          "deletions": 0,
+          "loc": 6,
+          "sloc": 4,
+          "age": "1:07:04"
+        }
+      },
+      {
+        "path": "src/module6/f21.ts",
+        "metrics": {
+          "commits": 5,
+          "insertions": 2,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 2,
+          "age": "2:00:15"
+        }
+      },
+      {
+        "path": "src/module6/f22.ts",
+        "metrics": {
+          "commits": 4,
+          "insertions": 4,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 4,
+          "age": "1:02:10"
+        }
+      },
+      {
+        "path": "src/module6/f23.ts",
+        "metrics": {
+          "commits": 3,
+          "insertions": 3,
+          "deletions": 0,
+          "loc": 5,
+          "sloc": 3,
+          "age": "1:04:09"
+        }
+      },
+      {
+        "path": "src/module6/f24.ts",
+        "metrics": {
+          "commits": 4,
+          "insertions": 5,
+          "deletions": 0,
+          "loc": 6,
+          "sloc": 5,
+          "age": "1:04:07"
+        }
+      }
+    ],
+    "commits": [
+  { "number": 1, "hash": "c3001", "authorId": "authorC", "message": "fix pass", "date": "2024-06-01T18:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.3 },
+  { "number": 2, "hash": "c3002", "authorId": "authorA", "message": "cleanup pass", "date": "2024-06-02T18:00:00Z", "insertions": 2, "deletions": 1, "changesPercent": 0.6 },
+  { "number": 3, "hash": "c3003", "authorId": "authorA", "message": "cleanup pass", "date": "2024-06-04T18:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 2.3 },
+  { "number": 4, "hash": "c3004", "authorId": "authorA", "message": "refactor pass", "date": "2024-06-05T19:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 2.5 },
+  { "number": 5, "hash": "c3005", "authorId": "authorA", "message": "docs pass", "date": "2024-06-05T21:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.0 },
+  { "number": 6, "hash": "c3006", "authorId": "authorA", "message": "feature pass", "date": "2024-06-05T22:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 1.4 },
+  { "number": 7, "hash": "c3007", "authorId": "authorA", "message": "feature pass", "date": "2024-06-06T19:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 2.9 },
+  { "number": 8, "hash": "c3008", "authorId": "authorA", "message": "cleanup pass", "date": "2024-06-06T21:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 1.9 },
+  { "number": 9, "hash": "c3009", "authorId": "authorA", "message": "fix pass", "date": "2024-06-07T18:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.5 },
+  { "number": 10, "hash": "c3010", "authorId": "authorA", "message": "refactor pass", "date": "2024-06-09T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.2 },
+  { "number": 11, "hash": "c3011", "authorId": "authorA", "message": "feature pass", "date": "2024-06-10T18:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 0.9 },
+  { "number": 12, "hash": "c3012", "authorId": "authorA", "message": "cleanup pass", "date": "2024-06-10T20:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 2.6 },
+  { "number": 13, "hash": "c3013", "authorId": "authorA", "message": "feature pass", "date": "2024-06-11T19:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 0.7 },
+  { "number": 14, "hash": "c3014", "authorId": "authorA", "message": "fix pass", "date": "2024-06-12T18:00:00Z", "insertions": 3, "deletions": 1, "changesPercent": 1.5 },
+  { "number": 15, "hash": "c3015", "authorId": "authorA", "message": "docs pass", "date": "2024-06-12T20:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.1 },
+  { "number": 16, "hash": "c3016", "authorId": "authorA", "message": "fix pass", "date": "2024-06-12T23:00:00Z", "insertions": 2, "deletions": 1, "changesPercent": 1.4 },
+  { "number": 17, "hash": "c3017", "authorId": "authorB", "message": "feature pass", "date": "2024-06-13T18:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.1 },
+  { "number": 18, "hash": "c3018", "authorId": "authorB", "message": "docs pass", "date": "2024-06-14T19:00:00Z", "insertions": 2, "deletions": 1, "changesPercent": 1.8 },
+  { "number": 19, "hash": "c3019", "authorId": "authorB", "message": "feature pass", "date": "2024-06-14T20:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 2.4 },
+  { "number": 20, "hash": "c3020", "authorId": "authorB", "message": "docs pass", "date": "2024-06-17T18:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 2.9 },
+  { "number": 21, "hash": "c3021", "authorId": "authorB", "message": "feature pass", "date": "2024-06-18T19:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 0.9 },
+  { "number": 22, "hash": "c3022", "authorId": "authorB", "message": "cleanup pass", "date": "2024-06-19T18:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 1.7 },
+  { "number": 23, "hash": "c3023", "authorId": "authorB", "message": "fix pass", "date": "2024-06-20T18:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.7 },
+  { "number": 24, "hash": "c3024", "authorId": "authorB", "message": "feature pass", "date": "2024-06-21T18:00:00Z", "insertions": 1, "deletions": 1, "changesPercent": 2.9 },
+  { "number": 25, "hash": "c3025", "authorId": "authorB", "message": "docs pass", "date": "2024-06-24T18:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 2.3 },
+  { "number": 26, "hash": "c3026", "authorId": "authorB", "message": "fix pass", "date": "2024-06-24T21:00:00Z", "insertions": 2, "deletions": 1, "changesPercent": 0.8 },
+  { "number": 27, "hash": "c3027", "authorId": "authorA", "message": "cleanup pass", "date": "2024-06-25T18:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 0.5 },
+  { "number": 28, "hash": "c3028", "authorId": "authorB", "message": "refactor pass", "date": "2024-06-26T18:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 0.7 },
+  { "number": 29, "hash": "c3029", "authorId": "authorB", "message": "docs pass", "date": "2024-06-26T20:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 2.3 },
+  { "number": 30, "hash": "c3030", "authorId": "authorB", "message": "cleanup pass", "date": "2024-06-26T23:00:00Z", "insertions": 1, "deletions": 1, "changesPercent": 2.5 },
+  { "number": 31, "hash": "c3031", "authorId": "authorC", "message": "docs pass", "date": "2024-06-27T19:00:00Z", "insertions": 2, "deletions": 1, "changesPercent": 1.7 },
+  { "number": 32, "hash": "c3032", "authorId": "authorB", "message": "feature pass", "date": "2024-06-28T18:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 2.5 },
+  { "number": 33, "hash": "c3033", "authorId": "authorC", "message": "refactor pass", "date": "2024-07-02T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.7 },
+  { "number": 34, "hash": "c3034", "authorId": "authorC", "message": "cleanup pass", "date": "2024-07-03T18:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.9 },
+  { "number": 35, "hash": "c3035", "authorId": "authorC", "message": "docs pass", "date": "2024-07-04T19:00:00Z", "insertions": 1, "deletions": 1, "changesPercent": 2.8 },
+  { "number": 36, "hash": "c3036", "authorId": "authorC", "message": "docs pass", "date": "2024-07-05T19:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 1.6 },
+  { "number": 37, "hash": "c3037", "authorId": "authorC", "message": "cleanup pass", "date": "2024-07-06T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.2 },
+  { "number": 38, "hash": "c3038", "authorId": "authorC", "message": "feature pass", "date": "2024-07-08T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.0 },
+  { "number": 39, "hash": "c3039", "authorId": "authorC", "message": "cleanup pass", "date": "2024-07-08T20:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.6 },
+  { "number": 40, "hash": "c3040", "authorId": "authorC", "message": "refactor pass", "date": "2024-07-09T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.9 },
+  { "number": 41, "hash": "c3041", "authorId": "authorC", "message": "docs pass", "date": "2024-07-10T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.2 },
+  { "number": 42, "hash": "c3042", "authorId": "authorC", "message": "docs pass", "date": "2024-07-11T18:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 1.6 },
+  { "number": 43, "hash": "c3043", "authorId": "authorC", "message": "feature pass", "date": "2024-07-11T20:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 0.7 },
+  { "number": 44, "hash": "c3044", "authorId": "authorC", "message": "refactor pass", "date": "2024-07-12T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.4 },
+  { "number": 45, "hash": "c3045", "authorId": "authorC", "message": "cleanup pass", "date": "2024-07-15T18:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 2.8 },
+  { "number": 46, "hash": "c3046", "authorId": "authorA", "message": "fix pass", "date": "2024-07-15T20:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.2 },
+  { "number": 47, "hash": "c3047", "authorId": "authorC", "message": "fix pass", "date": "2024-07-16T18:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 1.8 },
+  { "number": 48, "hash": "c3048", "authorId": "authorC", "message": "feature pass", "date": "2024-07-16T20:00:00Z", "insertions": 3, "deletions": 1, "changesPercent": 2.6 }
+],
+
+    "files": [
+      {
+        "path": "src/module1/f1.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module1/f1.ts header",
+            "commitid": 3,
+            "authorId": "authorA",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "",
+            "commitid": 6,
+            "authorId": "authorA",
+            "line_type": 0
+          },
+          {
+            "number": 3,
+            "content": "export const v1 = 1;",
+            "commitid": 7,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f1(){return v1;}",
+            "commitid": 3,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "",
+            "commitid": 6,
+            "authorId": "authorA",
+            "line_type": 0
+          }
+        ]
+      },
+      {
+        "path": "src/module1/f2.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module1/f2.ts header",
+            "commitid": 2,
+            "authorId": "authorA",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "",
+            "commitid": 2,
+            "authorId": "authorA",
+            "line_type": 0
+          },
+          {
+            "number": 3,
+            "content": "export const v2 = 2;",
+            "commitid": 2,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f2(){return v2;}",
+            "commitid": 2,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f2;",
+            "commitid": 2,
+            "authorId": "authorA",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module1/f3.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module1/f3.ts header",
+            "commitid": 1,
+            "authorId": "authorC",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f3;",
+            "commitid": 2,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v3 = 3;",
+            "commitid": 5,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f3(){return v3;}",
+            "commitid": 6,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "",
+            "commitid": 7,
+            "authorId": "authorA",
+            "line_type": 0
+          }
+        ]
+      },
+      {
+        "path": "src/module1/f4.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module1/f4.ts header",
+            "commitid": 1,
+            "authorId": "authorC",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f4;",
+            "commitid": 2,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v4 = 4;",
+            "commitid": 4,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f4(){return v4;}",
+            "commitid": 1,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f4;",
+            "commitid": 2,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 6,
+            "content": "export default f4;",
+            "commitid": 4,
+            "authorId": "authorA",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module2/f5.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module2/f5.ts header",
+            "commitid": 3,
+            "authorId": "authorA",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f5;",
+            "commitid": 8,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v5 = 5;",
+            "commitid": 9,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f5(){return v5;}",
+            "commitid": 18,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f5;",
+            "commitid": 3,
+            "authorId": "authorA",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module2/f6.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module2/f6.ts header",
+            "commitid": 2,
+            "authorId": "authorA",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f6;",
+            "commitid": 4,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v6 = 6;",
+            "commitid": 8,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f6(){return v6;}",
+            "commitid": 11,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "",
+            "commitid": 2,
+            "authorId": "authorA",
+            "line_type": 0
+          }
+        ]
+      },
+      {
+        "path": "src/module2/f7.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module2/f7.ts header",
+            "commitid": 1,
+            "authorId": "authorC",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f7;",
+            "commitid": 2,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v7 = 7;",
+            "commitid": 4,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f7(){return v7;}",
+            "commitid": 13,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "",
+            "commitid": 18,
+            "authorId": "authorB",
+            "line_type": 0
+          }
+        ]
+      },
+      {
+        "path": "src/module2/f8.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module2/f8.ts header",
+            "commitid": 3,
+            "authorId": "authorA",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "",
+            "commitid": 5,
+            "authorId": "authorA",
+            "line_type": 0
+          },
+          {
+            "number": 3,
+            "content": "export const v8 = 8;",
+            "commitid": 9,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f8(){return v8;}",
+            "commitid": 10,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f8;",
+            "commitid": 14,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 6,
+            "content": "export default f8;",
+            "commitid": 3,
+            "authorId": "authorA",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module3/f9.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module3/f9.ts header",
+            "commitid": 18,
+            "authorId": "authorB",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "",
+            "commitid": 27,
+            "authorId": "authorA",
+            "line_type": 0
+          },
+          {
+            "number": 3,
+            "content": "export const v9 = 9;",
+            "commitid": 18,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f9(){return v9;}",
+            "commitid": 27,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "",
+            "commitid": 18,
+            "authorId": "authorB",
+            "line_type": 0
+          }
+        ]
+      },
+      {
+        "path": "src/module3/f10.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module3/f10.ts header",
+            "commitid": 10,
+            "authorId": "authorA",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f10;",
+            "commitid": 12,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v10 = 10;",
+            "commitid": 14,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f10(){return v10;}",
+            "commitid": 15,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f10;",
+            "commitid": 20,
+            "authorId": "authorB",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module3/f11.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module3/f11.ts header",
+            "commitid": 10,
+            "authorId": "authorA",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "",
+            "commitid": 11,
+            "authorId": "authorA",
+            "line_type": 0
+          },
+          {
+            "number": 3,
+            "content": "export const v11 = 11;",
+            "commitid": 15,
+            "authorId": "authorA",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f11(){return v11;}",
+            "commitid": 19,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f11;",
+            "commitid": 24,
+            "authorId": "authorB",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module3/f12.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module3/f12.ts header",
+            "commitid": 14,
+            "authorId": "authorA",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "",
+            "commitid": 19,
+            "authorId": "authorB",
+            "line_type": 0
+          },
+          {
+            "number": 3,
+            "content": "export const v12 = 12;",
+            "commitid": 22,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f12(){return v12;}",
+            "commitid": 23,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f12;",
+            "commitid": 25,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 6,
+            "content": "export default f12;",
+            "commitid": 14,
+            "authorId": "authorA",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module4/f13.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module4/f13.ts header",
+            "commitid": 24,
+            "authorId": "authorB",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f13;",
+            "commitid": 26,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v13 = 13;",
+            "commitid": 37,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f13(){return v13;}",
+            "commitid": 24,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f13;",
+            "commitid": 26,
+            "authorId": "authorB",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module4/f14.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module4/f14.ts header",
+            "commitid": 28,
+            "authorId": "authorB",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "",
+            "commitid": 37,
+            "authorId": "authorC",
+            "line_type": 0
+          },
+          {
+            "number": 3,
+            "content": "export const v14 = 14;",
+            "commitid": 28,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f14(){return v14;}",
+            "commitid": 37,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "",
+            "commitid": 28,
+            "authorId": "authorB",
+            "line_type": 0
+          }
+        ]
+      },
+      {
+        "path": "src/module4/f15.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module4/f15.ts header",
+            "commitid": 28,
+            "authorId": "authorB",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f15;",
+            "commitid": 29,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v15 = 15;",
+            "commitid": 33,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f15(){return v15;}",
+            "commitid": 34,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f15;",
+            "commitid": 37,
+            "authorId": "authorC",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module4/f16.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module4/f16.ts header",
+            "commitid": 22,
+            "authorId": "authorB",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "",
+            "commitid": 35,
+            "authorId": "authorC",
+            "line_type": 0
+          },
+          {
+            "number": 3,
+            "content": "export const v16 = 16;",
+            "commitid": 22,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f16(){return v16;}",
+            "commitid": 35,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "",
+            "commitid": 22,
+            "authorId": "authorB",
+            "line_type": 0
+          },
+          {
+            "number": 6,
+            "content": "export default f16;",
+            "commitid": 35,
+            "authorId": "authorC",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module5/f17.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module5/f17.ts header",
+            "commitid": 32,
+            "authorId": "authorB",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "",
+            "commitid": 33,
+            "authorId": "authorC",
+            "line_type": 0
+          },
+          {
+            "number": 3,
+            "content": "export const v17 = 17;",
+            "commitid": 38,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f17(){return v17;}",
+            "commitid": 43,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f17;",
+            "commitid": 32,
+            "authorId": "authorB",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module5/f18.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module5/f18.ts header",
+            "commitid": 29,
+            "authorId": "authorB",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f18;",
+            "commitid": 30,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v18 = 18;",
+            "commitid": 38,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f18(){return v18;}",
+            "commitid": 44,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "",
+            "commitid": 29,
+            "authorId": "authorB",
+            "line_type": 0
+          }
+        ]
+      },
+      {
+        "path": "src/module5/f19.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module5/f19.ts header",
+            "commitid": 30,
+            "authorId": "authorB",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f19;",
+            "commitid": 42,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v19 = 19;",
+            "commitid": 43,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f19(){return v19;}",
+            "commitid": 30,
+            "authorId": "authorB",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f19;",
+            "commitid": 42,
+            "authorId": "authorC",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module5/f20.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module5/f20.ts header",
+            "commitid": 36,
+            "authorId": "authorC",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "",
+            "commitid": 43,
+            "authorId": "authorC",
+            "line_type": 0
+          },
+          {
+            "number": 3,
+            "content": "export const v20 = 20;",
+            "commitid": 36,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f20(){return v20;}",
+            "commitid": 43,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f20;",
+            "commitid": 36,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 6,
+            "content": "export default f20;",
+            "commitid": 43,
+            "authorId": "authorC",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module6/f21.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module6/f21.ts header",
+            "commitid": 38,
+            "authorId": "authorC",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "",
+            "commitid": 39,
+            "authorId": "authorC",
+            "line_type": 0
+          },
+          {
+            "number": 3,
+            "content": "export const v21 = 21;",
+            "commitid": 40,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f21(){return v21;}",
+            "commitid": 42,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "",
+            "commitid": 45,
+            "authorId": "authorC",
+            "line_type": 0
+          }
+        ]
+      },
+      {
+        "path": "src/module6/f22.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module6/f22.ts header",
+            "commitid": 38,
+            "authorId": "authorC",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f22;",
+            "commitid": 43,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v22 = 22;",
+            "commitid": 45,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f22(){return v22;}",
+            "commitid": 48,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f22;",
+            "commitid": 38,
+            "authorId": "authorC",
+            "line_type": 2
+          }
+        ]
+      },
+      {
+        "path": "src/module6/f23.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module6/f23.ts header",
+            "commitid": 39,
+            "authorId": "authorC",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f23;",
+            "commitid": 40,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v23 = 23;",
+            "commitid": 47,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f23(){return v23;}",
+            "commitid": 39,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "",
+            "commitid": 40,
+            "authorId": "authorC",
+            "line_type": 0
+          }
+        ]
+      },
+      {
+        "path": "src/module6/f24.ts",
+        "lines": [
+          {
+            "number": 1,
+            "content": "// src/module6/f24.ts header",
+            "commitid": 38,
+            "authorId": "authorC",
+            "line_type": 1
+          },
+          {
+            "number": 2,
+            "content": "export default f24;",
+            "commitid": 40,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 3,
+            "content": "export const v24 = 24;",
+            "commitid": 41,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 4,
+            "content": "export function f24(){return v24;}",
+            "commitid": 42,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 5,
+            "content": "export default f24;",
+            "commitid": 38,
+            "authorId": "authorC",
+            "line_type": 2
+          },
+          {
+            "number": 6,
+            "content": "export default f24;",
+            "commitid": 40,
+            "authorId": "authorC",
+            "line_type": 2
+          }
+        ]
+      }
+    ],
+    "metrics": {
+      "loc": 126,
+      "sloc": 81,
+      "cloc": 45,
+      "insertions": 81,
+      "deletions": 0,
+      "total_commits": 48,
+      "total_authors": 3,
+      "total_files": 24
+    }
+  }
+}
