@@ -182,6 +182,9 @@ export function AuthorStatisticsOverview({
                     <MetricHeader metricKey="sloc" />
                   </TableHead>
                   <TableHead className="text-right">
+                    <MetricHeader metricKey="stability" />
+                    </TableHead>
+                  <TableHead className="text-right">
                     <MetricHeader metricKey="age" />
                   </TableHead>
                 </TableRow>
@@ -202,6 +205,9 @@ export function AuthorStatisticsOverview({
                   <TableCell className="text-right font-semibold">{totals.deletions}</TableCell>
                   <TableCell className="text-right font-semibold">{totals.loc}</TableCell>
                   <TableCell className="text-right font-semibold">{totals.sloc}</TableCell>
+                  <TableCell className="text-right font-semibold">
+                    <span className="text-muted-foreground">-</span>
+                  </TableCell>
                   <TableCell className="text-right font-semibold">
                     <span className="text-muted-foreground">-</span>
                   </TableCell>
@@ -231,6 +237,7 @@ export function AuthorStatisticsOverview({
                       <TableCell className="text-right">{fmt(m.deletions ?? 0, totals.deletions)}</TableCell>
                       <TableCell className="text-right">{fmt(m.loc ?? 0, totals.loc)}</TableCell>
                       <TableCell className="text-right">{fmt(m.sloc ?? 0, totals.sloc)}</TableCell>
+                      <TableCell className="text-right">{((m.loc??0)/(m.insertions??1)*100).toFixed(0)}</TableCell>
                       <TableCell className="text-right">{m.age ?? "-"}</TableCell>
                     </TableRow>
                   )

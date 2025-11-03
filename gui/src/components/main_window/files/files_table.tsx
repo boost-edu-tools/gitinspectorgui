@@ -68,6 +68,8 @@ export function RepositoryViewTable({
             <TableHead className="text-right"><MetricHeader metricKey="deletions" /></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="loc"/></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="sloc" /></TableHead>
+            <TableHead className="text-right"><MetricHeader metricKey="stability" /></TableHead>
+            
             <TableHead className="text-right"><MetricHeader metricKey="age" /></TableHead>
           </TableRow>
         </TableHeader>
@@ -84,6 +86,7 @@ export function RepositoryViewTable({
             <TableCell className="text-right font-semibold">{totals.deletions}</TableCell>
             <TableCell className="text-right font-semibold">{totals.loc}</TableCell>
             <TableCell className="text-right font-semibold">{totals.sloc}</TableCell>
+            
             <TableCell className="text-right font-semibold"><span className="text-muted-foreground">-</span></TableCell>
          </TableRow>
 
@@ -100,6 +103,7 @@ export function RepositoryViewTable({
               <TableCell className="text-right">{fmt(f.deletions, totals.deletions)}</TableCell>
               <TableCell className="text-right">{fmt(f.loc, totals.loc)}</TableCell>
               <TableCell className="text-right">{fmt(f.sloc, totals.sloc)}</TableCell>
+              <TableCell className="text-right"><span>{(100*f.loc/f.insertions).toFixed(0)}</span></TableCell>
               <TableCell className="text-right">{f.age}</TableCell>
             </TableRow>
           ))}
@@ -120,7 +124,7 @@ export function AuthorFileViewTable({
 }: {
   rows: Array<{ filePath: string; totalMetric: number; authorMetrics: Record<string, number> }>
   allAuthors: string[]
-  metricType: "commits" | "insertions" | "deletions" | "loc" | "sloc"
+  metricType: "commits" | "insertions" | "deletions" | "loc" | "sloc" 
   displayMode: "absolute" | "percentage"
   onFileSelect: (fileName: string) => void
 }) {
