@@ -281,9 +281,6 @@ export function FilterRange({
   const startCommit = commits[safeStartIdx]
   const endCommit = commits[safeEndIdx]
 
-  // Selection behavior: first click sets start; second sets end; thereafter choose nearer edge
-  const [hasPickedOnce, setHasPickedOnce] = React.useState(false)
-
   React.useEffect(() => {
     // When date range changes externally, auto-select first/last commits inside the range
     if (commitsInDateRange.length === 0) return
