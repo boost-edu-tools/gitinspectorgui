@@ -97,11 +97,14 @@ export function BlameTabsView({
       <Tabs value={active} onValueChange={setActive} className="flex-1 flex flex-col min-h-0">
         <div className="relative">
           <div className="overflow-x-auto scrollbar-thin">
-            <TabsList className="flex flex-wrap">
+            <TabsList className="flex flex-wrap bg-transparent">
               {openFileEntries.map((f) => (
                 <div key={f.path} className="relative">
-                  <TabsTrigger value={f.path} className="pr-7">
-                    <span className="font-mono text-xs">{f.path}</span>
+                  <TabsTrigger value={f.path} className="pr-7 font-mono text-xs rounded-md transition-colors 
+                   hover:bg-muted hover:text-foreground 
+                   data-[state=active]:bg-muted data-[state=active]:text-foreground 
+                   data-[state=active]:shadow-sm">
+                    <span className="font-mono text-xs ">{f.path}</span>
                   </TabsTrigger>
                   <button
                     aria-label={`Close ${f.path}`}
