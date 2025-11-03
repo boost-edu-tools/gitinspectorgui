@@ -1,5 +1,4 @@
 import * as React from "react"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Calendar } from "@/components/ui/calendar"
@@ -13,11 +12,25 @@ import {
   AlertDialogCancel,
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog"
-import { Calendar as CalendarIcon } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Calendar as CalendarIcon, Info as InfoIcon } from "lucide-react"
 
 import { getAuthorColor } from "@/components/helpers/AuthorColors"
 import { useAnalysis } from "@/hooks/useAnalysis"
 import { Commit, SelectedFullProps, AnalysisResult, Author } from "@/components/types"
+
+/**
+ * Unified sidebar component:
+ * - Single view (no tabs).
+ * - Top bar shows current commit+date range, an info tooltip, and a calendar button to adjust dates.
+ * - Commit picker: single compact scrollable list with clear start/end chips and range highlight.
+ * - Date dialog: compact, time pickers below the calendar (HH:MM), defaults 00:00–23:59.
+ */
 
 type FilterRangeProps = Pick<
   SelectedFullProps,
@@ -33,27 +46,6 @@ type FilterRangeProps = Pick<
   | "onEndCommitChange"
 >
 
-const getFullRepoRange = (commits: Commit[]) => {
-  const sorted = commits
-    .filter(c => c?.hash && c?.date)
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-
-  if (!sorted.length) return null
-
-  const first = sorted[0]
-  const last = sorted[sorted.length - 1]
-  const firstDate = new Date(first.date)
-  const lastDate = new Date(last.date)
-
-  return {
-    startHash: first.hash,
-    endHash: last.hash,
-    startDate: startOfDay(firstDate),
-    endDate: endOfDay(lastDate),
-  }
-}
-
-
 const shortHash = (h: string) => h.slice(0, 7)
 
 const fmtDate = (d?: Date | null) => {
@@ -61,12 +53,16 @@ const fmtDate = (d?: Date | null) => {
   try {
     return new Intl.DateTimeFormat(undefined, {
       year: "numeric",
-      month: "short",
+      month: "2-digit",
       day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     }).format(d)
   } catch {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
       d.getDate()
+    ).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(
+      d.getMinutes()
     ).padStart(2, "0")}`
   }
 }
@@ -78,21 +74,6 @@ const toDate = (v: string | number | Date | undefined | null): Date | null => {
   return isNaN(t.getTime()) ? null : t
 }
 
-const clampDate = (d: Date, min?: Date, max?: Date) => {
-  if (!d) return d
-  if (min && d < min) return min
-  if (max && d > max) return max
-  return d
-}
-
-const ensureInRange = (from?: Date, to?: Date, min?: Date, max?: Date) => {
-  const f = from ? clampDate(from, min, max) : undefined
-  const t = to ? clampDate(to, min, max) : undefined
-  if (f && t && f > t) return { from: t, to: f }
-  return { from: f, to: t }
-}
-
-// Normalize to start/end of day
 const startOfDay = (d: Date) => {
   const copy = new Date(d)
   copy.setHours(0, 0, 0, 0)
@@ -102,6 +83,44 @@ const endOfDay = (d: Date) => {
   const copy = new Date(d)
   copy.setHours(23, 59, 59, 999)
   return copy
+}
+
+const clampDate = (d: Date, min?: Date, max?: Date) => {
+  if (!d) return d
+  if (min && d < min) return min
+  if (max && d > max) return max
+  return d
+}
+
+const setTimeOnDate = (date: Date, timeHHMM: string) => {
+  const [hStr = "0", mStr = "0"] = timeHHMM.split(":")
+  const h = Number(hStr)
+  const m = Number(mStr)
+  const nd = new Date(date)
+  if (!isNaN(h) && !isNaN(m)) nd.setHours(h, m, timeHHMM === "23:59" ? 59 : 0, timeHHMM === "23:59" ? 999 : 0)
+  return nd
+}
+
+const ensureChronology = (from?: Date, to?: Date) => {
+  if (from && to && from > to) return { from: to, to: from }
+  return { from, to }
+}
+
+const getFullRepoRange = (commits: Commit[]) => {
+  const sorted = commits
+    .filter((c) => c?.hash && c?.date)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  if (!sorted.length) return null
+  const first = sorted[0]
+  const last = sorted[sorted.length - 1]
+  const firstDate = new Date(first.date)
+  const lastDate = new Date(last.date)
+  return {
+    startHash: first.hash,
+    endHash: last.hash,
+    startDate: startOfDay(firstDate),
+    endDate: endOfDay(lastDate),
+  }
 }
 
 export function FilterRange({
@@ -134,37 +153,34 @@ export function FilterRange({
   )
 
   // Identify the repo stably (path > name > selectedRepo)
-const repoId = React.useMemo(
-  () => repo?.path ?? repo?.name ?? selectedRepo ?? null,
-  [repo?.path, repo?.name, selectedRepo]
-)
+  const repoId = React.useMemo(
+    () => repo?.path ?? repo?.name ?? selectedRepo ?? null,
+    [repo?.path, repo?.name, selectedRepo]
+  )
 
-const lastRepoIdRef = React.useRef<string | null>(null)
+  const lastRepoIdRef = React.useRef<string | null>(null)
 
-React.useEffect(() => {
-  if (!repo || !repo?.commits?.length || !repoId) return
+  React.useEffect(() => {
+    if (!repo || !repo?.commits?.length || !repoId) return
 
-  // Only run when repo actually changes
-  if (lastRepoIdRef.current !== repoId) {
-    const range = getFullRepoRange(repo.commits)
-    if (range) {
-      onStartCommitChange(range.startHash)
-      onEndCommitChange(range.endHash)
-      onStartDateChange(range.startDate)
-      onEndDateChange(range.endDate)
+    if (lastRepoIdRef.current !== repoId) {
+      const range = getFullRepoRange(repo.commits)
+      if (range) {
+        onStartCommitChange(range.startHash)
+        onEndCommitChange(range.endHash)
+        onStartDateChange(range.startDate)
+        onEndDateChange(range.endDate)
+      }
+      lastRepoIdRef.current = repoId
     }
-    lastRepoIdRef.current = repoId
-  }
-}, [
-  repoId,
-  repo?.commits,            // ensure new commit list triggers
-  onStartCommitChange,
-  onEndCommitChange,
-  onStartDateChange,
-  onEndDateChange,
-])
-
-
+  }, [
+    repoId,
+    repo?.commits,
+    onStartCommitChange,
+    onEndCommitChange,
+    onStartDateChange,
+    onEndDateChange,
+  ])
 
   const allCommits = React.useMemo<Commit[]>(() => {
     const list: Commit[] = repo?.commits ?? []
@@ -185,7 +201,6 @@ React.useEffect(() => {
       out.push(c)
     }
 
-    // Sort by date ascending
     return out.sort((a, b) => {
       const da = toDate(a.date)?.getTime() ?? 0
       const db = toDate(b.date)?.getTime() ?? 0
@@ -209,60 +224,53 @@ React.useEffect(() => {
 
   const commits = allCommits
 
-  const commitsInDateRange = React.useMemo<Commit[]>(() => {
-    if (!startDate || !endDate) return allCommits
-
-    const start = startOfDay(startDate)
-    const end = endOfDay(endDate)
-
-    return allCommits.filter((c) => {
-      const cd = toDate(c.date)
-      if (!cd) return false
-      const t = cd.getTime()
-      return t >= start.getTime() && t <= end.getTime()
-    })
-  }, [allCommits, startDate, endDate])
-
   // Local UI state
-  const [mode, setMode] = React.useState<"date" | "commit">("commit")
-  const [commitEdge, setCommitEdge] = React.useState<"start" | "end">("start")
   const [dateDialogOpen, setDateDialogOpen] = React.useState(false)
 
-  // Ensure the controlled selection never drifts outside the allowed window
-  const safeStartDate =
-    startDate && absoluteMinDate && absoluteMaxDate
-      ? clampDate(startDate, absoluteMinDate, absoluteMaxDate)
+  // Time strings
+  const startTimeStr = React.useMemo(() => {
+    const d = startDate ? new Date(startDate) : undefined
+    return d ? `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}` : "00:00"
+  }, [startDate])
+
+  const endTimeStr = React.useMemo(() => {
+    const d = endDate ? new Date(endDate) : undefined
+    return d ? `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}` : "23:59"
+  }, [endDate])
+
+  // Derived safe dates clamped to absolute range
+  const safeStartDate = React.useMemo(() => {
+    if (!startDate) return startDate as Date | undefined
+    return absoluteMinDate && absoluteMaxDate
+      ? clampDate(startDate, startOfDay(absoluteMinDate), endOfDay(absoluteMaxDate))
       : startDate
-  const safeEndDate =
-    endDate && absoluteMinDate && absoluteMaxDate
-      ? clampDate(endDate, absoluteMinDate, absoluteMaxDate)
+  }, [startDate, absoluteMinDate, absoluteMaxDate])
+
+  const safeEndDate = React.useMemo(() => {
+    if (!endDate) return endDate as Date | undefined
+    return absoluteMinDate && absoluteMaxDate
+      ? clampDate(endDate, startOfDay(absoluteMinDate), endOfDay(absoluteMaxDate))
       : endDate
+  }, [endDate, absoluteMinDate, absoluteMaxDate])
 
   React.useEffect(() => {
     if (!absoluteMinDate || !absoluteMaxDate) return
-    if (startDate && (startDate < absoluteMinDate || startDate > absoluteMaxDate))
-      onStartDateChange(clampDate(startDate, absoluteMinDate, absoluteMaxDate))
-    if (endDate && (endDate < absoluteMinDate || endDate > absoluteMaxDate))
-      onEndDateChange(clampDate(endDate, absoluteMinDate, absoluteMaxDate))
+    if (startDate && (startDate < startOfDay(absoluteMinDate) || startDate > endOfDay(absoluteMaxDate)))
+      onStartDateChange(clampDate(startDate, startOfDay(absoluteMinDate), endOfDay(absoluteMaxDate)))
+    if (endDate && (endDate < startOfDay(absoluteMinDate) || endDate > endOfDay(absoluteMaxDate)))
+      onEndDateChange(clampDate(endDate, startOfDay(absoluteMinDate), endOfDay(absoluteMaxDate)))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [absoluteMinDate, absoluteMaxDate])
 
-  // Auto-select first and last commits when date range changes
-  React.useEffect(() => {
-    if (commitsInDateRange.length === 0) return
-
-    const firstCommit = commitsInDateRange[0]
-    const lastCommit = commitsInDateRange[commitsInDateRange.length - 1]
-
-    if (firstCommit.hash !== startCommitHash) {
-      onStartCommitChange(firstCommit.hash)
-    }
-
-    if (lastCommit.hash !== endCommitHash) {
-      onEndCommitChange(lastCommit.hash)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commitsInDateRange, onStartCommitChange, onEndCommitChange])
+  // Filter commits by date range (inclusive)
+  const commitsInDateRange = React.useMemo<Commit[]>(() => {
+    if (!safeStartDate || !safeEndDate) return allCommits
+    return allCommits.filter((c) => {
+      const cd = toDate(c.date)
+      if (!cd) return false
+      return cd.getTime() >= safeStartDate.getTime() && cd.getTime() <= safeEndDate.getTime()
+    })
+  }, [allCommits, safeStartDate, safeEndDate])
 
   // Indices for current commit selection within all commits
   const startIdxRaw = commits.findIndex((c) => c.hash === startCommitHash)
@@ -273,47 +281,61 @@ React.useEffect(() => {
   const startCommit = commits[safeStartIdx]
   const endCommit = commits[safeEndIdx]
 
-  const pickStartIdx = (i: number) => {
-    if (!commits.length) return
-    const endIdx = safeEndIdx
-    const actualIdx = Math.min(Math.max(0, i), endIdx)
-    const selectedCommit = commits[actualIdx]
-    const d = toDate(selectedCommit.date)
+  // Selection behavior: first click sets start; second sets end; thereafter choose nearer edge
+  const [hasPickedOnce, setHasPickedOnce] = React.useState(false)
+
+  React.useEffect(() => {
+    // When date range changes externally, auto-select first/last commits inside the range
+    if (commitsInDateRange.length === 0) return
+    const firstCommit = commitsInDateRange[0]
+    const lastCommit = commitsInDateRange[commitsInDateRange.length - 1]
+    if (firstCommit.hash !== startCommitHash) onStartCommitChange(firstCommit.hash)
+    if (lastCommit.hash !== endCommitHash) onEndCommitChange(lastCommit.hash)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commitsInDateRange, onStartCommitChange, onEndCommitChange])
+
+  const applyStartSelection = (idx: number) => {
+    const selected = commits[idx]
+    const d = toDate(selected.date)
     if (!d) return
-
-    onStartCommitChange(selectedCommit.hash)
-    onStartDateChange(startOfDay(d))
-
-    if (endCommit) {
-      const ed = toDate(endCommit.date)
-      if (ed) {
-        const endCommitDate = endOfDay(ed)
-        if (!endDate || endCommitDate > endDate) {
-          onEndDateChange(endCommitDate)
-        }
-      }
-    }
+    onStartCommitChange(selected.hash)
+    onStartDateChange(setTimeOnDate(startOfDay(d), startTimeStr || "00:00"))
+  }
+  const applyEndSelection = (idx: number) => {
+    const selected = commits[idx]
+    const d = toDate(selected.date)
+    if (!d) return
+    onEndCommitChange(selected.hash)
+    onEndDateChange(setTimeOnDate(endOfDay(d), endTimeStr || "23:59"))
   }
 
-  const pickEndIdx = (i: number) => {
+  const handleCommitClick = (idx: number) => {
     if (!commits.length) return
-    const startIdx = safeStartIdx
-    const actualIdx = Math.max(Math.min(i, commits.length - 1), startIdx)
-    const selectedCommit = commits[actualIdx]
-    const d = toDate(selectedCommit.date)
-    if (!d) return
 
-    onEndCommitChange(selectedCommit.hash)
-    onEndDateChange(endOfDay(d))
+    if (!hasPickedOnce) {
+      applyStartSelection(idx)
+      setHasPickedOnce(true)
+      return
+    }
 
-    if (startCommit) {
-      const sd = toDate(startCommit.date)
-      if (sd) {
-        const startCommitDate = startOfDay(sd)
-        if (!startDate || startCommitDate < startDate) {
-          onStartDateChange(startCommitDate)
-        }
-      }
+    const startIdx = Math.max(0, commits.findIndex((c) => c.hash === startCommitHash))
+    const endIdx = Math.max(0, commits.findIndex((c) => c.hash === endCommitHash))
+
+    if (idx <= startIdx) {
+      applyStartSelection(idx)
+      return
+    }
+    if (idx >= endIdx) {
+      applyEndSelection(idx)
+      return
+    }
+
+    const distToStart = Math.abs(idx - startIdx)
+    const distToEnd = Math.abs(endIdx - idx)
+    if (distToStart <= distToEnd) {
+      applyStartSelection(idx)
+    } else {
+      applyEndSelection(idx)
     }
   }
 
@@ -324,277 +346,234 @@ React.useEffect(() => {
     return undefined
   }, [safeStartDate, absoluteMinDate])
 
+  const applyCalendarSelection = (range: { from?: Date; to?: Date } | undefined) => {
+    if (!range) return
+    let from = range.from ? new Date(range.from) : undefined
+    let to = range.to ? new Date(range.to) : undefined
+
+    if (from) from = setTimeOnDate(from, startTimeStr || "00:00")
+    if (to) to = setTimeOnDate(to, endTimeStr || "23:59")
+    const norm = ensureChronology(from, to)
+
+    if (norm.from) onStartDateChange(norm.from)
+    if (norm.to) onEndDateChange(norm.to)
+
+    if (norm.from && !norm.to) onEndDateChange(norm.from)
+    if (!norm.from && norm.to) onStartDateChange(norm.to)
+  }
+
+  const onStartTimeChange = (value: string) => {
+    const base = safeStartDate || absoluteMinDate || new Date()
+    const withTime = setTimeOnDate(base, value || "00:00")
+    if (safeEndDate && withTime > safeEndDate) {
+      const adjusted = ensureChronology(withTime, safeEndDate)
+      onStartDateChange(adjusted.from!)
+      onEndDateChange(adjusted.to!)
+    } else {
+      onStartDateChange(withTime)
+    }
+  }
+
+  const onEndTimeChange = (value: string) => {
+    const base = safeEndDate || absoluteMaxDate || new Date()
+    const withTime = setTimeOnDate(base, value || "23:59")
+    if (safeStartDate && withTime < safeStartDate) {
+      const adjusted = ensureChronology(safeStartDate, withTime)
+      onStartDateChange(adjusted.from!)
+      onEndDateChange(adjusted.to!)
+    } else {
+      onEndDateChange(withTime)
+    }
+  }
+
   return (
     <Card className="bg-transparent border-none shadow-none p-0">
-      <CardContent className="p-2">
-        <Tabs value={mode} onValueChange={(v) => setMode(v as "date" | "commit")}>
-          <TabsList className="inline-grid grid-cols-2 w-full h-7 p-2 bg-transparent">
-            <TabsTrigger
-              value="date"
-               className="
-                h-6 px-2 text-[10px] rounded-sm
-                data-[state=active]:text-foreground
-                data-[state=active]:font-medium
-                data-[state=active]:border-b-2
-                data-[state=active]:border-primary/70
-                data-[state=inactive]:text-muted-foreground
-                transition-colors
-              "
-                 >
-              Date
-            </TabsTrigger>
-            <TabsTrigger
-              value="commit"
-              className="
-                h-6 px-2 text-[10px] rounded-sm
-                data-[state=active]:text-foreground
-                data-[state=active]:font-medium
-                data-[state=active]:border-b-2
-                data-[state=active]:border-primary/70
-                data-[state=inactive]:text-muted-foreground
-                transition-colors
-              "
-            >
-              Commits
-            </TabsTrigger>
-          </TabsList>
+      <CardContent className="p-2 space-y-2">
+        {/* Top bar: current selection + actions */}
+        <div className="flex items-start gap-2">
 
-          {/* DATE MODE */}
-          <TabsContent value="date" className="mt-2 p-0">
-            <Button
-              variant="outline"
-              className="h-8 w-full justify-between text-xs"
-              type="button"
-              onClick={() => setDateDialogOpen(true)}
-              disabled={!absoluteMinDate || !absoluteMaxDate}
-            >
-              <span className="truncate">
-                {fmtDate(safeStartDate)} – {fmtDate(safeEndDate)}
-              </span>
-              <CalendarIcon className="ml-2 h-4 w-4 opacity-70 flex-shrink-0" />
-            </Button>
 
-            <AlertDialog open={dateDialogOpen} onOpenChange={setDateDialogOpen}>
-              <AlertDialogContent className="sm:w-[760px] w-[92vw] p-0 gap-0 overflow-hidden">
-                <AlertDialogHeader className="px-6 pt-6 pb-3 border-b bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40">
-                  <AlertDialogTitle className="text-base font-semibold tracking-tight">
-                    Select date range
-                  </AlertDialogTitle>
-                  <AlertDialogDescription className="text-xs mt-1.5">
-                    {absoluteMinDate && absoluteMaxDate ? (
-                      <>
-                        Available:{" "}
-                        <span className="font-medium text-foreground">
-                          {fmtDate(absoluteMinDate)}
-                        </span>{" "}
-                        to{" "}
-                        <span className="font-medium text-foreground">
-                          {fmtDate(absoluteMaxDate)}
-                        </span>
-                        {commitsInDateRange.length < allCommits.length && (
-                          <span className="block mt-1 text-muted-foreground">
-                            {commitsInDateRange.length} of {allCommits.length} commits in selected range
-                          </span>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button aria-label="How selection works" className="h-7 w-7 inline-flex items-center justify-center rounded-md border bg-background text-muted-foreground hover:bg-muted/50">
+                  <InfoIcon className="h-3.5 w-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[240px] text-[11px] leading-snug">
+                To change the <b>commit range</b>, see the commit list below.<br/>
+                To change the <b>start</b> commit, click on the current start commit once and click on the new start commit next.<br/>
+                To change the <b>end</b> commit, click on the current end commit once and click on the new end commit next. 
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <Button
+            variant="outline"
+            className="h-7 px-2 text-[10px] inline-flex items-center gap-1"
+            type="button"
+            onClick={() => setDateDialogOpen(true)}
+            disabled={!absoluteMinDate || !absoluteMaxDate}
+          >
+            <CalendarIcon className="h-3.5 w-3.5" />
+            Change date range
+          </Button>
+        </div>
+
+        {/* Commit list */}
+        <ScrollArea className="h-30 rounded border">
+          <ul className="divide-y divide-border/40">
+            {commits.map((c, i) => {
+              const d = toDate(c.date)
+              const name = getAuthorName(c.authorId)
+              const colors = getAuthorColor(name)
+              const inRange = i >= Math.max(0, safeStartIdx) && i <= Math.max(0, safeEndIdx)
+              const isStart = i === Math.max(0, safeStartIdx)
+              const isEnd = i === Math.max(0, safeEndIdx)
+              return (
+                <li key={c.hash}>
+                  <button
+                    className={`w-full text-left px-2 py-1 transition-colors hover:bg-muted/60 ${inRange ? "bg-primary/10" : ""}`}
+                    onClick={() => handleCommitClick(i)}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span
+                          className={`inline-block h-1.5 w-1.5 rounded-full flex-shrink-0 ${isStart || isEnd ? "bg-primary" : ""}`}
+                          style={{ backgroundColor: isStart || isEnd ? undefined : colors.bgColor ?? "#ccc" }}
+                        />
+                        <code className="font-mono text-[10px] flex-shrink-0" style={{ color: colors.color ?? "#888" }}>
+                          {shortHash(c.hash)}
+                        </code>
+                        <span className="text-[10px] text-muted-foreground truncate ml-1 max-w-[70px]">{c.message}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {isStart && (
+                          <span className="text-[9px] rounded px-1 py-0.5 bg-white text-primary ">start</span>
                         )}
-                      </>
-                    ) : (
-                      "No commits available to derive a range."
-                    )}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-
-                <div className="p-5 md:p-6 flex items-center justify-center">
-                  <div className="flex justify-center h-[400px]">
-                    <Calendar
-                      mode="range"
-                      defaultMonth={defaultMonth}
-                      selected={{ from: safeStartDate ?? undefined, to: safeEndDate ?? undefined }}
-                      onSelect={(range) => {
-                        if (!range) return
-                        const { from, to } = ensureInRange(
-                          range.from,
-                          range.to,
-                          absoluteMinDate,
-                          absoluteMaxDate
-                        )
-                        if (from) onStartDateChange(from)
-                        if (to) onEndDateChange(to)
-                        if (from && !to) onEndDateChange(from)
-                        if (!from && to) onStartDateChange(to)
-                      }}
-                      numberOfMonths={1}
-                      fromDate={absoluteMinDate}
-                      toDate={absoluteMaxDate}
-                      showOutsideDays
-                      disabled={(date) => {
-                        if (absoluteMinDate && date < absoluteMinDate) return true
-                        if (absoluteMaxDate && date > absoluteMaxDate) return true
-                        return false
-                      }}
-                      className="rounded-md border shadow-sm bg-background w-[300px] max-w-full"
-                    />
-                  </div>
-                </div>
-
-                <AlertDialogFooter className="px-6 py-4 border-t bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40">
-                  <div className="flex items-center justify-between w-full gap-4">
-                    <div className="text-xs">
-                      <span className="text-muted-foreground">Selected: </span>
-                      <span className="font-semibold text-foreground">{fmtDate(safeStartDate)}</span>
-                      <span className="text-muted-foreground mx-1.5">→</span>
-                      <span className="font-semibold text-foreground">{fmtDate(safeEndDate)}</span>
+                        {isEnd && (
+                          <span className="text-[9px] rounded px-1 py-0.5 bg-white text-primary">end</span>
+                        )}
+                        {!isStart && !isEnd && (
+                          <span className="text-[9px] text-muted-foreground flex-shrink-0">{fmtDate(d)}</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="secondary"
-                        className="h-8 px-3 text-sm"
-                        onClick={() => {
-                          if (absoluteMinDate && absoluteMaxDate) {
-                            onStartDateChange(absoluteMinDate)
-                            onEndDateChange(absoluteMaxDate)
-                          }
-                        }}
-                        disabled={!absoluteMinDate || !absoluteMaxDate}
-                      >
-                        Full range
-                      </Button>
-                      <AlertDialogCancel className="mt-0 h-8 px-4 text-sm">Done</AlertDialogCancel>
-                    </div>
-                  </div>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </TabsContent>
-
-          {/* COMMIT MODE */}
-          <TabsContent value="commit" className="mt-2 p-0">
-            <Tabs value={commitEdge} onValueChange={(v) => setCommitEdge(v as "start" | "end")}>
-              <TabsList className="inline-grid grid-cols-2 w-full h-6 p-0.5 bg-muted/30">
-                <TabsTrigger
-                  value="start"
-                  className="h-5 text-[10px] rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm"
-                >
-                  Start
-                </TabsTrigger>
-                <TabsTrigger
-                  value="end"
-                  className="h-5 text-[10px] rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm"
-                >
-                  End
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Start commit */}
-              <TabsContent value="start" className="mt-1.5 p-0">
-                <ScrollArea className="h-25 rounded border">
-                  <ul className="divide-y divide-border/40">
-                    {commits.slice(0, Math.max(0, safeEndIdx) + 1).map((c, i) => {
-                      const isSelected = i === safeStartIdx
-                      const d = toDate(c.date)
-                      const name = getAuthorName(c.authorId)
-                      const colors = getAuthorColor(name)
-                      return (
-                        <li key={c.hash}>
-                          <button
-                            className={`w-full text-left px-2 py-1.5 transition-colors hover:bg-muted/50 ${
-                              isSelected ? "bg-primary/10" : ""
-                            }`}
-                            onClick={() => pickStartIdx(i)}
-                          >
-                            <div className="flex items-center justify-between gap-2 mb-0.5">
-                              <div className="flex items-center gap-1.5 min-w-0">
-                                <span
-                                  className={`inline-block h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-                                    isSelected ? "bg-primary" : ""
-                                  }`}
-                                  style={{
-                                    backgroundColor: isSelected ? undefined : colors.bgColor ?? "#ccc",
-                                  }}
-                                />
-                                <code
-                                  className="font-mono text-[9px] flex-shrink-0"
-                                  style={{ color: colors.color ?? "#888" }}
-                                >
-                                  {shortHash(c.hash)}
-                                </code>
-                              </div>
-                              <span className="text-[9px] text-muted-foreground flex-shrink-0">
-                                {fmtDate(d)}
-                              </span>
-                            </div>
-                            <div className="text-[9px] line-clamp-1 text-muted-foreground pl-3">
-                              {c.message}
-                            </div>
-                          </button>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                </ScrollArea>
-                <div className="text-[10px] mt-1 px-1 text-muted-foreground">
-                  {startCommit
-                    ? `${shortHash(startCommit.hash)} • ${fmtDate(toDate(startCommit.date))}`
-                    : "No selection"}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        </ScrollArea>
+                  <div className="flex-1 min-w-0">
+            {startCommit && endCommit ? (
+              <div className="text-[10px] leading-tight text-foreground truncate">
+                <div className="truncate">
+                  <span className="inline-block w-6 text-muted-foreground">Start:</span> {shortHash(startCommit.hash)} • {fmtDate(toDate(startCommit.date))}
                 </div>
-              </TabsContent>
-
-              {/* End commit */}
-              <TabsContent value="end" className="mt-1.5 p-0">
-                <ScrollArea className="h-25 rounded border">
-                  <ul className="divide-y divide-border/40">
-                    {commits.slice(Math.max(0, safeStartIdx)).map((c, offset) => {
-                      const i = Math.max(0, safeStartIdx) + offset
-                      const isSelected = i === safeEndIdx
-                      const d = toDate(c.date)
-                      const name = getAuthorName(c.authorId)
-                      const colors = getAuthorColor(name)
-                      return (
-                        <li key={c.hash}>
-                          <button
-                            className={`w-full text-left px-2 py-1.5 transition-colors hover:bg-muted/50 ${
-                              isSelected ? "bg-primary/10" : ""
-                            }`}
-                            onClick={() => pickEndIdx(i)}
-                          >
-                            <div className="flex items-center justify-between gap-2 mb-0.5">
-                              <div className="flex items-center gap-1.5 min-w-0">
-                                <span
-                                  className={`inline-block h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-                                    isSelected ? "bg-primary" : ""
-                                  }`}
-                                  style={{
-                                    backgroundColor: isSelected ? undefined : colors.bgColor ?? "#ccc",
-                                  }}
-                                />
-                                <code
-                                  className="font-mono text-[9px] flex-shrink-0"
-                                  style={{ color: colors.color ?? "#888" }}
-                                >
-                                  {shortHash(c.hash)}
-                                </code>
-                              </div>
-                              <span className="text-[9px] text-muted-foreground flex-shrink-0">
-                                {fmtDate(d)}
-                              </span>
-                            </div>
-                            <div className="text-[9px] line-clamp-1 text-muted-foreground pl-3">
-                              {c.message}
-                            </div>
-                          </button>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                </ScrollArea>
-                <div className="text-[10px] mt-1 px-1 text-muted-foreground">
-                  {endCommit
-                    ? `${shortHash(endCommit.hash)} • ${fmtDate(toDate(endCommit.date))}`
-                    : "No selection"}
+                <div className="truncate">
+                  <span className="inline-block w-6 text-muted-foreground">End: </span> {shortHash(endCommit.hash)} • {fmtDate(toDate(endCommit.date))}
                 </div>
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
-        </Tabs>
+              </div>
+            ) : (
+              <div className="text-[10px] text-muted-foreground">No selection</div>
+            )}
+          </div>
+
+        {/* Date dialog (compact, sidebar-friendly) */}
+        <AlertDialog open={dateDialogOpen} onOpenChange={setDateDialogOpen}>
+          <AlertDialogContent className="w-[92vw] max-w-[380px] p-0 gap-0 overflow-hidden">
+            <AlertDialogHeader className="px-4 pt-4 pb-2 border-b bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40">
+              <AlertDialogTitle className="text-sm font-semibold tracking-tight">Select date & time</AlertDialogTitle>
+              <AlertDialogDescription className="text-[11px] mt-1.5">
+                {absoluteMinDate && absoluteMaxDate ? (
+                  <>
+                    Available: <span className="font-medium text-foreground">{fmtDate(startOfDay(absoluteMinDate))}</span> to {" "}
+                    <span className="font-medium text-foreground">{fmtDate(endOfDay(absoluteMaxDate))}</span>
+                  </>
+                ) : (
+                  "No commits available to derive a range."
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <div className="p-4 flex flex-col items-center">
+              <Calendar
+                mode="range"
+                defaultMonth={defaultMonth}
+                selected={{ from: safeStartDate ?? undefined, to: safeEndDate ?? undefined }}
+                onSelect={applyCalendarSelection}
+                numberOfMonths={1}
+                fromDate={absoluteMinDate}
+                toDate={absoluteMaxDate}
+                showOutsideDays
+                disabled={(date) => {
+                  if (absoluteMinDate && date < absoluteMinDate) return true
+                  if (absoluteMaxDate && date > absoluteMaxDate) return true
+                  return false
+                }}
+                className="rounded-md border shadow-sm bg-background w-[320px] max-w-full"
+              />
+
+              {/* Time selectors BELOW calendar for nicer formatting */}
+              <div className="mt-4 grid grid-cols-2 gap-3 w-full max-w-[320px]">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[11px] text-muted-foreground">Start time</label>
+                  <input
+                    type="time"
+                    value={startTimeStr}
+                    onChange={(e) => onStartTimeChange(e.target.value)}
+                    className="h-8 rounded-md border bg-background px-2 text-xs"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[11px] text-muted-foreground">End time</label>
+                  <input
+                    type="time"
+                    value={endTimeStr}
+                    onChange={(e) => onEndTimeChange(e.target.value)}
+                    className="h-8 rounded-md border bg-background px-2 text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="w-full max-w-[320px] text-[11px] mt-3">
+                <span className="text-muted-foreground">Selected: </span>
+                <span className="font-semibold text-foreground">{fmtDate(safeStartDate)}</span>
+                <span className="text-muted-foreground mx-1.5">→</span>
+                <span className="font-semibold text-foreground">{fmtDate(safeEndDate)}</span>
+              </div>
+
+              {absoluteMinDate && absoluteMaxDate && (
+                <div className="w-full max-w-[320px] text-[11px] text-muted-foreground mt-1">
+                  {commitsInDateRange.length} of {allCommits.length} commits in range
+                </div>
+              )}
+            </div>
+
+            <AlertDialogFooter className="px-4 py-3 border-t bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40">
+              <div className="flex items-center justify-between w-full gap-3">
+                <div ></div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    className="h-8 px-3 text-xs"
+                    onClick={() => {
+                      if (absoluteMinDate && absoluteMaxDate) {
+                        onStartDateChange(setTimeOnDate(startOfDay(absoluteMinDate), "00:00"))
+                        onEndDateChange(setTimeOnDate(endOfDay(absoluteMaxDate), "23:59"))
+                      }
+                    }}
+                    disabled={!absoluteMinDate || !absoluteMaxDate}
+                  >
+                    Full range
+                  </Button>
+                  <AlertDialogCancel className="mt-0 h-8 px-3 text-xs">Done</AlertDialogCancel>
+                </div>
+              </div>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   )
