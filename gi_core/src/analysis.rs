@@ -44,6 +44,54 @@ fn build_git_log_args(params: &AnalysisParameters) -> Result<Vec<String>, String
     Ok(args)
 }
 
+/// Parse a git log header line of the form:
+/// "<short-hash> / <author name> <email> / <date> / <message>"
+/// Returns (hash, author_name, author_email, date, time, timezone, message)
+fn parse_commit_header(header: &str) -> (String, String, String, String, String, String, String) {
+    let mut parts = header.splitn(4, " / ");
+    let hash = parts.next().unwrap_or("").trim().to_string();
+    let author_str = parts.next().unwrap_or("").trim().to_string();
+    // date may include time and timezone when using --date=iso
+    let date_full = parts.next().unwrap_or("").trim().to_string();
+    let message = parts.next().unwrap_or("").trim().to_string();
+
+    // split into date, time, timezone where possible
+    let mut date = String::new();
+    let mut time = String::new();
+    let mut timezone = String::new();
+    let date_parts: Vec<&str> = date_full.split_whitespace().collect();
+    if !date_parts.is_empty() {
+        date = date_parts.get(0).unwrap_or(&"").to_string();
+    }
+    if date_parts.len() > 1 {
+        time = date_parts.get(1).unwrap_or(&"").to_string();
+    }
+    if date_parts.len() > 2 {
+        timezone = date_parts.get(2).unwrap_or(&"").to_string();
+    }
+
+    // Parse author name and email
+    let (author_name, author_email) = if let Some(start) = author_str.find('<') {
+        let end = author_str.find('>').unwrap_or(author_str.len());
+        (
+            author_str[..start].trim().to_string(),
+            author_str[start + 1..end].trim().to_string(),
+        )
+    } else {
+        (author_str.clone(), String::new())
+    };
+
+    (
+        hash,
+        author_name,
+        author_email,
+        date,
+        time,
+        timezone,
+        message,
+    )
+}
+
 /// This function analyses a git repository between two commit hashes or time stamps.
 /// If from_commit is None, analysis starts from the first commit.
 /// If to_commit is None, analysis goes up to the latest commit.
@@ -79,46 +127,33 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
             .filter(|s| !s.trim().is_empty())
             .collect();
 
+        // Keep track of all commits
         let mut commits = Vec::new();
+
         // Use a map keyed by (name, email) so we can update existing authors with additional commits/files
         let mut author_map: HashMap<(String, String), Author> = HashMap::new();
+
         let mut next_author_id = 1; // incremental id for authors
         let mut next_commit_id = 1; // incremental id for commits
 
         for commit_str in commit_strings {
+            // For each commit message, split into header and file changes
             let mut lines = commit_str.lines();
+
+            // Checks that there is at least a header line
             if let Some(header) = lines.next() {
-                // Parsing the header line
-                let mut parts = header.splitn(4, " / ");
-                let hash = parts.next().unwrap_or("").trim().to_string();
-                let author_str = parts.next().unwrap_or("").trim().to_string();
-                // date may include time and timezone when using --date=iso
-                let date_full = parts.next().unwrap_or("").trim().to_string();
-                // split into date, time, timezone where possible
-                let mut date_only = String::new();
-                let mut time_only = String::new();
-                let mut tz_only = String::new();
-                let date_parts: Vec<&str> = date_full.split_whitespace().collect();
-                // We assume date_parts always has 3 parts. This may change if the git output changes.
-                date_only = date_parts[0].to_string();
-                time_only = date_parts[1].to_string();
-                tz_only = date_parts[2].to_string();
+                // Parsing the header line using helper to keep the loop clean
+                let (
+                    hash,
+                    author_name,
+                    author_email,
+                    date,
+                    time,
+                    timezone,
+                    message,
+                ) = parse_commit_header(header);
 
-                let message = parts.next().unwrap_or("").trim().to_string();
-
-                // Parse author name and email
-                let (author_name, author_email) = if let Some(start) = author_str.find('<') {
-                    let end = author_str.find('>').unwrap_or(author_str.len());
-                    (
-                        author_str[..start].trim().to_string(),
-                        author_str[start + 1..end].trim().to_string(),
-                    )
-                } else {
-                    (author_str.clone(), String::new())
-                };
-
-                // Parse files and --numstat entries. numstat lines look like:
-                // "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
+                // Keep track of commit level statistics when looping through files
                 let mut files_changed: Vec<File> = Vec::new();
                 let mut commit_insertions: usize = 0;
                 let mut commit_deletions: usize = 0;
@@ -133,6 +168,12 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
 
                     // Add to total files count
                     commit_total_files = commit_total_files.saturating_add(1);
+
+                    // Parse files and --numstat entries. numstat lines look like:
+                    // "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
+
+
+
 
                     // Split on tab as produced by --numstat
                     let parts: Vec<&str> = line.split('\t').collect();
@@ -167,9 +208,9 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                         file_size: Some(0),
                         lines: vec![],
                         metrics: file_metrics,
-                        last_modified_date: date_only.clone(),
-                        last_modified_time: time_only.clone(),
-                        last_modified_timezone: tz_only.clone(),
+                        last_modified_date: date.clone(),
+                        last_modified_time: time.clone(),
+                        last_modified_timezone: timezone.clone(),
                     });
                 }
 
@@ -210,9 +251,9 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                     id: next_commit_id,
                     hash,
                     author_id: author_entry.id,
-                    date: date_only.clone(),
-                    time: time_only.clone(),
-                    timezone: tz_only.clone(),
+                    date: date.clone(),
+                    time: time.clone(),
+                    timezone: timezone.clone(),
                     message,
                     files_changed,
                     metrics,
