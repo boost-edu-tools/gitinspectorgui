@@ -293,36 +293,6 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
             commit.id = total_commits.saturating_sub(i);
         }
 
-        // For demonstration, print the parsed commits (showing author_id rather than full author object)
-        for commit in &commits {
-            println!(
-                "id {} | hash: {} | author_id: {} | date: {} time: {} tz: {} | message: {} | files: {:?} | metrics: insertions={}, deletions={}",
-                commit.id,
-                commit.hash,
-                commit.author_id,
-                commit.date,
-                commit.time,
-                commit.timezone,
-                commit.message,
-                commit
-                    .files_changed
-                    .iter()
-                    .map(|f| &f.path)
-                    .collect::<Vec<_>>(),
-                commit.metrics.insertions.unwrap_or(0),
-                commit.metrics.deletions.unwrap_or(0)
-            );
-        }
-
-        // Print unique authors collected during parsing
-        println!("\nUnique authors ({}):", author_map.len());
-        for author in author_map.values() {
-            println!(
-                "{} <{}> id={} commits={:?} files={:?}",
-                author.name, author.email, author.id, author.commit_hashes, author.files
-            );
-        }
-
         // Build the Repository and AnalysisResult to return
         let repo_name = repo
             .file_name()
@@ -365,17 +335,6 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
             files: unique_files_set.into_iter().collect(),
             metrics: repo_metrics,
         };
-
-        // Print the repo summary and metrics for verification
-        println!("\nRepository: {} at {}", repository.name, repository.path);
-        println!(
-            "Total commits: {}, authors: {}, files: {}, insertions: {}, deletions: {}",
-            repository.metrics.total_commits.unwrap_or(0),
-            repository.metrics.total_authors.unwrap_or(0),
-            repository.metrics.total_files.unwrap_or(0),
-            repository.metrics.insertions.unwrap_or(0),
-            repository.metrics.deletions.unwrap_or(0),
-        );
 
         Ok(AnalysisResult {
             original_repository: None,
@@ -482,6 +441,52 @@ mod tests {
     use super::*;
     use std::path::PathBuf;
 
+    // Test helper: print repository details (commits, authors, metrics).
+    // This function is only compiled for tests and can be used by test cases to display
+    // parsed repository information when needed.
+    fn print_repository_info(repo: &Repository) {
+        // Print commits
+        for commit in &repo.commits {
+            println!(
+                "id {} | hash: {} | author_id: {} | date: {} time: {} tz: {} | message: {} | files: {:?} | metrics: insertions={}, deletions={}",
+                commit.id,
+                commit.hash,
+                commit.author_id,
+                commit.date,
+                commit.time,
+                commit.timezone,
+                commit.message,
+                commit
+                    .files_changed
+                    .iter()
+                    .map(|f| &f.path)
+                    .collect::<Vec<_>>(),
+                commit.metrics.insertions.unwrap_or(0),
+                commit.metrics.deletions.unwrap_or(0)
+            );
+        }
+
+        // Print authors
+        println!("\nUnique authors ({}):", repo.authors.len());
+        for author in &repo.authors {
+            println!(
+                "{} <{}> id={} commits={:?} files={:?}",
+                author.name, author.email, author.id, author.commit_hashes, author.files
+            );
+        }
+
+        // Print repo summary
+        println!("\nRepository: {} at {}", repo.name, repo.path);
+        println!(
+            "Total commits: {}, authors: {}, files: {}, insertions: {}, deletions: {}",
+            repo.metrics.total_commits.unwrap_or(0),
+            repo.metrics.total_authors.unwrap_or(0),
+            repo.metrics.total_files.unwrap_or(0),
+            repo.metrics.insertions.unwrap_or(0),
+            repo.metrics.deletions.unwrap_or(0),
+        );
+    }
+
 
     // Tests for build_git_log_args
     #[test]
@@ -574,11 +579,7 @@ mod tests {
         let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
-                println!(
-                    "AnalysisResult: commits={}, authors={}",
-                    analysis.repository.commits.len(),
-                    analysis.repository.authors.len()
-                );
+                print_repository_info(&analysis.repository);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -604,11 +605,7 @@ mod tests {
         let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
-                println!(
-                    "AnalysisResult: commits={}, authors={}",
-                    analysis.repository.commits.len(),
-                    analysis.repository.authors.len()
-                );
+                print_repository_info(&analysis.repository);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -634,11 +631,7 @@ mod tests {
         let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
-                println!(
-                    "AnalysisResult: commits={}, authors={}",
-                    analysis.repository.commits.len(),
-                    analysis.repository.authors.len()
-                );
+                print_repository_info(&analysis.repository);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -665,11 +658,7 @@ mod tests {
         let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
-                println!(
-                    "AnalysisResult (time range): commits={}, authors={}",
-                    analysis.repository.commits.len(),
-                    analysis.repository.authors.len()
-                );
+                print_repository_info(&analysis.repository);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -694,11 +683,7 @@ mod tests {
         let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
-                println!(
-                    "AnalysisResult (time same): commits={}, authors={}",
-                    analysis.repository.commits.len(),
-                    analysis.repository.authors.len()
-                );
+                print_repository_info(&analysis.repository);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -724,11 +709,7 @@ mod tests {
         let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
-                println!(
-                    "AnalysisResult (time end before start): commits={}, authors={}",
-                    analysis.repository.commits.len(),
-                    analysis.repository.authors.len()
-                );
+                print_repository_info(&analysis.repository);
             }
             Err(e) => {
                 println!("Error: {}", e);
