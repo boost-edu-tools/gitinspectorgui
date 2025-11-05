@@ -34,6 +34,7 @@ pub struct Line {
     pub line_type: LineType,
 }
 
+#[derive(Clone)]
 pub enum LineType {
     SLOC,
     CLOC,
