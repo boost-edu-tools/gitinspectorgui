@@ -155,7 +155,7 @@ fn update_author(
 /// If to_commit is None, analysis goes up to the latest commit.
 /// If from_time or to_time are specified, they are used instead of commit hashes.
 /// It returns an AnalysisResult containing the parsed commits, authors, and files.
-/// Files are just fetched, not processed by the analysis. This functionality is handled by retrieve_blames_between_commits()
+/// Files are just fetched, not processed by the analysis. This functionality is handled by analyse_blames()
 fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, String> {
     // Resolve repo path
     let repo = Path::new(&params.repo_path);
@@ -385,7 +385,7 @@ fn filter_metrics(result: AnalysisResult) {
 
 /// This function retrieves blame information up until the latest commit in the AnalysisResult.
 /// It updates the files in each commit with line-by-line author information.
-// fn retrieve_blames_between_commits(result: AnalysisResult) -> AnalysisResult {
+// fn analyse_blames(result: AnalysisResult) -> AnalysisResult {
 //     // Destructure the incoming AnalysisResult so we can mutate a local repository
 //     let AnalysisResult { parameters, repository } = result;
 //     let mut repository = repository;
@@ -883,8 +883,8 @@ mod tests {
     }
 
     #[test]
-    fn test_retrieve_blames_between_commits() {
+    fn test_analyse_blames() {
         // Placeholder test
-        // retrieve_blames_between_commits();
+        // analyse_blames();
     }
 }
