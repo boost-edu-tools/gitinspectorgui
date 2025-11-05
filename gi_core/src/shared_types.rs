@@ -31,13 +31,14 @@ pub struct Line {
     pub author_id: usize,
     pub commit_hash: String,
     pub date: String,
-    // pub line_type: LineType,
+    pub line_type: LineType,
 }
 
-// pub enum LineType {
-//     SLOC,
-//     CLOC
-// }
+pub enum LineType {
+    SLOC,
+    CLOC,
+    WHITESPACE
+}
 
 /// The Repository struct represents a git repository with its associated data.
 /// Metrics of a repository:
