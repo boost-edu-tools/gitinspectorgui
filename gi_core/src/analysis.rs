@@ -92,6 +92,64 @@ fn parse_commit_header(header: &str) -> (String, String, String, String, String,
     )
 }
 
+/// Parse a single file change line from git --numstat output.
+/// Expected format: "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
+/// Returns Some((insertions, deletions, path)) on success, otherwise None for malformed lines.
+fn parse_file_line(line: &str) -> Option<(usize, usize, String)> {
+    let mut parts = line.split('\t');
+    let ins_str = parts.next().unwrap_or("").trim();
+    let del_str = parts.next().unwrap_or("").trim();
+    let path_str = parts.next().unwrap_or("").trim();
+
+    if path_str.is_empty() {
+        return None;
+    }
+
+    let ins = if ins_str == "-" { 0 } else { ins_str.parse::<usize>().unwrap_or(0) };
+    let del = if del_str == "-" { 0 } else { del_str.parse::<usize>().unwrap_or(0) };
+
+    Some((ins, del, path_str.to_string()))
+}
+
+/// Ensure an Author entry exists in the map and update it with the given commit hash and files.
+/// Returns the author's id.
+fn update_author(
+    author_map: &mut HashMap<(String, String), Author>,
+    author_name: &str,
+    author_email: &str,
+    hash: &str,
+    files_changed: &Vec<File>,
+    next_author_id: &mut usize,
+) -> usize {
+    let key = (author_name.to_string(), author_email.to_string());
+    let author_entry = author_map.entry(key).or_insert_with(|| {
+        let id = *next_author_id;
+        *next_author_id += 1;
+        Author {
+            id,
+            name: author_name.to_string(),
+            email: author_email.to_string(),
+            commit_hashes: Vec::new(),
+            files: Vec::new(),
+            metrics: Metrics::default(),
+        }
+    });
+
+    // Add this commit hash to the author's commit list if not already present
+    if !author_entry.commit_hashes.contains(&hash.to_string()) {
+        author_entry.commit_hashes.push(hash.to_string());
+    }
+
+    // Add any files changed in this commit to the author's file list (avoid duplicates)
+    for f in files_changed {
+        if !author_entry.files.contains(&f.path) {
+            author_entry.files.push(f.path.clone());
+        }
+    }
+
+    author_entry.id
+}
+
 /// This function analyses a git repository between two commit hashes or time stamps.
 /// If from_commit is None, analysis starts from the first commit.
 /// If to_commit is None, analysis goes up to the latest commit.
@@ -171,86 +229,51 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
 
                     // Parse files and --numstat entries. numstat lines look like:
                     // "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
+                    if let Some((ins, del, path)) = parse_file_line(line) {
+                        commit_insertions = commit_insertions.saturating_add(ins);
+                        commit_deletions = commit_deletions.saturating_add(del);
 
+                        // Create file metrics
+                        let mut file_metrics = Metrics::default();
+                        file_metrics.insertions = Some(ins);
+                        file_metrics.deletions = Some(del);
 
-
-
-                    // Split on tab as produced by --numstat
-                    let parts: Vec<&str> = line.split('\t').collect();
-                    // We assume well-formed numstat lines have 3 parts, this may change if git output changes.
-                    let ins_str = parts[0];
-                    let del_str = parts[1];
-                    let path_str = parts[2];
-
-                    let ins = if ins_str == "-" {
-                        0
-                    } else {
-                        ins_str.parse::<usize>().unwrap_or(0)
-                    };
-                    let del = if del_str == "-" {
-                        0
-                    } else {
-                        del_str.parse::<usize>().unwrap_or(0)
-                    };
-
-                    commit_insertions = commit_insertions.saturating_add(ins);
-                    commit_deletions = commit_deletions.saturating_add(del);
-
-                    let path = path_str.to_string();
-                    let mut file_metrics = Metrics::default();
-                    file_metrics.insertions = Some(ins);
-                    file_metrics.deletions = Some(del);
-
-                    files_changed.push(File {
-                        name: path.split('/').last().unwrap_or("").to_string(),
-                        extension: path.split('.').last().unwrap_or("").to_string(),
-                        path: path.clone(),
-                        file_size: Some(0),
-                        lines: vec![],
-                        metrics: file_metrics,
-                        last_modified_date: date.clone(),
-                        last_modified_time: time.clone(),
-                        last_modified_timezone: timezone.clone(),
-                    });
-                }
-
-                // Ensure an Author entry exists (or update existing). Use (name,email) as the key.
-                let key = (author_name.clone(), author_email.clone());
-                let author_entry = author_map.entry(key).or_insert_with(|| {
-                    let id = next_author_id;
-                    next_author_id += 1;
-                    Author {
-                        id,
-                        name: author_name.clone(),
-                        email: author_email.clone(),
-                        commit_hashes: Vec::new(),
-                        files: Vec::new(),
-                        metrics: Metrics::default(),
-                    }
-                });
-
-                // Add this commit hash to the author's commit list if not already present
-                if !author_entry.commit_hashes.contains(&hash) {
-                    author_entry.commit_hashes.push(hash.clone());
-                }
-
-                // Add any files changed in this commit to the author's file list (avoid duplicates)
-                for f in &files_changed {
-                    if !author_entry.files.contains(&f.path) {
-                        author_entry.files.push(f.path.clone());
+                        // Add to files changed list
+                        files_changed.push(File {
+                            name: path.split('/').last().unwrap_or("").to_string(),
+                            extension: path.split('.').last().unwrap_or("").to_string(),
+                            path: path.clone(),
+                            file_size: Some(0),
+                            lines: vec![],
+                            metrics: file_metrics,
+                            last_modified_date: date.clone(),
+                            last_modified_time: time.clone(),
+                            last_modified_timezone: timezone.clone(),
+                        });
                     }
                 }
 
+                // Ensure an Author entry exists (or update existing) and get the author id.
+                let author_id = update_author(
+                    &mut author_map,
+                    &author_name,
+                    &author_email,
+                    &hash,
+                    &files_changed,
+                    &mut next_author_id,
+                );
+
+                // Create commit metrics
                 let mut metrics = Metrics::default();
                 metrics.insertions = Some(commit_insertions);
                 metrics.deletions = Some(commit_deletions);
                 metrics.total_files = Some(commit_total_files);
 
-                // Move parsed values into the commits vector (no cloning required)
+                // Move parsed values into the commits vector
                 commits.push(Commit {
                     id: next_commit_id,
                     hash,
-                    author_id: author_entry.id,
+                    author_id: author_id,
                     date: date.clone(),
                     time: time.clone(),
                     timezone: timezone.clone(),
@@ -258,9 +281,11 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                     files_changed,
                     metrics,
                 });
+
                 next_commit_id += 1;
             }
         }
+
         // Reassign commit ids so the oldest commit receives id=1.
         // Git log returns commits newest->oldest, so we map the last element to id=1.
         let total_commits = commits.len();
