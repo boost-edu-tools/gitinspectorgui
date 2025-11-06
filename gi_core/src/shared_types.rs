@@ -121,16 +121,25 @@ impl Default for Metrics {
     }
 }
 
+/// The Filter struct represents a filter used in analysis parameters.
+#[derive(Clone)]
+pub struct Filter {
+    pub value: String,
+    pub include: bool, // true for include, false for exclude
+}
+
 /// The AnalysisParameters struct defines parameters for filtering the analysis of a repository.
 #[derive(Clone)]
 pub struct AnalysisParameters {
     pub repo_path: String,
-    pub from_time: Option<String>, // e.g., "2023-01-01"
-    pub to_time: Option<String>,   // e.g., "2023-12-31"
+    pub from_time: Option<String>,      // YYYY-MM-DDTHH:MM:SS+HHMM e.g., "2023-01-01T00:00:00+0000"
+    pub to_time: Option<String>,        // YYYY-MM-DDTHH:MM:SS+HHMM e.g., "2023-12-31T23:59:59+0000"
     pub from_commit: Option<String>,
     pub to_commit: Option<String>,
-    pub exclude_authors: Vec<Author>,
-    pub exclude_files: Vec<File>,
+    pub commit_hash_filter: Option<Filter>,
+    pub commit_message_filter: Option<Filter>,
+    pub file_types_filter: Option<Filter>,
+    pub path_filter: Option<Filter>,
 }
 
 impl Default for AnalysisParameters {
@@ -141,8 +150,10 @@ impl Default for AnalysisParameters {
             to_time: None,
             from_commit: None,
             to_commit: None,
-            exclude_authors: vec![],
-            exclude_files: vec![],
+            commit_hash_filter: None,
+            commit_message_filter: None,
+            file_types_filter: None,
+            path_filter: None,
         }
     }
 }
