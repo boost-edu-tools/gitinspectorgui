@@ -172,8 +172,11 @@ pub struct AnalysisResult {
 pub struct Settings {
     pub repositories: Vec<String>,
     pub search_depth: usize,
-    pub ignored_file_extensions: Vec<String>,
-    pub allowed_file_extensions: Vec<String>,
+    pub max_blame_files: usize,
+    pub commit_hash_filter: Option<Filter>,
+    pub commit_message_filter: Option<Filter>,
+    pub file_types_filter: Option<Filter>,
+    pub path_filter: Option<Filter>,
 }
 
 impl Default for Settings {
@@ -181,8 +184,11 @@ impl Default for Settings {
         Settings {
             repositories: vec![],
             search_depth: 3,
-            ignored_file_extensions: vec![],
-            allowed_file_extensions: vec![],
+            max_blame_files: 1000,
+            commit_hash_filter: None,
+            commit_message_filter: None,
+            file_types_filter: None,
+            path_filter: None,
         }
     }
 }
