@@ -38,7 +38,7 @@ pub struct Line {
 pub enum LineType {
     SLOC,
     CLOC,
-    WHITESPACE
+    WHITESPACE,
 }
 
 /// The Repository struct represents a git repository with its associated data.
@@ -132,8 +132,8 @@ pub struct Filter {
 #[derive(Clone)]
 pub struct AnalysisParameters {
     pub repo_path: String,
-    pub from_time: Option<String>,      // YYYY-MM-DDTHH:MM:SS+HHMM e.g., "2023-01-01T00:00:00+0000"
-    pub to_time: Option<String>,        // YYYY-MM-DDTHH:MM:SS+HHMM e.g., "2023-12-31T23:59:59+0000"
+    pub from_time: Option<String>, // YYYY-MM-DDTHH:MM:SS+HHMM e.g., "2023-01-01T00:00:00+0000"
+    pub to_time: Option<String>,   // YYYY-MM-DDTHH:MM:SS+HHMM e.g., "2023-12-31T23:59:59+0000"
     pub from_commit: Option<String>,
     pub to_commit: Option<String>,
     pub commit_hash_filter: Option<Filter>,
