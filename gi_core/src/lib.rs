@@ -49,6 +49,12 @@ pub fn retrieve_repositories(path_str: &str, depth: usize) -> Result<Vec<PathBuf
 // A function for rerunning an already performed analysis with new parameters.
 // This will preserve the original repository in the AnalysisResult under original_repository.
 
+// A function for loading settings from a configuration file.
+
+// A function for saving settings to a configuration file.
+
+// A function for verifying filters
+
 
 #[cfg(test)]
 mod tests {
