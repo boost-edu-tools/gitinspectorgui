@@ -122,7 +122,7 @@ impl Default for Metrics {
 }
 
 /// The Filter struct represents a filter used in analysis parameters.
-#[derive(Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Filter {
     pub value: String,
     pub include: bool, // true for include, false for exclude
@@ -168,7 +168,7 @@ pub struct AnalysisResult {
 }
 
 /// The Settings struct holds configuration settings for the analysis.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
     pub repositories: Vec<String>,
     pub search_depth: usize,
