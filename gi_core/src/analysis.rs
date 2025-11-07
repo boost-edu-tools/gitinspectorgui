@@ -1,5 +1,6 @@
 pub use crate::shared_types::*;
 
+use globset::{GlobBuilder, GlobMatcher};
 use std::path::{Path, PathBuf};
 use std::{
     collections::{HashMap, HashSet},
@@ -105,8 +106,16 @@ fn parse_file_line(line: &str) -> Option<(usize, usize, String)> {
         return None;
     }
 
-    let ins = if ins_str == "-" { 0 } else { ins_str.parse::<usize>().unwrap_or(0) };
-    let del = if del_str == "-" { 0 } else { del_str.parse::<usize>().unwrap_or(0) };
+    let ins = if ins_str == "-" {
+        0
+    } else {
+        ins_str.parse::<usize>().unwrap_or(0)
+    };
+    let del = if del_str == "-" {
+        0
+    } else {
+        del_str.parse::<usize>().unwrap_or(0)
+    };
 
     Some((ins, del, path_str.to_string()))
 }
@@ -148,6 +157,69 @@ fn update_author(
     }
 
     author_entry.id
+}
+
+/// Build and verify a GlobBuilder for the given pattern.
+/// This creates a temporary builder and attempts to `build()` it to verify the
+/// pattern is valid. If validation succeeds, a new configured `GlobBuilder`
+/// is returned to the caller. The returned builder has case-insensitive matching
+/// enabled and uses the provided `literal_separator` setting.
+fn glob_matcher_builder(pattern: &str, literal_separator: bool) -> Result<GlobMatcher, String> {
+    // Configure a builder and attempt to build & compile it to validate the pattern.
+    match GlobBuilder::new(pattern)
+        .case_insensitive(true)
+        .literal_separator(literal_separator)
+        .build()
+    {
+        Ok(glob) => Ok(glob.compile_matcher()),
+        Err(e) => Err(format!("Invalid glob pattern '{}': {}", pattern, e)),
+    }
+}
+
+/// Build glob matchers for the four supported filters from AnalysisParameters.
+/// Returns a vector of length 4 where each element corresponds to:
+/// [commit_hash_filter, commit_message_filter, file_types_filter, path_filter]
+/// Each element is Some(GlobMatcher) if the filter was present and successfully
+/// compiled, or None if the filter was not set. If any present filter has an
+/// invalid pattern the function returns an Err with a descriptive message.
+pub fn build_glob_matchers_from_params(
+    params: &AnalysisParameters,
+) -> Result<Vec<Option<GlobMatcher>>, String> {
+    let mut out: Vec<Option<GlobMatcher>> = Vec::with_capacity(4);
+
+    // commit_hash_filter (case-insensitive, literal_separator = false)
+    if let Some(filter) = &params.commit_hash_filter {
+        let m = glob_matcher_builder(&filter.value, false)?;
+        out.push(Some(m));
+    } else {
+        out.push(None);
+    }
+
+    // commit_message_filter (case-insensitive, literal_separator = false)
+    if let Some(filter) = &params.commit_message_filter {
+        let m = glob_matcher_builder(&filter.value, false)?;
+        out.push(Some(m));
+    } else {
+        out.push(None);
+    }
+
+    // file_types_filter (case-insensitive, literal_separator = false)
+    if let Some(filter) = &params.file_types_filter {
+        let m = glob_matcher_builder(&filter.value, false)?;
+        out.push(Some(m));
+    } else {
+        out.push(None);
+    }
+
+    // path_filter (case-insensitive, literal_separator = true)
+    if let Some(filter) = &params.path_filter {
+        let m = glob_matcher_builder(&filter.value, true)?;
+        out.push(Some(m));
+    } else {
+        out.push(None);
+    }
+
+    Ok(out)
 }
 
 /// This function analyses a git repository between two commit hashes or time stamps.
@@ -201,15 +273,10 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
             // Checks that there is at least a header line
             if let Some(header) = lines.next() {
                 // Parsing the header line using helper to keep the loop clean
-                let (
-                    hash,
-                    author_name,
-                    author_email,
-                    date,
-                    time,
-                    timezone,
-                    message,
-                ) = parse_commit_header(header);
+                let (hash, author_name, author_email, date, time, timezone, message) =
+                    parse_commit_header(header);
+
+                // Check if
 
                 // Keep track of commit level statistics when looping through files
                 let mut files_changed: Vec<File> = Vec::new();
@@ -387,7 +454,7 @@ fn filter_metrics(result: AnalysisResult) {
 /// It updates the files in each commit with line-by-line author information.
 // fn analyse_blames(result: AnalysisResult) -> AnalysisResult {
 //     // Destructure the incoming AnalysisResult so we can mutate a local repository
-//     let AnalysisResult { parameters, repository } = result;
+//     let AnalysisResult { parameters, repository} = result;
 //     let mut repository = repository;
 
 //     // For each commit, for each file changed in that commit, try to read the file
@@ -433,7 +500,7 @@ fn filter_metrics(result: AnalysisResult) {
 //         }
 //     }
 
-//     AnalysisResult { parameters, repository }
+//     AnalysisResult { None, parameters, repository }
 // }
 
 #[cfg(test)]
@@ -486,7 +553,6 @@ mod tests {
             repo.metrics.deletions.unwrap_or(0),
         );
     }
-
 
     // Tests for build_git_log_args
     #[test]
@@ -541,7 +607,8 @@ mod tests {
         params.repo_path = String::from("/tmp");
         params.from_commit = Some("onlyfrom".to_string());
 
-        let res = build_git_log_args(&params).expect("Should build args when only from_commit provided");
+        let res =
+            build_git_log_args(&params).expect("Should build args when only from_commit provided");
         // Since builder only adds a range when both from and to are present, ensure no range present
         let range = format!("{}..{}", "onlyfrom", "");
         assert!(!res.iter().any(|s| s.contains("..")) || !res.contains(&range));
@@ -555,7 +622,8 @@ mod tests {
         params.repo_path = String::from("/tmp");
         params.from_time = Some("2025-12-01T00:00:00+0000".to_string());
 
-        let res = build_git_log_args(&params).expect("Should build args when only from_time provided");
+        let res =
+            build_git_log_args(&params).expect("Should build args when only from_time provided");
         assert!(res.iter().any(|s| s.starts_with("--since=")));
         assert!(!res.iter().any(|s| s.starts_with("--until=")));
     }
