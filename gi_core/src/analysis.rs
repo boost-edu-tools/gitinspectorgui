@@ -45,6 +45,7 @@ fn build_git_log_args(params: &AnalysisParameters) -> Result<Vec<String>, String
     Ok(args)
 }
 
+// TODO: TEST THIS FUNCTION
 /// Parse a git log header line of the form:
 /// "<short-hash> / <author name> <email> / <date> / <message>"
 /// Returns (hash, author_name, author_email, date, time, timezone, message)
@@ -93,6 +94,7 @@ fn parse_commit_header(header: &str) -> (String, String, String, String, String,
     )
 }
 
+// TODO: TEST THIS FUNCTION
 /// Parse a single file change line from git --numstat output.
 /// Expected format: "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
 /// Returns Some((insertions, deletions, path)) on success, otherwise None for malformed lines.
@@ -120,6 +122,7 @@ fn parse_file_line(line: &str) -> Option<(usize, usize, String)> {
     Some((ins, del, path_str.to_string()))
 }
 
+// TODO: TEST THIS FUNCTION
 /// Ensure an Author entry exists in the map and update it with the given commit hash and files.
 /// Returns the author's id.
 fn update_author(
@@ -159,6 +162,7 @@ fn update_author(
     author_entry.id
 }
 
+// TODO: TEST THIS FUNCTION
 /// Build and verify a GlobBuilder for the given pattern.
 /// This creates a temporary builder and attempts to `build()` it to verify the
 /// pattern is valid. If validation succeeds, a new configured `GlobBuilder`
@@ -176,6 +180,7 @@ fn glob_matcher_builder(pattern: &str, literal_separator: bool) -> Result<GlobMa
     }
 }
 
+// TODO: TEST THIS FUNCTION
 /// Build glob matchers for the four supported filters from AnalysisParameters.
 /// Returns a vector of length 4 where each element corresponds to:
 /// [commit_hash_filter, commit_message_filter, file_types_filter, path_filter]
@@ -263,6 +268,14 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
         // Use a map keyed by (name, email) so we can update existing authors with additional commits/files
         let mut author_map: HashMap<(String, String), Author> = HashMap::new();
 
+        // Build filter matchers from params. This will return a Vec<Option<GlobMatcher>>
+        // in the order: [commit_hash, commit_message, file_types, path]. If any
+        // provided filter pattern is invalid we propagate the error.
+        let matchers = match build_glob_matchers_from_params(params) {
+            Ok(m) => m,
+            Err(e) => return Err(e),
+        };
+
         let mut next_author_id = 1; // incremental id for authors
         let mut next_commit_id = 1; // incremental id for commits
 
@@ -276,7 +289,27 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                 let (hash, author_name, author_email, date, time, timezone, message) =
                     parse_commit_header(header);
 
-                // Check if
+                // Check commit-hash filter (if present) and apply include/exclude semantics.
+                // matchers[0] corresponds to commit_hash_filter.
+                if let Some(matcher_opt) = matchers.get(0) {
+                    if let Some(matcher) = matcher_opt {
+                        if let Some(filter) = &params.commit_hash_filter {
+                            let is_match = matcher.is_match(&hash);
+                            if filter.include {
+                                // include=true -> only keep commits that match
+                                if !is_match {
+                                    continue;
+                                }
+                            } else {
+                                // include=false -> exclude commits that match
+                                if is_match {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+
 
                 // Keep track of commit level statistics when looping through files
                 let mut files_changed: Vec<File> = Vec::new();
@@ -954,5 +987,53 @@ mod tests {
     fn test_analyse_blames() {
         // Placeholder test
         // analyse_blames();
+    }
+
+    // TODO: CLEAN UP TEST AND MAKE MORE
+    #[test]
+    fn test_build_glob_matchers_commit_hash_numeric_start() {
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+        // Excluding start, including end
+        let start_commit = "02c101f";
+        let end_commit = "c1dd7cd";
+
+        // Build AnalysisParameters and run analysis
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+
+        // Build parameters with a commit_hash_filter that matches hashes starting with a digit
+        params.commit_hash_filter = Some(Filter {
+            // glob that matches any string starting with a numeric character
+            value: "[0-9]*".to_string(),
+            include: true,
+        });
+
+        let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
+
+        // Ensure we have 4 elements and the first (commit hash) matcher is present
+        assert_eq!(matchers.len(), 4);
+        let commit_matcher = matchers[0].as_ref().expect("commit matcher should be Some");
+
+        // Should match hashes that start with a digit
+        assert!(commit_matcher.is_match("1a2b3c"));
+        assert!(commit_matcher.is_match("9abcdef"));
+
+        // Should NOT match hashes that start with a letter
+        assert!(!commit_matcher.is_match("a12345"));
+
+        let result = analyse_repository(&params);
+        match result {
+            Ok(analysis) => {
+                print_repository_info(&analysis.repository);
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
     }
 }
