@@ -15,7 +15,7 @@ import { Info, Users, User } from "lucide-react"
 
 import { getAuthorColor } from "@/components/helpers/AuthorColors"
 import { useAnalysis } from "@/hooks/useAnalysis"
-import type { SelectedFullProps, AnalysisResult, Author } from "@/components/types"
+import type { SelectedFullProps, AnalysisResult, Author, Commit } from "@/components/types"
 import { METRIC_DESCRIPTIONS } from "@/components/main_window/metrics_descriptions"
 
 type SelectedProps = Pick<
@@ -98,26 +98,27 @@ export function AuthorStatisticsOverview({
   const repo = (analysis as AnalysisResult | undefined)?.repository
   const authors: Author[] = repo?.authors ?? []
   const [showRenames, setShowRenames] = React.useState<boolean>(false)
+  const fullCommits: Commit[] = repo?.commits ?? []
 
   const totals = React.useMemo(() => {
     return authors.reduce(
       (acc, a) => {
         const m = a.metrics ?? {}
         return {
-          commits: acc.commits + (m.total_commits ?? 0),
+          total_commits: acc.total_commits + (m.total_commits ?? 0),
           insertions: acc.insertions + (m.insertions ?? 0),
           deletions: acc.deletions + (m.deletions ?? 0),
           loc: acc.loc + (m.loc ?? 0),
           sloc: acc.sloc + (m.sloc ?? 0),
         }
       },
-      { commits: 0, insertions: 0, deletions: 0, loc: 0, sloc: 0 }
+      { total_commits: 0, insertions: 0, deletions: 0, loc: 0, sloc: 0 }
     )
   }, [authors])
 
   const sortedAuthors = React.useMemo(() => {
     return [...authors].sort((a, b) => {
-      return (b.metrics?.commits ?? 0) - (a.metrics?.commits ?? 0)
+      return (b.metrics?.total_commits ?? 0) - (a.metrics?.total_commits ?? 0)
     })
   }, [authors])
 
@@ -167,7 +168,7 @@ export function AuthorStatisticsOverview({
                   </TableHead>
                   <TableHead className="min-w-[170px] max-w-[170x] w-[170px]">Email(s)</TableHead>
                   <TableHead className="text-right">
-                    <MetricHeader metricKey="commits" />
+                    <MetricHeader metricKey="total_commits" />
                   </TableHead>
                   <TableHead className="text-right">
                     <MetricHeader metricKey="insertions" />
@@ -200,7 +201,7 @@ export function AuthorStatisticsOverview({
                     
                   </TableCell>
                   <TableCell />
-                  <TableCell className="text-right font-semibold">{totals.commits}</TableCell>
+                  <TableCell className="text-right font-semibold">{totals.total_commits}</TableCell>
                   <TableCell className="text-right font-semibold">{totals.insertions}</TableCell>
                   <TableCell className="text-right font-semibold">{totals.deletions}</TableCell>
                   <TableCell className="text-right font-semibold">{totals.loc}</TableCell>
@@ -214,8 +215,36 @@ export function AuthorStatisticsOverview({
                 </TableRow>
 
                 {visibleAuthors.map((a) => {
+                  const diffToYDH = (ms: number) => {
+                  const MS_PER_HOUR = 60 * 60 * 1000;
+                  const MS_PER_DAY  = 24 * MS_PER_HOUR;
+                  const MS_PER_YEAR = 365 * MS_PER_DAY; 
+
+                  const years = Math.floor(ms / MS_PER_YEAR);
+                  ms %= MS_PER_YEAR;
+                  const days  = Math.floor(ms / MS_PER_DAY);
+                  ms %= MS_PER_DAY;
+                  const hours = Math.floor(ms / MS_PER_HOUR);
+
+                  return { years, days, hours };
+                };
+
                   const m = a.metrics ?? {}
                   const aliases = normalizeAliases((a as any).aliases_email)
+                  const last_commit_hash = a.commit_hashes[a.commit_hashes.length - 1];
+                  const lastCommit = fullCommits.find(c => c.hash === last_commit_hash);
+                  let ageYDH: string | undefined;
+
+                  if (lastCommit?.date && lastCommit?.time && lastCommit?.timezone) {
+
+                    const iso = `${lastCommit.date}T${lastCommit.time}${lastCommit.timezone}`;
+                    const lastModified = new Date(iso);  
+                    const now = new Date();                  
+                    const diffMs = Math.max(0, now.getTime() - lastModified.getTime());
+                    const { years, days, hours } = diffToYDH(diffMs);
+                    ageYDH = `${years}:${days}:${hours}`;
+                  }                                    
+                  
                   return (
                     <TableRow key={a.id} className="hover:bg-muted/50 transition-colors">
                       <TableCell className="font-mono text-xs sticky left-0 bg-background border-r z-10">
@@ -232,13 +261,13 @@ export function AuthorStatisticsOverview({
                       <TableCell className="text-xs align-top min-w-[170px] max-w-[170px] w-[170px]">
                         <EmailCell primary={a.email} aliases={aliases} showAliases={showRenames} />
                       </TableCell>
-                      <TableCell className="text-right">{fmt(m.total_commits ?? 0, totals.commits)}</TableCell>
+                      <TableCell className="text-right">{fmt(m.total_commits ?? 0, totals.total_commits)}</TableCell>
                       <TableCell className="text-right">{fmt(m.insertions ?? 0, totals.insertions)}</TableCell>
                       <TableCell className="text-right">{fmt(m.deletions ?? 0, totals.deletions)}</TableCell>
                       <TableCell className="text-right">{fmt(m.loc ?? 0, totals.loc)}</TableCell>
                       <TableCell className="text-right">{fmt(m.sloc ?? 0, totals.sloc)}</TableCell>
-                      <TableCell className="text-right">{((m.loc??0)/(m.insertions??1)*100).toFixed(0)}</TableCell>
-                      <TableCell className="text-right">{m.age ?? "-"}</TableCell>
+                      <TableCell className="text-right">{m.stability}</TableCell>
+                      <TableCell className="text-right">{ageYDH}</TableCell>
                     </TableRow>
                   )
                 })}

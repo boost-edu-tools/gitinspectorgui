@@ -38,20 +38,20 @@ export function RepositoryViewTable({
   displayMode,
   onFileSelect,
 }: {
-  fileMetadata: Array<{ path: string; commits: number; insertions: number; deletions: number; loc: number; sloc: number; age: string }>
+  fileMetadata: Array<{ path: string; total_commits: number; insertions: number; deletions: number; loc: number; sloc: number; stability: number, last_modified_date: string, last_modified_time: string, last_modified_timezone: string}>
   displayMode: "absolute" | "percentage"
   onFileSelect: (fileName: string) => void
 }) {
   const totals = React.useMemo(() => {
     return fileMetadata.reduce(
       (acc, f) => ({
-        commits: acc.commits + f.commits,
+        total_commits: acc.total_commits + f.total_commits,
         insertions: acc.insertions + f.insertions,
         deletions: acc.deletions + f.deletions,
         loc: acc.loc + f.loc,
         sloc: acc.sloc + f.sloc,
       }),
-      { commits: 0, insertions: 0, deletions: 0, loc: 0, sloc: 0 }
+      { total_commits: 0, insertions: 0, deletions: 0, loc: 0, sloc: 0 }
     )
   }, [fileMetadata])
 
@@ -63,7 +63,7 @@ export function RepositoryViewTable({
         <TableHeader>
           <TableRow className="hover:bg-background">
             <TableHead className="font-semibold sticky left-0 bg-background border-r w-[200px] z-10">File</TableHead>
-            <TableHead className="text-right"><MetricHeader metricKey="commits" /></TableHead>
+            <TableHead className="text-right"><MetricHeader metricKey="total_commits" /></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="insertions" /></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="deletions" /></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="loc"/></TableHead>
@@ -81,7 +81,7 @@ export function RepositoryViewTable({
                 <span>All Files ({fileMetadata.length})</span>
               </div>
             </TableCell>
-            <TableCell className="text-right font-semibold">{totals.commits}</TableCell>
+            <TableCell className="text-right font-semibold">{totals.total_commits}</TableCell>
             <TableCell className="text-right font-semibold">{totals.insertions}</TableCell>
             <TableCell className="text-right font-semibold">{totals.deletions}</TableCell>
             <TableCell className="text-right font-semibold">{totals.loc}</TableCell>
@@ -90,7 +90,31 @@ export function RepositoryViewTable({
             <TableCell className="text-right font-semibold"><span className="text-muted-foreground">-</span></TableCell>
          </TableRow>
 
-          {fileMetadata.map((f) => (
+          {fileMetadata.map((f) => {
+
+            const diffToYDH = (ms: number) => {
+                  const MS_PER_HOUR = 60 * 60 * 1000;
+                  const MS_PER_DAY  = 24 * MS_PER_HOUR;
+                  const MS_PER_YEAR = 365 * MS_PER_DAY; 
+
+                  const years = Math.floor(ms / MS_PER_YEAR);
+                  ms %= MS_PER_YEAR;
+                  const days  = Math.floor(ms / MS_PER_DAY);
+                  ms %= MS_PER_DAY;
+                  const hours = Math.floor(ms / MS_PER_HOUR);
+
+                  return { years, days, hours };
+                };
+
+            let ageYDH: string | undefined;
+            const iso = `${f.last_modified_date}T${f.last_modified_time}${f.last_modified_timezone}`;
+            const lastModified = new Date(iso);  
+            const now = new Date();                  
+            const diffMs = Math.max(0, now.getTime() - lastModified.getTime());
+            const { years, days, hours } = diffToYDH(diffMs);
+            ageYDH = `${years}:${days}:${hours}`;
+            
+            return (
             <TableRow key={f.path} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onFileSelect(f.path)}>
               <TableCell className="font-mono text-xs sticky left-0 bg-background border-r z-10">
                 <div className="flex items-center gap-2">
@@ -98,15 +122,15 @@ export function RepositoryViewTable({
                   <span>{f.path}</span>
                 </div>
               </TableCell>
-              <TableCell className="text-right">{fmt(f.commits, totals.commits)}</TableCell>
+              <TableCell className="text-right">{fmt(f.total_commits, totals.total_commits)}</TableCell>
               <TableCell className="text-right">{fmt(f.insertions, totals.insertions)}</TableCell>
               <TableCell className="text-right">{fmt(f.deletions, totals.deletions)}</TableCell>
               <TableCell className="text-right">{fmt(f.loc, totals.loc)}</TableCell>
               <TableCell className="text-right">{fmt(f.sloc, totals.sloc)}</TableCell>
-              <TableCell className="text-right"><span>{(100*f.loc/f.insertions).toFixed(0)}</span></TableCell>
-              <TableCell className="text-right">{f.age}</TableCell>
+              <TableCell className="text-right"><span>{f.stability}</span></TableCell>
+              <TableCell className="text-right">{ageYDH}</TableCell>
             </TableRow>
-          ))}
+          )})}
         </TableBody>
       </Table>
     </div>
@@ -124,7 +148,7 @@ export function AuthorFileViewTable({
 }: {
   rows: Array<{ filePath: string; totalMetric: number; authorMetrics: Record<string, number> }>
   allAuthors: string[]
-  metricType: "commits" | "insertions" | "deletions" | "loc" | "sloc" 
+  metricType: "total_commits" | "insertions" | "deletions" | "loc" | "sloc" 
   displayMode: "absolute" | "percentage"
   onFileSelect: (fileName: string) => void
 }) {

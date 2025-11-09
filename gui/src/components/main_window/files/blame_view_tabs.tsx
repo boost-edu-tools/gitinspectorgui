@@ -8,18 +8,15 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { X, Plus, FolderOpen } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { BlameView } from "@/components/main_window/files/blame_view"
-import type { AuthorId, Author, FileEntry } from "@/components/types"
+import type { Author, File } from "@/components/types"
 
 type Props = {
   selectedRepo: string | null
 
-  /** all files you want to allow adding (usually visible files after filters/range) */
-  availableFiles: FileEntry[]
-  /** which file to open first */
+  availableFiles: File[]
   initialPath: string 
-  authorsById: Map<AuthorId, Author>
+  authorsById: Map<number, Author>
   selectedAuthors: string[]
-  /** leave the blame area (back to tables) */
   onExit: () => void
 }
 
@@ -58,7 +55,7 @@ export function BlameTabsView({
 
   const pathToFile = (p: string) => availableFiles.find(f => f.path === p)
 
-  const openFileEntries = openPaths.map(pathToFile).filter(Boolean) as FileEntry[]
+  const openFileEntries = openPaths.map(pathToFile).filter(Boolean) as File[]
 
   const togglePath = (p: string) =>
     setOpenPaths(prev => (prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]))

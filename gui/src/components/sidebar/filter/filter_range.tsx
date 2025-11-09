@@ -24,13 +24,6 @@ import { getAuthorColor } from "@/components/helpers/AuthorColors"
 import { useAnalysis } from "@/hooks/useAnalysis"
 import { Commit, SelectedFullProps, AnalysisResult, Author } from "@/components/types"
 
-/**
- * Unified sidebar component:
- * - Single view (no tabs).
- * - Top bar shows current commit+date range, an info tooltip, and a calendar button to adjust dates.
- * - Commit picker: single compact scrollable list with clear start/end chips and range highlight.
- * - Date dialog: compact, time pickers below the calendar (HH:MM), defaults 00:00–23:59.
- */
 
 type FilterRangeProps = Pick<
   SelectedFullProps,
@@ -143,12 +136,12 @@ export function FilterRange({
 
   // Map for quick author lookup
   const authorById = React.useMemo(
-    () => new Map<string, Author>(authors.map((a) => [a.id, a])),
+    () => new Map<number, Author>(authors.map((a) => [a.id, a])),
     [authors]
   )
 
   const getAuthorName = React.useCallback(
-    (authorId?: string) => authorById.get(authorId ?? "")?.name ?? "Unknown",
+    (author_id?: number) => authorById.get(author_id ?? -1)?.name ?? "Unknown",
     [authorById]
   )
 
@@ -194,7 +187,7 @@ export function FilterRange({
       seen.add(c.hash)
 
       if (selectedAuthors && selectedAuthors.length > 0) {
-        const name = getAuthorName(c.authorId)
+        const name = getAuthorName(c.author_id)
         if (!selectedAuthors.includes(name)) continue
       }
 
@@ -373,7 +366,6 @@ export function FilterRange({
   return (
     <Card className="bg-transparent border-none shadow-none p-0">
       <CardContent className="p-2 space-y-2">
-        {/* Top bar: current selection + actions */}
         <div className="flex items-start gap-2">
 
 
@@ -407,7 +399,7 @@ export function FilterRange({
           <ul className="divide-y divide-border/40">
             {commits.map((c, i) => {
               const d = toDate(c.date)
-              const name = getAuthorName(c.authorId)
+              const name = getAuthorName(c.author_id)
               const colors = getAuthorColor(name)
               const inRange = i >= Math.max(0, safeStartIdx) && i <= Math.max(0, safeEndIdx)
               const isStart = i === Math.max(0, safeStartIdx)
@@ -497,7 +489,6 @@ export function FilterRange({
                 className="rounded-md border shadow-sm bg-background w-[320px] max-w-full"
               />
 
-              {/* Time selectors BELOW calendar for nicer formatting */}
               <div className="mt-4 grid grid-cols-2 gap-3 w-full max-w-[320px]">
                 <div className="flex flex-col gap-1">
                   <label className="text-[11px] text-muted-foreground">Start time</label>

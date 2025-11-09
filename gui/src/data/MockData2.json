@@ -4,296 +4,103 @@
     "from_time": "2024-03-01",
     "to_time": "2024-03-14",
     "from_commit": "c101",
-    "to_commit": "c112",
-    "exclude_authors": [],
-    "exclude_files": []
+    "to_commit": "c112"
   },
   "repository": {
     "name": "example-repo-2",
     "path": "/home/user/projects/tiny-repo",
     "authors": [
       {
-        "id": "author1",
+        "id": 1,
         "name": "author1",
         "email": "author1@example.com",
         "aliases_email": [
           "author1_secondmail@example.com"
         ],
-        "metrics": {
-          "insertions": 15,
-          "deletions": 0,
-          "total_commits": 4,
-          "loc": 6,
-          "sloc": 4,
-          "age": "1:2:1"
-        },
+        "commit_hashes": ["c101","c103","c107","c108"],
         "files": [
-          {
-            "file_path": "src/a.ts",
-            "metrics": {
-              "insertions": 4,
-              "deletions": 0,
-              "loc": 4,
-              "sloc": 3,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/b.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 0,
-              "loc": 2,
-              "sloc": 1,
-              "commits": 1
-            }
-          }
-        ]
+          { "file_path": "src/a.ts", "metrics": { "insertions": 4, "deletions": 0, "loc": 4, "sloc": 3, "total_commits": 3 } },
+          { "file_path": "src/b.ts", "metrics": { "insertions": 1, "deletions": 0, "loc": 2, "sloc": 1, "total_commits": 1 } }
+        ],
+        "metrics": { "insertions": 15, "deletions": 0, "total_commits": 4, "loc": 6, "sloc": 4, "stability": 50 }
       },
       {
-        "id": "author2",
+        "id": 2,
         "name": "author2",
         "email": "author2@example.com",
         "aliases_email": [
           "author2_secondmail@example.com",
           "author2_thirdmail@example.com"
         ],
-        "metrics": {
-          "insertions": 9,
-          "deletions": 1,
-          "total_commits": 4,
-          "loc": 6,
-          "sloc": 3,
-          "age": "0:2:3"
-        },
+        "commit_hashes": ["c102","c104","c109","c110"],
         "files": [
-          {
-            "file_path": "src/a.ts",
-            "metrics": {
-              "insertions": 3,
-              "deletions": 1,
-              "loc": 2,
-              "sloc": 1,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/b.ts",
-            "metrics": {
-              "insertions": 2,
-              "deletions": 0,
-              "loc": 4,
-              "sloc": 2,
-              "commits": 1
-            }
-          }
-        ]
+          { "file_path": "src/a.ts", "metrics": { "insertions": 3, "deletions": 1, "loc": 2, "sloc": 1, "total_commits": 3 } },
+          { "file_path": "src/b.ts", "metrics": { "insertions": 2, "deletions": 0, "loc": 4, "sloc": 2, "total_commits": 1 } }
+        ],
+        "metrics": { "insertions": 9, "deletions": 1, "total_commits": 4, "loc": 6, "sloc": 3, "stability": 40}
       },
       {
-        "id": "author3",
+        "id": 3,
         "name": "author3",
         "email": "author3@example.com",
         "aliases_email": [],
-        "metrics": {
-          "insertions": 11,
-          "deletions": 1,
-          "total_commits": 4,
-          "loc": 6,
-          "sloc": 3,
-          "age": "0:3:4"
-        },
+        "commit_hashes": ["c105","c106","c111","c112"],
         "files": [
-          {
-            "file_path": "src/a.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 1,
-              "loc": 0,
-              "sloc": 0,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/b.ts",
-            "metrics": {
-              "insertions": 3,
-              "deletions": 0,
-              "loc": 4,
-              "sloc": 3,
-              "commits": 3
-            }
-          }
-        ]
+          { "file_path": "src/a.ts", "metrics": { "insertions": 1, "deletions": 1, "loc": 0, "sloc": 0, "total_commits": 1 } },
+          { "file_path": "src/b.ts", "metrics": { "insertions": 3, "deletions": 0, "loc": 4, "sloc": 3, "total_commits": 3 } }
+        ],
+        "metrics": { "insertions": 11, "deletions": 1, "total_commits": 4, "loc": 6, "sloc": 3, "stability": 60 }
       }
     ],
-    "files_metadata": [
-      {
-        "path": "src/a.ts",
-        "metrics": {
-          "commits": 7,
-          "insertions": 8,
-          "deletions": 2,
-          "loc": 6,
-          "sloc": 3,
-          "age": "1:05:05"
-        }
-      },
-      {
-        "path": "src/b.ts",
-        "metrics": {
-          "commits": 5,
-          "insertions": 6,
-          "deletions": 0,
-          "loc": 6,
-          "sloc": 3,
-          "age": "0:08:05"
-        }
-      }
-    ],
-    "commits": [
-      {
-        "number": 1,
-        "hash": "c101",
-        "authorId": "author1",
-        "message": "init a.ts header",
-        "date": "2024-03-01T09:00:00Z",
-        "insertions": 2,
-        "deletions": 0,
-        "changesPercent": 5.0
-      },
-      {
-        "number": 2,
-        "hash": "c102",
-        "authorId": "author2",
-        "message": "add blank line to a.ts",
-        "date": "2024-03-02T10:00:00Z",
-        "insertions": 1,
-        "deletions": 0,
-        "changesPercent": 1.0
-      },
-      {
-        "number": 3,
-        "hash": "c103",
-        "authorId": "author1",
-        "message": "add const A to a.ts",
-        "date": "2024-03-02T14:00:00Z",
-        "insertions": 1,
-        "deletions": 0,
-        "changesPercent": 1.0
-      },
-      {
-        "number": 4,
-        "hash": "c104",
-        "authorId": "author2",
-        "message": "init b.ts header + blank",
-        "date": "2024-03-03T11:00:00Z",
-        "insertions": 2,
-        "deletions": 0,
-        "changesPercent": 4.0
-      },
-      {
-        "number": 5,
-        "hash": "c105",
-        "authorId": "author3",
-        "message": "add type B to b.ts",
-        "date": "2024-03-04T11:30:00Z",
-        "insertions": 1,
-        "deletions": 0,
-        "changesPercent": 1.0
-      },
-      {
-        "number": 6,
-        "hash": "c106",
-        "authorId": "author3",
-        "message": "tidy a.ts spacing",
-        "date": "2024-03-05T13:00:00Z",
-        "insertions": 1,
-        "deletions": 1,
-        "changesPercent": 0.8
-      },
-      {
-        "number": 7,
-        "hash": "c107",
-        "authorId": "author1",
-        "message": "add fa() to a.ts",
-        "date": "2024-03-06T09:30:00Z",
-        "insertions": 1,
-        "deletions": 0,
-        "changesPercent": 1.2
-      },
-      {
-        "number": 8,
-        "hash": "c108",
-        "authorId": "author1",
-        "message": "add gb() to b.ts",
-        "date": "2024-03-07T10:15:00Z",
-        "insertions": 1,
-        "deletions": 0,
-        "changesPercent": 1.1
-      },
-      {
-        "number": 9,
-        "hash": "c109",
-        "authorId": "author2",
-        "message": "refactor a.ts minor",
-        "date": "2024-03-08T09:45:00Z",
-        "insertions": 1,
-        "deletions": 1,
-        "changesPercent": 0.9
-      },
-      {
-        "number": 10,
-        "hash": "c110",
-        "authorId": "author2",
-        "message": "default export in a.ts",
-        "date": "2024-03-10T12:00:00Z",
-        "insertions": 1,
-        "deletions": 0,
-        "changesPercent": 1.0
-      },
-      {
-        "number": 11,
-        "hash": "c111",
-        "authorId": "author3",
-        "message": "add blank + footer area in b.ts",
-        "date": "2024-03-11T16:20:00Z",
-        "insertions": 1,
-        "deletions": 0,
-        "changesPercent": 0.7
-      },
-      {
-        "number": 12,
-        "hash": "c112",
-        "authorId": "author3",
-        "message": "default export in b.ts",
-        "date": "2024-03-12T09:10:00Z",
-        "insertions": 1,
-        "deletions": 0,
-        "changesPercent": 1.0
-      }
-    ],
+      "commits": [
+        { "id": 1,  "hash": "c101", "author_id": 1, "message": "init a.ts header",                 "date": "2024-03-01", "time": "09:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 2, "deletions": 0, "commit_loc": [1,0] } },
+        { "id": 2,  "hash": "c102", "author_id": 2, "message": "add blank line to a.ts",            "date": "2024-03-02", "time": "10:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 1, "deletions": 0, "commit_loc": [2,0] } },
+        { "id": 3,  "hash": "c103", "author_id": 1, "message": "add const A to a.ts",               "date": "2024-03-02", "time": "14:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 1, "deletions": 0, "commit_loc": [3,0] } },
+        { "id": 4,  "hash": "c104", "author_id": 2, "message": "init b.ts header + blank",          "date": "2024-03-03", "time": "11:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 2, "deletions": 0, "commit_loc": [3,2] } },
+        { "id": 5,  "hash": "c105", "author_id": 3, "message": "add type B to b.ts",                "date": "2024-03-04", "time": "11:30:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 1, "deletions": 0, "commit_loc": [3,3] } },
+        { "id": 6,  "hash": "c106", "author_id": 3, "message": "tidy a.ts spacing",                 "date": "2024-03-05", "time": "13:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 1, "deletions": 1, "commit_loc": [4,3] } },
+        { "id": 7,  "hash": "c107", "author_id": 1, "message": "add fa() to a.ts",                  "date": "2024-03-06", "time": "09:30:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 1, "deletions": 0, "commit_loc": [5,3] } },
+        { "id": 8,  "hash": "c108", "author_id": 1, "message": "add gb() to b.ts",                  "date": "2024-03-07", "time": "10:15:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 1, "deletions": 0, "commit_loc": [5,4] } },
+        { "id": 9,  "hash": "c109", "author_id": 2, "message": "refactor a.ts minor",               "date": "2024-03-08", "time": "09:45:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 1, "deletions": 1, "commit_loc": [5,4] } },
+        { "id": 10, "hash": "c110", "author_id": 2, "message": "default export in a.ts",            "date": "2024-03-10", "time": "12:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 1, "deletions": 0, "commit_loc": [6,4] } },
+        { "id": 11, "hash": "c111", "author_id": 3, "message": "add blank + footer area in b.ts",   "date": "2024-03-11", "time": "16:20:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 1, "deletions": 0, "commit_loc": [6,6] } },
+        { "id": 12, "hash": "c112", "author_id": 3, "message": "default export in b.ts",            "date": "2024-03-12", "time": "09:10:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 1, "deletions": 0, "commit_loc": [6,6] } }
+      ],
+
     "files": [
       {
+        "name": "a.ts",
         "path": "src/a.ts",
+        "extension": "ts",
         "lines": [
-          { "number": 1, "content": "// a header",                   "commitid": 1,  "authorId": "author1", "line_type": 1 },
-          { "number": 2, "content": "",                              "commitid": 2,  "authorId": "author2", "line_type": 0 },
-          { "number": 3, "content": "export const A = 1;",           "commitid": 3,  "authorId": "author1", "line_type": 2 },
-          { "number": 4, "content": "export function fa(){return A}", "commitid": 7,  "authorId": "author1", "line_type": 2 },
-          { "number": 5, "content": "",                              "commitid": 6,  "authorId": "author3", "line_type": 0 },
-          { "number": 6, "content": "export default fa;",            "commitid": 10, "authorId": "author2", "line_type": 2 }
-        ]
+          { "number": 1, "content": "// a header",                    "author_id": 1, "commit_hash": "c101", "date": "2024-03-01", "line_type": 1 },
+          { "number": 2, "content": "",                               "author_id": 2, "commit_hash": "c102", "date": "2024-03-02", "line_type": 0 },
+          { "number": 3, "content": "export const A = 1;",            "author_id": 1, "commit_hash": "c103", "date": "2024-03-02", "line_type": 2 },
+          { "number": 4, "content": "export function fa(){return A}", "author_id": 1, "commit_hash": "c107", "date": "2024-03-06", "line_type": 2 },
+          { "number": 5, "content": "",                               "author_id": 3, "commit_hash": "c106", "date": "2024-03-05", "line_type": 0 },
+          { "number": 6, "content": "export default fa;",             "author_id": 2, "commit_hash": "c110", "date": "2024-03-10", "line_type": 2 }
+        ],
+        "metrics": { "total_commits": 7, "insertions": 8, "deletions": 2, "loc": 6, "sloc": 3, "stability": 44},
+        "last_modified_date": "2024-03-10",
+        "last_modified_time": "12:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "b.ts",
         "path": "src/b.ts",
+        "extension": "ts",
         "lines": [
-          { "number": 1, "content": "// b header",                 "commitid": 4,  "authorId": "author2", "line_type": 1 },
-          { "number": 2, "content": "",                            "commitid": 4,  "authorId": "author2", "line_type": 0 },
-          { "number": 3, "content": "export type B = string;",     "commitid": 5,  "authorId": "author3", "line_type": 2 },
-          { "number": 4, "content": "export const gb = ()=>'ok';", "commitid": 8,  "authorId": "author1", "line_type": 2 },
-          { "number": 5, "content": "",                            "commitid": 11, "authorId": "author3", "line_type": 0 },
-          { "number": 6, "content": "export default gb;",          "commitid": 11, "authorId": "author3", "line_type": 2 }
-        ]
+          { "number": 1, "content": "// b header",                 "author_id": 2, "commit_hash": "c104", "date": "2024-03-03", "line_type": 1 },
+          { "number": 2, "content": "",                           "author_id": 2, "commit_hash": "c104", "date": "2024-03-03", "line_type": 0 },
+          { "number": 3, "content": "export type B = string;",    "author_id": 3, "commit_hash": "c105", "date": "2024-03-04", "line_type": 2 },
+          { "number": 4, "content": "export const gb = ()=>'ok';","author_id": 1, "commit_hash": "c108", "date": "2024-03-07", "line_type": 2 },
+          { "number": 5, "content": "",                           "author_id": 3, "commit_hash": "c111", "date": "2024-03-11", "line_type": 0 },
+          { "number": 6, "content": "export default gb;",         "author_id": 3, "commit_hash": "c111", "date": "2024-03-11", "line_type": 2 }
+        ],
+        "metrics": { "total_commits": 5, "insertions": 6, "deletions": 0, "loc": 6, "sloc": 3, "stability": 46},
+        "last_modified_date": "2024-03-11",
+        "last_modified_time": "16:20:00",
+        "last_modified_timezone": "Z"
       }
     ],
     "metrics": {

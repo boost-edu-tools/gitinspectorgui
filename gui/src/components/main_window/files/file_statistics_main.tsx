@@ -15,24 +15,27 @@ import { FileActivityChart } from "@/components/main_window/files/file_activity"
 /* -------- helpers (no commit-range filtering) -------- */
 
 function extractFileMetadata(analysis: AnalysisResult | undefined, fileIdsToShow: string[]) {
-  const fm = analysis?.repository?.files_metadata ?? []
+  const fm = analysis?.repository?.files ?? []
   return fm
     .filter((f) => fileIdsToShow.includes(f.path))
     .map((f) => ({
       path: f.path,
-      commits: f.metrics?.commits ?? 0,
+      total_commits: f.metrics?.total_commits ?? 0,
       insertions: f.metrics?.insertions ?? 0,
       deletions: f.metrics?.deletions ?? 0,
       loc: f.metrics?.loc ?? 0,
       sloc: f.metrics?.sloc ?? 0,
-      age: f.metrics?.age ?? " ",
+      stability: f.metrics?.stability ?? 0,
+      last_modified_date: f.last_modified_date ?? "",
+      last_modified_time: f.last_modified_time ?? "",
+      last_modified_timezone: f.last_modified_timezone ?? ""
     }))
-    .sort((a, b) => b.commits - a.commits)
+    .sort((a, b) => b.total_commits - a.total_commits)
 }
 
 function buildAuthorFileRows(
   analysis: AnalysisResult | undefined,
-  metric: "commits" | "insertions" | "deletions" | "loc" | "sloc",
+  metric: "total_commits" | "insertions" | "deletions" | "loc" | "sloc",
   fileIdsToShow: string[]
 ) {
   const repo = analysis?.repository
@@ -81,8 +84,8 @@ export function UnifiedFilesView({
   const [selectedFile, setSelectedFile] = React.useState<string | null>(null)
   const [displayMode, setDisplayMode] = React.useState<"absolute" | "percentage">("absolute")
   const [authorFileMetricType, setAuthorFileMetricType] = React.useState<
-    "commits" | "insertions" | "deletions" | "loc" | "sloc"
-  >("commits")
+    "total_commits" | "insertions" | "deletions" | "loc" | "sloc"
+  >("total_commits")
   const [viewMode, setViewMode] = React.useState<"repo" | "author-file">("repo")
 
   const { analysis, isLoading, error } = useAnalysis(selectedRepo)
@@ -220,14 +223,14 @@ export function UnifiedFilesView({
                 <Select
                   value={authorFileMetricType}
                   onValueChange={(v) =>
-                    setAuthorFileMetricType(v as "commits" | "insertions" | "deletions" | "loc" | "sloc")
+                    setAuthorFileMetricType(v as "total_commits" | "insertions" | "deletions" | "loc" | "sloc")
                   }
                 >
                   <SelectTrigger id="metric-type" className="w-32">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="commits">Commits</SelectItem>
+                    <SelectItem value="total_commits">Commits</SelectItem>
                     <SelectItem value="loc">LOC</SelectItem>
                     <SelectItem value="sloc">SLOC</SelectItem>
                     <SelectItem value="insertions">Insertions</SelectItem>

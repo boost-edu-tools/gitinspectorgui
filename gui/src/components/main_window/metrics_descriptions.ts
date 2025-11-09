@@ -1,6 +1,6 @@
 
 export const METRIC_DESCRIPTIONS = {
-  commits:   { label: "Commits",   description: "Total number of commits that modified this file" },
+  total_commits:   { label: "Commits",   description: "Total number of commits that modified this file" },
   insertions:{ label: "Insertions",description: "Total number of lines added to this file across all commits" },
   deletions: { label: "Deletions", description: "Total number of lines removed from this file across all commits" },
   loc:       { label: "LOC",       description: "Total lines including blanks and comments" },

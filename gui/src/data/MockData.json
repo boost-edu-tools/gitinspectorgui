@@ -4,392 +4,202 @@
     "from_time": "2024-03-01",
     "to_time": "2024-04-26",
     "from_commit": "c0001",
-    "to_commit": "c0040",
-    "exclude_authors": [],
-    "exclude_files": []
+    "to_commit": "c0040"
+
   },
+
   "repository": {
     "name": "example-repo-1",
     "path": "/home/user/projects/minisample-repo",
     "authors": [
       {
-        "id": "author1",
+        "id": 1,
         "name": "author1",
         "email": "author1@example.com",
         "aliases_email": [
           "author1_secondmail@example.com"
         ],
-        "metrics": {
-          "insertions": 50,
-          "deletions": 40,
-          "total_commits": 12,
-          "loc": 12,
-          "sloc": 10,
-          "age": "1:02:05"
-        },
+        "commit_hashes": ["c0005","c0006","c0007","c0012","c0013","c0017","c0018","c0025","c0026","c0032","c0035","c0040"],
         "files": [
-          {
-            "file_path": "src/file1.ts",
-            "metrics": {
-              "insertions": 14,
-              "deletions": 9,
-              "loc": 6,
-              "sloc": 4,
-              "commits": 4
-            }
-          },
-          {
-            "file_path": "src/file2.ts",
-            "metrics": {
-              "insertions": 12,
-              "deletions": 11,
-              "loc": 3,
-              "sloc": 3,
-              "commits": 4
-            }
-          },
-          {
-            "file_path": "src/file3.ts",
-            "metrics": {
-              "insertions": 12,
-              "deletions": 11,
-              "loc": 1,
-              "sloc": 1,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/file4.ts",
-            "metrics": {
-              "insertions": 12,
-              "deletions": 9,
-              "loc": 2,
-              "sloc": 2,
-              "commits": 1
-            }
-          }
-        ]
+          { "file_path": "src/file1.ts", "metrics": { "insertions": 14, "deletions": 9, "loc": 6, "sloc": 4, "total_commits": 4 } },
+          { "file_path": "src/file2.ts", "metrics": { "insertions": 12, "deletions": 11, "loc": 3, "sloc": 3, "total_commits": 4 } },
+          { "file_path": "src/file3.ts", "metrics": { "insertions": 12, "deletions": 11, "loc": 1, "sloc": 1, "total_commits": 3 } },
+          { "file_path": "src/file4.ts", "metrics": { "insertions": 12, "deletions": 9, "loc": 2, "sloc": 2, "total_commits": 1 } }
+        ],
+        "metrics": { "insertions": 50, "deletions": 40, "total_commits": 12, "loc": 12, "sloc": 10, "stability": 42}
       },
       {
-        "id": "author2",
+        "id": 2,
         "name": "author2",
         "email": "author2@example.com",
         "aliases_email": [],
-        "metrics": {
-          "insertions": 60,
-          "deletions": 45,
-          "total_commits": 11,
-          "loc": 9,
-          "sloc": 1,
-          "age": "1:08:03"
-        },
+        "commit_hashes": ["c0001","c0002","c0003","c0004","c0008","c0011","c0016","c0024","c0027","c0031","c0036"],
         "files": [
-          {
-            "file_path": "src/file1.ts",
-            "metrics": {
-              "insertions": 16,
-              "deletions": 12,
-              "loc": 3,
-              "sloc": 0,
-              "commits": 4
-            }
-          },
-          {
-            "file_path": "src/file2.ts",
-            "metrics": {
-              "insertions": 14,
-              "deletions": 11,
-              "loc": 4,
-              "sloc": 1,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/file3.ts",
-            "metrics": {
-              "insertions": 15,
-              "deletions": 12,
-              "loc": 0,
-              "sloc": 0,
-              "commits": 2
-            }
-          },
-          {
-            "file_path": "src/file4.ts",
-            "metrics": {
-              "insertions": 15,
-              "deletions": 10,
-              "loc": 2,
-              "sloc": 0,
-              "commits": 2
-            }
-          }
-        ]
+          { "file_path": "src/file1.ts", "metrics": { "insertions": 16, "deletions": 12, "loc": 3, "sloc": 0, "total_commits": 4 } },
+          { "file_path": "src/file2.ts", "metrics": { "insertions": 14, "deletions": 11, "loc": 4, "sloc": 1, "total_commits": 3 } },
+          { "file_path": "src/file3.ts", "metrics": { "insertions": 15, "deletions": 12, "loc": 0, "sloc": 0, "total_commits": 2 } },
+          { "file_path": "src/file4.ts", "metrics": { "insertions": 15, "deletions": 10, "loc": 2, "sloc": 0, "total_commits": 2 } }
+        ],
+        "metrics": { "insertions": 60, "deletions": 45, "total_commits": 11, "loc": 9, "sloc": 1, "stability": 60}
       },
       {
-        "id": "author3",
+        "id": 3,
         "name": "author3",
         "email": "author3@example.com",
         "aliases_email": [],
-        "metrics": {
-          "insertions": 45,
-          "deletions": 40,
-          "total_commits": 9,
-          "loc": 9,
-          "sloc": 5,
-          "age": "1:01:09"
-        },
+        "commit_hashes": ["c0009","c0010","c0014","c0015","c0019","c0020","c0028","c0033","c0037"],
         "files": [
-          {
-            "file_path": "src/file1.ts",
-            "metrics": {
-              "insertions": 10,
-              "deletions": 10,
-              "loc": 0,
-              "sloc": 0,
-              "commits": 2
-            }
-          },
-          {
-            "file_path": "src/file2.ts",
-            "metrics": {
-              "insertions": 12,
-              "deletions": 10,
-              "loc": 3,
-              "sloc": 1,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/file3.ts",
-            "metrics": {
-              "insertions": 12,
-              "deletions": 10,
-              "loc": 4,
-              "sloc": 3,
-              "commits": 2
-            }
-          },
-          {
-            "file_path": "src/file4.ts",
-            "metrics": {
-              "insertions": 11,
-              "deletions": 10,
-              "loc": 2,
-              "sloc": 1,
-              "commits": 2
-            }
-          }
-        ]
+          { "file_path": "src/file1.ts", "metrics": { "insertions": 10, "deletions": 10, "loc": 0, "sloc": 0, "total_commits": 2 } },
+          { "file_path": "src/file2.ts", "metrics": { "insertions": 12, "deletions": 10, "loc": 3, "sloc": 1, "total_commits": 3 } },
+          { "file_path": "src/file3.ts", "metrics": { "insertions": 12, "deletions": 10, "loc": 4, "sloc": 3, "total_commits": 2 } },
+          { "file_path": "src/file4.ts", "metrics": { "insertions": 11, "deletions": 10, "loc": 2, "sloc": 1, "total_commits": 2 } }
+        ],
+        "metrics": { "insertions": 45, "deletions": 40, "total_commits": 9, "loc": 9, "sloc": 5, "stability": 63}
       },
       {
-        "id": "author4",
+        "id": 4,
         "name": "author4",
         "email": "author4@example.com",
         "aliases_email": [
           "author4_secondmail@example.com",
           "author4_thirdmail@example.com"
         ],
-        "metrics": {
-          "insertions": 45,
-          "deletions": 35,
-          "total_commits": 8,
-          "loc": 10,
-          "sloc": 4,
-          "age": "1:08:01"
-        },
+        "commit_hashes": ["c0021","c0022","c0023","c0029","c0030","c0034","c0038","c0039"],
         "files": [
-          {
-            "file_path": "src/file1.ts",
-            "metrics": {
-              "insertions": 10,
-              "deletions": 8,
-              "loc": 1,
-              "sloc": 1,
-              "commits": 2
-            }
-          },
-          {
-            "file_path": "src/file2.ts",
-            "metrics": {
-              "insertions": 12,
-              "deletions": 7,
-              "loc": 0,
-              "sloc": 0,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/file3.ts",
-            "metrics": {
-              "insertions": 11,
-              "deletions": 10,
-              "loc": 5,
-              "sloc": 1,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/file4.ts",
-            "metrics": {
-              "insertions": 12,
-              "deletions": 10,
-              "loc": 4,
-              "sloc": 2,
-              "commits": 2
-            }
-          }
-        ]
-      }
-    ],
-    "files_metadata": [
-      {
-        "path": "src/file1.ts",
-        "metrics": {
-          "commits": 12,
-          "insertions": 50,
-          "deletions": 39,
-          "loc": 10,
-          "sloc": 5,
-          "age": "1:02:05"
-        }
-      },
-      {
-        "path": "src/file2.ts",
-        "metrics": {
-          "commits": 11,
-          "insertions": 50,
-          "deletions": 39,
-          "loc": 10,
-          "sloc": 5,
-          "age": "1:03:06"
-        }
-      },
-      {
-        "path": "src/file3.ts",
-        "metrics": {
-          "commits": 10,
-          "insertions": 50,
-          "deletions": 43,
-          "loc": 10,
-          "sloc": 5,
-          "age": "1:03:11"
-        }
-      },
-      {
-        "path": "src/file4.ts",
-        "metrics": {
-          "commits": 7,
-          "insertions": 50,
-          "deletions": 39,
-          "loc": 10,
-          "sloc": 5,
-          "age": "1:02:08"
-        }
+          { "file_path": "src/file1.ts", "metrics": { "insertions": 10, "deletions": 8, "loc": 1, "sloc": 1, "total_commits": 2 } },
+          { "file_path": "src/file2.ts", "metrics": { "insertions": 12, "deletions": 7, "loc": 0, "sloc": 0, "total_commits": 1 } },
+          { "file_path": "src/file3.ts", "metrics": { "insertions": 11, "deletions": 10, "loc": 5, "sloc": 1, "total_commits": 3 } },
+          { "file_path": "src/file4.ts", "metrics": { "insertions": 12, "deletions": 10, "loc": 4, "sloc": 2, "total_commits": 2 } }
+        ],
+        "metrics": { "insertions": 45, "deletions": 35, "total_commits": 8, "loc": 10, "sloc": 4, "stability": 52}
       }
     ],
     "commits": [
-      { "number": 1,  "hash": "c0001", "authorId": "author2", "message": "init repo and scaffolding",               "date": "2024-03-01T09:00:00Z", "insertions": 8,  "deletions": 0,  "changesPercent": 2.0 },
-      { "number": 2,  "hash": "c0002", "authorId": "author2", "message": "add basic types",                          "date": "2024-03-02T10:00:00Z", "insertions": 6,  "deletions": 1,  "changesPercent": 1.8 },
-      { "number": 3,  "hash": "c0003", "authorId": "author2", "message": "file1 first draft",                        "date": "2024-03-03T11:00:00Z", "insertions": 5,  "deletions": 2,  "changesPercent": 1.5 },
-      { "number": 4,  "hash": "c0004", "authorId": "author2", "message": "file2 first draft",                        "date": "2024-03-04T12:00:00Z", "insertions": 6,  "deletions": 2,  "changesPercent": 1.7 },
-      { "number": 5,  "hash": "c0005", "authorId": "author1", "message": "comment passes + small refactor",          "date": "2024-03-05T13:00:00Z", "insertions": 5,  "deletions": 3,  "changesPercent": 1.4 },
-      { "number": 6,  "hash": "c0006", "authorId": "author1", "message": "add tests skeleton",                       "date": "2024-03-06T09:30:00Z", "insertions": 4,  "deletions": 2,  "changesPercent": 1.2 },
-      { "number": 7,  "hash": "c0007", "authorId": "author1", "message": "file3 initial content",                    "date": "2024-03-07T14:20:00Z", "insertions": 6,  "deletions": 3,  "changesPercent": 1.8 },
-      { "number": 8,  "hash": "c0008", "authorId": "author2", "message": "tighten types & docs",                     "date": "2024-03-08T10:15:00Z", "insertions": 5,  "deletions": 3,  "changesPercent": 1.4 },
-      { "number": 9,  "hash": "c0009", "authorId": "author3", "message": "mid-cycle cleanup",                        "date": "2024-03-10T09:00:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 10, "hash": "c0010", "authorId": "author3", "message": "file4 initial content",                    "date": "2024-03-11T11:00:00Z", "insertions": 6,  "deletions": 3,  "changesPercent": 1.8 },
-      { "number": 11, "hash": "c0011", "authorId": "author2", "message": "early optimization pass",                  "date": "2024-03-12T13:00:00Z", "insertions": 4,  "deletions": 3,  "changesPercent": 1.1 },
-      { "number": 12, "hash": "c0012", "authorId": "author1", "message": "minor fix: file1",                         "date": "2024-03-13T09:25:00Z", "insertions": 4,  "deletions": 3,  "changesPercent": 1.1 },
-      { "number": 13, "hash": "c0013", "authorId": "author1", "message": "doc comments",                             "date": "2024-03-14T16:15:00Z", "insertions": 3,  "deletions": 2,  "changesPercent": 0.9 },
-      { "number": 14, "hash": "c0014", "authorId": "author3", "message": "refactor helpers",                         "date": "2024-03-15T12:40:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 15, "hash": "c0015", "authorId": "author3", "message": "file2 tweaks",                             "date": "2024-03-16T10:00:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 16, "hash": "c0016", "authorId": "author2", "message": "edge cases",                               "date": "2024-03-17T09:35:00Z", "insertions": 4,  "deletions": 3,  "changesPercent": 1.1 },
-      { "number": 17, "hash": "c0017", "authorId": "author1", "message": "add missing tests",                        "date": "2024-03-18T14:00:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 18, "hash": "c0018", "authorId": "author1", "message": "trim dead code",                           "date": "2024-03-19T12:00:00Z", "insertions": 3,  "deletions": 2,  "changesPercent": 0.9 },
-      { "number": 19, "hash": "c0019", "authorId": "author3", "message": "review feedback round",                    "date": "2024-03-20T10:30:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 20, "hash": "c0020", "authorId": "author3", "message": "file3 tidy",                               "date": "2024-03-21T11:50:00Z", "insertions": 6,  "deletions": 5,  "changesPercent": 1.5 },
-      { "number": 21, "hash": "c0021", "authorId": "author4", "message": "late-cycle push: file3",                   "date": "2024-03-23T09:10:00Z", "insertions": 6,  "deletions": 5,  "changesPercent": 1.5 },
-      { "number": 22, "hash": "c0022", "authorId": "author4", "message": "file4 polish",                             "date": "2024-03-24T10:15:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 23, "hash": "c0023", "authorId": "author4", "message": "tests finalization",                       "date": "2024-03-25T13:30:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 24, "hash": "c0024", "authorId": "author2", "message": "performance sweep",                        "date": "2024-03-26T15:00:00Z", "insertions": 4,  "deletions": 3,  "changesPercent": 1.1 },
-      { "number": 25, "hash": "c0025", "authorId": "author1", "message": "file1: tighten logic",                     "date": "2024-03-27T09:00:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 26, "hash": "c0026", "authorId": "author1", "message": "file2: comments & cleanup",                "date": "2024-03-28T11:00:00Z", "insertions": 4,  "deletions": 3,  "changesPercent": 1.1 },
-      { "number": 27, "hash": "c0027", "authorId": "author2", "message": "early owner: final touches",               "date": "2024-03-29T12:30:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 28, "hash": "c0028", "authorId": "author3", "message": "mid-cycle bugfixes",                       "date": "2024-03-31T10:45:00Z", "insertions": 4,  "deletions": 3,  "changesPercent": 1.1 },
-      { "number": 29, "hash": "c0029", "authorId": "author4", "message": "late-cycle tuning",                        "date": "2024-04-02T10:20:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 30, "hash": "c0030", "authorId": "author4", "message": "file3/file4: align interfaces",            "date": "2024-04-03T12:10:00Z", "insertions": 6,  "deletions": 5,  "changesPercent": 1.5 },
-      { "number": 31, "hash": "c0031", "authorId": "author2", "message": "docs & nits",                              "date": "2024-04-05T09:00:00Z", "insertions": 4,  "deletions": 3,  "changesPercent": 1.1 },
-      { "number": 32, "hash": "c0032", "authorId": "author1", "message": "steady chores",                            "date": "2024-04-07T09:00:00Z", "insertions": 4,  "deletions": 3,  "changesPercent": 1.1 },
-      { "number": 33, "hash": "c0033", "authorId": "author3", "message": "mid: simplify code paths",                 "date": "2024-04-10T10:00:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 34, "hash": "c0034", "authorId": "author4", "message": "late: upgrade deps",                       "date": "2024-04-12T11:00:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 35, "hash": "c0035", "authorId": "author1", "message": "steady: micro-optimizations",              "date": "2024-04-15T09:00:00Z", "insertions": 4,  "deletions": 3,  "changesPercent": 1.1 },
-      { "number": 36, "hash": "c0036", "authorId": "author2", "message": "early owner: wrap-up notes",               "date": "2024-04-17T09:00:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 37, "hash": "c0037", "authorId": "author3", "message": "mid: tests polishing",                     "date": "2024-04-20T09:00:00Z", "insertions": 5,  "deletions": 4,  "changesPercent": 1.3 },
-      { "number": 38, "hash": "c0038", "authorId": "author4", "message": "late: final polish",                       "date": "2024-04-22T09:00:00Z", "insertions": 6,  "deletions": 5,  "changesPercent": 1.5 },
-      { "number": 39, "hash": "c0039", "authorId": "author4", "message": "stabilize interfaces",                     "date": "2024-04-24T09:00:00Z", "insertions": 4,  "deletions": 3,  "changesPercent": 1.1 },
-      { "number": 40, "hash": "c0040", "authorId": "author1", "message": "release prep",                             "date": "2024-04-26T09:00:00Z", "insertions": 4,  "deletions": 3,  "changesPercent": 1.1 }
+      { "id": 1,  "hash": "c0001", "author_id": 2, "message": "init repo and scaffolding",        "date": "2024-03-01", "time": "09:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 8, "deletions": 0,  "commit_loc": [0,8,0,0] } },
+      { "id": 2,  "hash": "c0002", "author_id": 2, "message": "add basic types",                   "date": "2024-03-02", "time": "10:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 6, "deletions": 1,  "commit_loc": [0,13,0,0] } },
+      { "id": 3,  "hash": "c0003", "author_id": 2, "message": "file1 first draft",                 "date": "2024-03-03", "time": "11:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 2,  "commit_loc": [0,16,0,0] } },
+      { "id": 4,  "hash": "c0004", "author_id": 2, "message": "file2 first draft",                 "date": "2024-03-04", "time": "12:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 6, "deletions": 2,  "commit_loc": [0,20,0,0] } },
+      { "id": 5,  "hash": "c0005", "author_id": 1, "message": "comment passes + small refactor",   "date": "2024-03-05", "time": "13:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 3,  "commit_loc": [5,17,0,0] } },
+      { "id": 6,  "hash": "c0006", "author_id": 1, "message": "add tests skeleton",                "date": "2024-03-06", "time": "09:30:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 4, "deletions": 2,  "commit_loc": [7,15,0,0] } },
+      { "id": 7,  "hash": "c0007", "author_id": 1, "message": "file3 initial content",             "date": "2024-03-07", "time": "14:20:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 6, "deletions": 3,  "commit_loc": [10,15,0,0] } },
+      { "id": 8,  "hash": "c0008", "author_id": 2, "message": "tighten types & docs",              "date": "2024-03-08", "time": "10:15:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 3,  "commit_loc": [10,17,0,0] } },
+      { "id": 9,  "hash": "c0009", "author_id": 3, "message": "mid-cycle cleanup",                 "date": "2024-03-10", "time": "09:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [10,17,5,0] } },
+      { "id": 10, "hash": "c0010", "author_id": 3, "message": "file4 initial content",             "date": "2024-03-11", "time": "11:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 6, "deletions": 3,  "commit_loc": [10,17,8,0] } },
+      { "id": 11, "hash": "c0011", "author_id": 2, "message": "early optimization pass",           "date": "2024-03-12", "time": "13:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 4, "deletions": 3,  "commit_loc": [10,18,8,0] } },
+      { "id": 12, "hash": "c0012", "author_id": 1, "message": "minor fix: file1",                  "date": "2024-03-13", "time": "09:25:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 4, "deletions": 3,  "commit_loc": [11,18,8,0] } },
+      { "id": 13, "hash": "c0013", "author_id": 1, "message": "doc comments",                      "date": "2024-03-14", "time": "16:15:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 3, "deletions": 2,  "commit_loc": [12,18,8,0] } },
+      { "id": 14, "hash": "c0014", "author_id": 3, "message": "refactor helpers",                  "date": "2024-03-15", "time": "12:40:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [12,18,9,0] } },
+      { "id": 15, "hash": "c0015", "author_id": 3, "message": "file2 tweaks",                      "date": "2024-03-16", "time": "10:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [12,18,10,0] } },
+      { "id": 16, "hash": "c0016", "author_id": 2, "message": "edge cases",                        "date": "2024-03-17", "time": "09:35:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 4, "deletions": 3,  "commit_loc": [12,19,10,0] } },
+      { "id": 17, "hash": "c0017", "author_id": 1, "message": "add missing tests",                 "date": "2024-03-18", "time": "14:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [13,19,10,0] } },
+      { "id": 18, "hash": "c0018", "author_id": 1, "message": "trim dead code",                    "date": "2024-03-19", "time": "12:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 3, "deletions": 2,  "commit_loc": [14,19,10,0] } },
+      { "id": 19, "hash": "c0019", "author_id": 3, "message": "review feedback round",             "date": "2024-03-20", "time": "10:30:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [14,19,11,0] } },
+      { "id": 20, "hash": "c0020", "author_id": 3, "message": "file3 tidy",                        "date": "2024-03-21", "time": "11:50:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 6, "deletions": 5,  "commit_loc": [14,19,12,0] } },
+      { "id": 21, "hash": "c0021", "author_id": 4, "message": "late-cycle push: file3",            "date": "2024-03-23", "time": "09:10:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 6, "deletions": 5,  "commit_loc": [14,19,12,6] } },
+      { "id": 22, "hash": "c0022", "author_id": 4, "message": "file4 polish",                      "date": "2024-03-24", "time": "10:15:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [14,19,12,7] } },
+      { "id": 23, "hash": "c0023", "author_id": 4, "message": "tests finalization",                "date": "2024-03-25", "time": "13:30:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [14,19,12,8] } },
+      { "id": 24, "hash": "c0024", "author_id": 2, "message": "performance sweep",                 "date": "2024-03-26", "time": "15:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 4, "deletions": 3,  "commit_loc": [14,20,12,8] } },
+      { "id": 25, "hash": "c0025", "author_id": 1, "message": "file1: tighten logic",              "date": "2024-03-27", "time": "09:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [15,20,12,8] } },
+      { "id": 26, "hash": "c0026", "author_id": 1, "message": "file2: comments & cleanup",         "date": "2024-03-28", "time": "11:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 4, "deletions": 3,  "commit_loc": [16,20,12,8] } },
+      { "id": 27, "hash": "c0027", "author_id": 2, "message": "early owner: final touches",        "date": "2024-03-29", "time": "12:30:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [16,21,12,8] } },
+      { "id": 28, "hash": "c0028", "author_id": 3, "message": "mid-cycle bugfixes",                "date": "2024-03-31", "time": "10:45:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 4, "deletions": 3,  "commit_loc": [16,21,13,8] } },
+      { "id": 29, "hash": "c0029", "author_id": 4, "message": "late-cycle tuning",                 "date": "2024-04-02", "time": "10:20:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [16,21,13,9] } },
+      { "id": 30, "hash": "c0030", "author_id": 4, "message": "file3/file4: align interfaces",     "date": "2024-04-03", "time": "12:10:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 6, "deletions": 5,  "commit_loc": [16,21,13,10] } },
+      { "id": 31, "hash": "c0031", "author_id": 2, "message": "docs & nits",                       "date": "2024-04-05", "time": "09:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 4, "deletions": 3,  "commit_loc": [16,22,13,10] } },
+      { "id": 32, "hash": "c0032", "author_id": 1, "message": "steady chores",                     "date": "2024-04-07", "time": "09:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 4, "deletions": 3,  "commit_loc": [17,22,13,10] } },
+      { "id": 33, "hash": "c0033", "author_id": 3, "message": "mid: simplify code paths",          "date": "2024-04-10", "time": "10:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [17,22,14,10] } },
+      { "id": 34, "hash": "c0034", "author_id": 4, "message": "late: upgrade deps",                "date": "2024-04-12", "time": "11:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [17,22,14,11] } },
+      { "id": 35, "hash": "c0035", "author_id": 1, "message": "steady: micro-optimizations",       "date": "2024-04-15", "time": "09:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 4, "deletions": 3,  "commit_loc": [18,22,14,11] } },
+      { "id": 36, "hash": "c0036", "author_id": 2, "message": "early owner: wrap-up notes",        "date": "2024-04-17", "time": "09:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [18,23,14,11] } },
+      { "id": 37, "hash": "c0037", "author_id": 3, "message": "mid: tests polishing",              "date": "2024-04-20", "time": "09:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 5, "deletions": 4,  "commit_loc": [18,23,15,11] } },
+      { "id": 38, "hash": "c0038", "author_id": 4, "message": "late: final polish",                "date": "2024-04-22", "time": "09:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 6, "deletions": 5,  "commit_loc": [18,23,15,12] } },
+      { "id": 39, "hash": "c0039", "author_id": 4, "message": "stabilize interfaces",              "date": "2024-04-24", "time": "09:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 4, "deletions": 3,  "commit_loc": [18,23,15,13] } },
+      { "id": 40, "hash": "c0040", "author_id": 1, "message": "release prep",                      "date": "2024-04-26", "time": "09:00:00", "timezone": "Z", "files_changed": [], "metrics": { "insertions": 4, "deletions": 3,  "commit_loc": [19,23,15,13] } }
     ],
     "files": [
       {
+        "name": "file1.ts",
         "path": "src/file1.ts",
+        "extension": "ts",
         "lines": [
-          { "number": 1,  "content": "// file1 header",          "authorId": "author1", "line_type": 1, "commitid": 25 },
-          { "number": 2,  "content": "",                         "authorId": "author1", "line_type": 0, "commitid": 13 },
-          { "number": 3,  "content": "export const a = 1;",      "authorId": "author1", "line_type": 2, "commitid": 12 },
-          { "number": 4,  "content": "export function f(){",     "authorId": "author1", "line_type": 2, "commitid": 5 },
-          { "number": 5,  "content": "  return a;",              "authorId": "author1", "line_type": 2, "commitid": 5 },
-          { "number": 6,  "content": "}",                        "authorId": "author1", "line_type": 2, "commitid": 17 },
-          { "number": 7,  "content": "",                         "authorId": "author2", "line_type": 0, "commitid": 3 },
-          { "number": 8,  "content": "// end of file1",          "authorId": "author2", "line_type": 1, "commitid": 11 },
-          { "number": 9,  "content": "// notes",                 "authorId": "author2", "line_type": 1, "commitid": 27 },
-          { "number": 10, "content": "export default f;",        "authorId": "author4", "line_type": 2, "commitid": 21 }
-        ]
+          { "number": 1,  "content": "// file1 header",     "author_id": 1, "commit_hash": "c0025", "date": "2024-03-27", "line_type": 1 },
+          { "number": 2,  "content": "",                    "author_id": 1, "commit_hash": "c0013", "date": "2024-03-14", "line_type": 0 },
+          { "number": 3,  "content": "export const a = 1;", "author_id": 1, "commit_hash": "c0012", "date": "2024-03-13", "line_type": 2 },
+          { "number": 4,  "content": "export function f(){","author_id": 1, "commit_hash": "c0005", "date": "2024-03-05", "line_type": 2 },
+          { "number": 5,  "content": "  return a;",         "author_id": 1, "commit_hash": "c0005", "date": "2024-03-05", "line_type": 2 },
+          { "number": 6,  "content": "}",                   "author_id": 1, "commit_hash": "c0017", "date": "2024-03-18", "line_type": 2 },
+          { "number": 7,  "content": "",                    "author_id": 2, "commit_hash": "c0003", "date": "2024-03-03", "line_type": 0 },
+          { "number": 8,  "content": "// end of file1",     "author_id": 2, "commit_hash": "c0011", "date": "2024-03-12", "line_type": 1 },
+          { "number": 9,  "content": "// notes",            "author_id": 2, "commit_hash": "c0027", "date": "2024-03-29", "line_type": 1 },
+          { "number": 10, "content": "export default f;",   "author_id": 4, "commit_hash": "c0021", "date": "2024-03-23", "line_type": 2 }
+        ],
+        "metrics": { "total_commits": 12, "insertions": 50, "deletions": 39, "loc": 10, "sloc": 5, "stability": 64},
+        "last_modified_date": "2024-03-29",
+        "last_modified_time": "12:30:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "file2.ts",
         "path": "src/file2.ts",
+        "extension": "ts",
         "lines": [
-          { "number": 1,  "content": "// file2 header",          "authorId": "author3", "line_type": 1, "commitid": 15 },
-          { "number": 2,  "content": "",                         "authorId": "author2", "line_type": 0, "commitid": 4 },
-          { "number": 3,  "content": "export type B = string;",  "authorId": "author2", "line_type": 2, "commitid": 16 },
-          { "number": 4,  "content": "export const g = () => {", "authorId": "author1", "line_type": 2, "commitid": 32 },
-          { "number": 5,  "content": "  return 'ok';",           "authorId": "author1", "line_type": 2, "commitid": 26 },
-          { "number": 6,  "content": "};",                       "authorId": "author1", "line_type": 2, "commitid": 35 },
-          { "number": 7,  "content": "",                         "authorId": "author2", "line_type": 0, "commitid": 8 },
-          { "number": 8,  "content": "// end of file2",          "authorId": "author2", "line_type": 1, "commitid": 31 },
-          { "number": 9,  "content": "// copyright",             "authorId": "author3", "line_type": 1, "commitid": 28 },
-          { "number": 10, "content": "export default g;",        "authorId": "author3", "line_type": 2, "commitid": 33 }
-        ]
+          { "number": 1,  "content": "// file2 header",          "author_id": 3, "commit_hash": "c0015", "date": "2024-03-16", "line_type": 1 },
+          { "number": 2,  "content": "",                         "author_id": 2, "commit_hash": "c0004", "date": "2024-03-04", "line_type": 0 },
+          { "number": 3,  "content": "export type B = string;",  "author_id": 2, "commit_hash": "c0016", "date": "2024-03-17", "line_type": 2 },
+          { "number": 4,  "content": "export const g = () => {", "author_id": 1, "commit_hash": "c0032", "date": "2024-04-07", "line_type": 2 },
+          { "number": 5,  "content": "  return 'ok';",           "author_id": 1, "commit_hash": "c0026", "date": "2024-03-28", "line_type": 2 },
+          { "number": 6,  "content": "};",                       "author_id": 1, "commit_hash": "c0035", "date": "2024-04-15", "line_type": 2 },
+          { "number": 7,  "content": "",                         "author_id": 2, "commit_hash": "c0008", "date": "2024-03-08", "line_type": 0 },
+          { "number": 8,  "content": "// end of file2",          "author_id": 2, "commit_hash": "c0031", "date": "2024-04-05", "line_type": 1 },
+          { "number": 9,  "content": "// copyright",             "author_id": 3, "commit_hash": "c0028", "date": "2024-03-31", "line_type": 1 },
+          { "number": 10, "content": "export default g;",        "author_id": 3, "commit_hash": "c0033", "date": "2024-04-10", "line_type": 2 }
+        ],
+        "metrics": { "total_commits": 11, "insertions": 50, "deletions": 39, "loc": 10, "sloc": 5, "stability": 31},
+        "last_modified_date": "2024-04-15",
+        "last_modified_time": "09:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "file3.ts",
         "path": "src/file3.ts",
+        "extension": "ts",
         "lines": [
-          { "number": 1,  "content": "// file3 header",          "authorId": "author4", "line_type": 1, "commitid": 30 },
-          { "number": 2,  "content": "",                         "authorId": "author4", "line_type": 0, "commitid": 21 },
-          { "number": 3,  "content": "export interface C {}",    "authorId": "author1", "line_type": 2, "commitid": 7 },
-          { "number": 4,  "content": "export function h(){",     "authorId": "author3", "line_type": 2, "commitid": 20 },
-          { "number": 5,  "content": "  return 3;",              "authorId": "author3", "line_type": 2, "commitid": 19 },
-          { "number": 6,  "content": "}",                        "authorId": "author4", "line_type": 2, "commitid": 21 },
-          { "number": 7,  "content": "",                         "authorId": "author3", "line_type": 0, "commitid": 9 },
-          { "number": 8,  "content": "// end of file3",          "authorId": "author4", "line_type": 1, "commitid": 29 },
-          { "number": 9,  "content": "// footer",                "authorId": "author4", "line_type": 1, "commitid": 38 },
-          { "number": 10, "content": "export default h;",        "authorId": "author3", "line_type": 2, "commitid": 37 }
-        ]
+          { "number": 1,  "content": "// file3 header",          "author_id": 4, "commit_hash": "c0030", "date": "2024-04-03", "line_type": 1 },
+          { "number": 2,  "content": "",                         "author_id": 4, "commit_hash": "c0021", "date": "2024-03-23", "line_type": 0 },
+          { "number": 3,  "content": "export interface C {}",    "author_id": 1, "commit_hash": "c0007", "date": "2024-03-07", "line_type": 2 },
+          { "number": 4,  "content": "export function h(){",     "author_id": 3, "commit_hash": "c0020", "date": "2024-03-21", "line_type": 2 },
+          { "number": 5,  "content": "  return 3;",              "author_id": 3, "commit_hash": "c0019", "date": "2024-03-20", "line_type": 2 },
+          { "number": 6,  "content": "}",                        "author_id": 4, "commit_hash": "c0021", "date": "2024-03-23", "line_type": 2 },
+          { "number": 7,  "content": "",                         "author_id": 3, "commit_hash": "c0009", "date": "2024-03-10", "line_type": 0 },
+          { "number": 8,  "content": "// end of file3",          "author_id": 4, "commit_hash": "c0029", "date": "2024-04-02", "line_type": 1 },
+          { "number": 9,  "content": "// footer",                "author_id": 4, "commit_hash": "c0038", "date": "2024-04-22", "line_type": 1 },
+          { "number": 10, "content": "export default h;",        "author_id": 3, "commit_hash": "c0037", "date": "2024-04-20", "line_type": 2 }
+        ],
+        "metrics": { "total_commits": 10, "insertions": 50, "deletions": 43, "loc": 10, "sloc": 5, "stability": 21 },
+        "last_modified_date": "2024-04-22",
+        "last_modified_time": "09:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "file4.ts",
         "path": "src/file4.ts",
+        "extension": "ts",
         "lines": [
-          { "number": 1,  "content": "// file4 header",          "authorId": "author4", "line_type": 1, "commitid": 22 },
-          { "number": 2,  "content": "",                         "authorId": "author3", "line_type": 0, "commitid": 10 },
-          { "number": 3,  "content": "export const NAME='f4';",  "authorId": "author4", "line_type": 2, "commitid": 34 },
-          { "number": 4,  "content": "export function k(){",     "authorId": "author1", "line_type": 2, "commitid": 18 },
-          { "number": 5,  "content": "  return NAME;",           "authorId": "author4", "line_type": 2, "commitid": 39 },
-          { "number": 6,  "content": "}",                        "authorId": "author3", "line_type": 2, "commitid": 14 },
-          { "number": 7,  "content": "",                         "authorId": "author2", "line_type": 0, "commitid": 11 },
-          { "number": 8,  "content": "// end of file4",          "authorId": "author4", "line_type": 1, "commitid": 23 },
-          { "number": 9,  "content": "// eof",                   "authorId": "author2", "line_type": 1, "commitid": 36 },
-          { "number": 10, "content": "export default k;",        "authorId": "author1", "line_type": 2, "commitid": 40 }
-        ]
+          { "number": 1,  "content": "// file4 header",          "author_id": 4, "commit_hash": "c0022", "date": "2024-03-24", "line_type": 1 },
+          { "number": 2,  "content": "",                         "author_id": 3, "commit_hash": "c0010", "date": "2024-03-11", "line_type": 0 },
+          { "number": 3,  "content": "export const NAME='f4';",  "author_id": 4, "commit_hash": "c0034", "date": "2024-04-12", "line_type": 2 },
+          { "number": 4,  "content": "export function k(){",     "author_id": 1, "commit_hash": "c0018", "date": "2024-03-19", "line_type": 2 },
+          { "number": 5,  "content": "  return NAME;",           "author_id": 4, "commit_hash": "c0039", "date": "2024-04-24", "line_type": 2 },
+          { "number": 6,  "content": "}",                        "author_id": 3, "commit_hash": "c0014", "date": "2024-03-15", "line_type": 2 },
+          { "number": 7,  "content": "",                         "author_id": 2, "commit_hash": "c0011", "date": "2024-03-12", "line_type": 0 },
+          { "number": 8,  "content": "// end of file4",          "author_id": 4, "commit_hash": "c0023", "date": "2024-03-25", "line_type": 1 },
+          { "number": 9,  "content": "// eof",                   "author_id": 2, "commit_hash": "c0036", "date": "2024-04-17", "line_type": 1 },
+          { "number": 10, "content": "export default k;",        "author_id": 1, "commit_hash": "c0040", "date": "2024-04-26", "line_type": 2 }
+        ],
+        "metrics": { "total_commits": 7, "insertions": 50, "deletions": 39, "loc": 10, "sloc": 5, "stability": 41},
+        "last_modified_date": "2024-04-26",
+        "last_modified_time": "09:00:00",
+        "last_modified_timezone": "Z"
       }
     ],
     "metrics": {

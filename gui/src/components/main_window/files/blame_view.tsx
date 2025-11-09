@@ -4,24 +4,23 @@ import { getAuthorColor } from "@/components/helpers/AuthorColors"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { useAnalysis } from "@/hooks/useAnalysis"
-import type { AnalysisResult, AuthorId, Author, FileEntry, LineEntry, Commit } from "@/components/types"
+import type { AnalysisResult, Author, File, Line, Commit } from "@/components/types"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-/** group adjacent lines by commit hash (using line metadata) */
-function groupByCommit(lines: LineEntry[]) {
+function groupByCommit(lines: Line[]) {
   const groups: Array<{
-    commitid: number
-    authorId: AuthorId
-    lines: LineEntry[]
+    commit_hash: string
+    author_id: number
+    lines: Line[]
   }> = []
   for (const ln of lines) {
     const last = groups[groups.length - 1]
-    if (last && last.commitid === ln.commitid) {
+    if (last && last.commit_hash === ln.commit_hash) {
       last.lines.push(ln)
     } else {
       groups.push({
-        commitid: ln.commitid,
-        authorId: ln.authorId,
+        commit_hash: ln.commit_hash,
+        author_id: ln.author_id,
         lines: [ln],
       })
     }
@@ -43,8 +42,8 @@ export function BlameView({
   selectedAuthors,
 }: {
   selectedRepo: string | null
-  file: FileEntry
-  authorsById: Map<AuthorId, Author>
+  file: File
+  authorsById: Map<number, Author>
   selectedAuthors: string[]
 }) {
   const { analysis } = useAnalysis(selectedRepo)
@@ -53,7 +52,7 @@ export function BlameView({
   const [hideComments, setHideComments] = React.useState(false)
   const [colorize, setColorize] = React.useState(true)
 
-  const authorName = (id: AuthorId) => authorsById.get(id)?.name ?? "Unknown"
+  const authorName = (id: number) => authorsById.get(id)?.name ?? "Unknown"
 
   const repo = (analysis as AnalysisResult | undefined)?.repository
   const fullCommits: Commit[] = repo?.commits ?? []
@@ -73,7 +72,7 @@ export function BlameView({
   const authorStats = React.useMemo(() => {
     const counts: Record<string, number> = {}
     for (const ln of filteredLines) {
-      const name = authorName(ln.authorId)
+      const name = authorName(ln.author_id)
       counts[name] = (counts[name] ?? 0) + 1
     }
     const total = filteredLines.length || 1
@@ -196,14 +195,14 @@ export function BlameView({
         <ScrollArea className="flex-1 h-[600px]">
           <div className="font-mono text-[11px] leading-5">
             {groups.map((g, gi) => {
-              const name = authorName(g.authorId)
+              const name = authorName(g.author_id)
               const info = getAuthorColor(name) ?? { color: "#000" }
               const isSelected = selectedAuthors.includes(name)
-              const fullCommit = fullCommits.find(c => c.number === g.commitid)
+              const fullCommit = fullCommits.find(c => c.hash === g.commit_hash)
               const commitHash = fullCommit?.hash ?? ""
               const commitMessage = fullCommit?.message ?? ""
               const commitDate = String(fullCommit?.date) ?? ""
-              const commitNum = fullCommit?.number ?? null
+              const commitNum = fullCommit?.id ?? null
               const paddedNum =
                 commitNum != null ? `#${String(commitNum).padStart(2, "0")}` : "—"
 

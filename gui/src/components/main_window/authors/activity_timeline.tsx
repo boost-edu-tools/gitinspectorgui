@@ -82,7 +82,7 @@ export function Timeline({
 
     const points = ranged.map((c) => {
       const ts = +new Date(c.date)
-      const author = authorById.get(c.authorId)?.name ?? "Unknown"
+      const author = authorById.get(c.author_id)?.name ?? "Unknown"
       authorsSet.add(author)
       if (ts < min) min = ts
       if (ts > max) max = ts
@@ -90,8 +90,8 @@ export function Timeline({
         date: ts,
         day: dayKey(ts),
         author,
-        authorIndex: 0, // filled after filtering
-        valuePercent: c.changesPercent ?? 0,
+        authorIndex: 0, 
+        valuePercent: ((c.metrics.insertions ?? 0) / Object.values(c.metrics.commit_loc ?? {}).reduce((a, b) => a + b, 0) || 1),
         valueCommits: 1,
         message: c.message ?? "",
         hash: c.hash,

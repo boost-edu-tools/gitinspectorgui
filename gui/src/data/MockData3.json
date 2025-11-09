@@ -13,11 +13,24 @@
     "path": "/home/user/projects/example-natural",
     "authors": [
       {
-        "id": "authorA",
+        "id": 1,
         "name": "authorA",
         "email": "authorA@example.com",
-        "aliases_email": [
-          "authorA_alt@example.com"
+        "aliases_email": ["authorA_alt@example.com"],
+        "commit_hashes": ["c3002","c3003","c3004","c3005","c3006","c3007","c3008","c3009","c3010","c3011","c3012","c3013","c3014","c3015","c3016","c3027","c3046"],
+        "files": [
+          {"file_path":"src/module1/f1.ts","metrics":{"insertions":22,"deletions":0,"loc":5,"sloc":2,"total_commits":3}},
+          {"file_path":"src/module1/f2.ts","metrics":{"insertions":23,"deletions":0,"loc":5,"sloc":3,"total_commits":1}},
+          {"file_path":"src/module1/f3.ts","metrics":{"insertions":23,"deletions":0,"loc":4,"sloc":3,"total_commits":4}},
+          {"file_path":"src/module1/f4.ts","metrics":{"insertions":24,"deletions":0,"loc":4,"sloc":4,"total_commits":2}},
+          {"file_path":"src/module2/f5.ts","metrics":{"insertions":23,"deletions":0,"loc":4,"sloc":3,"total_commits":3}},
+          {"file_path":"src/module2/f6.ts","metrics":{"insertions":23,"deletions":0,"loc":5,"sloc":3,"total_commits":4}},
+          {"file_path":"src/module2/f7.ts","metrics":{"insertions":23,"deletions":0,"loc":3,"sloc":3,"total_commits":3}},
+          {"file_path":"src/module2/f8.ts","metrics":{"insertions":24,"deletions":0,"loc":6,"sloc":4,"total_commits":5}},
+          {"file_path":"src/module3/f10.ts","metrics":{"insertions":23,"deletions":0,"loc":4,"sloc":3,"total_commits":4}},
+          {"file_path":"src/module3/f11.ts","metrics":{"insertions":21,"deletions":0,"loc":3,"sloc":1,"total_commits":3}},
+          {"file_path":"src/module3/f12.ts","metrics":{"insertions":21,"deletions":0,"loc":2,"sloc":1,"total_commits":1}},
+          {"file_path":"src/module3/f9.ts","metrics":{"insertions":21,"deletions":0,"loc":2,"sloc":1,"total_commits":1}}
         ],
         "metrics": {
           "insertions": 271,
@@ -25,137 +38,29 @@
           "total_commits": 34,
           "loc": 47,
           "sloc": 31,
-          "age": "2:06:10"
-        },
-        "files": [
-          {
-            "file_path": "src/module1/f1.ts",
-            "metrics": {
-              "insertions": 22,
-              "deletions": 0,
-              "loc": 5,
-              "sloc": 2,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/module1/f2.ts",
-            "metrics": {
-              "insertions": 23,
-              "deletions": 0,
-              "loc": 5,
-              "sloc": 3,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module1/f3.ts",
-            "metrics": {
-              "insertions": 23,
-              "deletions": 0,
-              "loc": 4,
-              "sloc": 3,
-              "commits": 4
-            }
-          },
-          {
-            "file_path": "src/module1/f4.ts",
-            "metrics": {
-              "insertions": 24,
-              "deletions": 0,
-              "loc": 4,
-              "sloc": 4,
-              "commits": 2
-            }
-          },
-          {
-            "file_path": "src/module2/f5.ts",
-            "metrics": {
-              "insertions": 23,
-              "deletions": 0,
-              "loc": 4,
-              "sloc": 3,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/module2/f6.ts",
-            "metrics": {
-              "insertions": 23,
-              "deletions": 0,
-              "loc": 5,
-              "sloc": 3,
-              "commits": 4
-            }
-          },
-          {
-            "file_path": "src/module2/f7.ts",
-            "metrics": {
-              "insertions": 23,
-              "deletions": 0,
-              "loc": 3,
-              "sloc": 3,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/module2/f8.ts",
-            "metrics": {
-              "insertions": 24,
-              "deletions": 0,
-              "loc": 6,
-              "sloc": 4,
-              "commits": 5
-            }
-          },
-          {
-            "file_path": "src/module3/f10.ts",
-            "metrics": {
-              "insertions": 23,
-              "deletions": 0,
-              "loc": 4,
-              "sloc": 3,
-              "commits": 4
-            }
-          },
-          {
-            "file_path": "src/module3/f11.ts",
-            "metrics": {
-              "insertions": 21,
-              "deletions": 0,
-              "loc": 3,
-              "sloc": 1,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/module3/f12.ts",
-            "metrics": {
-              "insertions": 21,
-              "deletions": 0,
-              "loc": 2,
-              "sloc": 1,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module3/f9.ts",
-            "metrics": {
-              "insertions": 21,
-              "deletions": 0,
-              "loc": 2,
-              "sloc": 1,
-              "commits": 1
-            }
-          }
-        ]
+          "stability": 32
+        }
       },
       {
-        "id": "authorB",
+        "id": 2,
         "name": "authorB",
         "email": "authorB@example.com",
-        "aliases_email": [
-          "authorB_alt@example.com"
+        "aliases_email": ["authorB_alt@example.com"],
+        "commit_hashes": ["c3017","c3018","c3019","c3020","c3021","c3022","c3023","c3024","c3025","c3026","c3028","c3029","c3030","c3032"],
+        "files": [
+          {"file_path":"src/module2/f5.ts","metrics":{"insertions":21,"deletions":0,"loc":1,"sloc":1,"total_commits":1}},
+          {"file_path":"src/module2/f7.ts","metrics":{"insertions":0,"deletions":0,"loc":1,"sloc":0,"total_commits":1}},
+          {"file_path":"src/module3/f10.ts","metrics":{"insertions":1,"deletions":0,"loc":1,"sloc":1,"total_commits":1}},
+          {"file_path":"src/module3/f11.ts","metrics":{"insertions":2,"deletions":0,"loc":2,"sloc":2,"total_commits":2}},
+          {"file_path":"src/module3/f12.ts","metrics":{"insertions":3,"deletions":0,"loc":4,"sloc":3,"total_commits":4}},
+          {"file_path":"src/module3/f9.ts","metrics":{"insertions":1,"deletions":0,"loc":3,"sloc":1,"total_commits":1}},
+          {"file_path":"src/module4/f13.ts","metrics":{"insertions":3,"deletions":0,"loc":4,"sloc":3,"total_commits":2}},
+          {"file_path":"src/module4/f14.ts","metrics":{"insertions":1,"deletions":0,"loc":3,"sloc":1,"total_commits":1}},
+          {"file_path":"src/module4/f15.ts","metrics":{"insertions":1,"deletions":0,"loc":2,"sloc":1,"total_commits":2}},
+          {"file_path":"src/module4/f16.ts","metrics":{"insertions":1,"deletions":0,"loc":3,"sloc":1,"total_commits":1}},
+          {"file_path":"src/module5/f17.ts","metrics":{"insertions":1,"deletions":0,"loc":2,"sloc":1,"total_commits":1}},
+          {"file_path":"src/module5/f18.ts","metrics":{"insertions":1,"deletions":0,"loc":3,"sloc":1,"total_commits":2}},
+          {"file_path":"src/module5/f19.ts","metrics":{"insertions":1,"deletions":0,"loc":2,"sloc":1,"total_commits":1}}
         ],
         "metrics": {
           "insertions": 37,
@@ -163,1627 +68,482 @@
           "total_commits": 14,
           "loc": 31,
           "sloc": 17,
-          "age": "0:11:06"
-        },
-        "files": [
-          {
-            "file_path": "src/module2/f5.ts",
-            "metrics": {
-              "insertions": 21,
-              "deletions": 0,
-              "loc": 1,
-              "sloc": 1,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module2/f7.ts",
-            "metrics": {
-              "insertions": 0,
-              "deletions": 0,
-              "loc": 1,
-              "sloc": 0,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module3/f10.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 0,
-              "loc": 1,
-              "sloc": 1,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module3/f11.ts",
-            "metrics": {
-              "insertions": 2,
-              "deletions": 0,
-              "loc": 2,
-              "sloc": 2,
-              "commits": 2
-            }
-          },
-          {
-            "file_path": "src/module3/f12.ts",
-            "metrics": {
-              "insertions": 3,
-              "deletions": 0,
-              "loc": 4,
-              "sloc": 3,
-              "commits": 4
-            }
-          },
-          {
-            "file_path": "src/module3/f9.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 0,
-              "loc": 3,
-              "sloc": 1,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module4/f13.ts",
-            "metrics": {
-              "insertions": 3,
-              "deletions": 0,
-              "loc": 4,
-              "sloc": 3,
-              "commits": 2
-            }
-          },
-          {
-            "file_path": "src/module4/f14.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 0,
-              "loc": 3,
-              "sloc": 1,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module4/f15.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 0,
-              "loc": 2,
-              "sloc": 1,
-              "commits": 2
-            }
-          },
-          {
-            "file_path": "src/module4/f16.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 0,
-              "loc": 3,
-              "sloc": 1,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module5/f17.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 0,
-              "loc": 2,
-              "sloc": 1,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module5/f18.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 0,
-              "loc": 3,
-              "sloc": 1,
-              "commits": 2
-            }
-          },
-          {
-            "file_path": "src/module5/f19.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 0,
-              "loc": 2,
-              "sloc": 1,
-              "commits": 1
-            }
-          }
-        ]
+          "stability": 44
+        }
       },
       {
-        "id": "authorC",
+        "id": 3,
         "name": "authorC",
         "email": "authorC@example.com",
         "aliases_email": [],
+        "commit_hashes": ["c3001","c3031","c3033","c3034","c3035","c3036","c3037","c3038","c3039","c3040","c3041","c3042","c3043","c3044","c3045","c3047","c3048"],
+        "files": [
+          {"file_path":"src/module1/f3.ts","metrics":{"insertions":20,"deletions":0,"loc":1,"sloc":0,"total_commits":1}},
+          {"file_path":"src/module1/f4.ts","metrics":{"insertions":1,"deletions":0,"loc":2,"sloc":1,"total_commits":1}},
+          {"file_path":"src/module2/f7.ts","metrics":{"insertions":0,"deletions":0,"loc":1,"sloc":0,"total_commits":1}},
+          {"file_path":"src/module4/f13.ts","metrics":{"insertions":1,"deletions":0,"loc":1,"sloc":1,"total_commits":1}},
+          {"file_path":"src/module4/f14.ts","metrics":{"insertions":1,"deletions":0,"loc":2,"sloc":1,"total_commits":1}},
+          {"file_path":"src/module4/f15.ts","metrics":{"insertions":3,"deletions":0,"loc":3,"sloc":3,"total_commits":3}},
+          {"file_path":"src/module4/f16.ts","metrics":{"insertions":2,"deletions":0,"loc":3,"sloc":2,"total_commits":1}},
+          {"file_path":"src/module5/f17.ts","metrics":{"insertions":2,"deletions":0,"loc":3,"sloc":2,"total_commits":3}},
+          {"file_path":"src/module5/f18.ts","metrics":{"insertions":2,"deletions":0,"loc":2,"sloc":2,"total_commits":2}},
+          {"file_path":"src/module5/f19.ts","metrics":{"insertions":3,"deletions":0,"loc":3,"sloc":3,"total_commits":2}},
+          {"file_path":"src/module5/f20.ts","metrics":{"insertions":4,"deletions":0,"loc":6,"sloc":4,"total_commits":2}},
+          {"file_path":"src/module6/f21.ts","metrics":{"insertions":2,"deletions":0,"loc":5,"sloc":2,"total_commits":5}},
+          {"file_path":"src/module6/f22.ts","metrics":{"insertions":4,"deletions":0,"loc":5,"sloc":4,"total_commits":4}},
+          {"file_path":"src/module6/f23.ts","metrics":{"insertions":3,"deletions":0,"loc":5,"sloc":3,"total_commits":3}},
+          {"file_path":"src/module6/f24.ts","metrics":{"insertions":5,"deletions":0,"loc":6,"sloc":5,"total_commits":4}}
+        ],
         "metrics": {
           "insertions": 53,
           "deletions": 0,
           "total_commits": 17,
           "loc": 48,
           "sloc": 33,
-          "age": "0:07:10"
-        },
-        "files": [
-          {
-            "file_path": "src/module1/f3.ts",
-            "metrics": {
-              "insertions": 20,
-              "deletions": 0,
-              "loc": 1,
-              "sloc": 0,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module1/f4.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 0,
-              "loc": 2,
-              "sloc": 1,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module2/f7.ts",
-            "metrics": {
-              "insertions": 0,
-              "deletions": 0,
-              "loc": 1,
-              "sloc": 0,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module4/f13.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 0,
-              "loc": 1,
-              "sloc": 1,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module4/f14.ts",
-            "metrics": {
-              "insertions": 1,
-              "deletions": 0,
-              "loc": 2,
-              "sloc": 1,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module4/f15.ts",
-            "metrics": {
-              "insertions": 3,
-              "deletions": 0,
-              "loc": 3,
-              "sloc": 3,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/module4/f16.ts",
-            "metrics": {
-              "insertions": 2,
-              "deletions": 0,
-              "loc": 3,
-              "sloc": 2,
-              "commits": 1
-            }
-          },
-          {
-            "file_path": "src/module5/f17.ts",
-            "metrics": {
-              "insertions": 2,
-              "deletions": 0,
-              "loc": 3,
-              "sloc": 2,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/module5/f18.ts",
-            "metrics": {
-              "insertions": 2,
-              "deletions": 0,
-              "loc": 2,
-              "sloc": 2,
-              "commits": 2
-            }
-          },
-          {
-            "file_path": "src/module5/f19.ts",
-            "metrics": {
-              "insertions": 3,
-              "deletions": 0,
-              "loc": 3,
-              "sloc": 3,
-              "commits": 2
-            }
-          },
-          {
-            "file_path": "src/module5/f20.ts",
-            "metrics": {
-              "insertions": 4,
-              "deletions": 0,
-              "loc": 6,
-              "sloc": 4,
-              "commits": 2
-            }
-          },
-          {
-            "file_path": "src/module6/f21.ts",
-            "metrics": {
-              "insertions": 2,
-              "deletions": 0,
-              "loc": 5,
-              "sloc": 2,
-              "commits": 5
-            }
-          },
-          {
-            "file_path": "src/module6/f22.ts",
-            "metrics": {
-              "insertions": 4,
-              "deletions": 0,
-              "loc": 5,
-              "sloc": 4,
-              "commits": 4
-            }
-          },
-          {
-            "file_path": "src/module6/f23.ts",
-            "metrics": {
-              "insertions": 3,
-              "deletions": 0,
-              "loc": 5,
-              "sloc": 3,
-              "commits": 3
-            }
-          },
-          {
-            "file_path": "src/module6/f24.ts",
-            "metrics": {
-              "insertions": 5,
-              "deletions": 0,
-              "loc": 6,
-              "sloc": 5,
-              "commits": 4
-            }
-          }
-        ]
-      }
-    ],
-    "files_metadata": [
-      {
-        "path": "src/module1/f1.ts",
-        "metrics": {
-          "commits": 3,
-          "insertions": 32,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 2,
-          "age": "0:09:14"
-        }
-      },
-      {
-        "path": "src/module1/f2.ts",
-        "metrics": {
-          "commits": 1,
-          "insertions": 35,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 3,
-          "age": "0:02:21"
-        }
-      },
-      {
-        "path": "src/module1/f3.ts",
-        "metrics": {
-          "commits": 5,
-          "insertions": 53,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 3,
-          "age": "0:08:10"
-        }
-      },
-      {
-        "path": "src/module1/f4.ts",
-        "metrics": {
-          "commits": 3,
-          "insertions": 35,
-          "deletions": 0,
-          "loc": 6,
-          "sloc": 5,
-          "age": "0:10:20"
-        }
-      },
-      {
-        "path": "src/module2/f5.ts",
-        "metrics": {
-          "commits": 4,
-          "insertions": 54,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 4,
-          "age": "2:02:23"
-        }
-      },
-      {
-        "path": "src/module2/f6.ts",
-        "metrics": {
-          "commits": 4,
-          "insertions": 33,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 3,
-          "age": "1:01:03"
-        }
-      },
-      {
-        "path": "src/module2/f7.ts",
-        "metrics": {
-          "commits": 5,
-          "insertions": 33,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 3,
-          "age": "1:03:17"
-        }
-      },
-      {
-        "path": "src/module2/f8.ts",
-        "metrics": {
-          "commits": 5,
-          "insertions": 34,
-          "deletions": 0,
-          "loc": 6,
-          "sloc": 4,
-          "age": "2:02:17"
-        }
-      },
-      {
-        "path": "src/module3/f9.ts",
-        "metrics": {
-          "commits": 2,
-          "insertions": 32,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 2,
-          "age": "0:10:15"
-        }
-      },
-      {
-        "path": "src/module3/f10.ts",
-        "metrics": {
-          "commits": 5,
-          "insertions": 34,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 4,
-          "age": "2:09:08"
-        }
-      },
-      {
-        "path": "src/module3/f11.ts",
-        "metrics": {
-          "commits": 5,
-          "insertions": 33,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 3,
-          "age": "2:03:23"
-        }
-      },
-      {
-        "path": "src/module3/f12.ts",
-        "metrics": {
-          "commits": 5,
-          "insertions": 34,
-          "deletions": 0,
-          "loc": 6,
-          "sloc": 4,
-          "age": "2:09:19"
-        }
-      },
-      {
-        "path": "src/module4/f13.ts",
-        "metrics": {
-          "commits": 3,
-          "insertions": 34,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 4,
-          "age": "2:09:15"
-        }
-      },
-      {
-        "path": "src/module4/f14.ts",
-        "metrics": {
-          "commits": 2,
-          "insertions": 32,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 2,
-          "age": "1:03:08"
-        }
-      },
-      {
-        "path": "src/module4/f15.ts",
-        "metrics": {
-          "commits": 5,
-          "insertions": 34,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 4,
-          "age": "0:02:14"
-        }
-      },
-      {
-        "path": "src/module4/f16.ts",
-        "metrics": {
-          "commits": 2,
-          "insertions": 33,
-          "deletions": 0,
-          "loc": 6,
-          "sloc": 3,
-          "age": "1:01:16"
-        }
-      },
-      {
-        "path": "src/module5/f17.ts",
-        "metrics": {
-          "commits": 4,
-          "insertions": 33,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 3,
-          "age": "1:04:11"
-        }
-      },
-      {
-        "path": "src/module5/f18.ts",
-        "metrics": {
-          "commits": 4,
-          "insertions": 33,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 3,
-          "age": "0:10:16"
-        }
-      },
-      {
-        "path": "src/module5/f19.ts",
-        "metrics": {
-          "commits": 3,
-          "insertions": 34,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 4,
-          "age": "2:05:17"
-        }
-      },
-      {
-        "path": "src/module5/f20.ts",
-        "metrics": {
-          "commits": 2,
-          "insertions": 34,
-          "deletions": 0,
-          "loc": 6,
-          "sloc": 4,
-          "age": "1:07:04"
-        }
-      },
-      {
-        "path": "src/module6/f21.ts",
-        "metrics": {
-          "commits": 5,
-          "insertions": 32,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 2,
-          "age": "2:00:15"
-        }
-      },
-      {
-        "path": "src/module6/f22.ts",
-        "metrics": {
-          "commits": 4,
-          "insertions": 34,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 4,
-          "age": "1:02:10"
-        }
-      },
-      {
-        "path": "src/module6/f23.ts",
-        "metrics": {
-          "commits": 3,
-          "insertions": 33,
-          "deletions": 0,
-          "loc": 5,
-          "sloc": 3,
-          "age": "1:04:09"
-        }
-      },
-      {
-        "path": "src/module6/f24.ts",
-        "metrics": {
-          "commits": 4,
-          "insertions": 35,
-          "deletions": 0,
-          "loc": 6,
-          "sloc": 5,
-          "age": "1:04:07"
+          "stability": 67
         }
       }
     ],
     "commits": [
-  { "number": 1, "hash": "c3001", "authorId": "authorC", "message": "fix pass", "date": "2024-06-01T18:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.3 },
-  { "number": 2, "hash": "c3002", "authorId": "authorA", "message": "cleanup pass", "date": "2024-06-02T18:00:00Z", "insertions": 2, "deletions": 1, "changesPercent": 0.6 },
-  { "number": 3, "hash": "c3003", "authorId": "authorA", "message": "cleanup pass", "date": "2024-06-04T18:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 2.3 },
-  { "number": 4, "hash": "c3004", "authorId": "authorA", "message": "refactor pass", "date": "2024-06-05T19:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 2.5 },
-  { "number": 5, "hash": "c3005", "authorId": "authorA", "message": "docs pass", "date": "2024-06-05T21:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.0 },
-  { "number": 6, "hash": "c3006", "authorId": "authorA", "message": "feature pass", "date": "2024-06-05T22:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 1.4 },
-  { "number": 7, "hash": "c3007", "authorId": "authorA", "message": "feature pass", "date": "2024-06-06T19:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 2.9 },
-  { "number": 8, "hash": "c3008", "authorId": "authorA", "message": "cleanup pass", "date": "2024-06-06T21:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 1.9 },
-  { "number": 9, "hash": "c3009", "authorId": "authorA", "message": "fix pass", "date": "2024-06-07T18:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.5 },
-  { "number": 10, "hash": "c3010", "authorId": "authorA", "message": "refactor pass", "date": "2024-06-09T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.2 },
-  { "number": 11, "hash": "c3011", "authorId": "authorA", "message": "feature pass", "date": "2024-06-10T18:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 0.9 },
-  { "number": 12, "hash": "c3012", "authorId": "authorA", "message": "cleanup pass", "date": "2024-06-10T20:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 2.6 },
-  { "number": 13, "hash": "c3013", "authorId": "authorA", "message": "feature pass", "date": "2024-06-11T19:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 0.7 },
-  { "number": 14, "hash": "c3014", "authorId": "authorA", "message": "fix pass", "date": "2024-06-12T18:00:00Z", "insertions": 3, "deletions": 1, "changesPercent": 1.5 },
-  { "number": 15, "hash": "c3015", "authorId": "authorA", "message": "docs pass", "date": "2024-06-12T20:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.1 },
-  { "number": 16, "hash": "c3016", "authorId": "authorA", "message": "fix pass", "date": "2024-06-12T23:00:00Z", "insertions": 2, "deletions": 1, "changesPercent": 1.4 },
-  { "number": 17, "hash": "c3017", "authorId": "authorB", "message": "feature pass", "date": "2024-06-13T18:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.1 },
-  { "number": 18, "hash": "c3018", "authorId": "authorB", "message": "docs pass", "date": "2024-06-14T19:00:00Z", "insertions": 2, "deletions": 1, "changesPercent": 1.8 },
-  { "number": 19, "hash": "c3019", "authorId": "authorB", "message": "feature pass", "date": "2024-06-14T20:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 2.4 },
-  { "number": 20, "hash": "c3020", "authorId": "authorB", "message": "docs pass", "date": "2024-06-17T18:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 2.9 },
-  { "number": 21, "hash": "c3021", "authorId": "authorB", "message": "feature pass", "date": "2024-06-18T19:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 0.9 },
-  { "number": 22, "hash": "c3022", "authorId": "authorB", "message": "cleanup pass", "date": "2024-06-19T18:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 1.7 },
-  { "number": 23, "hash": "c3023", "authorId": "authorB", "message": "fix pass", "date": "2024-06-20T18:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.7 },
-  { "number": 24, "hash": "c3024", "authorId": "authorB", "message": "feature pass", "date": "2024-06-21T18:00:00Z", "insertions": 1, "deletions": 1, "changesPercent": 2.9 },
-  { "number": 25, "hash": "c3025", "authorId": "authorB", "message": "docs pass", "date": "2024-06-24T18:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 2.3 },
-  { "number": 26, "hash": "c3026", "authorId": "authorB", "message": "fix pass", "date": "2024-06-24T21:00:00Z", "insertions": 2, "deletions": 1, "changesPercent": 0.8 },
-  { "number": 27, "hash": "c3027", "authorId": "authorA", "message": "cleanup pass", "date": "2024-06-25T18:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 0.5 },
-  { "number": 28, "hash": "c3028", "authorId": "authorB", "message": "refactor pass", "date": "2024-06-26T18:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 0.7 },
-  { "number": 29, "hash": "c3029", "authorId": "authorB", "message": "docs pass", "date": "2024-06-26T20:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 2.3 },
-  { "number": 30, "hash": "c3030", "authorId": "authorB", "message": "cleanup pass", "date": "2024-06-26T23:00:00Z", "insertions": 1, "deletions": 1, "changesPercent": 2.5 },
-  { "number": 31, "hash": "c3031", "authorId": "authorC", "message": "docs pass", "date": "2024-06-27T19:00:00Z", "insertions": 2, "deletions": 1, "changesPercent": 1.7 },
-  { "number": 32, "hash": "c3032", "authorId": "authorB", "message": "feature pass", "date": "2024-06-28T18:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 2.5 },
-  { "number": 33, "hash": "c3033", "authorId": "authorC", "message": "refactor pass", "date": "2024-07-02T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.7 },
-  { "number": 34, "hash": "c3034", "authorId": "authorC", "message": "cleanup pass", "date": "2024-07-03T18:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.9 },
-  { "number": 35, "hash": "c3035", "authorId": "authorC", "message": "docs pass", "date": "2024-07-04T19:00:00Z", "insertions": 1, "deletions": 1, "changesPercent": 2.8 },
-  { "number": 36, "hash": "c3036", "authorId": "authorC", "message": "docs pass", "date": "2024-07-05T19:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 1.6 },
-  { "number": 37, "hash": "c3037", "authorId": "authorC", "message": "cleanup pass", "date": "2024-07-06T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.2 },
-  { "number": 38, "hash": "c3038", "authorId": "authorC", "message": "feature pass", "date": "2024-07-08T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.0 },
-  { "number": 39, "hash": "c3039", "authorId": "authorC", "message": "cleanup pass", "date": "2024-07-08T20:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.6 },
-  { "number": 40, "hash": "c3040", "authorId": "authorC", "message": "refactor pass", "date": "2024-07-09T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.9 },
-  { "number": 41, "hash": "c3041", "authorId": "authorC", "message": "docs pass", "date": "2024-07-10T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 2.2 },
-  { "number": 42, "hash": "c3042", "authorId": "authorC", "message": "docs pass", "date": "2024-07-11T18:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 1.6 },
-  { "number": 43, "hash": "c3043", "authorId": "authorC", "message": "feature pass", "date": "2024-07-11T20:00:00Z", "insertions": 2, "deletions": 0, "changesPercent": 0.7 },
-  { "number": 44, "hash": "c3044", "authorId": "authorC", "message": "refactor pass", "date": "2024-07-12T19:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.4 },
-  { "number": 45, "hash": "c3045", "authorId": "authorC", "message": "cleanup pass", "date": "2024-07-15T18:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 2.8 },
-  { "number": 46, "hash": "c3046", "authorId": "authorA", "message": "fix pass", "date": "2024-07-15T20:00:00Z", "insertions": 1, "deletions": 0, "changesPercent": 1.2 },
-  { "number": 47, "hash": "c3047", "authorId": "authorC", "message": "fix pass", "date": "2024-07-16T18:00:00Z", "insertions": 3, "deletions": 0, "changesPercent": 1.8 },
-  { "number": 48, "hash": "c3048", "authorId": "authorC", "message": "feature pass", "date": "2024-07-16T20:00:00Z", "insertions": 3, "deletions": 1, "changesPercent": 2.6 }
-],
-
+      {"id":1,"hash":"c3001","author_id":3,"date":"2024-06-01","time":"18:00:00","timezone":"Z","message":"fix pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[20,15,16]}},
+      {"id":2,"hash":"c3002","author_id":1,"date":"2024-06-02","time":"18:00:00","timezone":"Z","message":"cleanup pass","files_changed":[],"metrics":{"insertions":2,"deletions":1,"commit_loc":[21,15,16]}},
+      {"id":3,"hash":"c3003","author_id":1,"date":"2024-06-04","time":"18:00:00","timezone":"Z","message":"cleanup pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[23,15,16]}},
+      {"id":4,"hash":"c3004","author_id":1,"date":"2024-06-05","time":"19:00:00","timezone":"Z","message":"refactor pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[25,15,16]}},
+      {"id":5,"hash":"c3005","author_id":1,"date":"2024-06-05","time":"21:00:00","timezone":"Z","message":"docs pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[26,15,16]}},
+      {"id":6,"hash":"c3006","author_id":1,"date":"2024-06-05","time":"22:00:00","timezone":"Z","message":"feature pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[28,15,16]}},
+      {"id":7,"hash":"c3007","author_id":1,"date":"2024-06-06","time":"19:00:00","timezone":"Z","message":"feature pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[30,15,16]}},
+      {"id":8,"hash":"c3008","author_id":1,"date":"2024-06-06","time":"21:00:00","timezone":"Z","message":"cleanup pass","files_changed":[],"metrics":{"insertions":3,"deletions":0,"commit_loc":[33,15,16]}},
+      {"id":9,"hash":"c3009","author_id":1,"date":"2024-06-07","time":"18:00:00","timezone":"Z","message":"fix pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[34,15,16]}},
+      {"id":10,"hash":"c3010","author_id":1,"date":"2024-06-09","time":"19:00:00","timezone":"Z","message":"refactor pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[35,15,16]}},
+      {"id":11,"hash":"c3011","author_id":1,"date":"2024-06-10","time":"18:00:00","timezone":"Z","message":"feature pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[37,15,16]}},
+      {"id":12,"hash":"c3012","author_id":1,"date":"2024-06-10","time":"20:00:00","timezone":"Z","message":"cleanup pass","files_changed":[],"metrics":{"insertions":3,"deletions":0,"commit_loc":[40,15,16]}},
+      {"id":13,"hash":"c3013","author_id":1,"date":"2024-06-11","time":"19:00:00","timezone":"Z","message":"feature pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[42,15,16]}},
+      {"id":14,"hash":"c3014","author_id":1,"date":"2024-06-12","time":"18:00:00","timezone":"Z","message":"fix pass","files_changed":[],"metrics":{"insertions":3,"deletions":1,"commit_loc":[44,15,16]}},
+      {"id":15,"hash":"c3015","author_id":1,"date":"2024-06-12","time":"20:00:00","timezone":"Z","message":"docs pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[45,15,16]}},
+      {"id":16,"hash":"c3016","author_id":1,"date":"2024-06-12","time":"23:00:00","timezone":"Z","message":"fix pass","files_changed":[],"metrics":{"insertions":2,"deletions":1,"commit_loc":[46,15,16]}},
+      {"id":17,"hash":"c3017","author_id":2,"date":"2024-06-13","time":"18:00:00","timezone":"Z","message":"feature pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[46,16,16]}},
+      {"id":18,"hash":"c3018","author_id":2,"date":"2024-06-14","time":"19:00:00","timezone":"Z","message":"docs pass","files_changed":[],"metrics":{"insertions":2,"deletions":1,"commit_loc":[46,17,16]}},
+      {"id":19,"hash":"c3019","author_id":2,"date":"2024-06-14","time":"20:00:00","timezone":"Z","message":"feature pass","files_changed":[],"metrics":{"insertions":3,"deletions":0,"commit_loc":[46,20,16]}},
+      {"id":20,"hash":"c3020","author_id":2,"date":"2024-06-17","time":"18:00:00","timezone":"Z","message":"docs pass","files_changed":[],"metrics":{"insertions":3,"deletions":0,"commit_loc":[46,23,16]}},
+      {"id":21,"hash":"c3021","author_id":2,"date":"2024-06-18","time":"19:00:00","timezone":"Z","message":"feature pass","files_changed":[],"metrics":{"insertions":3,"deletions":0,"commit_loc":[46,26,16]}},
+      {"id":22,"hash":"c3022","author_id":2,"date":"2024-06-19","time":"18:00:00","timezone":"Z","message":"cleanup pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[46,28,16]}},
+      {"id":23,"hash":"c3023","author_id":2,"date":"2024-06-20","time":"18:00:00","timezone":"Z","message":"fix pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[46,29,16]}},
+      {"id":24,"hash":"c3024","author_id":2,"date":"2024-06-21","time":"18:00:00","timezone":"Z","message":"feature pass","files_changed":[],"metrics":{"insertions":1,"deletions":1,"commit_loc":[46,29,16]}},
+      {"id":25,"hash":"c3025","author_id":2,"date":"2024-06-24","time":"18:00:00","timezone":"Z","message":"docs pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[46,31,16]}},
+      {"id":26,"hash":"c3026","author_id":2,"date":"2024-06-24","time":"21:00:00","timezone":"Z","message":"fix pass","files_changed":[],"metrics":{"insertions":2,"deletions":1,"commit_loc":[46,32,16]}},
+      {"id":27,"hash":"c3027","author_id":1,"date":"2024-06-25","time":"18:00:00","timezone":"Z","message":"cleanup pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[48,32,16]}},
+      {"id":28,"hash":"c3028","author_id":2,"date":"2024-06-26","time":"18:00:00","timezone":"Z","message":"refactor pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[48,33,16]}},
+      {"id":29,"hash":"c3029","author_id":2,"date":"2024-06-26","time":"20:00:00","timezone":"Z","message":"docs pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[48,35,16]}},
+      {"id":30,"hash":"c3030","author_id":2,"date":"2024-06-26","time":"23:00:00","timezone":"Z","message":"cleanup pass","files_changed":[],"metrics":{"insertions":1,"deletions":1,"commit_loc":[48,35,16]}},
+      {"id":31,"hash":"c3031","author_id":3,"date":"2024-06-27","time":"19:00:00","timezone":"Z","message":"docs pass","files_changed":[],"metrics":{"insertions":2,"deletions":1,"commit_loc":[48,35,17]}},
+      {"id":32,"hash":"c3032","author_id":2,"date":"2024-06-28","time":"18:00:00","timezone":"Z","message":"feature pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[48,37,17]}},
+      {"id":33,"hash":"c3033","author_id":3,"date":"2024-07-02","time":"19:00:00","timezone":"Z","message":"refactor pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[48,37,18]}},
+      {"id":34,"hash":"c3034","author_id":3,"date":"2024-07-03","time":"18:00:00","timezone":"Z","message":"cleanup pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[48,37,19]}},
+      {"id":35,"hash":"c3035","author_id":3,"date":"2024-07-04","time":"19:00:00","timezone":"Z","message":"docs pass","files_changed":[],"metrics":{"insertions":1,"deletions":1,"commit_loc":[48,37,19]}},
+      {"id":36,"hash":"c3036","author_id":3,"date":"2024-07-05","time":"19:00:00","timezone":"Z","message":"docs pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[48,37,21]}},
+      {"id":37,"hash":"c3037","author_id":3,"date":"2024-07-06","time":"19:00:00","timezone":"Z","message":"cleanup pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[48,37,22]}},
+      {"id":38,"hash":"c3038","author_id":3,"date":"2024-07-08","time":"19:00:00","timezone":"Z","message":"feature pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[48,37,23]}},
+      {"id":39,"hash":"c3039","author_id":3,"date":"2024-07-08","time":"20:00:00","timezone":"Z","message":"cleanup pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[48,37,24]}},
+      {"id":40,"hash":"c3040","author_id":3,"date":"2024-07-09","time":"19:00:00","timezone":"Z","message":"refactor pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[48,37,25]}},
+      {"id":41,"hash":"c3041","author_id":3,"date":"2024-07-10","time":"19:00:00","timezone":"Z","message":"docs pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[48,37,26]}},
+      {"id":42,"hash":"c3042","author_id":3,"date":"2024-07-11","time":"18:00:00","timezone":"Z","message":"docs pass","files_changed":[],"metrics":{"insertions":3,"deletions":0,"commit_loc":[48,37,29]}},
+      {"id":43,"hash":"c3043","author_id":3,"date":"2024-07-11","time":"20:00:00","timezone":"Z","message":"feature pass","files_changed":[],"metrics":{"insertions":2,"deletions":0,"commit_loc":[48,37,31]}},
+      {"id":44,"hash":"c3044","author_id":3,"date":"2024-07-12","time":"19:00:00","timezone":"Z","message":"refactor pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[48,37,32]}},
+      {"id":45,"hash":"c3045","author_id":3,"date":"2024-07-15","time":"18:00:00","timezone":"Z","message":"cleanup pass","files_changed":[],"metrics":{"insertions":3,"deletions":0,"commit_loc":[48,37,35]}},
+      {"id":46,"hash":"c3046","author_id":1,"date":"2024-07-15","time":"20:00:00","timezone":"Z","message":"fix pass","files_changed":[],"metrics":{"insertions":1,"deletions":0,"commit_loc":[49,37,35]}},
+      {"id":47,"hash":"c3047","author_id":3,"date":"2024-07-16","time":"18:00:00","timezone":"Z","message":"fix pass","files_changed":[],"metrics":{"insertions":3,"deletions":0,"commit_loc":[49,37,38]}},
+      {"id":48,"hash":"c3048","author_id":3,"date":"2024-07-16","time":"20:00:00","timezone":"Z","message":"feature pass","files_changed":[],"metrics":{"insertions":3,"deletions":1,"commit_loc":[49,37,40]}}
+    ],
     "files": [
       {
+        "name": "f1.ts",
         "path": "src/module1/f1.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module1/f1.ts header",
-            "commitid": 3,
-            "authorId": "authorA",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "",
-            "commitid": 6,
-            "authorId": "authorA",
-            "line_type": 0
-          },
-          {
-            "number": 3,
-            "content": "export const v1 = 1;",
-            "commitid": 7,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f1(){return v1;}",
-            "commitid": 3,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "",
-            "commitid": 6,
-            "authorId": "authorA",
-            "line_type": 0
-          }
-        ]
+          {"number":1,"content":"// src/module1/f1.ts header","author_id":1,"commit_hash":"c3003","date":"2024-06-04T18:00:00Z","line_type":1},
+          {"number":2,"content":"","author_id":1,"commit_hash":"c3006","date":"2024-06-05T22:00:00Z","line_type":0},
+          {"number":3,"content":"export const v1 = 1;","author_id":1,"commit_hash":"c3007","date":"2024-06-06T19:00:00Z","line_type":2},
+          {"number":4,"content":"export function f1(){return v1;}","author_id":1,"commit_hash":"c3003","date":"2024-06-04T18:00:00Z","line_type":2},
+          {"number":5,"content":"","author_id":1,"commit_hash":"c3006","date":"2024-06-05T22:00:00Z","line_type":0}
+        ],
+        "metrics": {"total_commits":3,"insertions":32,"deletions":0,"loc":5,"sloc":2, "stability":44},
+        "last_modified_date": "2024-06-06",
+        "last_modified_time": "19:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f2.ts",
         "path": "src/module1/f2.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module1/f2.ts header",
-            "commitid": 2,
-            "authorId": "authorA",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "",
-            "commitid": 2,
-            "authorId": "authorA",
-            "line_type": 0
-          },
-          {
-            "number": 3,
-            "content": "export const v2 = 2;",
-            "commitid": 2,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f2(){return v2;}",
-            "commitid": 2,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f2;",
-            "commitid": 2,
-            "authorId": "authorA",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module1/f2.ts header","author_id":1,"commit_hash":"c3002","date":"2024-06-02T18:00:00Z","line_type":1},
+          {"number":2,"content":"","author_id":1,"commit_hash":"c3002","date":"2024-06-02T18:00:00Z","line_type":0},
+          {"number":3,"content":"export const v2 = 2;","author_id":1,"commit_hash":"c3002","date":"2024-06-02T18:00:00Z","line_type":2},
+          {"number":4,"content":"export function f2(){return v2;}","author_id":1,"commit_hash":"c3002","date":"2024-06-02T18:00:00Z","line_type":2},
+          {"number":5,"content":"export default f2;","author_id":1,"commit_hash":"c3002","date":"2024-06-02T18:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":1,"insertions":35,"deletions":0,"loc":5,"sloc":3, "stability":42},
+        "last_modified_date": "2024-06-02",
+        "last_modified_time": "18:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f3.ts",
         "path": "src/module1/f3.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module1/f3.ts header",
-            "commitid": 1,
-            "authorId": "authorC",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f3;",
-            "commitid": 2,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v3 = 3;",
-            "commitid": 5,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f3(){return v3;}",
-            "commitid": 6,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "",
-            "commitid": 7,
-            "authorId": "authorA",
-            "line_type": 0
-          }
-        ]
+          {"number":1,"content":"// src/module1/f3.ts header","author_id":3,"commit_hash":"c3001","date":"2024-06-01T18:00:00Z","line_type":1},
+          {"number":2,"content":"export default f3;","author_id":1,"commit_hash":"c3002","date":"2024-06-02T18:00:00Z","line_type":2},
+          {"number":3,"content":"export const v3 = 3;","author_id":1,"commit_hash":"c3005","date":"2024-06-05T21:00:00Z","line_type":2},
+          {"number":4,"content":"export function f3(){return v3;}","author_id":1,"commit_hash":"c3006","date":"2024-06-05T22:00:00Z","line_type":2},
+          {"number":5,"content":"","author_id":1,"commit_hash":"c3007","date":"2024-06-06T19:00:00Z","line_type":0}
+        ],
+        "metrics": {"total_commits":5,"insertions":53,"deletions":0,"loc":5,"sloc":3, "stability":34},
+        "last_modified_date": "2024-06-06",
+        "last_modified_time": "19:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f4.ts",
         "path": "src/module1/f4.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module1/f4.ts header",
-            "commitid": 1,
-            "authorId": "authorC",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f4;",
-            "commitid": 2,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v4 = 4;",
-            "commitid": 4,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f4(){return v4;}",
-            "commitid": 1,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f4;",
-            "commitid": 2,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 6,
-            "content": "export default f4;",
-            "commitid": 4,
-            "authorId": "authorA",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module1/f4.ts header","author_id":3,"commit_hash":"c3001","date":"2024-06-01T18:00:00Z","line_type":1},
+          {"number":2,"content":"export default f4;","author_id":1,"commit_hash":"c3002","date":"2024-06-02T18:00:00Z","line_type":2},
+          {"number":3,"content":"export const v4 = 4;","author_id":1,"commit_hash":"c3004","date":"2024-06-05T19:00:00Z","line_type":2},
+          {"number":4,"content":"export function f4(){return v4;}","author_id":3,"commit_hash":"c3001","date":"2024-06-01T18:00:00Z","line_type":2},
+          {"number":5,"content":"export default f4;","author_id":1,"commit_hash":"c3002","date":"2024-06-02T18:00:00Z","line_type":2},
+          {"number":6,"content":"export default f4;","author_id":1,"commit_hash":"c3004","date":"2024-06-05T19:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":3,"insertions":35,"deletions":0,"loc":6,"sloc":5, "stability":48},
+        "last_modified_date": "2024-06-05",
+        "last_modified_time": "19:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f5.ts",
         "path": "src/module2/f5.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module2/f5.ts header",
-            "commitid": 3,
-            "authorId": "authorA",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f5;",
-            "commitid": 8,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v5 = 5;",
-            "commitid": 9,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f5(){return v5;}",
-            "commitid": 18,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f5;",
-            "commitid": 3,
-            "authorId": "authorA",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module2/f5.ts header","author_id":1,"commit_hash":"c3003","date":"2024-06-04T18:00:00Z","line_type":1},
+          {"number":2,"content":"export default f5;","author_id":1,"commit_hash":"c3008","date":"2024-06-06T21:00:00Z","line_type":2},
+          {"number":3,"content":"export const v5 = 5;","author_id":1,"commit_hash":"c3009","date":"2024-06-07T18:00:00Z","line_type":2},
+          {"number":4,"content":"export function f5(){return v5;}","author_id":2,"commit_hash":"c3018","date":"2024-06-14T19:00:00Z","line_type":2},
+          {"number":5,"content":"export default f5;","author_id":1,"commit_hash":"c3003","date":"2024-06-04T18:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":4,"insertions":54,"deletions":0,"loc":5,"sloc":4, "stability":53},
+        "last_modified_date": "2024-06-14",
+        "last_modified_time": "19:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f6.ts",
         "path": "src/module2/f6.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module2/f6.ts header",
-            "commitid": 2,
-            "authorId": "authorA",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f6;",
-            "commitid": 4,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v6 = 6;",
-            "commitid": 8,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f6(){return v6;}",
-            "commitid": 11,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "",
-            "commitid": 2,
-            "authorId": "authorA",
-            "line_type": 0
-          }
-        ]
+          {"number":1,"content":"// src/module2/f6.ts header","author_id":1,"commit_hash":"c3002","date":"2024-06-02T18:00:00Z","line_type":1},
+          {"number":2,"content":"export default f6;","author_id":1,"commit_hash":"c3004","date":"2024-06-05T19:00:00Z","line_type":2},
+          {"number":3,"content":"export const v6 = 6;","author_id":1,"commit_hash":"c3008","date":"2024-06-06T21:00:00Z","line_type":2},
+          {"number":4,"content":"export function f6(){return v6;}","author_id":1,"commit_hash":"c3011","date":"2024-06-10T18:00:00Z","line_type":2},
+          {"number":5,"content":"","author_id":1,"commit_hash":"c3002","date":"2024-06-02T18:00:00Z","line_type":0}
+        ],
+        "metrics": {"total_commits":4,"insertions":33,"deletions":0,"loc":5,"sloc":3, "stability":84},
+        "last_modified_date": "2024-06-10",
+        "last_modified_time": "18:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f7.ts",
         "path": "src/module2/f7.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module2/f7.ts header",
-            "commitid": 1,
-            "authorId": "authorC",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f7;",
-            "commitid": 2,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v7 = 7;",
-            "commitid": 4,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f7(){return v7;}",
-            "commitid": 13,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "",
-            "commitid": 18,
-            "authorId": "authorB",
-            "line_type": 0
-          }
-        ]
+          {"number":1,"content":"// src/module2/f7.ts header","author_id":3,"commit_hash":"c3001","date":"2024-06-01T18:00:00Z","line_type":1},
+          {"number":2,"content":"export default f7;","author_id":1,"commit_hash":"c3002","date":"2024-06-02T18:00:00Z","line_type":2},
+          {"number":3,"content":"export const v7 = 7;","author_id":1,"commit_hash":"c3004","date":"2024-06-05T19:00:00Z","line_type":2},
+          {"number":4,"content":"export function f7(){return v7;}","author_id":1,"commit_hash":"c3013","date":"2024-06-11T19:00:00Z","line_type":2},
+          {"number":5,"content":"","author_id":2,"commit_hash":"c3018","date":"2024-06-14T19:00:00Z","line_type":0}
+        ],
+        "metrics": {"total_commits":5,"insertions":33,"deletions":0,"loc":5,"sloc":3, "stability":67},
+        "last_modified_date": "2024-06-14",
+        "last_modified_time": "19:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f8.ts",
         "path": "src/module2/f8.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module2/f8.ts header",
-            "commitid": 3,
-            "authorId": "authorA",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "",
-            "commitid": 5,
-            "authorId": "authorA",
-            "line_type": 0
-          },
-          {
-            "number": 3,
-            "content": "export const v8 = 8;",
-            "commitid": 9,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f8(){return v8;}",
-            "commitid": 10,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f8;",
-            "commitid": 14,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 6,
-            "content": "export default f8;",
-            "commitid": 3,
-            "authorId": "authorA",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module2/f8.ts header","author_id":1,"commit_hash":"c3003","date":"2024-06-04T18:00:00Z","line_type":1},
+          {"number":2,"content":"","author_id":1,"commit_hash":"c3005","date":"2024-06-05T21:00:00Z","line_type":0},
+          {"number":3,"content":"export const v8 = 8;","author_id":1,"commit_hash":"c3009","date":"2024-06-07T18:00:00Z","line_type":2},
+          {"number":4,"content":"export function f8(){return v8;}","author_id":1,"commit_hash":"c3010","date":"2024-06-09T19:00:00Z","line_type":2},
+          {"number":5,"content":"export default f8;","author_id":1,"commit_hash":"c3014","date":"2024-06-12T18:00:00Z","line_type":2},
+          {"number":6,"content":"export default f8;","author_id":1,"commit_hash":"c3003","date":"2024-06-04T18:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":5,"insertions":34,"deletions":0,"loc":6,"sloc":4, "stability":71},
+        "last_modified_date": "2024-06-12",
+        "last_modified_time": "18:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f9.ts",
         "path": "src/module3/f9.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module3/f9.ts header",
-            "commitid": 18,
-            "authorId": "authorB",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "",
-            "commitid": 27,
-            "authorId": "authorA",
-            "line_type": 0
-          },
-          {
-            "number": 3,
-            "content": "export const v9 = 9;",
-            "commitid": 18,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f9(){return v9;}",
-            "commitid": 27,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "",
-            "commitid": 18,
-            "authorId": "authorB",
-            "line_type": 0
-          }
-        ]
+          {"number":1,"content":"// src/module3/f9.ts header","author_id":2,"commit_hash":"c3018","date":"2024-06-14T19:00:00Z","line_type":1},
+          {"number":2,"content":"","author_id":1,"commit_hash":"c3027","date":"2024-06-25T18:00:00Z","line_type":0},
+          {"number":3,"content":"export const v9 = 9;","author_id":2,"commit_hash":"c3018","date":"2024-06-14T19:00:00Z","line_type":2},
+          {"number":4,"content":"export function f9(){return v9;}","author_id":1,"commit_hash":"c3027","date":"2024-06-25T18:00:00Z","line_type":2},
+          {"number":5,"content":"","author_id":2,"commit_hash":"c3018","date":"2024-06-14T19:00:00Z","line_type":0}
+        ],
+        "metrics": {"total_commits":2,"insertions":32,"deletions":0,"loc":5,"sloc":2, "stability":56},
+        "last_modified_date": "2024-06-25",
+        "last_modified_time": "18:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f10.ts",
         "path": "src/module3/f10.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module3/f10.ts header",
-            "commitid": 10,
-            "authorId": "authorA",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f10;",
-            "commitid": 12,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v10 = 10;",
-            "commitid": 14,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f10(){return v10;}",
-            "commitid": 15,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f10;",
-            "commitid": 20,
-            "authorId": "authorB",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module3/f10.ts header","author_id":1,"commit_hash":"c3010","date":"2024-06-09T19:00:00Z","line_type":1},
+          {"number":2,"content":"export default f10;","author_id":1,"commit_hash":"c3012","date":"2024-06-10T20:00:00Z","line_type":2},
+          {"number":3,"content":"export const v10 = 10;","author_id":1,"commit_hash":"c3014","date":"2024-06-12T18:00:00Z","line_type":2},
+          {"number":4,"content":"export function f10(){return v10;}","author_id":1,"commit_hash":"c3015","date":"2024-06-12T20:00:00Z","line_type":2},
+          {"number":5,"content":"export default f10;","author_id":2,"commit_hash":"c3020","date":"2024-06-17T18:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":5,"insertions":34,"deletions":0,"loc":5,"sloc":4, "stability":74},
+        "last_modified_date": "2024-06-17",
+        "last_modified_time": "18:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f11.ts",
         "path": "src/module3/f11.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module3/f11.ts header",
-            "commitid": 10,
-            "authorId": "authorA",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "",
-            "commitid": 11,
-            "authorId": "authorA",
-            "line_type": 0
-          },
-          {
-            "number": 3,
-            "content": "export const v11 = 11;",
-            "commitid": 15,
-            "authorId": "authorA",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f11(){return v11;}",
-            "commitid": 19,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f11;",
-            "commitid": 24,
-            "authorId": "authorB",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module3/f11.ts header","author_id":1,"commit_hash":"c3010","date":"2024-06-09T19:00:00Z","line_type":1},
+          {"number":2,"content":"","author_id":1,"commit_hash":"c3011","date":"2024-06-10T18:00:00Z","line_type":0},
+          {"number":3,"content":"export const v11 = 11;","author_id":1,"commit_hash":"c3015","date":"2024-06-12T20:00:00Z","line_type":2},
+          {"number":4,"content":"export function f11(){return v11;}","author_id":2,"commit_hash":"c3019","date":"2024-06-14T20:00:00Z","line_type":2},
+          {"number":5,"content":"export default f11;","author_id":2,"commit_hash":"c3024","date":"2024-06-21T18:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":5,"insertions":33,"deletions":0,"loc":5,"sloc":3, "stability":66},
+        "last_modified_date": "2024-06-21",
+        "last_modified_time": "18:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f12.ts",
         "path": "src/module3/f12.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module3/f12.ts header",
-            "commitid": 14,
-            "authorId": "authorA",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "",
-            "commitid": 19,
-            "authorId": "authorB",
-            "line_type": 0
-          },
-          {
-            "number": 3,
-            "content": "export const v12 = 12;",
-            "commitid": 22,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f12(){return v12;}",
-            "commitid": 23,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f12;",
-            "commitid": 25,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 6,
-            "content": "export default f12;",
-            "commitid": 14,
-            "authorId": "authorA",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module3/f12.ts header","author_id":1,"commit_hash":"c3014","date":"2024-06-12T18:00:00Z","line_type":1},
+          {"number":2,"content":"","author_id":2,"commit_hash":"c3019","date":"2024-06-14T20:00:00Z","line_type":0},
+          {"number":3,"content":"export const v12 = 12;","author_id":2,"commit_hash":"c3022","date":"2024-06-19T18:00:00Z","line_type":2},
+          {"number":4,"content":"export function f12(){return v12;}","author_id":2,"commit_hash":"c3023","date":"2024-06-20T18:00:00Z","line_type":2},
+          {"number":5,"content":"export default f12;","author_id":2,"commit_hash":"c3025","date":"2024-06-24T18:00:00Z","line_type":2},
+          {"number":6,"content":"export default f12;","author_id":1,"commit_hash":"c3014","date":"2024-06-12T18:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":5,"insertions":34,"deletions":0,"loc":6,"sloc":4, "stability":53},
+        "last_modified_date": "2024-06-24",
+        "last_modified_time": "18:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f13.ts",
         "path": "src/module4/f13.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module4/f13.ts header",
-            "commitid": 24,
-            "authorId": "authorB",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f13;",
-            "commitid": 26,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v13 = 13;",
-            "commitid": 37,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f13(){return v13;}",
-            "commitid": 24,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f13;",
-            "commitid": 26,
-            "authorId": "authorB",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module4/f13.ts header","author_id":2,"commit_hash":"c3024","date":"2024-06-21T18:00:00Z","line_type":1},
+          {"number":2,"content":"export default f13;","author_id":2,"commit_hash":"c3026","date":"2024-06-24T21:00:00Z","line_type":2},
+          {"number":3,"content":"export const v13 = 13;","author_id":3,"commit_hash":"c3037","date":"2024-07-06T19:00:00Z","line_type":2},
+          {"number":4,"content":"export function f13(){return v13;}","author_id":2,"commit_hash":"c3024","date":"2024-06-21T18:00:00Z","line_type":2},
+          {"number":5,"content":"export default f13;","author_id":2,"commit_hash":"c3026","date":"2024-06-24T21:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":3,"insertions":34,"deletions":0,"loc":5,"sloc":4, "stability":71},
+        "last_modified_date": "2024-07-06",
+        "last_modified_time": "19:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f14.ts",
         "path": "src/module4/f14.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module4/f14.ts header",
-            "commitid": 28,
-            "authorId": "authorB",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "",
-            "commitid": 37,
-            "authorId": "authorC",
-            "line_type": 0
-          },
-          {
-            "number": 3,
-            "content": "export const v14 = 14;",
-            "commitid": 28,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f14(){return v14;}",
-            "commitid": 37,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "",
-            "commitid": 28,
-            "authorId": "authorB",
-            "line_type": 0
-          }
-        ]
+          {"number":1,"content":"// src/module4/f14.ts header","author_id":2,"commit_hash":"c3028","date":"2024-06-26T18:00:00Z","line_type":1},
+          {"number":2,"content":"","author_id":3,"commit_hash":"c3037","date":"2024-07-06T19:00:00Z","line_type":0},
+          {"number":3,"content":"export const v14 = 14;","author_id":2,"commit_hash":"c3028","date":"2024-06-26T18:00:00Z","line_type":2},
+          {"number":4,"content":"export function f14(){return v14;}","author_id":3,"commit_hash":"c3037","date":"2024-07-06T19:00:00Z","line_type":2},
+          {"number":5,"content":"","author_id":2,"commit_hash":"c3028","date":"2024-06-26T18:00:00Z","line_type":0}
+        ],
+        "metrics": {"total_commits":2,"insertions":32,"deletions":0,"loc":5,"sloc":2, "stability":34},
+        "last_modified_date": "2024-07-06",
+        "last_modified_time": "19:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f15.ts",
         "path": "src/module4/f15.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module4/f15.ts header",
-            "commitid": 28,
-            "authorId": "authorB",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f15;",
-            "commitid": 29,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v15 = 15;",
-            "commitid": 33,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f15(){return v15;}",
-            "commitid": 34,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f15;",
-            "commitid": 37,
-            "authorId": "authorC",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module4/f15.ts header","author_id":2,"commit_hash":"c3028","date":"2024-06-26T18:00:00Z","line_type":1},
+          {"number":2,"content":"export default f15;","author_id":2,"commit_hash":"c3029","date":"2024-06-26T20:00:00Z","line_type":2},
+          {"number":3,"content":"export const v15 = 15;","author_id":3,"commit_hash":"c3033","date":"2024-07-02T19:00:00Z","line_type":2},
+          {"number":4,"content":"export function f15(){return v15;}","author_id":3,"commit_hash":"c3034","date":"2024-07-03T18:00:00Z","line_type":2},
+          {"number":5,"content":"export default f15;","author_id":3,"commit_hash":"c3037","date":"2024-07-06T19:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":5,"insertions":34,"deletions":0,"loc":5,"sloc":4, "stability":34},
+        "last_modified_date": "2024-07-06",
+        "last_modified_time": "19:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f16.ts",
         "path": "src/module4/f16.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module4/f16.ts header",
-            "commitid": 22,
-            "authorId": "authorB",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "",
-            "commitid": 35,
-            "authorId": "authorC",
-            "line_type": 0
-          },
-          {
-            "number": 3,
-            "content": "export const v16 = 16;",
-            "commitid": 22,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f16(){return v16;}",
-            "commitid": 35,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "",
-            "commitid": 22,
-            "authorId": "authorB",
-            "line_type": 0
-          },
-          {
-            "number": 6,
-            "content": "export default f16;",
-            "commitid": 35,
-            "authorId": "authorC",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module4/f16.ts header","author_id":2,"commit_hash":"c3022","date":"2024-06-19T18:00:00Z","line_type":1},
+          {"number":2,"content":"","author_id":3,"commit_hash":"c3035","date":"2024-07-04T19:00:00Z","line_type":0},
+          {"number":3,"content":"export const v16 = 16;","author_id":2,"commit_hash":"c3022","date":"2024-06-19T18:00:00Z","line_type":2},
+          {"number":4,"content":"export function f16(){return v16;}","author_id":3,"commit_hash":"c3035","date":"2024-07-04T19:00:00Z","line_type":2},
+          {"number":5,"content":"","author_id":2,"commit_hash":"c3022","date":"2024-06-19T18:00:00Z","line_type":0},
+          {"number":6,"content":"export default f16;","author_id":3,"commit_hash":"c3035","date":"2024-07-04T19:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":2,"insertions":33,"deletions":0,"loc":6,"sloc":3, "stability":74},
+        "last_modified_date": "2024-07-04",
+        "last_modified_time": "19:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f17.ts",
         "path": "src/module5/f17.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module5/f17.ts header",
-            "commitid": 32,
-            "authorId": "authorB",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "",
-            "commitid": 33,
-            "authorId": "authorC",
-            "line_type": 0
-          },
-          {
-            "number": 3,
-            "content": "export const v17 = 17;",
-            "commitid": 38,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f17(){return v17;}",
-            "commitid": 43,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f17;",
-            "commitid": 32,
-            "authorId": "authorB",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module5/f17.ts header","author_id":2,"commit_hash":"c3032","date":"2024-06-28T18:00:00Z","line_type":1},
+          {"number":2,"content":"","author_id":3,"commit_hash":"c3033","date":"2024-07-02T19:00:00Z","line_type":0},
+          {"number":3,"content":"export const v17 = 17;","author_id":3,"commit_hash":"c3038","date":"2024-07-08T19:00:00Z","line_type":2},
+          {"number":4,"content":"export function f17(){return v17;}","author_id":3,"commit_hash":"c3043","date":"2024-07-11T20:00:00Z","line_type":2},
+          {"number":5,"content":"export default f17;","author_id":2,"commit_hash":"c3032","date":"2024-06-28T18:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":4,"insertions":33,"deletions":0,"loc":5,"sloc":3, "stability":51},
+        "last_modified_date": "2024-07-11",
+        "last_modified_time": "20:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f18.ts",
         "path": "src/module5/f18.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module5/f18.ts header",
-            "commitid": 29,
-            "authorId": "authorB",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f18;",
-            "commitid": 30,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v18 = 18;",
-            "commitid": 38,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f18(){return v18;}",
-            "commitid": 44,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "",
-            "commitid": 29,
-            "authorId": "authorB",
-            "line_type": 0
-          }
-        ]
+          {"number":1,"content":"// src/module5/f18.ts header","author_id":2,"commit_hash":"c3029","date":"2024-06-26T20:00:00Z","line_type":1},
+          {"number":2,"content":"export default f18;","author_id":2,"commit_hash":"c3030","date":"2024-06-26T23:00:00Z","line_type":2},
+          {"number":3,"content":"export const v18 = 18;","author_id":3,"commit_hash":"c3038","date":"2024-07-08T19:00:00Z","line_type":2},
+          {"number":4,"content":"export function f18(){return v18;}","author_id":3,"commit_hash":"c3044","date":"2024-07-12T19:00:00Z","line_type":2},
+          {"number":5,"content":"","author_id":2,"commit_hash":"c3029","date":"2024-06-26T20:00:00Z","line_type":0}
+        ],
+        "metrics": {"total_commits":4,"insertions":33,"deletions":0,"loc":5,"sloc":3, "stability":63},
+        "last_modified_date": "2024-07-12",
+        "last_modified_time": "19:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f19.ts",
         "path": "src/module5/f19.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module5/f19.ts header",
-            "commitid": 30,
-            "authorId": "authorB",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f19;",
-            "commitid": 42,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v19 = 19;",
-            "commitid": 43,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f19(){return v19;}",
-            "commitid": 30,
-            "authorId": "authorB",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f19;",
-            "commitid": 42,
-            "authorId": "authorC",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module5/f19.ts header","author_id":2,"commit_hash":"c3030","date":"2024-06-26T23:00:00Z","line_type":1},
+          {"number":2,"content":"export default f19;","author_id":3,"commit_hash":"c3042","date":"2024-07-11T18:00:00Z","line_type":2},
+          {"number":3,"content":"export const v19 = 19;","author_id":3,"commit_hash":"c3043","date":"2024-07-11T20:00:00Z","line_type":2},
+          {"number":4,"content":"export function f19(){return v19;}","author_id":2,"commit_hash":"c3030","date":"2024-06-26T23:00:00Z","line_type":2},
+          {"number":5,"content":"export default f19;","author_id":3,"commit_hash":"c3042","date":"2024-07-11T18:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":3,"insertions":34,"deletions":0,"loc":5,"sloc":4, "stability":53},
+        "last_modified_date": "2024-07-11",
+        "last_modified_time": "20:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f20.ts",
         "path": "src/module5/f20.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module5/f20.ts header",
-            "commitid": 36,
-            "authorId": "authorC",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "",
-            "commitid": 43,
-            "authorId": "authorC",
-            "line_type": 0
-          },
-          {
-            "number": 3,
-            "content": "export const v20 = 20;",
-            "commitid": 36,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f20(){return v20;}",
-            "commitid": 43,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f20;",
-            "commitid": 36,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 6,
-            "content": "export default f20;",
-            "commitid": 43,
-            "authorId": "authorC",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module5/f20.ts header","author_id":3,"commit_hash":"c3036","date":"2024-07-05T19:00:00Z","line_type":1},
+          {"number":2,"content":"","author_id":3,"commit_hash":"c3043","date":"2024-07-11T20:00:00Z","line_type":0},
+          {"number":3,"content":"export const v20 = 20;","author_id":3,"commit_hash":"c3036","date":"2024-07-05T19:00:00Z","line_type":2},
+          {"number":4,"content":"export function f20(){return v20;}","author_id":3,"commit_hash":"c3043","date":"2024-07-11T20:00:00Z","line_type":2},
+          {"number":5,"content":"export default f20;","author_id":3,"commit_hash":"c3036","date":"2024-07-05T19:00:00Z","line_type":2},
+          {"number":6,"content":"export default f20;","author_id":3,"commit_hash":"c3043","date":"2024-07-11T20:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":2,"insertions":34,"deletions":0,"loc":6,"sloc":4, "stability":64},
+        "last_modified_date": "2024-07-11",
+        "last_modified_time": "20:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f21.ts",
         "path": "src/module6/f21.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module6/f21.ts header",
-            "commitid": 38,
-            "authorId": "authorC",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "",
-            "commitid": 39,
-            "authorId": "authorC",
-            "line_type": 0
-          },
-          {
-            "number": 3,
-            "content": "export const v21 = 21;",
-            "commitid": 40,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f21(){return v21;}",
-            "commitid": 42,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "",
-            "commitid": 45,
-            "authorId": "authorC",
-            "line_type": 0
-          }
-        ]
+          {"number":1,"content":"// src/module6/f21.ts header","author_id":3,"commit_hash":"c3038","date":"2024-07-08T19:00:00Z","line_type":1},
+          {"number":2,"content":"","author_id":3,"commit_hash":"c3039","date":"2024-07-08T20:00:00Z","line_type":0},
+          {"number":3,"content":"export const v21 = 21;","author_id":3,"commit_hash":"c3040","date":"2024-07-09T19:00:00Z","line_type":2},
+          {"number":4,"content":"export function f21(){return v21;}","author_id":3,"commit_hash":"c3042","date":"2024-07-11T18:00:00Z","line_type":2},
+          {"number":5,"content":"","author_id":3,"commit_hash":"c3045","date":"2024-07-15T18:00:00Z","line_type":0}
+        ],
+        "metrics": {"total_commits":5,"insertions":32,"deletions":0,"loc":5,"sloc":2, "stability":73},
+        "last_modified_date": "2024-07-15",
+        "last_modified_time": "18:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f22.ts",
         "path": "src/module6/f22.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module6/f22.ts header",
-            "commitid": 38,
-            "authorId": "authorC",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f22;",
-            "commitid": 43,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v22 = 22;",
-            "commitid": 45,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f22(){return v22;}",
-            "commitid": 48,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f22;",
-            "commitid": 38,
-            "authorId": "authorC",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module6/f22.ts header","author_id":3,"commit_hash":"c3038","date":"2024-07-08T19:00:00Z","line_type":1},
+          {"number":2,"content":"export default f22;","author_id":3,"commit_hash":"c3043","date":"2024-07-11T20:00:00Z","line_type":2},
+          {"number":3,"content":"export const v22 = 22;","author_id":3,"commit_hash":"c3045","date":"2024-07-15T18:00:00Z","line_type":2},
+          {"number":4,"content":"export function f22(){return v22;}","author_id":3,"commit_hash":"c3048","date":"2024-07-16T20:00:00Z","line_type":2},
+          {"number":5,"content":"export default f22;","author_id":3,"commit_hash":"c3038","date":"2024-07-08T19:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":4,"insertions":34,"deletions":0,"loc":5,"sloc":4, "stability":84},
+        "last_modified_date": "2024-07-16",
+        "last_modified_time": "20:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f23.ts",
         "path": "src/module6/f23.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module6/f23.ts header",
-            "commitid": 39,
-            "authorId": "authorC",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f23;",
-            "commitid": 40,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v23 = 23;",
-            "commitid": 47,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f23(){return v23;}",
-            "commitid": 39,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "",
-            "commitid": 40,
-            "authorId": "authorC",
-            "line_type": 0
-          }
-        ]
+          {"number":1,"content":"// src/module6/f23.ts header","author_id":3,"commit_hash":"c3039","date":"2024-07-08T20:00:00Z","line_type":1},
+          {"number":2,"content":"export default f23;","author_id":3,"commit_hash":"c3040","date":"2024-07-09T19:00:00Z","line_type":2},
+          {"number":3,"content":"export const v23 = 23;","author_id":3,"commit_hash":"c3047","date":"2024-07-16T18:00:00Z","line_type":2},
+          {"number":4,"content":"export function f23(){return v23;}","author_id":3,"commit_hash":"c3039","date":"2024-07-08T20:00:00Z","line_type":2},
+          {"number":5,"content":"","author_id":3,"commit_hash":"c3040","date":"2024-07-09T19:00:00Z","line_type":0}
+        ],
+        "metrics": {"total_commits":3,"insertions":33,"deletions":0,"loc":5,"sloc":3, "stability":34},
+        "last_modified_date": "2024-07-16",
+        "last_modified_time": "18:00:00",
+        "last_modified_timezone": "Z"
       },
       {
+        "name": "f24.ts",
         "path": "src/module6/f24.ts",
+        "extension": "ts",
         "lines": [
-          {
-            "number": 1,
-            "content": "// src/module6/f24.ts header",
-            "commitid": 38,
-            "authorId": "authorC",
-            "line_type": 1
-          },
-          {
-            "number": 2,
-            "content": "export default f24;",
-            "commitid": 40,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 3,
-            "content": "export const v24 = 24;",
-            "commitid": 41,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 4,
-            "content": "export function f24(){return v24;}",
-            "commitid": 42,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 5,
-            "content": "export default f24;",
-            "commitid": 38,
-            "authorId": "authorC",
-            "line_type": 2
-          },
-          {
-            "number": 6,
-            "content": "export default f24;",
-            "commitid": 40,
-            "authorId": "authorC",
-            "line_type": 2
-          }
-        ]
+          {"number":1,"content":"// src/module6/f24.ts header","author_id":3,"commit_hash":"c3038","date":"2024-07-08T19:00:00Z","line_type":1},
+          {"number":2,"content":"export default f24;","author_id":3,"commit_hash":"c3040","date":"2024-07-09T19:00:00Z","line_type":2},
+          {"number":3,"content":"export const v24 = 24;","author_id":3,"commit_hash":"c3041","date":"2024-07-10T19:00:00Z","line_type":2},
+          {"number":4,"content":"export function f24(){return v24;}","author_id":3,"commit_hash":"c3042","date":"2024-07-11T18:00:00Z","line_type":2},
+          {"number":5,"content":"export default f24;","author_id":3,"commit_hash":"c3038","date":"2024-07-08T19:00:00Z","line_type":2},
+          {"number":6,"content":"export default f24;","author_id":3,"commit_hash":"c3040","date":"2024-07-09T19:00:00Z","line_type":2}
+        ],
+        "metrics": {"total_commits":4,"insertions":35,"deletions":0,"loc":6,"sloc":5, "stability":14},
+        "last_modified_date": "2024-07-11",
+        "last_modified_time": "18:00:00",
+        "last_modified_timezone": "Z"
       }
     ],
     "metrics": {
