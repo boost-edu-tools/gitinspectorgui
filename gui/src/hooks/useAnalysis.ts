@@ -1,4 +1,4 @@
-import { ANALYSIS_BY_NAME } from "@/components/helpers/AnalysisRegistry";
+import { ANALYSIS_BY_NAME } from "@/components/helpers/analysis_registry";
 
 export type AnalysisResult = typeof ANALYSIS_BY_NAME[keyof typeof ANALYSIS_BY_NAME];
 

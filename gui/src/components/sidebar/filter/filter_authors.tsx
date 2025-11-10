@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getAuthorColor } from "@/components/helpers/AuthorColors";
+import { getAuthorColor } from "@/components/helpers/author_colors";
 import { User} from "lucide-react";
 import { AnalysisProps } from '@/components/types';
 

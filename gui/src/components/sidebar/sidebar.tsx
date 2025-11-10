@@ -1,6 +1,6 @@
 
-import { DataImport } from "@/components/sidebar/data-import"
-import { ListRepos } from "@/components/sidebar/list-repos"
+import { DataImport } from "@/components/sidebar/data_import"
+import { ListRepos } from "@/components/sidebar/list_repos"
 import { FilterData} from "@/components/sidebar/filter/filter_main"
 import { Separator } from "@radix-ui/react-separator"
 import { AnalysisProps } from '@/components/types';
@@ -36,7 +36,34 @@ export function AppSidebar({
   onStartCommitChange,
   onEndCommitChange,
 
-}: AnalysisProps) {
+}:
+  Pick<
+    AnalysisProps,
+
+      |"allAuthors"  
+      |"selectedAuthors"  
+      |"selectAuthors" 
+
+      |"allFiles" 
+      |"selectedFiles" 
+      |"selectFiles"  
+
+      |"filterData"  
+      |"setFilterData"  
+
+      |"allRepos"
+      |"selectedRepo"
+      |"setSelectedRepo"
+
+      |"startDate" 
+      |"endDate"  
+      |"startCommitHash"  
+      |"endCommitHash"  
+      |"onStartDateChange"  
+      |"onEndDateChange"  
+      |"onStartCommitChange"  
+      |"onEndCommitChange" 
+>) {
 
   return (
     <Sidebar >

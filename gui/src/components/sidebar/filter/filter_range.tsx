@@ -20,11 +20,11 @@ import {
 } from "@/components/ui/tooltip"
 import { Calendar as CalendarIcon, Info as InfoIcon } from "lucide-react"
 
-import { getAuthorColor } from "@/components/helpers/AuthorColors"
+import { getAuthorColor } from "@/components/helpers/author_colors"
 import { useAnalysis } from "@/hooks/useAnalysis"
 import { Commit, AnalysisProps, AnalysisResult, Author } from "@/components/types"
 
-import { shortHash, fmtDate } from "@/components/helpers/helper_functions"
+import { shortHash, fmtDate } from "@/components/helpers/formatting_helpers"
 
 
 export function FilterRange({
