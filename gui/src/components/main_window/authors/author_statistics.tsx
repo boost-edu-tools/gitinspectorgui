@@ -15,13 +15,8 @@ import { Info, Users, User } from "lucide-react"
 
 import { getAuthorColor } from "@/components/helpers/AuthorColors"
 import { useAnalysis } from "@/hooks/useAnalysis"
-import type { SelectedFullProps, AnalysisResult, Author, Commit } from "@/components/types"
+import type { AnalysisProps, AnalysisResult, Author, Commit } from "@/components/types"
 import { METRIC_DESCRIPTIONS } from "@/components/main_window/metrics_descriptions"
-
-type SelectedProps = Pick<
-  SelectedFullProps,
-  "allAuthors" | "selectedAuthors" | "filterData" | "selectedRepo"
->
 
 type MetricKey = keyof typeof METRIC_DESCRIPTIONS
 
@@ -92,7 +87,14 @@ export function AuthorStatisticsOverview({
   selectedAuthors,
   filterData,
   selectedRepo,
-}: SelectedProps) {
+}: 
+  Pick<
+    AnalysisProps,
+    "allAuthors" 
+    | "selectedAuthors" 
+    | "filterData" 
+    | "selectedRepo"
+  >) {
   const [displayMode, setDisplayMode] = React.useState<"absolute" | "percentage">("absolute")
   const { analysis } = useAnalysis(selectedRepo)
   const repo = (analysis as AnalysisResult | undefined)?.repository

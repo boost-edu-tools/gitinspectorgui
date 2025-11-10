@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { useAnalysis } from "@/hooks/useAnalysis"
 import type { AnalysisResult, Author, File, Line, Commit } from "@/components/types"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { fmtDate } from "@/components/helpers/helper_functions"
 
 function groupByCommit(lines: Line[]) {
   const groups: Array<{
@@ -26,13 +27,6 @@ function groupByCommit(lines: Line[]) {
     }
   }
   return groups
-}
-
-function formatCompact(ts: string) {
-  const d = new Date(ts)
-  if (isNaN(d.getTime())) return ts ?? ""
-  const pad = (n: number) => String(n).padStart(2, "0")
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
 export function BlameView({
@@ -201,7 +195,8 @@ export function BlameView({
               const fullCommit = fullCommits.find(c => c.hash === g.commit_hash)
               const commitHash = fullCommit?.hash ?? ""
               const commitMessage = fullCommit?.message ?? ""
-              const commitDate = String(fullCommit?.date) ?? ""
+              const commitDate = new Date(String(fullCommit?.date)) 
+
               const commitNum = fullCommit?.id ?? null
               const paddedNum =
                 commitNum != null ? `#${String(commitNum).padStart(2, "0")}` : "—"
@@ -256,7 +251,7 @@ export function BlameView({
                                       <div><span className="font-semibold">Commit No:</span> {commitNum ?? "—"}</div>
                                       <div><span className="font-semibold">SHA:</span> <code>{commitHash}</code></div>
                                         <div><span className="font-semibold">Message: </span>{commitMessage || "—"}</div>
-                                        <div><span className="font-semibold">Date:</span> <code>{formatCompact(commitDate)}</code></div>
+                                        <div><span className="font-semibold">Date:</span> <code>{fmtDate(commitDate)}</code></div>
                                         
                                     </div>
                                   </TooltipContent>

@@ -1,25 +1,28 @@
-import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getAuthorColor } from "@/components/helpers/AuthorColors";
 import { User} from "lucide-react";
-import { SelectedFullProps } from '@/components/types';
+import { AnalysisProps } from '@/components/types';
 
-type SelectedAuthorProps = Pick<SelectedFullProps, 'allAuthors' | 'selectedAuthors' | 'selectAuthors'>;
-
-export function FilterAuthors({allAuthors, selectedAuthors, selectAuthors}: SelectedAuthorProps) {
+export function FilterAuthors({
+  allAuthors, 
+  selectedAuthors, 
+  selectAuthors}: 
+  Pick<
+  AnalysisProps, 
+  'allAuthors'  
+  |'selectedAuthors'  
+  |'selectAuthors'>) {
   
-  const authorsArray = React.useMemo(() => Array.from(allAuthors), [allAuthors]);
-
   const toggle = (name: string) => {
     const set = new Set(selectedAuthors);
     set.has(name) ? set.delete(name) : set.add(name);
     selectAuthors(Array.from(set));
   };
 
-  const selectAll = () => selectAuthors(authorsArray);
+  const selectAll = () => selectAuthors(Array.from(allAuthors));
   const clearAll = () => selectAuthors([]);
 
   return (
@@ -45,7 +48,7 @@ export function FilterAuthors({allAuthors, selectedAuthors, selectAuthors}: Sele
         <CardContent className="p-0">
           <ScrollArea className="rounded-md border h-20">
             <ul className="divide-y">
-              {authorsArray.map((author: string) => (
+              {Array.from(allAuthors).map((author: string) => (
                 <li key={author} className="flex items-center gap-2 p-1">
                   <Checkbox
                     className="h-3 w-3"

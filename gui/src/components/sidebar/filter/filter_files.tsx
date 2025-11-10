@@ -1,16 +1,19 @@
-import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {Folder } from "lucide-react";
-import { SelectedFullProps } from '@/components/types';
+import { AnalysisProps } from '@/components/types';
 
-type FilterFilesProps = Pick<SelectedFullProps, 'allFiles' | 'selectedFiles' | 'selectFiles'>;
-
-export function FilterFiles({allFiles, selectedFiles, selectFiles}: FilterFilesProps) {
-
-  const filesArray = React.useMemo(() => Array.from(allFiles), [allFiles]);
+export function FilterFiles({
+  allFiles, 
+  selectedFiles, 
+  selectFiles}: 
+  Pick<AnalysisProps, 
+    'allFiles' 
+    | 'selectedFiles' 
+    | 'selectFiles'>
+) {
 
   const toggle = (id: string) => {
     const set = new Set(selectedFiles);
@@ -18,7 +21,7 @@ export function FilterFiles({allFiles, selectedFiles, selectFiles}: FilterFilesP
     selectFiles(Array.from(set));
   };
 
-  const selectAll = () => selectFiles(filesArray);
+  const selectAll = () => selectFiles(Array.from(allFiles));
   const clearAll = () => selectFiles([]);
 
   return (
@@ -44,7 +47,7 @@ export function FilterFiles({allFiles, selectedFiles, selectFiles}: FilterFilesP
         <CardContent className="p-0">
           <ScrollArea className="rounded-md border h-20">
             <ul className="divide-y">
-              {filesArray.map((file) => (
+              {Array.from(allFiles).map((file) => (
                 <li key={file} className="flex items-center gap-2 p-1">
                   <Checkbox
                     className="h-3 w-3"

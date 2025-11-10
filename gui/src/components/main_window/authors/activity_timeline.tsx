@@ -14,8 +14,10 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getAuthorColor } from "@/components/helpers/AuthorColors"
-import type { SelectedFullProps, AnalysisResult, Author } from "@/components/types"
+import type { AnalysisProps, AnalysisResult, Author } from "@/components/types"
 import { useAnalysis } from "@/hooks/useAnalysis"
+
+import { fmtDate } from "@/components/helpers/helper_functions"
 
 type MetricKey = "commits" | "percent"
 type ViewMode = "authors" | "repo"
@@ -26,11 +28,6 @@ const dayKey = (iso: string | number | Date) => {
   return +d
 }
 
-const formatDate = (ts: number) => {
-  const d = new Date(ts)
-  const pad = (n: number) => String(n).padStart(2, "0")
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
 const formatNumber = (n: number) => Math.round(n).toLocaleString()
 const formatPercent = (p: number) => `${p.toFixed(2)}%`
 
@@ -42,8 +39,13 @@ export function Timeline({
   startCommitHash,
   endCommitHash,
 }: Pick<
-  SelectedFullProps,
-  "allAuthors" | "selectedAuthors" | "filterData" | "selectedRepo" | "startCommitHash" | "endCommitHash"
+  AnalysisProps,
+  "allAuthors" 
+  | "selectedAuthors" 
+  | "filterData" 
+  | "selectedRepo" 
+  | "startCommitHash" 
+  | "endCommitHash"
 >) {
   const [metric, setMetric] = useState<MetricKey>("percent")
   const [viewMode, setViewMode] = useState<ViewMode>("repo")
@@ -200,7 +202,7 @@ export function Timeline({
           <div className="space-y-1 text-xs">
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">Date:</span>
-              <span className="font-medium">{formatDate(d.date)}</span>
+              <span className="font-medium">{fmtDate(d.date)}</span>
             </div>
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">{label}:</span>
@@ -318,7 +320,7 @@ export function Timeline({
                 type="number"
                 dataKey="date"
                 domain={[dateMin, dateMax]}
-                tickFormatter={formatDate}
+                tickFormatter={fmtDate}
                 tick={{ fontSize: 10 }}
                 name="Date"
                 height={50}

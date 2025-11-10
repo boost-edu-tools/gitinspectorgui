@@ -2,7 +2,7 @@
 import type { Dispatch, SetStateAction } from "react";
 
 
-export type SelectedFullProps = { 
+export type AnalysisProps = { 
   
   allAuthors: Set<string>;
   selectedAuthors: string[];

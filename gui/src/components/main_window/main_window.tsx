@@ -11,20 +11,7 @@ import { AuthorStatisticsOverview} from "@/components/main_window/authors/author
 import { Timeline } from "@/components/main_window/authors/activity_timeline"
 import { UnifiedFilesView } from "@/components/main_window/files/file_statistics_main"
 
-import type { SelectedFullProps } from "@/components/types"
-
-
-type SelectedProps = Pick<
-  SelectedFullProps,
-  | "allAuthors"
-  | "selectedAuthors"
-  | "allFiles"
-  | "selectedFiles"
-  | "filterData"
-  | "selectedRepo"
-  | "startCommitHash"
-  | "endCommitHash"
->;
+import type { AnalysisProps } from "@/components/types"
 
 export function AppMainWindow({
   allAuthors,
@@ -35,7 +22,17 @@ export function AppMainWindow({
   selectedRepo,
   startCommitHash,
   endCommitHash
-}: SelectedProps) {
+}: Pick<
+  AnalysisProps,
+  | "allAuthors"
+  | "selectedAuthors"
+  | "allFiles"
+  | "selectedFiles"
+  | "filterData"
+  | "selectedRepo"
+  | "startCommitHash"
+  | "endCommitHash"
+>) {
 
   return (
     <SidebarInset>

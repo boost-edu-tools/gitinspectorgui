@@ -1,5 +1,4 @@
 
-import * as React from "react";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -7,22 +6,23 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import {
-  Folder,
-} from "lucide-react"
-import { SelectedFullProps } from '@/components/types';
+import {Folder} from "lucide-react"
+import { AnalysisProps } from '@/components/types';
 
-type selectedProps = Pick<SelectedFullProps, 'allRepos' | 'selectedRepo' | 'setSelectedRepo' >;
- 
-export function ListRepos({allRepos, selectedRepo, setSelectedRepo}: selectedProps)
-{
-  const reposArray = React.useMemo(() => Array.from(allRepos), [allRepos]);
+export function ListRepos({
+  allRepos, 
+  selectedRepo, 
+  setSelectedRepo}: 
+  Pick<AnalysisProps, 
+  'allRepos' 
+  | 'selectedRepo' 
+  | 'setSelectedRepo' >){
   
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden py-0">
       <SidebarGroupLabel>Found repositories</SidebarGroupLabel>
       <SidebarMenu className="space-y-0.5">
-        {reposArray.map((item) => (
+        {Array.from(allRepos).map((item) => (
           <SidebarMenuItem key={item}>
             <SidebarMenuButton 
             onClick={() => setSelectedRepo(item)} 
@@ -35,7 +35,6 @@ export function ListRepos({allRepos, selectedRepo, setSelectedRepo}: selectedPro
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
-
       </SidebarMenu>
     </SidebarGroup>
   )

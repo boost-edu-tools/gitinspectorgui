@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 
 import { useAnalysis } from "@/hooks/useAnalysis"
-import type { AnalysisResult, SelectedFullProps } from "@/components/types"
+import type { AnalysisResult, AnalysisProps } from "@/components/types"
 
 import { RepositoryViewTable, AuthorFileViewTable } from "@/components/main_window/files/files_table"
 import { BlameTabsView } from "@/components/main_window/files/blame_view_tabs"
@@ -73,7 +73,7 @@ export function UnifiedFilesView({
   filterData,
   selectedRepo,
 }: Pick<
-  SelectedFullProps,
+  AnalysisProps,
   | "allAuthors"
   | "selectedAuthors"
   | "allFiles"

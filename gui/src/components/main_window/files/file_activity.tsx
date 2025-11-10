@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { getAuthorColor } from "@/components/helpers/AuthorColors"
-import type { SelectedFullProps, AnalysisResult, Metrics } from "@/components/types"
+import type { AnalysisProps, AnalysisResult, Metrics } from "@/components/types"
 import { useAnalysis } from "@/hooks/useAnalysis"
 
 type MetricKey = "total_commits" | "insertions" | "deletions"
@@ -34,8 +34,13 @@ export function FileActivityChart({
   filterData,
   selectedRepo,
 }: Pick<
-  SelectedFullProps,
-  "allAuthors" | "selectedAuthors" | "allFiles" | "selectedFiles" | "filterData" | "selectedRepo"
+  AnalysisProps,
+  "allAuthors" 
+  | "selectedAuthors" 
+  | "allFiles" 
+  | "selectedFiles" 
+  | "filterData" 
+  | "selectedRepo"
 >) {
   const [metric, setMetric] = useState<MetricKey>("total_commits")
   const [displayMode, setDisplayMode] = useState<DisplayMode>("absolute")

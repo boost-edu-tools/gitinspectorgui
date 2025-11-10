@@ -8,34 +8,48 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
 } from "@/components/ui/sidebar"
-import { SelectedFullProps } from '@/components/types'
+import { AnalysisProps } from '@/components/types'
 
-type selectedProps = Pick<
-  SelectedFullProps,
-  "selectedRepo"  | "allAuthors" | "selectedAuthors" | "selectAuthors" | "allFiles"| "selectedFiles" |
-  "selectFiles" | "filterData" | "setFilterData" | "startDate"| "endDate" | "startCommitHash" | 
-  "endCommitHash" | "onStartDateChange" | "onEndDateChange" | "onStartCommitChange" | "onEndCommitChange" 
->;
 
 export function FilterData({
-    selectedRepo, 
-    allAuthors, 
-    selectedAuthors, 
-    selectAuthors, 
-    allFiles, 
-    selectedFiles, 
-    selectFiles, 
-    filterData, 
-    setFilterData,
-    startDate,
-    endDate,
-    startCommitHash,
-    endCommitHash,
-    onStartDateChange,
-    onEndDateChange,
-    onStartCommitChange,
-    onEndCommitChange,
-}: selectedProps)  {
+  selectedRepo, 
+  allAuthors, 
+  selectedAuthors, 
+  selectAuthors, 
+  allFiles, 
+  selectedFiles, 
+  selectFiles, 
+  filterData, 
+  setFilterData,
+  startDate,
+  endDate,
+  startCommitHash,
+  endCommitHash,
+  onStartDateChange,
+  onEndDateChange,
+  onStartCommitChange,
+  onEndCommitChange,
+}: 
+  Pick<
+    AnalysisProps,
+      "selectedRepo"   
+      |"allAuthors"  
+      |"selectedAuthors"  
+      |"selectAuthors"  
+      |"allFiles" 
+      |"selectedFiles" 
+      |"selectFiles"  
+      |"filterData"  
+      |"setFilterData"  
+      |"startDate" 
+      |"endDate"  
+      |"startCommitHash"  
+      |"endCommitHash"  
+      |"onStartDateChange"  
+      |"onEndDateChange"  
+      |"onStartCommitChange"  
+      |"onEndCommitChange" 
+>)  {
   
   return (
 
@@ -63,19 +77,17 @@ export function FilterData({
               </span>
             </a>
                   <FilterRange
-                  selectedRepo={selectedRepo}
-                  selectedAuthors={selectedAuthors}
-                  startDate={startDate}
-                  endDate={endDate}
-                  startCommitHash={startCommitHash}
-                  endCommitHash={endCommitHash}
-                  onStartDateChange={onStartDateChange}
-                  onEndDateChange={onEndDateChange}
-                  onStartCommitChange={onStartCommitChange}
-                  onEndCommitChange={onEndCommitChange}/>
+                    selectedRepo={selectedRepo}
+                    selectedAuthors={selectedAuthors}
+                    startDate={startDate}
+                    endDate={endDate}
+                    startCommitHash={startCommitHash}
+                    endCommitHash={endCommitHash}
+                    onStartDateChange={onStartDateChange}
+                    onEndDateChange={onEndDateChange}
+                    onStartCommitChange={onStartCommitChange}
+                    onEndCommitChange={onEndCommitChange}/>
 
-            
-      
     </SidebarMenu>
     </SidebarGroup>
   )
