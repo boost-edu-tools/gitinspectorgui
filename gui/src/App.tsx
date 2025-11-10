@@ -5,8 +5,8 @@ import { AppSidebar } from "@/components/sidebar/sidebar";
 import { AppMainWindow } from "@/components/main_window/main_window";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
-import { initializeAuthorColors } from "@/components/helpers/AuthorColors";
-import { ANALYSIS_BY_NAME} from "@/components/helpers/AnalysisRegistry";
+import { initializeAuthorColors } from "@/components/helpers/author_colors";
+import { ANALYSIS_BY_NAME} from "@/components/helpers/analysis_registry";
 import { AnalysisResult } from "@/components/types";
 
 import "./App.css";
@@ -78,26 +78,17 @@ export default function App() {
 
         startDate={startDate}
         endDate={endDate}
-        startCommitHash={startCommitHash}
-        endCommitHash={endCommitHash}
         onStartDateChange={setStartDate}
         onEndDateChange={setEndDate}
+
+        startCommitHash={startCommitHash}
+        endCommitHash={endCommitHash}
         onStartCommitChange={setStartCommitHash}
         onEndCommitChange={setEndCommitHash}
       />
 
       <AppMainWindow
-
-        allAuthors={allAuthors}
-        selectedAuthors={selectedAuthors}
-
-        allFiles={allFiles}
-        selectedFiles={selectedFiles}
-
-        filterData={filterData}
-
         selectedRepo={selectedRepo}
-        
       />
     </SidebarProvider>
   );
