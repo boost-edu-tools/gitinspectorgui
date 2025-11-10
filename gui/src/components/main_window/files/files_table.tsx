@@ -1,37 +1,9 @@
 import * as React from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { FolderOpen, FileText, Info } from "lucide-react"
+import { FolderOpen, FileText, } from "lucide-react"
 import { getAuthorColor } from "@/components/helpers/AuthorColors"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { METRIC_DESCRIPTIONS } from "@/components/main_window/metrics_descriptions"
+import { fmt_pct_abs, time_diff_YDH, MetricHeader} from "@/components/helpers/helper_functions"
 
-export type MetricKey = keyof typeof METRIC_DESCRIPTIONS
-
-interface MetricHeaderProps {
-  metricKey: MetricKey
-}
-
-export function MetricHeader({ metricKey }: MetricHeaderProps) {
-  const info = METRIC_DESCRIPTIONS[metricKey]
-  return (
-    <div className="flex items-center gap-1 justify-end">
-      <span>{info.label}</span>
-      <TooltipProvider delayDuration={200}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Info className="h-3 w-3 text-muted-foreground cursor-help" />
-          </TooltipTrigger>
-          <TooltipContent side="top">
-            <p className="text-xs">{info.description}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </div>
-  )
-}
-
-
-/* -------- Repository view table -------- */
 
 export function RepositoryViewTable({
   fileMetadata,
@@ -55,8 +27,6 @@ export function RepositoryViewTable({
     )
   }, [fileMetadata])
 
-  const fmt = (v: number, total: number) => (displayMode === "percentage" ? `${total ? ((v / total) * 100).toFixed(0) : "0.0"}%` : String(v))
-
   return (
     <div className="border rounded-lg overflow-x-auto">
       <Table className="min-w-full">
@@ -70,7 +40,7 @@ export function RepositoryViewTable({
             <TableHead className="text-right"><MetricHeader metricKey="sloc" /></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="stability" /></TableHead>
             
-            <TableHead className="text-right"><MetricHeader metricKey="age" /></TableHead>
+            <TableHead className="text-right"><MetricHeader metricKey="last_modified" /></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -92,26 +62,12 @@ export function RepositoryViewTable({
 
           {fileMetadata.map((f) => {
 
-            const diffToYDH = (ms: number) => {
-                  const MS_PER_HOUR = 60 * 60 * 1000;
-                  const MS_PER_DAY  = 24 * MS_PER_HOUR;
-                  const MS_PER_YEAR = 365 * MS_PER_DAY; 
-
-                  const years = Math.floor(ms / MS_PER_YEAR);
-                  ms %= MS_PER_YEAR;
-                  const days  = Math.floor(ms / MS_PER_DAY);
-                  ms %= MS_PER_DAY;
-                  const hours = Math.floor(ms / MS_PER_HOUR);
-
-                  return { years, days, hours };
-                };
-
             let ageYDH: string | undefined;
             const iso = `${f.last_modified_date}T${f.last_modified_time}${f.last_modified_timezone}`;
             const lastModified = new Date(iso);  
             const now = new Date();                  
             const diffMs = Math.max(0, now.getTime() - lastModified.getTime());
-            const { years, days, hours } = diffToYDH(diffMs);
+            const { years, days, hours } = time_diff_YDH(diffMs);
             ageYDH = `${years}:${days}:${hours}`;
             
             return (
@@ -122,11 +78,11 @@ export function RepositoryViewTable({
                   <span>{f.path}</span>
                 </div>
               </TableCell>
-              <TableCell className="text-right">{fmt(f.total_commits, totals.total_commits)}</TableCell>
-              <TableCell className="text-right">{fmt(f.insertions, totals.insertions)}</TableCell>
-              <TableCell className="text-right">{fmt(f.deletions, totals.deletions)}</TableCell>
-              <TableCell className="text-right">{fmt(f.loc, totals.loc)}</TableCell>
-              <TableCell className="text-right">{fmt(f.sloc, totals.sloc)}</TableCell>
+              <TableCell className="text-right">{fmt_pct_abs(f.total_commits, totals.total_commits, displayMode)}</TableCell>
+              <TableCell className="text-right">{fmt_pct_abs(f.insertions, totals.insertions, displayMode)}</TableCell>
+              <TableCell className="text-right">{fmt_pct_abs(f.deletions, totals.deletions, displayMode)}</TableCell>
+              <TableCell className="text-right">{fmt_pct_abs(f.loc, totals.loc, displayMode)}</TableCell>
+              <TableCell className="text-right">{fmt_pct_abs(f.sloc, totals.sloc, displayMode)}</TableCell>
               <TableCell className="text-right"><span>{f.stability}</span></TableCell>
               <TableCell className="text-right">{ageYDH}</TableCell>
             </TableRow>
