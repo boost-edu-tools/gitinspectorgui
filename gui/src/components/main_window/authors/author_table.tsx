@@ -13,11 +13,11 @@ import { Label } from "@/components/ui/label"
 
 import { Users, User } from "lucide-react"
 
-import { getAuthorColor } from "@/components/helpers/AuthorColors"
+import { getAuthorColor } from "@/components/helpers/author_colors"
 import { useAnalysis } from "@/hooks/useAnalysis"
 import type { AnalysisProps, AnalysisResult, Author, Commit } from "@/components/types"
 
-import { fmt_pct_abs, time_diff_YDH, MetricHeader} from "@/components/helpers/helper_functions"
+import { fmt_pct_abs, time_diff_YDH, MetricHeader} from "@/components/helpers/formatting_helpers"
 
 function EmailCell({
   primary,
@@ -46,17 +46,11 @@ function EmailCell({
 }
 
 export function AuthorStatisticsOverview({
-  allAuthors,
-  selectedAuthors,
-  filterData,
   selectedRepo,
 }: 
   Pick<
     AnalysisProps,
-    "allAuthors" 
-    | "selectedAuthors" 
-    | "filterData" 
-    | "selectedRepo"
+    "selectedRepo"
   >) {
   const [displayMode, setDisplayMode] = React.useState<"absolute" | "percentage">("absolute")
   const { analysis } = useAnalysis(selectedRepo)
@@ -86,12 +80,6 @@ export function AuthorStatisticsOverview({
       return (b.metrics?.total_commits ?? 0) - (a.metrics?.total_commits ?? 0)
     })
   }, [authors])
-
-  const visibleAuthors = React.useMemo(() => {
-    const names = filterData ? selectedAuthors : Array.from(allAuthors)
-    const allowed = new Set(names)
-    return sortedAuthors.filter((a) => allowed.has(a.name ?? ""))
-  }, [sortedAuthors, filterData, selectedAuthors, allAuthors])
 
   return (
     <Card>
@@ -155,7 +143,7 @@ export function AuthorStatisticsOverview({
                   <TableCell className="font-semibold sticky left-0 bg-muted/30 border-r z-10">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
-                    <span>All Authors ({visibleAuthors.length})</span>
+                    <span>All Authors ({sortedAuthors.length})</span>
                   </div>
                     
                   </TableCell>
@@ -173,7 +161,7 @@ export function AuthorStatisticsOverview({
                   </TableCell>
                 </TableRow>
 
-                {visibleAuthors.map((a) => {
+                {Array.from(sortedAuthors).map((a) => {
                   
                   const m = a.metrics ?? {}
 
