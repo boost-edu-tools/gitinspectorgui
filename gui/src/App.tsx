@@ -98,8 +98,6 @@ export default function App() {
 
         selectedRepo={selectedRepo}
         
-        startCommitHash={startCommitHash}
-        endCommitHash={endCommitHash}
       />
     </SidebarProvider>
   );

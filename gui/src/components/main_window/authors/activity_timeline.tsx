@@ -10,47 +10,32 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
-
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getAuthorColor } from "@/components/helpers/AuthorColors"
 import type { AnalysisProps, AnalysisResult, Author } from "@/components/types"
 import { useAnalysis } from "@/hooks/useAnalysis"
-
 import { fmtDate } from "@/components/helpers/helper_functions"
 
 type MetricKey = "commits" | "percent"
 type ViewMode = "authors" | "repo"
 
-const dayKey = (iso: string | number | Date) => {
-  const d = new Date(iso)
-  d.setHours(0, 0, 0, 0)
-  return +d
-}
-
-const formatNumber = (n: number) => Math.round(n).toLocaleString()
-const formatPercent = (p: number) => `${p.toFixed(2)}%`
-
 export function Timeline({
-  allAuthors,
-  selectedAuthors,
-  filterData,
   selectedRepo,
-  startCommitHash,
-  endCommitHash,
-}: Pick<
-  AnalysisProps,
-  "allAuthors" 
-  | "selectedAuthors" 
-  | "filterData" 
-  | "selectedRepo" 
-  | "startCommitHash" 
-  | "endCommitHash"
->) {
+}: Pick<AnalysisProps, "selectedRepo">) {
   const [metric, setMetric] = useState<MetricKey>("percent")
   const [viewMode, setViewMode] = useState<ViewMode>("repo")
   const { analysis } = useAnalysis(selectedRepo)
+
   
+  const fmtDatePlot = (d: Date | null) => {
+  if (!d) return "—"
+    return new Intl.DateTimeFormat(undefined, {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(d)
+}
 
   const {
     perCommit,
@@ -64,38 +49,32 @@ export function Timeline({
     const authorsArr: Author[] = repo?.authors ?? []
     const authorById = new Map(authorsArr.map((a) => [a.id, a]))
 
-    // sort + slice by commit range
-    const sorted = [...commits].sort((a, b) => +new Date(a.date) - +new Date(b.date))
-    let start = 0
-    let end = sorted.length - 1
-    if (startCommitHash) {
-      const i = sorted.findIndex((c) => c.hash === startCommitHash)
-      if (i !== -1) start = i
-    }
-    if (endCommitHash) {
-      const i = sorted.findIndex((c) => c.hash === endCommitHash)
-      if (i !== -1) end = i
-    }
-    const ranged = sorted.slice(start, end + 1)
-
     const authorsSet = new Set<string>()
     let min = Infinity
     let max = -Infinity
 
-    const points = ranged.map((c) => {
-      const ts = +new Date(c.date)
+    const points = commits.map((c) => {
+      const ts = +new Date(`${c.date}T${c.time}${c.timezone}`)
       const author = authorById.get(c.author_id)?.name ?? "Unknown"
       authorsSet.add(author)
       if (ts < min) min = ts
       if (ts > max) max = ts
+
+      const locTotal = Object.values(c.metrics.commit_loc ?? {}).reduce(
+        (a, b) => a + b,
+        0
+      )
+      const valuePercent =
+        locTotal > 0
+          ? ((c.metrics.insertions ?? 0) / locTotal) * 100
+          : 0
+
       return {
         date: ts,
-        day: dayKey(ts),
         author,
-        authorIndex: 0, 
-        valuePercent: ((c.metrics.insertions ?? 0) / Object.values(c.metrics.commit_loc ?? {}).reduce((a, b) => a + b, 0) || 1),
+        valuePercent,
         valueCommits: 1,
-        message: c.message ?? "",
+        message: c.message,
         hash: c.hash,
       }
     })
@@ -107,47 +86,34 @@ export function Timeline({
       dateMin: min === Infinity ? 0 : min,
       dateMax: max === -Infinity ? 0 : max,
     }
-  }, [analysis, startCommitHash, endCommitHash])
+  }, [analysis])
 
-  // who to plot
-  const authorsToPlot = useMemo(
-    () => (filterData ? selectedAuthors : Array.from(allAuthors)),
-    [filterData, selectedAuthors, allAuthors]
-  )
-  const filteredAuthors = useMemo(
-    () => authorsSorted.filter((a) => authorsToPlot.includes(a)),
-    [authorsSorted, authorsToPlot]
-  )
   const indexByAuthor = useMemo(
-    () => new Map(filteredAuthors.map((a, i) => [a, i] as const)),
-    [filteredAuthors]
+    () => new Map(authorsSorted.map((a, i) => [a, i] as const)),
+    [authorsSorted]
   )
 
-  // data for chart (repo = per commit; authors = per author/day aggregate)
   const data = useMemo(() => {
     if (viewMode === "repo") {
-      return perCommit
-        .filter((p) => filteredAuthors.includes(p.author))
-        .map((p) => ({
-          ...p,
-          authorIndex: indexByAuthor.get(p.author) ?? 0,
-          value: metric === "percent" ? p.valuePercent : p.valueCommits,
-        }))
+      return perCommit.map((p) => ({
+        ...p,
+        authorIndex: indexByAuthor.get(p.author) ?? 0,
+        value: metric === "percent" ? p.valuePercent : p.valueCommits,
+      }))
     }
-    const byKey = new Map<string, { date: number; author: string; authorIndex: number; value: number }>()
+
+    const byKey = new Map<string, { date: number; authorIndex: number; value: number }>()
     for (const p of perCommit) {
-      if (!filteredAuthors.includes(p.author)) continue
-      const k = `${p.author}:${p.day}`
+      const k = `${p.author}:${p.date}`
       const base =
         byKey.get(k) ??
-        { date: p.day, author: p.author, authorIndex: indexByAuthor.get(p.author) ?? 0, value: 0 }
+        { date: p.date, authorIndex: indexByAuthor.get(p.author) ?? 0, value: 0 }
       base.value += metric === "percent" ? p.valuePercent : p.valueCommits
       byKey.set(k, base)
     }
     return Array.from(byKey.values())
-  }, [viewMode, metric, perCommit, filteredAuthors, indexByAuthor])
+  }, [viewMode, metric, perCommit, indexByAuthor])
 
-  // dot size: fixed in repo view; sqrt-scaled in authors view
   const { minVal, maxVal } = useMemo(() => {
     if (viewMode !== "authors" || data.length === 0) return { minVal: 0, maxVal: 1 }
     let min = Infinity
@@ -157,7 +123,10 @@ export function Timeline({
       if (v < min) min = v
       if (v > max) max = v
     }
-    return { minVal: Math.max(0, isFinite(min) ? min : 0), maxVal: Math.max(1, isFinite(max) ? max : 1) }
+    return {
+      minVal: Math.max(0, isFinite(min) ? min : 0),
+      maxVal: Math.max(1, isFinite(max) ? max : 1),
+    }
   }, [viewMode, data])
 
   const getDotSize = (value: number) => {
@@ -166,11 +135,10 @@ export function Timeline({
     const sMin = Math.sqrt(minVal)
     const sMax = Math.sqrt(maxVal)
     const t = (s - sMin) / Math.max(1e-9, sMax - sMin)
-    const px = 20 + t * (100 - 20) // 20..100 px
-    return px / 10 // radius for svg
+    const px = (3.5 + t * (6))
+    return px
   }
 
-  // legend values (authors view)
   const legendVals = useMemo(() => {
     if (viewMode !== "authors") return [] as number[]
     const mid = minVal + (maxVal - minVal) / 2
@@ -207,7 +175,7 @@ export function Timeline({
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">{label}:</span>
               <span className="font-mono font-medium">
-                {metric === "commits" ? formatNumber(d.value) : formatPercent(d.value)}
+                {metric === "commits" ? Math.round(d.value).toLocaleString() : `${d.value.toFixed(2)}%`}
               </span>
             </div>
           </div>
@@ -221,9 +189,9 @@ export function Timeline({
       ? {
           type: "number" as const,
           dataKey: "authorIndex",
-          domain: filteredAuthors.length ? [0, filteredAuthors.length - 1] : [0, 0],
-          ticks: filteredAuthors.map((_, i) => i),
-          tickFormatter: (i: number) => filteredAuthors[i] || "",
+          domain: authorsSorted.length ? [-1, authorsSorted.length ] : [0, 0],
+          ticks: authorsSorted.map((_, i) => i),
+          tickFormatter: (i: number) => authorsSorted[i] || "",
           tick: { fontSize: 10 },
           width: 80,
           name: "Author",
@@ -234,13 +202,18 @@ export function Timeline({
           domain: [0, "auto"] as [number, any],
           tick: { fontSize: 10 },
           width: 80,
-          label: { value: metric === "commits" ? "Nr of commits" : "Changes (%)", angle: -90, offset: 0, style: { fontSize: 14 }},
+          label: {
+            value: metric === "commits" ? "Nr of commits" : "Changes (%)",
+            angle: -90,
+            offset: 0,
+            style: { fontSize: 14 },
+          },
           allowDecimals: metric !== "commits",
         }
 
   return (
     <Card>
-      <CardHeader className="pb-2 space-y-0 ">
+      <CardHeader className="pb-2 space-y-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <CardTitle className="text-sm">Activity Timeline</CardTitle>
@@ -273,11 +246,11 @@ export function Timeline({
         </div>
       </CardHeader>
 
-      <CardContent className="pt-2 pb-3">
-        {/* legend: author colors (repo) */}
-        {viewMode === "repo" && filteredAuthors.length > 0 && (
+      <CardContent>
+        <div className="h-8 flex items-center">
+        {viewMode === "repo" && authorsSorted.length > 0 && (
           <div className="mb-2 flex flex-wrap items-center gap-3 text-[10px]">
-            {filteredAuthors.map((a) => {
+            {authorsSorted.map((a) => {
               const { color } = getAuthorColor(a)
               return (
                 <div key={a} className="flex items-center gap-1">
@@ -289,7 +262,6 @@ export function Timeline({
           </div>
         )}
 
-        {/* legend: dot size (authors) */}
         {viewMode === "authors" && legendVals.length > 0 && (
           <div className="flex items-center gap-4 mb-2 text-[10px]">
             <span className="text-muted-foreground">
@@ -304,13 +276,16 @@ export function Timeline({
                     <circle cx={s / 2} cy={s / 2} r={r} />
                   </svg>
                   <span className="font-mono">
-                    {metric === "commits" ? formatNumber(Number(v)) : formatPercent(Number(v))}
+                    {metric === "commits"
+                      ? Math.round(Number(v)).toLocaleString()
+                      : `${Number(v).toFixed(2)}%`}
                   </span>
                 </div>
               )
             })}
           </div>
         )}
+        </div>
 
         <div className="h-[250px] w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -319,21 +294,21 @@ export function Timeline({
               <XAxis
                 type="number"
                 dataKey="date"
-                domain={[dateMin, dateMax]}
-                tickFormatter={fmtDate}
+                domain={[dateMin - (dateMax - dateMin)*0.03, dateMax + (dateMax - dateMin)*0.03]}
+                tickFormatter={fmtDatePlot}
                 tick={{ fontSize: 10 }}
                 name="Date"
                 height={50}
-                label = {{ value: 'Date', position: 'insideBottom', offset: -5, style: { fontSize: 14 } }}
+                label={{ value: "Date", position: "insideBottom", offset: -5, style: { fontSize: 14 } }}
               />
               <YAxis {...(yAxisProps as any)} />
               <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: "3 3" }} />
               <Scatter
                 data={data}
-                isAnimationActive={false}
                 shape={({ cx, cy, payload }: any) => {
                   const r = getDotSize(payload.value)
-                  const fill = viewMode === "repo" ? getAuthorColor(payload.author).color : "#030303"
+                  const fill =
+                    viewMode === "repo" ? getAuthorColor(payload.author).color : "#030303"
                   return <circle cx={cx} cy={cy} r={r} fill={fill} fillOpacity={0.8} />
                 }}
               />

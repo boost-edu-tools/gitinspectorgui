@@ -20,8 +20,6 @@ export function AppMainWindow({
   selectedFiles,
   filterData,
   selectedRepo,
-  startCommitHash,
-  endCommitHash
 }: Pick<
   AnalysisProps,
   | "allAuthors"
@@ -30,8 +28,6 @@ export function AppMainWindow({
   | "selectedFiles"
   | "filterData"
   | "selectedRepo"
-  | "startCommitHash"
-  | "endCommitHash"
 >) {
 
   return (
@@ -76,12 +72,7 @@ export function AppMainWindow({
               <div className="mt-4 px-8">
                 <div className="p-4">
                   <Timeline
-                    allAuthors={allAuthors}
-                    selectedAuthors={selectedAuthors}
-                    filterData={filterData}
                     selectedRepo={selectedRepo}
-                    startCommitHash={startCommitHash}
-                    endCommitHash={endCommitHash}
                   />
                 </div>
                 <div className="p-4">
