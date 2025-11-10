@@ -15,6 +15,15 @@ export const fmtDate = (d: Date | null) => {
     }).format(d)
 }
 
+export const fmtDatePlot = (d: Date | null) => {
+  if (!d) return "—"
+    return new Intl.DateTimeFormat(undefined, {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(d)
+}
+
 export const fmt_pct_abs = (v: number, total: number, displayMode: string) => {
     return displayMode === "percentage"
       ? `${total ? ((v / total) * 100).toFixed(0) : "0"}%`

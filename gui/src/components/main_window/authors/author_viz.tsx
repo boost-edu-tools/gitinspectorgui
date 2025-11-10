@@ -12,31 +12,20 @@ import {
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getAuthorColor } from "@/components/helpers/AuthorColors"
+import { getAuthorColor } from "@/components/helpers/author_colors"
 import type { AnalysisProps, AnalysisResult, Author } from "@/components/types"
 import { useAnalysis } from "@/hooks/useAnalysis"
-import { fmtDate } from "@/components/helpers/helper_functions"
+import { fmtDate, fmtDatePlot } from "@/components/helpers/formatting_helpers"
 
 type MetricKey = "commits" | "percent"
 type ViewMode = "authors" | "repo"
 
-export function Timeline({
+export function AuthorStatisticsVisualisation({
   selectedRepo,
 }: Pick<AnalysisProps, "selectedRepo">) {
   const [metric, setMetric] = useState<MetricKey>("percent")
   const [viewMode, setViewMode] = useState<ViewMode>("repo")
   const { analysis } = useAnalysis(selectedRepo)
-
-  
-  const fmtDatePlot = (d: Date | null) => {
-  if (!d) return "—"
-    return new Intl.DateTimeFormat(undefined, {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(d)
-}
-
   const {
     perCommit,
     totalCommits,
