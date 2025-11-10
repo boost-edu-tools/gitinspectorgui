@@ -116,6 +116,13 @@ export type Settings = {
   commit_message_filter?: Filter[];
   file_types_filter?: Filter[];
   path_filter?: Filter[];
+  max_repo_size_mb?: number;
+  detect_mode?: string;
+  paths?: string[];
+  authorNames?: string[];
+  authorEmails?: string[];
+  commitHashes?: string[]
+  commitMessages?: string[];
 }
 
 export type AnalysisParameters = {

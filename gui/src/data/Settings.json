@@ -5,5 +5,14 @@
   "ignored_file_extensions": [".test"],
   "allowed_file_types": ["py", "ts", "md"],
   "subfolder": "src",
-  "n_files": 10
+  "n_files": 10,
+  "max_repo_size_mb": 500,
+  "detect_mode": "within-file",
+  "paths": [],
+  "authorNames": [],
+  "authorEmails": [],
+  "commitHashes": [],
+  "commitMessages": []
+
+
 }
