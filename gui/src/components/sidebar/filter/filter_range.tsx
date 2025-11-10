@@ -22,103 +22,13 @@ import { Calendar as CalendarIcon, Info as InfoIcon } from "lucide-react"
 
 import { getAuthorColor } from "@/components/helpers/AuthorColors"
 import { useAnalysis } from "@/hooks/useAnalysis"
-import { Commit, SelectedFullProps, AnalysisResult, Author } from "@/components/types"
+import { Commit, AnalysisProps, AnalysisResult, Author } from "@/components/types"
 
+import { shortHash, fmtDate } from "@/components/helpers/helper_functions"
 
-type FilterRangeProps = Pick<
-  SelectedFullProps,
-  | "selectedRepo"
-  | "selectedAuthors"
-  | "startDate"
-  | "endDate"
-  | "startCommitHash"
-  | "endCommitHash"
-  | "onStartDateChange"
-  | "onEndDateChange"
-  | "onStartCommitChange"
-  | "onEndCommitChange"
->
-
-const shortHash = (h: string) => h.slice(0, 7)
-
-const fmtDate = (d?: Date | null) => {
-  if (!d) return "—"
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(d)
-  } catch {
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
-      d.getDate()
-    ).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(
-      d.getMinutes()
-    ).padStart(2, "0")}`
-  }
-}
-
-const toDate = (v: string | number | Date | undefined | null): Date | null => {
-  if (!v) return null
-  if (v instanceof Date) return isNaN(v.getTime()) ? null : v
-  const t = new Date(v)
-  return isNaN(t.getTime()) ? null : t
-}
-
-const startOfDay = (d: Date) => {
-  const copy = new Date(d)
-  copy.setHours(0, 0, 0, 0)
-  return copy
-}
-const endOfDay = (d: Date) => {
-  const copy = new Date(d)
-  copy.setHours(23, 59, 59, 999)
-  return copy
-}
-
-const clampDate = (d: Date, min?: Date, max?: Date) => {
-  if (!d) return d
-  if (min && d < min) return min
-  if (max && d > max) return max
-  return d
-}
-
-const setTimeOnDate = (date: Date, timeHHMM: string) => {
-  const [hStr = "0", mStr = "0"] = timeHHMM.split(":")
-  const h = Number(hStr)
-  const m = Number(mStr)
-  const nd = new Date(date)
-  if (!isNaN(h) && !isNaN(m)) nd.setHours(h, m, timeHHMM === "23:59" ? 59 : 0, timeHHMM === "23:59" ? 999 : 0)
-  return nd
-}
-
-const ensureChronology = (from?: Date, to?: Date) => {
-  if (from && to && from > to) return { from: to, to: from }
-  return { from, to }
-}
-
-const getFullRepoRange = (commits: Commit[]) => {
-  const sorted = commits
-    .filter((c) => c?.hash && c?.date)
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  if (!sorted.length) return null
-  const first = sorted[0]
-  const last = sorted[sorted.length - 1]
-  const firstDate = new Date(first.date)
-  const lastDate = new Date(last.date)
-  return {
-    startHash: first.hash,
-    endHash: last.hash,
-    startDate: startOfDay(firstDate),
-    endDate: endOfDay(lastDate),
-  }
-}
 
 export function FilterRange({
   selectedRepo,
-  selectedAuthors,
   startDate,
   endDate,
   startCommitHash,
@@ -127,185 +37,142 @@ export function FilterRange({
   onEndDateChange,
   onStartCommitChange,
   onEndCommitChange,
-}: FilterRangeProps) {
+}: 
+  Pick<
+    AnalysisProps,
+    | "selectedRepo"
+    | "selectedAuthors"
+    | "startDate"
+    | "endDate"
+    | "startCommitHash"
+    | "endCommitHash"
+    | "onStartDateChange"
+    | "onEndDateChange"
+    | "onStartCommitChange"
+    | "onEndCommitChange"
+  >) {
+  
   const { analysis } = useAnalysis(selectedRepo)
-
-  // repo + authors
-  const repo = (analysis as AnalysisResult | undefined)?.repository
-  const authors: Author[] = repo?.authors ?? []
-
-  // Map for quick author lookup
+  const repo = (analysis as AnalysisResult).repository
+  const commits: Commit[] = repo.commits
+  const authors: Author[] = repo.authors
   const authorById = React.useMemo(
     () => new Map<number, Author>(authors.map((a) => [a.id, a])),
     [authors]
   )
 
-  const getAuthorName = React.useCallback(
-    (author_id?: number) => authorById.get(author_id ?? -1)?.name ?? "Unknown",
-    [authorById]
-  )
+  const clampDate = (d: Date, min?: Date, max?: Date) => {
+  if (!d) return d
+  if (min && d < min) return min
+  if (max && d > max) return max
+  return d}
 
-  // Identify the repo stably (path > name > selectedRepo)
-  const repoId = React.useMemo(
-    () => repo?.path ?? repo?.name ?? selectedRepo ?? null,
-    [repo?.path, repo?.name, selectedRepo]
-  )
+  const setTimeOnDate = (date: Date, timeHHMM: string) => {
+    const [hStr = "0", mStr = "0"] = timeHHMM.split(":")
+    const h = Number(hStr)
+    const m = Number(mStr)
+    const nd = new Date(date)
+    nd.setHours(h, m)   
+    return nd
+  }
 
-  const lastRepoIdRef = React.useRef<string | null>(null)
+  const ensureChronology = (from?: Date, to?: Date) => {
+    if (from && to && from > to) return { from: to, to: from }
+    return { from, to }
+  }
+
+  const getFullRepoRange = (commits: Commit[]) => {
+
+    const first = commits[0]
+    const last = commits[commits.length - 1]
+    const startDateStr = `${first.date}T${first.time}${first.timezone}`
+    const endDateStr = `${last.date}T${last.time}${last.timezone}`
+
+    return {
+      startHash: first.hash,
+      endHash: last.hash,
+      startDate: new Date(startDateStr),
+      endDate: new Date(endDateStr),
+    }
+  }
+
+  const { range } = React.useMemo(() => {
+    return {
+      range: getFullRepoRange(repo.commits)
+    }
+  }, [selectedRepo])
 
   React.useEffect(() => {
-    if (!repo || !repo?.commits?.length || !repoId) return
+    onStartCommitChange(range.startHash)
+    onEndCommitChange(range.endHash)
+    onStartDateChange(range.startDate)
+    onEndDateChange(range.endDate)
 
-    if (lastRepoIdRef.current !== repoId) {
-      const range = getFullRepoRange(repo.commits)
-      if (range) {
-        onStartCommitChange(range.startHash)
-        onEndCommitChange(range.endHash)
-        onStartDateChange(range.startDate)
-        onEndDateChange(range.endDate)
-      }
-      lastRepoIdRef.current = repoId
-    }
-  }, [
-    repoId,
-    repo?.commits,
-    onStartCommitChange,
-    onEndCommitChange,
-    onStartDateChange,
-    onEndDateChange,
-  ])
+  }, [range, onStartCommitChange, onEndCommitChange, onStartDateChange, onEndDateChange])
 
-  const allCommits = React.useMemo<Commit[]>(() => {
-    const list: Commit[] = repo?.commits ?? []
-    const out: Commit[] = []
-    const seen = new Set<string>()
-
-    for (const c of list) {
-      if (!c?.hash || seen.has(c.hash)) continue
-      const d = toDate(c.date)
-      if (!d) continue
-      seen.add(c.hash)
-
-      if (selectedAuthors && selectedAuthors.length > 0) {
-        const name = getAuthorName(c.author_id)
-        if (!selectedAuthors.includes(name)) continue
-      }
-
-      out.push(c)
-    }
-
-    return out.sort((a, b) => {
-      const da = toDate(a.date)?.getTime() ?? 0
-      const db = toDate(b.date)?.getTime() ?? 0
-      return da - db
-    })
-  }, [repo?.commits, selectedAuthors, getAuthorName])
-
-  // Absolute min/max dates from all commits
   const { absoluteMinDate, absoluteMaxDate } = React.useMemo(() => {
-    if (allCommits.length === 0) {
-      return {
-        absoluteMinDate: undefined as Date | undefined,
-        absoluteMaxDate: undefined as Date | undefined,
-      }
-    }
     return {
-      absoluteMinDate: toDate(allCommits[0].date) ?? undefined,
-      absoluteMaxDate: toDate(allCommits[allCommits.length - 1].date) ?? undefined,
+      absoluteMinDate: range.startDate,
+      absoluteMaxDate: range.endDate,
     }
-  }, [allCommits])
+  }, [range])
 
-  const commits = allCommits
-
-  // Local UI state
   const [dateDialogOpen, setDateDialogOpen] = React.useState(false)
 
-  // Time strings
-  const startTimeStr = React.useMemo(() => {
-    const d = startDate ? new Date(startDate) : undefined
-    return d ? `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}` : "00:00"
-  }, [startDate])
-
-  const endTimeStr = React.useMemo(() => {
-    const d = endDate ? new Date(endDate) : undefined
-    return d ? `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}` : "23:59"
-  }, [endDate])
-
-  // Derived safe dates clamped to absolute range
   const safeStartDate = React.useMemo(() => {
-    if (!startDate) return startDate as Date | undefined
-    return absoluteMinDate && absoluteMaxDate
-      ? clampDate(startDate, startOfDay(absoluteMinDate), endOfDay(absoluteMaxDate))
-      : startDate
+    return clampDate(startDate, absoluteMinDate, absoluteMaxDate)
   }, [startDate, absoluteMinDate, absoluteMaxDate])
 
   const safeEndDate = React.useMemo(() => {
-    if (!endDate) return endDate as Date | undefined
-    return absoluteMinDate && absoluteMaxDate
-      ? clampDate(endDate, startOfDay(absoluteMinDate), endOfDay(absoluteMaxDate))
-      : endDate
+    return clampDate(endDate, absoluteMinDate, absoluteMaxDate)
   }, [endDate, absoluteMinDate, absoluteMaxDate])
 
-  React.useEffect(() => {
-    if (!absoluteMinDate || !absoluteMaxDate) return
-    if (startDate && (startDate < startOfDay(absoluteMinDate) || startDate > endOfDay(absoluteMaxDate)))
-      onStartDateChange(clampDate(startDate, startOfDay(absoluteMinDate), endOfDay(absoluteMaxDate)))
-    if (endDate && (endDate < startOfDay(absoluteMinDate) || endDate > endOfDay(absoluteMaxDate)))
-      onEndDateChange(clampDate(endDate, startOfDay(absoluteMinDate), endOfDay(absoluteMaxDate)))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [absoluteMinDate, absoluteMaxDate])
-
-  // Filter commits by date range (inclusive)
   const commitsInDateRange = React.useMemo<Commit[]>(() => {
-    if (!safeStartDate || !safeEndDate) return allCommits
-    return allCommits.filter((c) => {
-      const cd = toDate(c.date)
-      if (!cd) return false
+    return commits.filter((c) => {
+      const cd = new Date(`${c.date}T${c.time}${c.timezone}`)
       return cd.getTime() >= safeStartDate.getTime() && cd.getTime() <= safeEndDate.getTime()
     })
-  }, [allCommits, safeStartDate, safeEndDate])
+  }, [commits, safeStartDate, safeEndDate])
 
-  // Indices for current commit selection within all commits
-  const startIdxRaw = commits.findIndex((c) => c.hash === startCommitHash)
-  const endIdxRaw = commits.findIndex((c) => c.hash === endCommitHash)
-  const safeStartIdx = commits.length ? (startIdxRaw >= 0 ? startIdxRaw : 0) : -1
-  const safeEndIdx = commits.length ? (endIdxRaw >= 0 ? endIdxRaw : commits.length - 1) : -1
-
-  const startCommit = commits[safeStartIdx]
-  const endCommit = commits[safeEndIdx]
+  const startIdx = commits.findIndex((c) => c.hash === startCommitHash)
+  const endIdx = commits.findIndex((c) => c.hash === endCommitHash)
+  const startCommit = commits[startIdx]
+  const endCommit = commits[endIdx]
 
   React.useEffect(() => {
-    // When date range changes externally, auto-select first/last commits inside the range
     if (commitsInDateRange.length === 0) return
     const firstCommit = commitsInDateRange[0]
     const lastCommit = commitsInDateRange[commitsInDateRange.length - 1]
-    if (firstCommit.hash !== startCommitHash) onStartCommitChange(firstCommit.hash)
-    if (lastCommit.hash !== endCommitHash) onEndCommitChange(lastCommit.hash)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    onStartCommitChange(firstCommit.hash)
+    onEndCommitChange(lastCommit.hash)
   }, [commitsInDateRange, onStartCommitChange, onEndCommitChange])
 
   const applyStartSelection = (idx: number) => {
     const selected = commits[idx]
-    const d = toDate(selected.date)
-    if (!d) return
+    const selected_date = new Date(`${selected.date}T${selected.time}${selected.timezone}`)
     onStartCommitChange(selected.hash)
-    onStartDateChange(setTimeOnDate(startOfDay(d), startTimeStr || "00:00"))
+    onStartDateChange(new Date(selected_date))
   }
   const applyEndSelection = (idx: number) => {
     const selected = commits[idx]
-    const d = toDate(selected.date)
-    if (!d) return
+    const selected_date = new Date(`${selected.date}T${selected.time}${selected.timezone}`)
     onEndCommitChange(selected.hash)
-    onEndDateChange(setTimeOnDate(endOfDay(d), endTimeStr || "23:59"))
+    onEndDateChange(new Date(selected_date))
+    
   }
 
-    // state
+  React.useEffect(() => {
+    if (commits.findIndex((c) => c.hash === endCommitHash) < commits.findIndex((c) => c.hash === startCommitHash)) 
+      {
+      onStartCommitChange(endCommit.hash);
+      onEndCommitChange(startCommit.hash);
+      onStartDateChange(new Date (`${endCommit.date}T${endCommit.time}${endCommit.timezone}`));
+      onEndDateChange(new Date (`${startCommit.date}T${startCommit.time}${startCommit.timezone}`));
+  }}, [startCommitHash, endCommitHash, onStartCommitChange, onEndCommitChange, onStartDateChange, onEndDateChange]);
+
   const [nextPick, setNextPick] = React.useState<'start' | 'end'>('start')
 
-
   const handleCommitClick = (idx: number) => {
-  if (!commits.length) return
-
   if (nextPick === 'start') {
     applyStartSelection(idx)
     setNextPick('end')
@@ -314,61 +181,19 @@ export function FilterRange({
     setNextPick('start')
   }
 }
-
-
-  // Default month for calendar
-  const defaultMonth = React.useMemo(() => {
-    if (safeStartDate) return safeStartDate
-    if (absoluteMinDate) return absoluteMinDate
-    return undefined
-  }, [safeStartDate, absoluteMinDate])
-
   const applyCalendarSelection = (range: { from?: Date; to?: Date } | undefined) => {
-    if (!range) return
+    if (!range) return 
     let from = range.from ? new Date(range.from) : undefined
     let to = range.to ? new Date(range.to) : undefined
-
-    if (from) from = setTimeOnDate(from, startTimeStr || "00:00")
-    if (to) to = setTimeOnDate(to, endTimeStr || "23:59")
     const norm = ensureChronology(from, to)
-
     if (norm.from) onStartDateChange(norm.from)
     if (norm.to) onEndDateChange(norm.to)
-
-    if (norm.from && !norm.to) onEndDateChange(norm.from)
-    if (!norm.from && norm.to) onStartDateChange(norm.to)
-  }
-
-  const onStartTimeChange = (value: string) => {
-    const base = safeStartDate || absoluteMinDate || new Date()
-    const withTime = setTimeOnDate(base, value || "00:00")
-    if (safeEndDate && withTime > safeEndDate) {
-      const adjusted = ensureChronology(withTime, safeEndDate)
-      onStartDateChange(adjusted.from!)
-      onEndDateChange(adjusted.to!)
-    } else {
-      onStartDateChange(withTime)
-    }
-  }
-
-  const onEndTimeChange = (value: string) => {
-    const base = safeEndDate || absoluteMaxDate || new Date()
-    const withTime = setTimeOnDate(base, value || "23:59")
-    if (safeStartDate && withTime < safeStartDate) {
-      const adjusted = ensureChronology(safeStartDate, withTime)
-      onStartDateChange(adjusted.from!)
-      onEndDateChange(adjusted.to!)
-    } else {
-      onEndDateChange(withTime)
-    }
   }
 
   return (
     <Card className="bg-transparent border-none shadow-none p-0">
       <CardContent className="p-2 space-y-2">
         <div className="flex items-start gap-2">
-
-
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -386,24 +211,21 @@ export function FilterRange({
             variant="outline"
             className="h-7 px-2 text-[10px] inline-flex items-center gap-1"
             type="button"
-            onClick={() => setDateDialogOpen(true)}
-            disabled={!absoluteMinDate || !absoluteMaxDate}
-          >
+            onClick={() => setDateDialogOpen(true)}>
             <CalendarIcon className="h-3.5 w-3.5" />
             Change date range
           </Button>
         </div>
 
-        {/* Commit list */}
         <ScrollArea className="h-30 rounded border">
           <ul className="divide-y divide-border/40">
             {commits.map((c, i) => {
-              const d = toDate(c.date)
-              const name = getAuthorName(c.author_id)
+              const d = new Date(`${c.date}T${c.time}${c.timezone}`)
+              const name = authorById.get(c.author_id)?.name ?? "Unknown"
               const colors = getAuthorColor(name)
-              const inRange = i >= Math.max(0, safeStartIdx) && i <= Math.max(0, safeEndIdx)
-              const isStart = i === Math.max(0, safeStartIdx)
-              const isEnd = i === Math.max(0, safeEndIdx)
+              const inRange = i >= Math.max(0, startIdx) && i <= Math.max(0, endIdx)
+              const isStart = i === Math.max(0, startIdx)
+              const isEnd = i === Math.max(0, endIdx)
               return (
                 <li key={c.hash}>
                   <button
@@ -443,10 +265,10 @@ export function FilterRange({
             {startCommit && endCommit ? (
               <div className="text-[10px] leading-tight text-foreground truncate">
                 <div className="truncate">
-                  <span className="inline-block w-6 text-muted-foreground">Start:</span> {shortHash(startCommit.hash)} • {fmtDate(toDate(startCommit.date))}
+                  <span className="inline-block w-6 text-muted-foreground">Start:</span> {shortHash(startCommit.hash)} • {fmtDate(new Date(`${startCommit.date}T${startCommit.time}${startCommit.timezone}`))}
                 </div>
                 <div className="truncate">
-                  <span className="inline-block w-6 text-muted-foreground">End: </span> {shortHash(endCommit.hash)} • {fmtDate(toDate(endCommit.date))}
+                  <span className="inline-block w-6 text-muted-foreground">End: </span> {shortHash(endCommit.hash)} • {fmtDate(new Date(`${endCommit.date}T${endCommit.time}${endCommit.timezone}`))}
                 </div>
               </div>
             ) : (
@@ -454,7 +276,6 @@ export function FilterRange({
             )}
           </div>
 
-        {/* Date dialog (compact, sidebar-friendly) */}
         <AlertDialog open={dateDialogOpen} onOpenChange={setDateDialogOpen}>
           <AlertDialogContent className="w-[92vw] max-w-[380px] p-0 gap-0 overflow-hidden">
             <AlertDialogHeader className="px-4 pt-4 pb-2 border-b bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40">
@@ -462,8 +283,8 @@ export function FilterRange({
               <AlertDialogDescription className="text-[11px] mt-1.5">
                 {absoluteMinDate && absoluteMaxDate ? (
                   <>
-                    Available: <span className="font-medium text-foreground">{fmtDate(startOfDay(absoluteMinDate))}</span> to {" "}
-                    <span className="font-medium text-foreground">{fmtDate(endOfDay(absoluteMaxDate))}</span>
+                    Available: <span className="font-medium text-foreground">{fmtDate(absoluteMinDate)}</span> to {" "}
+                    <span className="font-medium text-foreground">{fmtDate(absoluteMaxDate)}</span>
                   </>
                 ) : (
                   "No commits available to derive a range."
@@ -474,16 +295,14 @@ export function FilterRange({
             <div className="p-4 flex flex-col items-center">
               <Calendar
                 mode="range"
-                defaultMonth={defaultMonth}
-                selected={{ from: safeStartDate ?? undefined, to: safeEndDate ?? undefined }}
+                defaultMonth={safeStartDate}
+                selected={{ from: safeStartDate, to: safeEndDate}}
                 onSelect={applyCalendarSelection}
                 numberOfMonths={1}
-                fromDate={absoluteMinDate}
-                toDate={absoluteMaxDate}
                 showOutsideDays
                 disabled={(date) => {
-                  if (absoluteMinDate && date < absoluteMinDate) return true
-                  if (absoluteMaxDate && date > absoluteMaxDate) return true
+                  if (date < absoluteMinDate) return true
+                  if (date > absoluteMaxDate) return true
                   return false
                 }}
                 className="rounded-md border shadow-sm bg-background w-[320px] max-w-full"
@@ -494,8 +313,8 @@ export function FilterRange({
                   <label className="text-[11px] text-muted-foreground">Start time</label>
                   <input
                     type="time"
-                    value={startTimeStr}
-                    onChange={(e) => onStartTimeChange(e.target.value)}
+                    value={`${String(safeStartDate.getHours()).padStart(2, "0")}:${String(safeStartDate.getMinutes()).padStart(2, "0")}`}
+                    onChange={(e) => onStartDateChange(setTimeOnDate(safeStartDate, e.target.value))}
                     className="h-8 rounded-md border bg-background px-2 text-xs"
                   />
                 </div>
@@ -503,8 +322,8 @@ export function FilterRange({
                   <label className="text-[11px] text-muted-foreground">End time</label>
                   <input
                     type="time"
-                    value={endTimeStr}
-                    onChange={(e) => onEndTimeChange(e.target.value)}
+                    value={`${String(endDate.getHours()).padStart(2, "0")}:${String(endDate.getMinutes()).padStart(2, "0")}`}
+                    onChange={(e) => onEndDateChange(setTimeOnDate(endDate, e.target.value))}
                     className="h-8 rounded-md border bg-background px-2 text-xs"
                   />
                 </div>
@@ -519,7 +338,7 @@ export function FilterRange({
 
               {absoluteMinDate && absoluteMaxDate && (
                 <div className="w-full max-w-[320px] text-[11px] text-muted-foreground mt-1">
-                  {commitsInDateRange.length} of {allCommits.length} commits in range
+                  {commitsInDateRange.length} of {commits.length} commits in range
                 </div>
               )}
             </div>
@@ -530,14 +349,11 @@ export function FilterRange({
                 <div className="flex items-center gap-2">
                   <Button
                     variant="secondary"
-                    className="h-8 px-3 text-xs"
+                    className="h-8 px-3 text-xs "
                     onClick={() => {
-                      if (absoluteMinDate && absoluteMaxDate) {
-                        onStartDateChange(setTimeOnDate(startOfDay(absoluteMinDate), "00:00"))
-                        onEndDateChange(setTimeOnDate(endOfDay(absoluteMaxDate), "23:59"))
-                      }
+                        onStartDateChange(absoluteMinDate)
+                        onEndDateChange(absoluteMaxDate)
                     }}
-                    disabled={!absoluteMinDate || !absoluteMaxDate}
                   >
                     Full range
                   </Button>
