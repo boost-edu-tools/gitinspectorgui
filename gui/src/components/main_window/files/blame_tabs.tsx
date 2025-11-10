@@ -2,58 +2,45 @@ import * as React from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { X, Plus, FolderOpen } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { BlameView } from "@/components/main_window/files/blame_view"
-import type { Author, File } from "@/components/types"
+import { BlameView } from "@/components/main_window/files/blame_tab"
+import { useAnalysis } from "@/hooks/useAnalysis"
+import type { AnalysisResult, AnalysisProps, File } from "@/components/types"
 
-type Props = {
-  selectedRepo: string | null
 
-  availableFiles: File[]
-  initialPath: string 
-  authorsById: Map<number, Author>
-  selectedAuthors: string[]
-  onExit: () => void
-}
-
-export function BlameTabsView({
+export function BlameViewMultiTab({
   selectedRepo,
-  availableFiles,
-  initialPath,
-  authorsById,
-  selectedAuthors,
+  selectedFile,
+  setSelectedFile,
   onExit,
-}: Props) {
-  // open files = set of paths; start with initial
-  const [openPaths, setOpenPaths] = React.useState<string[]>(
-    availableFiles.find(f => f.path === initialPath) ? [initialPath] : []
-  )
-  const [active, setActive] = React.useState<string>(initialPath)
+}: Pick<
+  AnalysisProps,
+  "selectedRepo"
+  | "setSelectedFile"
+  | "selectedFile"> &
+{ onExit: () => void;
+})  {
+
+  const [openPaths, setOpenPaths] = React.useState<string[]>([String(selectedFile)])
   const [addOpen, setAddOpen] = React.useState(false)
-  const [search, setSearch] = React.useState("")
+  const prevRepoRef = React.useRef<string | null>(null);
 
-  // keep active valid
   React.useEffect(() => {
-    if (!openPaths.includes(active)) {
-      setActive(openPaths[0] ?? "")
-    }
-  }, [openPaths, active])
+  if (prevRepoRef.current && prevRepoRef.current !== selectedRepo) {
+    setSelectedFile(null);
+  }
+  prevRepoRef.current = selectedRepo;
+}, [selectedRepo]);
 
-  // update if initialPath changes (e.g. user clicked another file to open blame)
-  React.useEffect(() => {
-    if (initialPath && !openPaths.includes(initialPath)) {
-      setOpenPaths(prev => [...prev, initialPath])
-      setActive(initialPath)
-    } else if (initialPath) {
-      setActive(initialPath)
-    }
-  }, [initialPath]) // eslint-disable-line react-hooks/exhaustive-deps
+  const { analysis } = useAnalysis(selectedRepo)
+  const repo = (analysis as AnalysisResult | undefined)?.repository
+  const files: File[] = repo?.files ?? []
 
-  const pathToFile = (p: string) => availableFiles.find(f => f.path === p)
+  const allFiles = files.map(f => f.path)
+
+  const pathToFile = (p: string) => files.find(f => f.path === p)
 
   const openFileEntries = openPaths.map(pathToFile).filter(Boolean) as File[]
 
@@ -64,18 +51,8 @@ export function BlameTabsView({
 
   const closeAll = () => setOpenPaths([])
 
-  const filteredChoices = React.useMemo(() => {
-    const q = search.trim().toLowerCase()
-    const arr = q
-      ? availableFiles.filter(f => f.path.toLowerCase().includes(q))
-      : availableFiles
-    return arr.sort((a, b) => a.path.localeCompare(b.path))
-  }, [availableFiles, search])
-
-  // limit height and make interiors scrollable
   return (
     <div className="flex flex-col gap-3 max-h-[85vh]">
-      {/* top bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <FolderOpen className="h-4 w-4" />
@@ -90,8 +67,7 @@ export function BlameTabsView({
         </div>
       </div>
 
-      {/* tabs bar — horizontally scrollable */}
-      <Tabs value={active} onValueChange={setActive} className="flex-1 flex flex-col min-h-0">
+      <Tabs value={selectedFile} onValueChange={setSelectedFile} className="flex-1 flex flex-col min-h-0">
         <div className="relative">
           <div className="overflow-x-auto scrollbar-thin">
             <TabsList className="flex flex-wrap bg-transparent">
@@ -119,16 +95,13 @@ export function BlameTabsView({
           </div>
         </div>
 
-        {/* content area — fills remaining space and scrolls inside BlameView */}
         <div className="flex-1 min-h-0">
           {openFileEntries.map((f) => (
             <TabsContent key={f.path} value={f.path} className="h-full mt-3">
               <div className="h-full">
                 <BlameView
                   selectedRepo={selectedRepo}
-                  file={f}
-                  authorsById={authorsById}
-                  selectedAuthors={selectedAuthors}
+                  selectedFile={selectedFile}
                 />
               </div>
             </TabsContent>
@@ -136,7 +109,6 @@ export function BlameTabsView({
         </div>
       </Tabs>
 
-      {/* Add files dialog */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
@@ -145,20 +117,12 @@ export function BlameTabsView({
 
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Label htmlFor="file-search" className="text-xs text-muted-foreground">Filter</Label>
-              <Input
-                id="file-search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by path…"
-                className="h-8"
-              />
               <div className="ml-auto flex items-center gap-2">
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
-                  onClick={() => setOpenPaths(filteredChoices.map(f => f.path))}
+                  onClick={() => setOpenPaths(Array.from(allFiles))}
                 >
                   Select all
                 </Button>
@@ -174,10 +138,10 @@ export function BlameTabsView({
             </div>
 
             <div className="border rounded overflow-x-auto ">
-              {/* limit list height so dialog never exceeds viewport */}
+
               <ScrollArea className="max-h-[30vh]">
                 <div className="divide-y">
-                  {filteredChoices.map((f) => {
+                  {files.map((f) => {
                     const checked = openPaths.includes(f.path)
                     return (
                       <label
@@ -192,7 +156,7 @@ export function BlameTabsView({
                       </label>
                     )
                   })}
-                  {filteredChoices.length === 0 && (
+                  {files.length === 0 && (
                     <div className="px-3 py-6 text-sm text-muted-foreground">No files match your filter.</div>
                   )}
                 </div>

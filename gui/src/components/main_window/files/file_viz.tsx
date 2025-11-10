@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { getAuthorColor } from "@/components/helpers/AuthorColors"
+import { getAuthorColor } from "@/components/helpers/author_colors"
 import type { AnalysisProps, AnalysisResult, Metrics } from "@/components/types"
 import { useAnalysis } from "@/hooks/useAnalysis"
 
@@ -22,43 +22,23 @@ type MetricKey = "total_commits" | "insertions" | "deletions"
 type DisplayMode = "absolute" | "percentage"
 
 const formatNumber = (n: number) => Math.round(n).toLocaleString()
-const formatPercent = (p: number) => `${p.toFixed(1)}%`
+const formatPercent = (p: number) => `${p.toFixed(0)}%`
 
 type Breakdown = Record<string, { total_commits: number; insertions: number; deletions: number }>
 
-export function FileActivityChart({
-  allAuthors,
-  selectedAuthors,
-  allFiles,
-  selectedFiles,
-  filterData,
+export function FileSatisticsVisualisation({
   selectedRepo,
 }: Pick<
   AnalysisProps,
-  "allAuthors" 
-  | "selectedAuthors" 
-  | "allFiles" 
-  | "selectedFiles" 
-  | "filterData" 
   | "selectedRepo"
 >) {
   const [metric, setMetric] = useState<MetricKey>("total_commits")
   const [displayMode, setDisplayMode] = useState<DisplayMode>("absolute")
   const { analysis } = useAnalysis(selectedRepo)
   const repo = (analysis as AnalysisResult | undefined)?.repository
+  const allAuthors = Array.from(new Set(repo?.authors.map((a: any) => (a?.name ?? ""))))
+  const allFiles = Array.from(new Set(repo?.files.map((a: any) => (a?.path ?? ""))))
 
-  // Authors/files to show (no recomputation beyond simple toggles)
-  const authorsToShow = useMemo(
-    () => (filterData ? selectedAuthors : Array.from(allAuthors)),
-    [filterData, selectedAuthors, allAuthors]
-  )
-  const filesToShow = useMemo(
-    () => (filterData ? selectedFiles : Array.from(allFiles)),
-    [filterData, selectedFiles, allFiles]
-  )
-
-  // One-time lightweight index: authorName -> (file_path -> metrics)
-  // This avoids scanning all author.files repeatedly.
   const authorFileIndex = useMemo(() => {
     const idx: Record<string, Record<string, Metrics>> = {}
     if (!repo?.authors) return idx
@@ -73,23 +53,18 @@ export function FileActivityChart({
     return idx
   }, [repo?.authors])
 
-  // Build the minimal dataset directly from repository.files
   const fileRows = useMemo(() => {
     if (!repo?.files?.length) return []
 
-    // Prepare rows only for the selected files; totals come straight from file.metrics
-    const rows = repo.files
-      .filter((f) => filesToShow.includes(f.path))
+      const rows = repo.files
       .map((f) => {
         const m = f.metrics ?? {}
-        // Source of truth for totals is the file's own metrics
         const totalCommits = (m.total_commits ?? 0)
         const totalInsertions = (m.insertions ?? 0)
         const totalDeletions = (m.deletions ?? 0)
 
-        // Minimal per-author breakdown pulled directly from the index (no extra math)
         const breakdown: Breakdown = {}
-        for (const author of authorsToShow) {
+        for (const author of allAuthors) {
           const am = authorFileIndex[author]?.[f.path]
           breakdown[author] = {
             total_commits: am?.total_commits ?? 0,
@@ -110,16 +85,13 @@ export function FileActivityChart({
         }
       })
 
-    // Keep your previous behavior: sort by selected metric
     return rows.sort((a, b) => b.totals[metric] - a.totals[metric])
-  }, [repo?.files, filesToShow, authorsToShow, authorFileIndex, metric])
+  }, [allFiles, allAuthors, authorFileIndex, metric])
 
-  // Grand total across all files for percentage mode (taken from file totals)
   const grandTotal = useMemo(() => {
     return fileRows.reduce((sum, r) => sum + r.totals[metric], 0)
   }, [fileRows, metric])
 
-  // Prepare chart data in one pass (no extra structures)
   const chartData = useMemo(() => {
     return fileRows.map((r) => {
       const base = {
@@ -132,7 +104,7 @@ export function FileActivityChart({
             : r.totals[metric],
       } as Record<string, any>
 
-      for (const author of authorsToShow) {
+      for (const author of allAuthors) {
         const value = r.breakdown[author]?.[metric] ?? 0
         base[author] =
           displayMode === "percentage" && grandTotal > 0
@@ -141,7 +113,7 @@ export function FileActivityChart({
       }
       return base
     })
-  }, [fileRows, authorsToShow, metric, displayMode, grandTotal])
+  }, [fileRows, allAuthors, metric, displayMode, grandTotal])
 
   const MetricIcon = ({ type }: { type: MetricKey }) => {
     switch (type) {
@@ -177,7 +149,7 @@ export function FileActivityChart({
             <div className="border-t pt-1 mt-1 text-muted-foreground text-[10px]">
               By author:
             </div>
-            {authorsToShow.map((author) => {
+            {Array.from(allAuthors).map((author) => {
               const value = (data as any)[author]
               if (!value) return null
               const { color } = getAuthorColor(author)
@@ -254,10 +226,9 @@ export function FileActivityChart({
       </CardHeader>
 
       <CardContent className="pt-2 pb-3">
-        {/* Legend */}
-        {authorsToShow.length > 0 && (
+        {Array.from(allAuthors).length > 0 && (
           <div className="mb-2 flex flex-wrap items-center gap-3 text-[10px]">
-            {authorsToShow.map((a) => {
+            {Array.from(allAuthors).map((a) => {
               const { color } = getAuthorColor(a)
               return (
                 <div key={a} className="flex items-center gap-1">
@@ -302,7 +273,7 @@ export function FileActivityChart({
               />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(0,0,0,0.05)" }} />
 
-              {authorsToShow.map((author) => {
+              {Array.from(allAuthors).map((author) => {
                 const { color } = getAuthorColor(author)
                 return (
                   <Bar

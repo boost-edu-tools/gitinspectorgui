@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import {
   Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
@@ -7,28 +8,22 @@ import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
-import { AuthorStatisticsOverview} from "@/components/main_window/authors/author_statistics"
-import { Timeline } from "@/components/main_window/authors/activity_timeline"
-import { UnifiedFilesView } from "@/components/main_window/files/file_statistics_main"
+import { AuthorStatisticsOverview} from "@/components/main_window/authors/author_table"
+import { AuthorStatisticsVisualisation } from "@/components/main_window/authors/author_viz"
+import { BlameViewMultiTab } from "./files/blame_tabs"
+import { FileSatisticsVisualisation } from "./files/file_viz"
+import { FileStatisticsTable } from "./files/files_table"
 
 import type { AnalysisProps } from "@/components/types"
 
 export function AppMainWindow({
-  allAuthors,
-  selectedAuthors,
-  allFiles,
-  selectedFiles,
-  filterData,
   selectedRepo,
 }: Pick<
   AnalysisProps,
-  | "allAuthors"
-  | "selectedAuthors"
-  | "allFiles"
-  | "selectedFiles"
-  | "filterData"
   | "selectedRepo"
 >) {
+
+  const [selectedFile, setSelectedFile] = React.useState<string | null>(null)
 
   return (
     <SidebarInset>
@@ -71,15 +66,12 @@ export function AppMainWindow({
             <TabsContent value="authors" className="py-0">
               <div className="mt-4 px-8">
                 <div className="p-4">
-                  <Timeline
+                  <AuthorStatisticsVisualisation
                     selectedRepo={selectedRepo}
                   />
                 </div>
                 <div className="p-4">
                   <AuthorStatisticsOverview
-                    allAuthors={allAuthors}
-                    selectedAuthors={selectedAuthors}
-                    filterData={filterData}
                     selectedRepo={selectedRepo}
                   />
                 </div>
@@ -87,17 +79,33 @@ export function AppMainWindow({
             </TabsContent>
 
             <TabsContent value="files" className="py-0">
-                <UnifiedFilesView
-                  allAuthors={allAuthors}
-                  selectedAuthors={selectedAuthors}
-                  allFiles={allFiles}
-                  selectedFiles={selectedFiles}
-                  filterData={filterData}
-                  selectedRepo={selectedRepo}
-                />
+              { selectedFile?  (
+                  <div className="space-y-2 py-4 mt-4 px-8">
+                    <BlameViewMultiTab
+                      selectedRepo={selectedRepo}
+                      selectedFile={selectedFile}
+                      setSelectedFile={setSelectedFile}
+                      onExit={() => setSelectedFile(null)}
+                    />
+                  </div>) 
+                  :
+                (<div className="mt-4 px-8">
+                  <div className="p-4">
+                    <FileSatisticsVisualisation
+                      selectedRepo={selectedRepo}
+                    />
+                  </div>
+
+                  <div className="p-4">
+                    <FileStatisticsTable
+                      selectedRepo={selectedRepo}
+                      setSelectedFile={setSelectedFile}
+                    />
+                  </div>
+                </div>)
+              }                           
             </TabsContent>
           </Tabs>
-        {/* )} */}
       </div>
     </SidebarInset>
   );

@@ -1,11 +1,64 @@
 import * as React from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { FolderOpen, FileText, } from "lucide-react"
-import { getAuthorColor } from "@/components/helpers/AuthorColors"
-import { fmt_pct_abs, time_diff_YDH, MetricHeader} from "@/components/helpers/helper_functions"
+import { getAuthorColor } from "@/components/helpers/author_colors"
+import { fmt_pct_abs, time_diff_YDH, MetricHeader} from "@/components/helpers/formatting_helpers"
+import { Card, CardContent, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import type { AnalysisResult, AnalysisProps } from "@/components/types"
+import { useAnalysis } from "@/hooks/useAnalysis"
+
+function extractFileMetadata(analysis: AnalysisResult | undefined) {
+  const fm = analysis?.repository?.files ?? []
+  return fm
+    .map((f) => ({
+      path: f.path,
+      total_commits: f.metrics?.total_commits ?? 0,
+      insertions: f.metrics?.insertions ?? 0,
+      deletions: f.metrics?.deletions ?? 0,
+      loc: f.metrics?.loc ?? 0,
+      sloc: f.metrics?.sloc ?? 0,
+      stability: f.metrics?.stability ?? 0,
+      last_modified_date: f.last_modified_date ?? "",
+      last_modified_time: f.last_modified_time ?? "",
+      last_modified_timezone: f.last_modified_timezone ?? ""
+    }))
+    .sort((a, b) => b.total_commits - a.total_commits)
+}
+
+function buildAuthorFileRows(
+  analysis: AnalysisResult | undefined,
+  metric: "total_commits" | "insertions" | "deletions" | "loc" | "sloc"
+) {
+  const repo = analysis?.repository
+  if (!repo) return []
+
+  const fileMap = new Map<string, Record<string, number>>()
+
+  for (const a of repo.authors ?? []) {
+    const authorName = a.name ?? "Unknown"
+    for (const f of a.files ?? []) {
+      const value = (f.metrics as any)?.[metric] ?? 0
+      const rec = fileMap.get(f.file_path) ?? {}
+      rec[authorName] = (rec[authorName] ?? 0) + value
+      fileMap.set(f.file_path, rec)
+    }
+  }
+
+  const rows = Array.from(fileMap.entries()).map(([filePath, authorMetrics]) => ({
+    filePath,
+    authorMetrics,
+    totalMetric: Object.values(authorMetrics).reduce((s, v) => s + v, 0),
+  }))
+
+  return rows.sort((a, b) => b.totalMetric - a.totalMetric)
+}
 
 
-export function RepositoryViewTable({
+function RepositoryViewTable({
   fileMetadata,
   displayMode,
   onFileSelect,
@@ -93,9 +146,7 @@ export function RepositoryViewTable({
   )
 }
 
-/* -------- Author-file view table -------- */
-
-export function AuthorFileViewTable({
+function AuthorFileViewTable({
   rows,
   allAuthors,
   metricType,
@@ -119,8 +170,6 @@ export function AuthorFileViewTable({
     }
     return { authorTotals, overall }
   }, [rows])
-
-  const fmt = (v: number, total: number) => (displayMode === "percentage" ? `${total ? ((v / total) * 100).toFixed(0) : "0.0"}%` : String(v))
 
   return (
     <div className="border rounded-lg overflow-x-auto">
@@ -154,7 +203,7 @@ export function AuthorFileViewTable({
               const v = totals.authorTotals[a] ?? 0
               return (
                 <TableCell key={a} className="text-right">
-                  {v > 0 ? <span className="text-sm font-medium">{fmt(v, totals.overall)}</span> : <span className="text-muted-foreground text-sm">-</span>}
+                  {v > 0 ? <span className="text-sm font-medium">{fmt_pct_abs(v, totals.overall, displayMode)}</span> : <span className="text-muted-foreground text-sm">-</span>}
                 </TableCell>
               )
             })}
@@ -173,7 +222,7 @@ export function AuthorFileViewTable({
                 const v = r.authorMetrics[a] ?? 0
                 return (
                   <TableCell key={a} className="text-right">
-                    {v > 0 ? <span className="text-sm">{fmt(v, r.totalMetric)}</span> : <span className="text-muted-foreground text-sm">-</span>}
+                    {v > 0 ? <span className="text-sm">{fmt_pct_abs(v, r.totalMetric, displayMode)}</span> : <span className="text-muted-foreground text-sm">-</span>}
                   </TableCell>
                 )
               })}
@@ -183,4 +232,112 @@ export function AuthorFileViewTable({
       </Table>
     </div>
   )
+}
+
+export function FileStatisticsTable({
+  selectedRepo, 
+  setSelectedFile
+  }: Pick<
+    AnalysisProps,
+    "selectedRepo"
+    | "setSelectedFile">)  
+
+ {
+
+  const [displayMode, setDisplayMode] = React.useState<"absolute" | "percentage">("absolute")
+  const [viewMode, setViewMode] = React.useState<"repo" | "author-file">("repo")
+  const [authorFileMetricType, setAuthorFileMetricType] = React.useState<
+    "total_commits" | "insertions" | "deletions" | "loc" | "sloc"
+  >("total_commits")
+
+  const { analysis } = useAnalysis(selectedRepo)
+  const repo = (analysis as AnalysisResult | undefined)?.repository
+  const allAuthors = Array.from(new Set(repo?.authors.map((a: any) => (a?.name ?? ""))))
+
+  const fileMetadata = React.useMemo(
+      () => extractFileMetadata(analysis),
+      [analysis]
+    )
+
+  const authorFileRows = React.useMemo(
+      () => buildAuthorFileRows(analysis, authorFileMetricType),
+      [analysis, authorFileMetricType]
+    )
+
+    return (
+      
+        <Card>
+          <CardContent className="pt-0">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm">File Statistics</CardTitle>
+              <div className="flex items-center gap-4">
+                <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "repo" | "author-file")}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger className="text-[10px]" value="repo">All authors</TabsTrigger>
+                    <TabsTrigger className="text-[10px]" value="author-file">Per author</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="display-mode" className="text-[13px]">
+                    Relative
+                  </Label>
+                  <Switch
+                    id="display-mode"
+                    checked={displayMode === "percentage"}
+                    onCheckedChange={(checked) => setDisplayMode(checked ? "percentage" : "absolute")}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {viewMode === "author-file" && (
+              <div className="flex items-center gap-2 pb-2">
+                <Label htmlFor="metric-type" className="text-sm">
+                  Metric:
+                </Label>
+                <Select
+                  value={authorFileMetricType}
+                  onValueChange={(v) =>
+                    setAuthorFileMetricType(v as "total_commits" | "insertions" | "deletions" | "loc" | "sloc")
+                  }
+                >
+                  <SelectTrigger id="metric-type" className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="total_commits">Commits</SelectItem>
+                    <SelectItem value="loc">LOC</SelectItem>
+                    <SelectItem value="sloc">SLOC</SelectItem>
+                    <SelectItem value="insertions">Insertions</SelectItem>
+                    <SelectItem value="deletions">Deletions</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="grid w-full [&>div]:border [&>div]:rounded overflow-x-auto">
+              <p className="text-xs text-muted-foreground pb-4">
+                Click on any file in the table below to view its detailed blame information
+              </p>
+
+              {viewMode === "repo" ? (
+                <RepositoryViewTable
+                  fileMetadata={fileMetadata}
+                  displayMode={displayMode}
+                  onFileSelect={(path) => setSelectedFile(path)}
+                />
+              ) : (
+                <AuthorFileViewTable
+                  rows={authorFileRows}
+                  allAuthors={Array.from(allAuthors)}
+                  metricType={authorFileMetricType}
+                  displayMode={displayMode}
+                  onFileSelect={(path) => setSelectedFile(path)}
+                />
+              )}
+            </div>
+          </CardContent>
+        </Card>
+    )
 }

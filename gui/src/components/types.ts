@@ -10,7 +10,7 @@ export type AnalysisProps = {
 
   allFiles: Set<string>;
   selectedFiles: string[];
-  selectFiles: (authors: string[]) => void;
+  selectFiles: (files: string[]) => void;
 
   filterData: boolean;
   setFilterData: Dispatch<SetStateAction<boolean>>;
@@ -27,6 +27,9 @@ export type AnalysisProps = {
   onEndDateChange: (date: Date) => void;
   onStartCommitChange: (hash: string) => void;
   onEndCommitChange: (hash: string) => void;
+
+  selectedFile: string | undefined;
+  setSelectedFile: Dispatch<SetStateAction<string | null>>;
 };
 
 

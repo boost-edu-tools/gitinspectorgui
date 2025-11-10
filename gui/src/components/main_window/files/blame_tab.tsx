@@ -1,12 +1,12 @@
 import * as React from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { getAuthorColor } from "@/components/helpers/AuthorColors"
+import { getAuthorColor } from "@/components/helpers/author_colors"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { useAnalysis } from "@/hooks/useAnalysis"
-import type { AnalysisResult, Author, File, Line, Commit } from "@/components/types"
+import type { AnalysisResult, Author, File, Line, Commit, AnalysisProps } from "@/components/types"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { fmtDate } from "@/components/helpers/helper_functions"
+import { fmtDate } from "@/components/helpers/formatting_helpers"
 
 function groupByCommit(lines: Line[]) {
   const groups: Array<{
@@ -31,27 +31,35 @@ function groupByCommit(lines: Line[]) {
 
 export function BlameView({
   selectedRepo,
-  file,
-  authorsById,
-  selectedAuthors,
-}: {
-  selectedRepo: string | null
-  file: File
-  authorsById: Map<number, Author>
-  selectedAuthors: string[]
-}) {
+  selectedFile,
+}:
+  Pick<
+    AnalysisProps,
+    "selectedRepo"
+    | "selectedFile"> 
+    ) {
   const { analysis } = useAnalysis(selectedRepo)
+
   const [showMetadata, setShowMetadata] = React.useState(true)
   const [hideEmpty, setHideEmpty] = React.useState(false)
   const [hideComments, setHideComments] = React.useState(false)
   const [colorize, setColorize] = React.useState(true)
-
-  const authorName = (id: number) => authorsById.get(id)?.name ?? "Unknown"
+ 
 
   const repo = (analysis as AnalysisResult | undefined)?.repository
-  const fullCommits: Commit[] = repo?.commits ?? []
+  const commits: Commit[] = repo?.commits ?? []
+  const authors: Author[] = repo?.authors ?? []
+  const files: File[] = repo?.files ?? []
+  const fileIdx = files.findIndex((f) => f.path === selectedFile)
+  const file = files[fileIdx]
 
-  // filter lines by line_type before grouping
+  const authorById = React.useMemo(
+      () => new Map<number, Author>(authors.map((a) => [a.id, a])),
+      [authors]
+    )
+
+  const authorName = (id: number) => authorById.get(id)?.name ?? "Unknown"
+
   const filteredLines = React.useMemo(() => {
     const lines = file.lines ?? []
     return lines.filter((ln) => {
@@ -75,17 +83,12 @@ export function BlameView({
       .sort((a, b) => b.lines - a.lines)
   }, [filteredLines])
 
-  const visibleAuthors = authorStats.filter(({ author }) => selectedAuthors.includes(author))
-
-  // Metadata columns (narrower) now include a single Commit column:
-  // [Author] [Date] [Commit] | [Line] | [Code]
   const metaCols = showMetadata
     ? "120px 200px 48px 1fr"
     : "48px 1fr"
 
   return (
     <div className="space-y-3">
-      {/* Controls */}
       <div className="flex flex-wrap gap-4 items-center">
         <div className="flex items-center gap-2">
           <Label htmlFor="toggle-metadata" className="text-xs">Show metadata</Label>
@@ -125,14 +128,13 @@ export function BlameView({
 
       </div>
 
-      {(visibleAuthors.length > 0 && colorize) && (
+      {(authorStats.length > 0 && colorize) && (
         <div className="border rounded-lg p-4 bg-muted/20">
           <h3 className="text-xs font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
             Author Contributions
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {authorStats
-              .filter(({ author }) => selectedAuthors.includes(author))
               .map(({ author, lines, percentage }) => {
                 const info = getAuthorColor(author) ?? { color: "#888" }
                 const colorStyle = colorize
@@ -191,8 +193,7 @@ export function BlameView({
             {groups.map((g, gi) => {
               const name = authorName(g.author_id)
               const info = getAuthorColor(name) ?? { color: "#000" }
-              const isSelected = selectedAuthors.includes(name)
-              const fullCommit = fullCommits.find(c => c.hash === g.commit_hash)
+              const fullCommit = commits.find(c => c.hash === g.commit_hash)
               const commitHash = fullCommit?.hash ?? ""
               const commitMessage = fullCommit?.message ?? ""
               const commitDate = new Date(String(fullCommit?.date)) 
@@ -201,7 +202,7 @@ export function BlameView({
               const paddedNum =
                 commitNum != null ? `#${String(commitNum).padStart(2, "0")}` : "—"
 
-              const groupStyle = colorize && isSelected
+              const groupStyle = colorize 
                 ? {
                     borderLeftColor: (info as any).color ?? "#000",
                     backgroundColor: (info as any).bgColor ?? "transparent",
@@ -225,13 +226,10 @@ export function BlameView({
                     >
                       {showMetadata && (
                         <>
-                          {/* Author */}
                           <div className="px-2 py-0.5 text-muted-foreground border-r border-border/40">
                             {idx === 0 && <span className="text-[10px]">{name}</span>}
                           </div>
 
-
-                        {/* Commit (merged: No + SHA + Message) */}
                           <div className="px-2 py-0.5 text-muted-foreground border-r border-border/40">
                             {idx === 0 && (
                               <TooltipProvider delayDuration={200}>
@@ -262,12 +260,10 @@ export function BlameView({
                         </>
                       )}
 
-                      {/* Line number */}
                       <span className="sticky left-0 z-10 bg-background px-2 py-0.5 text-muted-foreground text-right select-none border-r border-border/40">
                         {String(ln.number).padStart(3, " ")}
                       </span>
 
-                      {/* Code */}
                       <code className="whitespace-pre-wrap break-words text-foreground px-2 py-0.5">
                         {ln.content}
                       </code>
