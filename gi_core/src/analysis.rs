@@ -554,58 +554,34 @@ fn filter_metrics(result: AnalysisResult) {
     // Placeholder for future implementation
 }
 
+
 /// This function retrieves blame information up until the latest commit in the AnalysisResult.
-/// It updates the files in each commit with line-by-line author information.
-// fn analyse_blames(result: AnalysisResult) -> AnalysisResult {
-//     // Destructure the incoming AnalysisResult so we can mutate a local repository
-//     let AnalysisResult { parameters, repository} = result;
-//     let mut repository = repository;
+/// Running analyse_repository() is a prerequisite!
+/// It updates the file objects in the repository with blame information.
+fn analyse_blames(result: AnalysisResult) -> Result<AnalysisResult, String> {
+    // Destructure the incoming AnalysisResult so we can mutate a local repository
+    let AnalysisResult { original_repository, parameters, repository} = result;
+    let mut repository = repository;
 
-//     // For each commit, for each file changed in that commit, try to read the file
-//     // from the repository working tree (using repository.path + file.path) and
-//     // populate file_size and lines. We leave author/commit_hash/date empty for now.
-//     let repo_root = Path::new(&repository.path);
+    // Step 1: retrieve the latest commit hash (should be the first in the commits list)
+    let latest_commit_hash = if let Some(latest_commit) = repository.commits.first() {
+        latest_commit.hash.clone()
+    } else {
+        return Err("No commits found in repository".to_string());
+    };
 
-//     for commit in &mut repository.commits {
-//         for file in &mut commit.files_changed {
-//             let file_path: PathBuf = repo_root.join(&file.path);
-//             if let Ok(metadata) = std::fs::metadata(&file_path) {
-//                 file.file_size = metadata.len() as usize;
-//             } else {
-//                 file.file_size = 0;
-//             }
+    // Step 2: For each file in the repository:
+    // Step 2.1: Run git blame
+    // Step 2.2: Parse the output
+    // Step 2.3: Annotate each line with its type (should have another module being able to differentiate between line types for set of langs)
+    // Step 2.3: Update the file's fields with author, commit_hash, date info
 
-//             // Try to open and read lines
-//             let mut lines_vec: Vec<Line> = Vec::new();
-//             if let Ok(f) = FsFile::open(&file_path) {
-//                 let reader = BufReader::new(f);
-//                 for (idx, line_res) in reader.lines().enumerate() {
-//                     match line_res {
-//                         Ok(line_content) => {
-//                             // Create a Line with placeholder author/commit/date
-//                             let placeholder_author = Author { name: String::new(), email: String::new() };
-//                             let l = Line {
-//                                 number: idx + 1,
-//                                 content: line_content,
-//                                 author: placeholder_author,
-//                                 commit_hash: String::new(),
-//                                 date: String::new(),
-//                             };
-//                             lines_vec.push(l);
-//                         }
-//                         Err(_) => {
-//                             // Ignore line read errors; continue
-//                         }
-//                     }
-//                 }
-//             }
-
-//             file.lines = lines_vec;
-//         }
-//     }
-
-//     AnalysisResult { None, parameters, repository }
-// }
+    Ok(AnalysisResult {
+        original_repository,
+        parameters,
+        repository,
+    })
+}
 
 #[cfg(test)]
 mod tests {
