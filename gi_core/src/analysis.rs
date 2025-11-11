@@ -348,6 +348,34 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                     // Parse files and --numstat entries. numstat lines look like:
                     // "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
                     if let Some((ins, del, path)) = parse_file_line(line) {
+
+                        // Apply file types filter (if present). matchers[2] corresponds to file_types_filter
+                        if let Some(matcher_opt) = matchers.get(2) {
+                            if let Some(matcher) = matcher_opt {
+                                if let Some(filter) = &params.file_types_filter {
+                                    // Extract extension from the filename and add a leading dot
+                                    // so matchers expecting ".rs" or ".gitignore" will match.
+                                    let filename = path.split('/').last().unwrap_or("");
+                                    let ext = if filename.contains('.') {
+                                        format!(".{}", filename.rsplitn(2, '.').next().unwrap_or(""))
+                                    } else {
+                                        String::new()
+                                    };
+                                    let is_match = matcher.is_match(&ext);
+                                    if filter.include {
+                                        // include=true -> only keep files whose extension matches
+                                        if !is_match {
+                                            continue;
+                                        }
+                                    } else {
+                                        // include=false -> exclude files whose extension matches
+                                        if is_match {
+                                            continue;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         // Add to commit-level metrics
                         commit_total_files = commit_total_files.saturating_add(1);
                         commit_insertions = commit_insertions.saturating_add(ins);
@@ -1104,4 +1132,50 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn test_build_glob_matchers_file_types_rs_and_gitignore() {
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+
+        let start_commit = "02c101f";
+        let end_commit = "c1dd7cd";
+
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+
+        // file types filter value provided as requested
+        params.file_types_filter = Some(Filter {
+            value: "{.rs,.gitignore,.js}".to_string(),
+            include: true,
+        });
+
+        let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
+        assert_eq!(matchers.len(), 4);
+
+        let ft_matcher = matchers[2].as_ref().expect("file types matcher should be Some");
+
+        // Expect this matcher to match common extensions 'rs' and 'gitignore'
+        assert!(ft_matcher.is_match(".rs"));
+        assert!(ft_matcher.is_match(".gitignore"));
+        assert!(ft_matcher.is_match(".js"));
+
+
+        // Should not match other extensions
+        assert!(!ft_matcher.is_match(".py"));
+        let result = analyse_repository(&params);
+        match result {
+            Ok(analysis) => {
+                print_repository_info(&analysis.repository);
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
+    }
+    
 }
