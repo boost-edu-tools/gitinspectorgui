@@ -310,6 +310,27 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                     }
                 }
 
+                // Check commit-message filter (if present) and apply include/exclude semantics.
+                // matchers[1] corresponds to commit_message_filter.
+                if let Some(matcher_opt) = matchers.get(1) {
+                    if let Some(matcher) = matcher_opt {
+                        if let Some(filter) = &params.commit_message_filter {
+                            let is_match = matcher.is_match(&message);
+                            if filter.include {
+                                // include=true -> only keep commits whose message matches
+                                if !is_match {
+                                    continue;
+                                }
+                            } else {
+                                // include=false -> exclude commits whose message matches
+                                if is_match {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+
 
                 // Keep track of commit level statistics when looping through files
                 let mut files_changed: Vec<File> = Vec::new();
@@ -323,6 +344,8 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                     if line.is_empty() {
                         continue;
                     }
+
+                    // Check if 
 
                     // Add to total files count
                     commit_total_files = commit_total_files.saturating_add(1);
@@ -1025,6 +1048,54 @@ mod tests {
 
         // Should NOT match hashes that start with a letter
         assert!(!commit_matcher.is_match("a12345"));
+
+        let result = analyse_repository(&params);
+        match result {
+            Ok(analysis) => {
+                print_repository_info(&analysis.repository);
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_build_glob_matchers_commit_message_feat_analysis_prefix() {
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+        // Excluding start, including end
+        let start_commit = "02c101f";
+        let end_commit = "c1dd7cd";
+
+        // Build AnalysisParameters and run analysis
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+
+        // Build parameters with a commit_message_filter that matches messages
+        // starting with "feat(analysis):"
+        params.commit_message_filter = Some(Filter {
+            value: "feat(analysis):*".to_string(),
+            include: true,
+        });
+
+        let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
+
+        // Ensure we have 4 elements and the second (commit message) matcher is present
+        assert_eq!(matchers.len(), 4);
+        let msg_matcher = matchers[1].as_ref().expect("commit message matcher should be Some");
+
+        // Should match messages that start with feat(analysis):
+        assert!(msg_matcher.is_match("feat(analysis): add new analyse_repository"));
+        assert!(msg_matcher.is_match("feat(analysis):refactor: tidy up"));
+
+        // Should NOT match unrelated messages
+        assert!(!msg_matcher.is_match("fix: correct bug"));
+        assert!(!msg_matcher.is_match("chore: bump deps"));
 
         let result = analyse_repository(&params);
         match result {
