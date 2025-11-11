@@ -345,14 +345,11 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                         continue;
                     }
 
-                    // Check if 
-
-                    // Add to total files count
-                    commit_total_files = commit_total_files.saturating_add(1);
-
                     // Parse files and --numstat entries. numstat lines look like:
                     // "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
                     if let Some((ins, del, path)) = parse_file_line(line) {
+                        // Add to commit-level metrics
+                        commit_total_files = commit_total_files.saturating_add(1);
                         commit_insertions = commit_insertions.saturating_add(ins);
                         commit_deletions = commit_deletions.saturating_add(del);
 
