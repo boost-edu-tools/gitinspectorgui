@@ -376,6 +376,29 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                                 }
                             }
                         }
+
+                        // Apply path filter (if present). matchers[3] corresponds to path_filter
+                        // TODO: This can result in empty commits, as files may be all filtered out. Is this acceptable?
+                        if let Some(matcher_opt) = matchers.get(3) {
+                            if let Some(matcher) = matcher_opt {
+                                if let Some(filter) = &params.path_filter {
+                                    // Use the full file path for path matching
+                                    let is_match = matcher.is_match(&path);
+                                    if filter.include {
+                                        // include=true -> only keep files whose path matches
+                                        if !is_match {
+                                            continue;
+                                        }
+                                    } else {
+                                        // include=false -> exclude files whose path matches
+                                        if is_match {
+                                            continue;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         // Add to commit-level metrics
                         commit_total_files = commit_total_files.saturating_add(1);
                         commit_insertions = commit_insertions.saturating_add(ins);
@@ -1167,6 +1190,48 @@ mod tests {
 
         // Should not match other extensions
         assert!(!ft_matcher.is_match(".py"));
+        let result = analyse_repository(&params);
+        match result {
+            Ok(analysis) => {
+                print_repository_info(&analysis.repository);
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
+    }
+    
+    #[test]
+    fn test_build_glob_matchers_path_gi_core_shared_types() {
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+
+        let start_commit = "02c101f";
+        let end_commit = "c1dd7cd";
+
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+
+        // path filter for a specific file
+        params.path_filter = Some(Filter {
+            value: "gi_core/src/shared_types.rs".to_string(),
+            include: true,
+        });
+
+        let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
+        assert_eq!(matchers.len(), 4);
+
+        let path_matcher = matchers[3].as_ref().expect("path matcher should be Some");
+
+        // Should match the exact path
+        assert!(path_matcher.is_match("gi_core/src/shared_types.rs"));
+        // Should not match other paths
+        assert!(!path_matcher.is_match("gui/src/main.ts"));
+
         let result = analyse_repository(&params);
         match result {
             Ok(analysis) => {
