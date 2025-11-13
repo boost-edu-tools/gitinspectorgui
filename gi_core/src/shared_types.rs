@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 /// - Total number of authors who modified the file
 #[derive(Clone)]
 pub struct File {
+    pub id: usize,
     pub name: String,
     pub extension: String,
     pub path: String,
@@ -28,9 +29,7 @@ pub struct File {
 pub struct Line {
     pub number: usize,
     pub content: String,
-    pub author_id: usize,
     pub commit_hash: String,
-    pub date: String,
     pub line_type: LineType,
 }
 
@@ -54,7 +53,7 @@ pub struct Repository {
     pub path: String,
     pub authors: Vec<Author>,
     pub commits: Vec<Commit>,
-    pub files: Vec<String>,
+    pub files: Vec<File>,
     pub metrics: Metrics,
 }
 
@@ -72,7 +71,7 @@ pub struct Commit {
     pub time: String,
     pub timezone: String,
     pub message: String,
-    pub files_changed: Vec<File>,
+    pub files_changed: Vec<(usize, Metrics)>,
     pub metrics: Metrics,
 }
 
@@ -83,8 +82,11 @@ pub struct Author {
     pub id: usize,
     pub name: String,
     pub email: String,
-    pub commit_hashes: Vec<String>, // List of commit hashes authored by this author
-    pub files: Vec<String>,         // List of file paths modified by this author
+    pub commit_hashes: Vec<String>,     // List of commit hashes authored by this author
+    pub files: Vec<(usize, Metrics)>,   // List of file paths modified by this author
+    pub last_modified_date: String,
+    pub last_modified_time: String,
+    pub last_modified_timezone: String,
     pub metrics: Metrics,
 }
 
