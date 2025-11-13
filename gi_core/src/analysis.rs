@@ -109,7 +109,10 @@ fn parse_commit_header(
 fn parse_file_line(line: &str) -> Result<(usize, usize, String), String> {
     let parts: Vec<&str> = line.split('\t').collect();
     if parts.len() != 3 {
-        return Err(format!("Malformed numstat line (expected 3 tab parts): '{}'", line));
+        return Err(format!(
+            "Malformed numstat line (expected 3 tab parts): '{}'",
+            line
+        ));
     }
 
     let ins_str = parts[0].trim();
@@ -190,7 +193,6 @@ fn glob_matcher_builder(pattern: &str, literal_separator: bool) -> Result<GlobMa
     }
 }
 
-// TODO: TEST THIS FUNCTION
 /// Build glob matchers for the four supported filters from AnalysisParameters.
 /// Returns a vector of length 4 where each element corresponds to:
 /// [commit_hash_filter, commit_message_filter, file_types_filter, path_filter]
@@ -303,7 +305,7 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                             return Err(format!(
                                 "Failed to parse commit header '{}' : {}",
                                 header, e
-                            ))
+                            ));
                         }
                     };
 
@@ -349,7 +351,6 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                     }
                 }
 
-
                 // Keep track of commit level statistics when looping through files
                 let mut files_changed: Vec<File> = Vec::new();
                 let mut commit_insertions: usize = 0;
@@ -375,7 +376,10 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                                         // so matchers expecting ".rs" or ".gitignore" will match.
                                         let filename = path.split('/').last().unwrap_or("");
                                         let ext = if filename.contains('.') {
-                                            format!(".{}", filename.rsplitn(2, '.').next().unwrap_or(""))
+                                            format!(
+                                                ".{}",
+                                                filename.rsplitn(2, '.').next().unwrap_or("")
+                                            )
                                         } else {
                                             String::new()
                                         };
@@ -577,13 +581,16 @@ fn filter_metrics(result: AnalysisResult) {
     // Placeholder for future implementation
 }
 
-
 /// This function retrieves blame information up until the latest commit in the AnalysisResult.
 /// Running analyse_repository() is a prerequisite!
 /// It updates the file objects in the repository with blame information.
 fn analyse_blames(result: AnalysisResult) -> Result<AnalysisResult, String> {
     // Destructure the incoming AnalysisResult so we can mutate a local repository
-    let AnalysisResult { original_repository, parameters, repository} = result;
+    let AnalysisResult {
+        original_repository,
+        parameters,
+        repository,
+    } = result;
     let mut repository = repository;
 
     // Step 1: retrieve the latest commit hash (should be the first in the commits list)
@@ -609,8 +616,8 @@ fn analyse_blames(result: AnalysisResult) -> Result<AnalysisResult, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
     use std::collections::HashMap;
+    use std::path::PathBuf;
 
     // Test helper: print repository details (commits, authors, metrics).
     // This function is only compiled for tests and can be used by test cases to display
@@ -750,7 +757,10 @@ mod tests {
             files: vec!["old/path.rs".to_string()],
             metrics: Metrics::default(),
         };
-        author_map.insert((existing.name.clone(), existing.email.clone()), existing.clone());
+        author_map.insert(
+            (existing.name.clone(), existing.email.clone()),
+            existing.clone(),
+        );
 
         let mut next_author_id: usize = 2;
 
@@ -1287,7 +1297,9 @@ mod tests {
 
         // Ensure we have 4 elements and the second (commit message) matcher is present
         assert_eq!(matchers.len(), 4);
-        let msg_matcher = matchers[1].as_ref().expect("commit message matcher should be Some");
+        let msg_matcher = matchers[1]
+            .as_ref()
+            .expect("commit message matcher should be Some");
 
         // Should match messages that start with feat(analysis):
         assert!(msg_matcher.is_match("feat(analysis): add new analyse_repository"));
@@ -1332,13 +1344,14 @@ mod tests {
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
         assert_eq!(matchers.len(), 4);
 
-        let ft_matcher = matchers[2].as_ref().expect("file types matcher should be Some");
+        let ft_matcher = matchers[2]
+            .as_ref()
+            .expect("file types matcher should be Some");
 
         // Expect this matcher to match common extensions 'rs' and 'gitignore'
         assert!(ft_matcher.is_match(".rs"));
         assert!(ft_matcher.is_match(".gitignore"));
         assert!(ft_matcher.is_match(".js"));
-
 
         // Should not match other extensions
         assert!(!ft_matcher.is_match(".py"));
@@ -1352,7 +1365,7 @@ mod tests {
             }
         }
     }
-    
+
     #[test]
     fn test_build_glob_matchers_path_gi_core_shared_types() {
         let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -1394,5 +1407,4 @@ mod tests {
             }
         }
     }
-    
 }
