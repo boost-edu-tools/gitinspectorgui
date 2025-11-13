@@ -134,7 +134,6 @@ fn parse_file_line(line: &str) -> Result<(usize, usize, String), String> {
     Ok((ins, del, path_str.to_string()))
 }
 
-// TODO: TEST THIS FUNCTION
 /// Ensure an Author entry exists in the map and update it with the given commit hash and files.
 /// Returns the author's id.
 fn update_author(
@@ -612,6 +611,7 @@ fn analyse_blames(result: AnalysisResult) -> Result<AnalysisResult, String> {
 mod tests {
     use super::*;
     use std::path::PathBuf;
+    use std::collections::HashMap;
 
     // Test helper: print repository details (commits, authors, metrics).
     // This function is only compiled for tests and can be used by test cases to display
@@ -703,6 +703,92 @@ mod tests {
         assert!(res.is_err());
         let err = res.err().unwrap();
         assert!(err.contains("Malformed numstat line"));
+    }
+
+    #[test]
+    fn test_update_author_new_author() {
+        let mut author_map: HashMap<(String, String), Author> = HashMap::new();
+        let mut next_author_id: usize = 1;
+
+        let files_changed = vec![File {
+            name: "file.rs".to_string(),
+            extension: "rs".to_string(),
+            path: "src/file.rs".to_string(),
+            file_size: Some(0),
+            lines: vec![],
+            metrics: Metrics::default(),
+            last_modified_date: "".to_string(),
+            last_modified_time: "".to_string(),
+            last_modified_timezone: "".to_string(),
+        }];
+
+        let id = update_author(
+            &mut author_map,
+            "Alice",
+            "alice@example.com",
+            "abc123",
+            &files_changed,
+            &mut next_author_id,
+        );
+
+        assert_eq!(id, 1);
+        assert_eq!(author_map.len(), 1);
+        let key = ("Alice".to_string(), "alice@example.com".to_string());
+        let author = author_map.get(&key).expect("Author should exist");
+        assert_eq!(author.id, 1);
+        assert!(author.commit_hashes.contains(&"abc123".to_string()));
+        assert!(author.files.contains(&"src/file.rs".to_string()));
+    }
+
+    #[test]
+    fn test_update_author_existing_author() {
+        let mut author_map: HashMap<(String, String), Author> = HashMap::new();
+        let existing = Author {
+            id: 1,
+            name: "Alice".to_string(),
+            email: "alice@example.com".to_string(),
+            commit_hashes: vec!["oldhash".to_string()],
+            files: vec!["old/path.rs".to_string()],
+            metrics: Metrics::default(),
+        };
+        author_map.insert((existing.name.clone(), existing.email.clone()), existing.clone());
+
+        let mut next_author_id: usize = 2;
+
+        let files_changed = vec![File {
+            name: "newfile.rs".to_string(),
+            extension: "rs".to_string(),
+            path: "src/newfile.rs".to_string(),
+            file_size: Some(0),
+            lines: vec![],
+            metrics: Metrics::default(),
+            last_modified_date: "".to_string(),
+            last_modified_time: "".to_string(),
+            last_modified_timezone: "".to_string(),
+        }];
+
+        let id = update_author(
+            &mut author_map,
+            "Alice",
+            "alice@example.com",
+            "newhash",
+            &files_changed,
+            &mut next_author_id,
+        );
+
+        // Should return existing author's id
+        assert_eq!(id, 1);
+        // next_author_id should not have changed
+        assert_eq!(next_author_id, 2);
+
+        let key = ("Alice".to_string(), "alice@example.com".to_string());
+        let author = author_map.get(&key).expect("Author should exist");
+        // Both old and new hashes should be present
+        assert!(author.commit_hashes.contains(&"oldhash".to_string()));
+        assert!(author.commit_hashes.contains(&"newhash".to_string()));
+        // Both old and new files should be present
+        assert!(author.files.contains(&"old/path.rs".to_string()));
+        assert!(author.files.contains(&"src/newfile.rs".to_string()));
     }
 
     // Tests for build_git_log_args
