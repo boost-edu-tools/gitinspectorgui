@@ -45,17 +45,26 @@ fn build_git_log_args(params: &AnalysisParameters) -> Result<Vec<String>, String
     Ok(args)
 }
 
-// TODO: TEST THIS FUNCTION
 /// Parse a git log header line of the form:
 /// "<short-hash> / <author name> <email> / <date> / <message>"
-/// Returns (hash, author_name, author_email, date, time, timezone, message)
-fn parse_commit_header(header: &str) -> (String, String, String, String, String, String, String) {
-    let mut parts = header.splitn(4, " / ");
-    let hash = parts.next().unwrap_or("").trim().to_string();
-    let author_str = parts.next().unwrap_or("").trim().to_string();
-    // date may include time and timezone when using --date=iso
-    let date_full = parts.next().unwrap_or("").trim().to_string();
-    let message = parts.next().unwrap_or("").trim().to_string();
+/// Returns Ok((hash, author_name, author_email, date, time, timezone, message)) on success
+/// or Err(String) when the header does not match the expected format.
+fn parse_commit_header(
+    header: &str,
+) -> Result<(String, String, String, String, String, String, String), String> {
+    // Validate we have exactly four parts after splitting
+    let parts_vec: Vec<&str> = header.splitn(4, " / ").collect();
+    if parts_vec.len() != 4 {
+        return Err(format!(
+            "Commit header does not contain 4 parts separated by ' / ': '{}'",
+            header
+        ));
+    }
+
+    let hash = parts_vec[0].trim().to_string();
+    let author_str = parts_vec[1].trim().to_string();
+    let date_full = parts_vec[2].trim().to_string();
+    let message = parts_vec[3].trim().to_string();
 
     // split into date, time, timezone where possible
     let mut date = String::new();
@@ -83,7 +92,7 @@ fn parse_commit_header(header: &str) -> (String, String, String, String, String,
         (author_str.clone(), String::new())
     };
 
-    (
+    Ok((
         hash,
         author_name,
         author_email,
@@ -91,7 +100,7 @@ fn parse_commit_header(header: &str) -> (String, String, String, String, String,
         time,
         timezone,
         message,
-    )
+    ))
 }
 
 // TODO: TEST THIS FUNCTION
@@ -287,7 +296,15 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
             if let Some(header) = lines.next() {
                 // Parsing the header line using helper to keep the loop clean
                 let (hash, author_name, author_email, date, time, timezone, message) =
-                    parse_commit_header(header);
+                    match parse_commit_header(header) {
+                        Ok(t) => t,
+                        Err(e) => {
+                            return Err(format!(
+                                "Failed to parse commit header '{}' : {}",
+                                header, e
+                            ))
+                        }
+                    };
 
                 // Check commit-hash filter (if present) and apply include/exclude semantics.
                 // matchers[0] corresponds to commit_hash_filter.
@@ -632,6 +649,32 @@ mod tests {
             repo.metrics.insertions.unwrap_or(0),
             repo.metrics.deletions.unwrap_or(0),
         );
+    }
+
+    #[test]
+    fn test_parse_commit_header_valid() {
+        // Example header matching the --pretty=format used in build_git_log_args
+        let header = "abc123 / Alice Example <alice@example.com> / 2025-11-13 12:34:56 +0000 / Fix critical bug";
+        let res = parse_commit_header(header);
+        assert!(res.is_ok());
+        let (hash, name, email, date, time, tz, message) = res.unwrap();
+        assert_eq!(hash, "abc123");
+        assert_eq!(name, "Alice Example");
+        assert_eq!(email, "alice@example.com");
+        assert_eq!(date, "2025-11-13");
+        assert_eq!(time, "12:34:56");
+        assert_eq!(tz, "+0000");
+        assert_eq!(message, "Fix critical bug");
+    }
+
+    #[test]
+    fn test_parse_commit_header_invalid() {
+        // Missing separators -> should return Err
+        let header = "this is a malformed header without separators";
+        let res = parse_commit_header(header);
+        assert!(res.is_err());
+        let err = res.err().unwrap();
+        assert!(err.contains("Commit header does not contain 4 parts"));
     }
 
     // Tests for build_git_log_args
