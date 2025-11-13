@@ -173,7 +173,6 @@ fn update_author(
     author_entry.id
 }
 
-// TODO: TEST THIS FUNCTION
 /// Build and verify a GlobBuilder for the given pattern.
 /// This creates a temporary builder and attempts to `build()` it to verify the
 /// pattern is valid. If validation succeeds, a new configured `GlobBuilder`
@@ -789,6 +788,26 @@ mod tests {
         // Both old and new files should be present
         assert!(author.files.contains(&"old/path.rs".to_string()));
         assert!(author.files.contains(&"src/newfile.rs".to_string()));
+    }
+
+    #[test]
+    fn test_glob_matcher_builder_valid() {
+        // Valid glob should compile and match expected strings
+        let res = glob_matcher_builder("*.rs", false);
+        assert!(res.is_ok());
+        let matcher = res.unwrap();
+        assert!(matcher.is_match("main.rs"));
+        assert!(!matcher.is_match("main.py"));
+    }
+
+    #[test]
+    fn test_glob_matcher_builder_invalid() {
+        // Invalid glob pattern should return Err
+        // Use an obviously invalid pattern
+        let res = glob_matcher_builder("[", false);
+        assert!(res.is_err());
+        let err = res.err().unwrap();
+        assert!(err.contains("Invalid glob pattern"));
     }
 
     // Tests for build_git_log_args
