@@ -103,18 +103,21 @@ fn parse_commit_header(
     ))
 }
 
-// TODO: TEST THIS FUNCTION
 /// Parse a single file change line from git --numstat output.
 /// Expected format: "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
-/// Returns Some((insertions, deletions, path)) on success, otherwise None for malformed lines.
-fn parse_file_line(line: &str) -> Option<(usize, usize, String)> {
-    let mut parts = line.split('\t');
-    let ins_str = parts.next().unwrap_or("").trim();
-    let del_str = parts.next().unwrap_or("").trim();
-    let path_str = parts.next().unwrap_or("").trim();
+/// Returns Ok((insertions, deletions, path)) on success, or Err(String) when the line is malformed.
+fn parse_file_line(line: &str) -> Result<(usize, usize, String), String> {
+    let parts: Vec<&str> = line.split('\t').collect();
+    if parts.len() != 3 {
+        return Err(format!("Malformed numstat line (expected 3 tab parts): '{}'", line));
+    }
+
+    let ins_str = parts[0].trim();
+    let del_str = parts[1].trim();
+    let path_str = parts[2].trim();
 
     if path_str.is_empty() {
-        return None;
+        return Err(format!("Malformed numstat line: path is empty: '{}'", line));
     }
 
     let ins = if ins_str == "-" {
@@ -128,7 +131,7 @@ fn parse_file_line(line: &str) -> Option<(usize, usize, String)> {
         del_str.parse::<usize>().unwrap_or(0)
     };
 
-    Some((ins, del, path_str.to_string()))
+    Ok((ins, del, path_str.to_string()))
 }
 
 // TODO: TEST THIS FUNCTION
@@ -364,80 +367,85 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
 
                     // Parse files and --numstat entries. numstat lines look like:
                     // "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
-                    if let Some((ins, del, path)) = parse_file_line(line) {
-
-                        // Apply file types filter (if present). matchers[2] corresponds to file_types_filter
-                        if let Some(matcher_opt) = matchers.get(2) {
-                            if let Some(matcher) = matcher_opt {
-                                if let Some(filter) = &params.file_types_filter {
-                                    // Extract extension from the filename and add a leading dot
-                                    // so matchers expecting ".rs" or ".gitignore" will match.
-                                    let filename = path.split('/').last().unwrap_or("");
-                                    let ext = if filename.contains('.') {
-                                        format!(".{}", filename.rsplitn(2, '.').next().unwrap_or(""))
-                                    } else {
-                                        String::new()
-                                    };
-                                    let is_match = matcher.is_match(&ext);
-                                    if filter.include {
-                                        // include=true -> only keep files whose extension matches
-                                        if !is_match {
-                                            continue;
-                                        }
-                                    } else {
-                                        // include=false -> exclude files whose extension matches
-                                        if is_match {
-                                            continue;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // Apply path filter (if present). matchers[3] corresponds to path_filter
-                        // TODO: This can result in empty commits, as files may be all filtered out. Is this acceptable?
-                        if let Some(matcher_opt) = matchers.get(3) {
-                            if let Some(matcher) = matcher_opt {
-                                if let Some(filter) = &params.path_filter {
-                                    // Use the full file path for path matching
-                                    let is_match = matcher.is_match(&path);
-                                    if filter.include {
-                                        // include=true -> only keep files whose path matches
-                                        if !is_match {
-                                            continue;
-                                        }
-                                    } else {
-                                        // include=false -> exclude files whose path matches
-                                        if is_match {
-                                            continue;
+                    match parse_file_line(line) {
+                        Ok((ins, del, path)) => {
+                            // Apply file types filter (if present). matchers[2] corresponds to file_types_filter
+                            if let Some(matcher_opt) = matchers.get(2) {
+                                if let Some(matcher) = matcher_opt {
+                                    if let Some(filter) = &params.file_types_filter {
+                                        // Extract extension from the filename and add a leading dot
+                                        // so matchers expecting ".rs" or ".gitignore" will match.
+                                        let filename = path.split('/').last().unwrap_or("");
+                                        let ext = if filename.contains('.') {
+                                            format!(".{}", filename.rsplitn(2, '.').next().unwrap_or(""))
+                                        } else {
+                                            String::new()
+                                        };
+                                        let is_match = matcher.is_match(&ext);
+                                        if filter.include {
+                                            // include=true -> only keep files whose extension matches
+                                            if !is_match {
+                                                continue;
+                                            }
+                                        } else {
+                                            // include=false -> exclude files whose extension matches
+                                            if is_match {
+                                                continue;
+                                            }
                                         }
                                     }
                                 }
                             }
+
+                            // Apply path filter (if present). matchers[3] corresponds to path_filter
+                            // TODO: This can result in empty commits, as files may be all filtered out. Is this acceptable?
+                            if let Some(matcher_opt) = matchers.get(3) {
+                                if let Some(matcher) = matcher_opt {
+                                    if let Some(filter) = &params.path_filter {
+                                        // Use the full file path for path matching
+                                        let is_match = matcher.is_match(&path);
+                                        if filter.include {
+                                            // include=true -> only keep files whose path matches
+                                            if !is_match {
+                                                continue;
+                                            }
+                                        } else {
+                                            // include=false -> exclude files whose path matches
+                                            if is_match {
+                                                continue;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Add to commit-level metrics
+                            commit_total_files = commit_total_files.saturating_add(1);
+                            commit_insertions = commit_insertions.saturating_add(ins);
+                            commit_deletions = commit_deletions.saturating_add(del);
+
+                            // Create file metrics
+                            let mut file_metrics = Metrics::default();
+                            file_metrics.insertions = Some(ins);
+                            file_metrics.deletions = Some(del);
+
+                            // Add to files changed list
+                            files_changed.push(File {
+                                name: path.split('/').last().unwrap_or("").to_string(),
+                                extension: path.split('.').last().unwrap_or("").to_string(),
+                                path: path.clone(),
+                                file_size: Some(0),
+                                lines: vec![],
+                                metrics: file_metrics,
+                                last_modified_date: date.clone(),
+                                last_modified_time: time.clone(),
+                                last_modified_timezone: timezone.clone(),
+                            });
                         }
-
-                        // Add to commit-level metrics
-                        commit_total_files = commit_total_files.saturating_add(1);
-                        commit_insertions = commit_insertions.saturating_add(ins);
-                        commit_deletions = commit_deletions.saturating_add(del);
-
-                        // Create file metrics
-                        let mut file_metrics = Metrics::default();
-                        file_metrics.insertions = Some(ins);
-                        file_metrics.deletions = Some(del);
-
-                        // Add to files changed list
-                        files_changed.push(File {
-                            name: path.split('/').last().unwrap_or("").to_string(),
-                            extension: path.split('.').last().unwrap_or("").to_string(),
-                            path: path.clone(),
-                            file_size: Some(0),
-                            lines: vec![],
-                            metrics: file_metrics,
-                            last_modified_date: date.clone(),
-                            last_modified_time: time.clone(),
-                            last_modified_timezone: timezone.clone(),
-                        });
+                        Err(_e) => {
+                            // Skip malformed file lines and continue parsing other files in this commit.
+                            continue;
+                        }
                     }
                 }
 
@@ -675,6 +683,26 @@ mod tests {
         assert!(res.is_err());
         let err = res.err().unwrap();
         assert!(err.contains("Commit header does not contain 4 parts"));
+    }
+
+    #[test]
+    fn test_parse_file_line_valid() {
+        let line = "12\t3\tpath/to/file.rs";
+        let res = parse_file_line(line);
+        assert!(res.is_ok());
+        let (ins, del, path) = res.unwrap();
+        assert_eq!(ins, 12);
+        assert_eq!(del, 3);
+        assert_eq!(path, "path/to/file.rs");
+    }
+
+    #[test]
+    fn test_parse_file_line_invalid() {
+        let line = "this is not a valid numstat line";
+        let res = parse_file_line(line);
+        assert!(res.is_err());
+        let err = res.err().unwrap();
+        assert!(err.contains("Malformed numstat line"));
     }
 
     // Tests for build_git_log_args
