@@ -280,6 +280,9 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
         // Use a map keyed by (name, email) so we can update existing authors with additional commits/files
         let mut author_map: HashMap<(String, String), Author> = HashMap::new();
 
+        // Use a map keyed by file_path so we can update existing files with additional metrics
+        let mut file_map: HashMap<String, File> = HashMap::new();
+
         // Build filter matchers from params. This will return a Vec<Option<GlobMatcher>>
         // in the order: [commit_hash, commit_message, file_types, path]. If any
         // provided filter pattern is invalid we propagate the error.
@@ -290,6 +293,7 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
 
         let mut next_author_id = 1; // incremental id for authors
         let mut next_commit_id = 1; // incremental id for commits
+        let mut next_file_id = 1; // incremental id for files
 
         for commit_str in commit_strings {
             // For each commit message, split into header and file changes
@@ -430,6 +434,8 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                             let mut file_metrics = Metrics::default();
                             file_metrics.insertions = Some(ins);
                             file_metrics.deletions = Some(del);
+
+                            // TODO: ADD FILE TO FILE MAP IF NOT EXISTS
 
                             // Add to files changed list
                             files_changed.push(File {
