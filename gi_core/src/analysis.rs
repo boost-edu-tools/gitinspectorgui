@@ -144,8 +144,11 @@ fn update_author(
     author_name: &str,
     author_email: &str,
     hash: &str,
-    files_changed: &Vec<File>,
+    files_changed: &Vec<(usize, Metrics)>,
     next_author_id: &mut usize,
+    date: &str,
+    time: &str,
+    timezone: &str,
 ) -> usize {
     let key = (author_name.to_string(), author_email.to_string());
     let author_entry = author_map.entry(key).or_insert_with(|| {
@@ -157,6 +160,9 @@ fn update_author(
             email: author_email.to_string(),
             commit_hashes: Vec::new(),
             files: Vec::new(),
+            last_modified_date: String::new(),
+            last_modified_time: String::new(),
+            last_modified_timezone: String::new(),
             metrics: Metrics::default(),
         }
     });
@@ -166,14 +172,132 @@ fn update_author(
         author_entry.commit_hashes.push(hash.to_string());
     }
 
-    // Add any files changed in this commit to the author's file list (avoid duplicates)
-    for f in files_changed {
-        if !author_entry.files.contains(&f.path) {
-            author_entry.files.push(f.path.clone());
+    // Update last modified info if this commit is newer than stored value.
+    // Git log returns newest->oldest, so the first time we see an author we should
+    // set their last_modified_* fields. For safety also update if the provided
+    // timestamp is lexicographically greater.
+    let incoming_ts = format!("{} {} {}", date, time, timezone);
+    let existing_ts = format!(
+        "{} {} {}",
+        author_entry.last_modified_date,
+        author_entry.last_modified_time,
+        author_entry.last_modified_timezone
+    );
+    if author_entry.last_modified_date.is_empty() || incoming_ts > existing_ts {
+        author_entry.last_modified_date = date.to_string();
+        author_entry.last_modified_time = time.to_string();
+        author_entry.last_modified_timezone = timezone.to_string();
+    }
+
+    // Add or update per-file metrics for this author
+    for (file_id, file_metrics) in files_changed {
+        // try to find existing entry
+        let mut found = false;
+        for (existing_id, existing_metrics) in &mut author_entry.files {
+            if existing_id == file_id {
+                // sum insertions/deletions
+                let sum_ins = existing_metrics
+                    .insertions
+                    .unwrap_or(0)
+                    .saturating_add(file_metrics.insertions.unwrap_or(0));
+                let sum_del = existing_metrics
+                    .deletions
+                    .unwrap_or(0)
+                    .saturating_add(file_metrics.deletions.unwrap_or(0));
+                existing_metrics.insertions = Some(sum_ins);
+                existing_metrics.deletions = Some(sum_del);
+                found = true;
+                break;
+            }
+        }
+        if !found {
+            author_entry.files.push((*file_id, file_metrics.clone()));
         }
     }
 
+    // Recalculate aggregate metrics for the author (simple sum across files)
+    let mut total_ins: usize = 0;
+    let mut total_del: usize = 0;
+    for (_fid, m) in &author_entry.files {
+        total_ins = total_ins.saturating_add(m.insertions.unwrap_or(0));
+        total_del = total_del.saturating_add(m.deletions.unwrap_or(0));
+    }
+    author_entry.metrics.insertions = Some(total_ins);
+    author_entry.metrics.deletions = Some(total_del);
+    author_entry.metrics.total_files = Some(author_entry.files.len());
+
     author_entry.id
+}
+
+/// Ensure a File entry exists in the map (keyed by full path) and update its metrics and
+/// last modified info. Returns the file id.
+fn update_file(
+    file_map: &mut HashMap<String, File>,
+    path: &str,
+    metrics: &Metrics,
+    date: &str,
+    time: &str,
+    timezone: &str,
+    next_file_id: &mut usize,
+) -> usize {
+    if let Some(existing) = file_map.get_mut(path) {
+        // Update metrics
+        let sum_ins = existing
+            .metrics
+            .insertions
+            .unwrap_or(0)
+            .saturating_add(metrics.insertions.unwrap_or(0));
+        let sum_del = existing
+            .metrics
+            .deletions
+            .unwrap_or(0)
+            .saturating_add(metrics.deletions.unwrap_or(0));
+        existing.metrics.insertions = Some(sum_ins);
+        existing.metrics.deletions = Some(sum_del);
+
+        // Update last modified if incoming is newer
+        let incoming_ts = format!("{} {} {}", date, time, timezone);
+        let existing_ts = format!(
+            "{} {} {}",
+            existing.last_modified_date,
+            existing.last_modified_time,
+            existing.last_modified_timezone
+        );
+        if existing.last_modified_date.is_empty() || incoming_ts > existing_ts {
+            existing.last_modified_date = date.to_string();
+            existing.last_modified_time = time.to_string();
+            existing.last_modified_timezone = timezone.to_string();
+        }
+
+        existing.id
+    } else {
+        let id = *next_file_id;
+        *next_file_id += 1;
+        let filename = path.split('/').last().unwrap_or("");
+        let extension = if filename.contains('.') {
+            filename.rsplitn(2, '.').next().unwrap_or("").to_string()
+        } else {
+            String::new()
+        };
+        let mut new_metrics = Metrics::default();
+        new_metrics.insertions = metrics.insertions;
+        new_metrics.deletions = metrics.deletions;
+
+        let f = File {
+            id,
+            name: filename.to_string(),
+            extension,
+            path: path.to_string(),
+            file_size: Some(0),
+            lines: vec![],
+            metrics: new_metrics,
+            last_modified_date: date.to_string(),
+            last_modified_time: time.to_string(),
+            last_modified_timezone: timezone.to_string(),
+        };
+        file_map.insert(path.to_string(), f);
+        id
+    }
 }
 
 /// Build and verify a GlobBuilder for the given pattern.
@@ -356,7 +480,8 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                 }
 
                 // Keep track of commit level statistics when looping through files
-                let mut files_changed: Vec<File> = Vec::new();
+                // We collect (file_id, Metrics) tuples for the commit
+                let mut files_changed: Vec<(usize, Metrics)> = Vec::new();
                 let mut commit_insertions: usize = 0;
                 let mut commit_deletions: usize = 0;
                 let mut commit_total_files: usize = 0;
@@ -435,20 +560,19 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                             file_metrics.insertions = Some(ins);
                             file_metrics.deletions = Some(del);
 
-                            // TODO: ADD FILE TO FILE MAP IF NOT EXISTS
+                            // Ensure file exists in file_map and get its id (updates file_map metrics)
+                            let file_id = update_file(
+                                &mut file_map,
+                                &path,
+                                &file_metrics,
+                                &date,
+                                &time,
+                                &timezone,
+                                &mut next_file_id,
+                            );
 
-                            // Add to files changed list
-                            files_changed.push(File {
-                                name: path.split('/').last().unwrap_or("").to_string(),
-                                extension: path.split('.').last().unwrap_or("").to_string(),
-                                path: path.clone(),
-                                file_size: Some(0),
-                                lines: vec![],
-                                metrics: file_metrics,
-                                last_modified_date: date.clone(),
-                                last_modified_time: time.clone(),
-                                last_modified_timezone: timezone.clone(),
-                            });
+                            // Add to files changed list as (file_id, metrics)
+                            files_changed.push((file_id, file_metrics));
                         }
                         Err(_e) => {
                             // Skip malformed file lines and continue parsing other files in this commit.
@@ -465,6 +589,9 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                     &hash,
                     &files_changed,
                     &mut next_author_id,
+                    &date,
+                    &time,
+                    &timezone,
                 );
 
                 // Create commit metrics
@@ -505,10 +632,8 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
             .to_string();
 
         // Compute repository-level aggregates
-        let all_files: Vec<String> = commits
-            .iter()
-            .flat_map(|c| c.files_changed.iter().map(|f| f.path.clone()))
-            .collect();
+        // Use file_map keys (full paths) as the list of files considered
+        let all_files: Vec<String> = file_map.keys().cloned().collect();
         let unique_files_set: HashSet<String> = all_files.iter().cloned().collect();
 
         let total_commits = commits.len();
@@ -536,7 +661,7 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
             path: params.repo_path.clone(),
             authors: author_map.values().cloned().collect(),
             commits: commits.clone(),
-            files: unique_files_set.into_iter().collect(),
+            files: file_map.values().cloned().collect(),
             metrics: repo_metrics,
         };
 
@@ -632,7 +757,7 @@ mod tests {
         // Print commits
         for commit in &repo.commits {
             println!(
-                "id {} | hash: {} | author_id: {} | date: {} time: {} tz: {} | message: {} | files: {:?} | metrics: insertions={}, deletions={}",
+                "id {} | hash: {} | author_id: {} | date: {} time: {} tz: {} | message: {} | files: {} | metrics: insertions={}, deletions={}",
                 commit.id,
                 commit.hash,
                 commit.author_id,
@@ -640,23 +765,63 @@ mod tests {
                 commit.time,
                 commit.timezone,
                 commit.message,
-                commit
-                    .files_changed
-                    .iter()
-                    .map(|f| &f.path)
-                    .collect::<Vec<_>>(),
+                commit.files_changed.len(),
                 commit.metrics.insertions.unwrap_or(0),
                 commit.metrics.deletions.unwrap_or(0)
             );
+
+            // Build a quick map of file id -> path from repository files
+            let mut id_to_path: std::collections::HashMap<usize, String> =
+                std::collections::HashMap::new();
+            for f in &repo.files {
+                id_to_path.insert(f.id, f.path.clone());
+            }
+
+            // Print per-file details for this commit
+            for (file_id, m) in &commit.files_changed {
+                let path = id_to_path
+                    .get(file_id)
+                    .cloned()
+                    .unwrap_or_else(|| "<unknown>".to_string());
+                println!(
+                    "  id: {} | path: {} | insertions: {} | deletions: {}",
+                    file_id,
+                    path,
+                    m.insertions.unwrap_or(0),
+                    m.deletions.unwrap_or(0)
+                );
+            }
         }
 
-        // Print authors
+        // Print authors (show basic author info, then per-file lines)
         println!("\nUnique authors ({}):", repo.authors.len());
+        // Build a map id->path once for author file lookups
+        let mut id_to_path: std::collections::HashMap<usize, String> =
+            std::collections::HashMap::new();
+        for f in &repo.files {
+            id_to_path.insert(f.id, f.path.clone());
+        }
+
         for author in &repo.authors {
             println!(
-                "{} <{}> id={} commits={:?} files={:?}",
-                author.name, author.email, author.id, author.commit_hashes, author.files
+                "{} <{}> id={} commits={:?}",
+                author.name, author.email, author.id, author.commit_hashes
             );
+
+            // For each file the author touched, print: file_id, file_path, insertions, deletions
+            for (file_id, m) in &author.files {
+                let path = id_to_path
+                    .get(file_id)
+                    .cloned()
+                    .unwrap_or_else(|| "<unknown>".to_string());
+                println!(
+                    "  id: {} | path: {} | insertions: {} | deletions: {}",
+                    file_id,
+                    path,
+                    m.insertions.unwrap_or(0),
+                    m.deletions.unwrap_or(0)
+                );
+            }
         }
 
         // Print repo summary
@@ -722,17 +887,8 @@ mod tests {
         let mut author_map: HashMap<(String, String), Author> = HashMap::new();
         let mut next_author_id: usize = 1;
 
-        let files_changed = vec![File {
-            name: "file.rs".to_string(),
-            extension: "rs".to_string(),
-            path: "src/file.rs".to_string(),
-            file_size: Some(0),
-            lines: vec![],
-            metrics: Metrics::default(),
-            last_modified_date: "".to_string(),
-            last_modified_time: "".to_string(),
-            last_modified_timezone: "".to_string(),
-        }];
+        // simulate a file change by file id and metrics tuple
+        let files_changed = vec![(1usize, Metrics::default())];
 
         let id = update_author(
             &mut author_map,
@@ -741,6 +897,9 @@ mod tests {
             "abc123",
             &files_changed,
             &mut next_author_id,
+            "",
+            "",
+            "",
         );
 
         assert_eq!(id, 1);
@@ -749,7 +908,7 @@ mod tests {
         let author = author_map.get(&key).expect("Author should exist");
         assert_eq!(author.id, 1);
         assert!(author.commit_hashes.contains(&"abc123".to_string()));
-        assert!(author.files.contains(&"src/file.rs".to_string()));
+        assert!(author.files.iter().any(|(id, _m)| *id == 1));
     }
 
     #[test]
@@ -760,7 +919,10 @@ mod tests {
             name: "Alice".to_string(),
             email: "alice@example.com".to_string(),
             commit_hashes: vec!["oldhash".to_string()],
-            files: vec!["old/path.rs".to_string()],
+            files: vec![(10usize, Metrics::default())],
+            last_modified_date: "".to_string(),
+            last_modified_time: "".to_string(),
+            last_modified_timezone: "".to_string(),
             metrics: Metrics::default(),
         };
         author_map.insert(
@@ -770,17 +932,7 @@ mod tests {
 
         let mut next_author_id: usize = 2;
 
-        let files_changed = vec![File {
-            name: "newfile.rs".to_string(),
-            extension: "rs".to_string(),
-            path: "src/newfile.rs".to_string(),
-            file_size: Some(0),
-            lines: vec![],
-            metrics: Metrics::default(),
-            last_modified_date: "".to_string(),
-            last_modified_time: "".to_string(),
-            last_modified_timezone: "".to_string(),
-        }];
+        let files_changed = vec![(1usize, Metrics::default())];
 
         let id = update_author(
             &mut author_map,
@@ -789,6 +941,9 @@ mod tests {
             "newhash",
             &files_changed,
             &mut next_author_id,
+            "",
+            "",
+            "",
         );
 
         // Should return existing author's id
@@ -801,9 +956,9 @@ mod tests {
         // Both old and new hashes should be present
         assert!(author.commit_hashes.contains(&"oldhash".to_string()));
         assert!(author.commit_hashes.contains(&"newhash".to_string()));
-        // Both old and new files should be present
-        assert!(author.files.contains(&"old/path.rs".to_string()));
-        assert!(author.files.contains(&"src/newfile.rs".to_string()));
+        // Both old and new files should be present (ids 10 and 1)
+        assert!(author.files.iter().any(|(id, _m)| *id == 10));
+        assert!(author.files.iter().any(|(id, _m)| *id == 1));
     }
 
     #[test]
