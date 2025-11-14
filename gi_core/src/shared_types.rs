@@ -82,8 +82,8 @@ pub struct Author {
     pub id: usize,
     pub name: String,
     pub email: String,
-    pub commit_hashes: Vec<String>,     // List of commit hashes authored by this author
-    pub files: Vec<(usize, Metrics)>,   // List of file paths modified by this author
+    pub commit_hashes: Vec<String>, // List of commit hashes authored by this author
+    pub files: Vec<(usize, Metrics)>, // List of file paths modified by this author
     pub last_modified_date: String,
     pub last_modified_time: String,
     pub last_modified_timezone: String,
