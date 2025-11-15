@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import {
   Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator,
@@ -16,6 +14,19 @@ import { FileStatisticsTable } from "./files/files_table"
 
 import type { AnalysisProps } from "@/components/types"
 
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { Download } from "lucide-react"
+
 export function AppMainWindow({
   selectedRepo,
 }: Pick<
@@ -24,6 +35,12 @@ export function AppMainWindow({
 >) {
 
   const [selectedFile, setSelectedFile] = React.useState<string | null>(null)
+  const [exportDialogOpen, setExportDialogOpen] = React.useState(false)
+  const [exportFormat, setExportFormat] = React.useState<"csv" | "html" | "json">("csv")
+
+
+  const handleExport = (format: "csv" | "html" | "json") => {
+  console.log("Export as", format)}
 
   return (
     <SidebarInset>
@@ -42,6 +59,76 @@ export function AppMainWindow({
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
+        </div>
+
+        <div className="ml-auto flex items-center gap-2 px-10">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            type="button"
+            onClick={() => setExportDialogOpen(true)}
+          >
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">Data export</span>
+          </Button>
+
+          <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
+            <DialogContent className="w-[90vw] max-w-sm">
+              <DialogHeader>
+                <DialogTitle>Export data</DialogTitle>
+                <DialogDescription className="text-xs">
+                  Choose the file type you want to export this analysis to.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="mt-3">
+                <RadioGroup
+                  value={exportFormat}
+                  onValueChange={(val) =>
+                    setExportFormat(val as "csv" | "html" | "json")
+                  }
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="csv" id="export-csv" />
+                    <Label htmlFor="export-csv" className="text-sm">
+                      CSV
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <RadioGroupItem value="html" id="export-html" />
+                    <Label htmlFor="export-html" className="text-sm">
+                      HTML
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <RadioGroupItem value="json" id="export-json" />
+                    <Label htmlFor="export-json" className="text-sm">
+                      JSON
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <DialogFooter className="mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => setExportDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  type="button"
+                  onClick={() => handleExport(exportFormat)}
+                >
+                  Export
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </header>
 
