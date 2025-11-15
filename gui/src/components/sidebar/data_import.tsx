@@ -105,25 +105,25 @@ export function DataImport() {
     () => ({
       path: settings.path ?? "",
       searchDepth: String(settings.search_depth ?? 5),
-      maxComputeResources: String(settings.max_compute_resources ?? 500),
+      maxComputeResources: String(settings.max_compute_resources ?? 90),
 
-      fileTypesMode: "include" as Mode,
-      fileTypes: String(settings.allowed_file_types),
+      fileTypesMode: (settings.allowed_file_types.include === true ? "include" : "exclude") as Mode,
+      fileTypes: String(settings.allowed_file_types.value),
 
-      pathsMode: "include" as Mode,
-      paths: String(settings.paths),
+      pathsMode: (settings.paths.include === true ? "include" : "exclude") as Mode,
+      paths: String(settings.paths.value),
 
-      authorNameMode: "exclude" as Mode,
-      authorNames: String(settings.authorNames),
+      authorNameMode:(settings.authorNames.include === true ? "include" : "exclude") as Mode,
+      authorNames: String(settings.authorNames.value),
 
-      authorEmailMode: "exclude" as Mode,
-      authorEmails: String(settings.authorEmails),
+      authorEmailMode: (settings.authorEmails.include === true ? "include" : "exclude") as Mode,
+      authorEmails: String(settings.authorEmails.value),
 
-      commitHashMode: "include" as Mode,
-      commitHashes: String(settings.commitHashes),
+      commitHashMode: (settings.commitHashes.include === true ? "include" : "exclude") as Mode,
+      commitHashes: String(settings.commitHashes.value),
 
-      commitMessageMode: "include" as Mode,
-      commitMessages: String(settings.commitMessages),
+      commitMessageMode: (settings.commitMessages.include === true ? "include" : "exclude") as Mode,
+      commitMessages: String(settings.commitMessages.value),
     }),
     []
   )
