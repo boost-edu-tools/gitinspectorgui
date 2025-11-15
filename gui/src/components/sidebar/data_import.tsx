@@ -105,7 +105,7 @@ export function DataImport() {
     () => ({
       path: settings.path ?? "",
       searchDepth: String(settings.search_depth ?? 5),
-      maxRepoSizeMB: String(settings.max_repo_size_mb ?? 500),
+      maxComputeResources: String(settings.max_compute_resources ?? 500),
 
       fileTypesMode: "include" as Mode,
       fileTypes: String(settings.allowed_file_types),
@@ -131,7 +131,7 @@ export function DataImport() {
   const [path, setPath] = React.useState(defaultState.path)
 
   const [searchDepth, setSearchDepth] = React.useState(defaultState.searchDepth)
-  const [maxRepoSizeMB, setMaxRepoSizeMB] = React.useState(defaultState.maxRepoSizeMB)
+  const [maxComputeResources, setMaxComputeResources] = React.useState(defaultState.maxComputeResources)
 
   const [fileTypesMode, setFileTypesMode] = React.useState<Mode>(defaultState.fileTypesMode)
   const [fileTypes, setFileTypes] = React.useState(defaultState.fileTypes)
@@ -155,7 +155,7 @@ export function DataImport() {
     setPath(defaultState.path)
 
     setSearchDepth(defaultState.searchDepth)
-    setMaxRepoSizeMB(defaultState.maxRepoSizeMB)
+    setMaxComputeResources(defaultState.maxComputeResources)
 
     setFileTypesMode(defaultState.fileTypesMode); setFileTypes(defaultState.fileTypes)
     setPathsMode(defaultState.pathsMode); setPaths(defaultState.paths)
@@ -326,12 +326,12 @@ export function DataImport() {
                             </div>
 
                             <div className="space-y-1.5">
-                              <Label htmlFor="maxRepoSizeMB">Max repo size (MB)</Label>
+                              <Label htmlFor="maxComputeResources">Max compute resource allocation (%)</Label>
                               <Input
-                                id="maxRepoSizeMB"
+                                id="maxComputeResources"
                                 inputMode="numeric"
-                                value={maxRepoSizeMB}
-                                onChange={(e) => setMaxRepoSizeMB(e.target.value)}
+                                value={maxComputeResources}
+                                onChange={(e) => setMaxComputeResources(e.target.value)}
                                 placeholder="500"
                               />
                             </div>
