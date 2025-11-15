@@ -7,7 +7,6 @@
   "subfolder": "src",
   "n_files": 10,
   "max_repo_size_mb": 500,
-  "detect_mode": "within-file",
   "paths": [],
   "authorNames": [],
   "authorEmails": [],

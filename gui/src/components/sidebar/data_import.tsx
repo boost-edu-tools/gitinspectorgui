@@ -4,13 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select"
-import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
@@ -40,21 +33,6 @@ import {
 } from "@/components/ui/tooltip"
 
 import settings from "@/data/Settings.json"
-
-type DetectMode =
-  | "none"
-  | "within-file"
-  | "changed-files-same-commit"
-  | "all-files-same-commit"
-  | "all-files-all-commits"
-
-const DETECT_MODE_LABEL: Record<DetectMode, string> = {
-  none: "Do not detect",
-  "within-file": "Detect within file",
-  "changed-files-same-commit": "Detect across changed files in same commit",
-  "all-files-same-commit": "Detect across all files in same commit",
-  "all-files-all-commits": "Detect across all files in all commits",
-}
 
 type Mode = "include" | "exclude"
 
@@ -128,7 +106,6 @@ export function DataImport() {
       path: settings.path ?? "",
       searchDepth: String(settings.search_depth ?? 5),
       maxRepoSizeMB: String(settings.max_repo_size_mb ?? 500),
-      detectMode: String(settings.detect_mode) as DetectMode,
 
       fileTypesMode: "include" as Mode,
       fileTypes: String(settings.allowed_file_types),
@@ -155,7 +132,6 @@ export function DataImport() {
 
   const [searchDepth, setSearchDepth] = React.useState(defaultState.searchDepth)
   const [maxRepoSizeMB, setMaxRepoSizeMB] = React.useState(defaultState.maxRepoSizeMB)
-  const [detectMode, setDetectMode] = React.useState<DetectMode>(defaultState.detectMode)
 
   const [fileTypesMode, setFileTypesMode] = React.useState<Mode>(defaultState.fileTypesMode)
   const [fileTypes, setFileTypes] = React.useState(defaultState.fileTypes)
@@ -180,7 +156,6 @@ export function DataImport() {
 
     setSearchDepth(defaultState.searchDepth)
     setMaxRepoSizeMB(defaultState.maxRepoSizeMB)
-    setDetectMode(defaultState.detectMode)
 
     setFileTypesMode(defaultState.fileTypesMode); setFileTypes(defaultState.fileTypes)
     setPathsMode(defaultState.pathsMode); setPaths(defaultState.paths)
@@ -361,29 +336,6 @@ export function DataImport() {
                               />
                             </div>
 
-                            <div className="rounded-md border p-3 md:col-span-1">
-                              <div className="flex items-center justify-between">
-                                <Label htmlFor="detect-mode">Copy/move detection</Label>
-                                <Select value={detectMode} onValueChange={(v) => setDetectMode(v as DetectMode)}>
-                                  <SelectTrigger id="detect-mode">
-                                    <SelectValue placeholder="Select strategy" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="none">{DETECT_MODE_LABEL["none"]}</SelectItem>
-                                    <SelectItem value="within-file">{DETECT_MODE_LABEL["within-file"]}</SelectItem>
-                                    <SelectItem value="changed-files-same-commit">
-                                      {DETECT_MODE_LABEL["changed-files-same-commit"]}
-                                    </SelectItem>
-                                    <SelectItem value="all-files-same-commit">
-                                      {DETECT_MODE_LABEL["all-files-same-commit"]}
-                                    </SelectItem>
-                                    <SelectItem value="all-files-all-commits">
-                                      {DETECT_MODE_LABEL["all-files-all-commits"]}
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
                           </div>
                         </div>
                       </AccordionContent>
