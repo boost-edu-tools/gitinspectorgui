@@ -12,13 +12,6 @@ import {
   AlertDialogCancel,
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { Calendar as CalendarIcon, Info as InfoIcon } from "lucide-react"
 
 import { getAuthorColor } from "@/components/helpers/author_colors"
 import { useAnalysis } from "@/hooks/useAnalysis"
@@ -118,6 +111,7 @@ export function FilterRange({
   }, [range])
 
   const [dateDialogOpen, setDateDialogOpen] = React.useState(false)
+  const [hoveredCommitIndex, setHoveredCommitIndex] = React.useState<number | null>(null)
 
   const safeStartDate = React.useMemo(() => {
     return clampDate(startDate, absoluteMinDate, absoluteMaxDate)
@@ -170,17 +164,6 @@ export function FilterRange({
       onEndDateChange(new Date (`${startCommit.date}T${startCommit.time}${startCommit.timezone}`));
   }}, [startCommitHash, endCommitHash, onStartCommitChange, onEndCommitChange, onStartDateChange, onEndDateChange]);
 
-  const [nextPick, setNextPick] = React.useState<'start' | 'end'>('start')
-
-  const handleCommitClick = (idx: number) => {
-  if (nextPick === 'start') {
-    applyStartSelection(idx)
-    setNextPick('end')
-  } else {
-    applyEndSelection(idx)
-    setNextPick('start')
-  }
-}
   const applyCalendarSelection = (range: { from?: Date; to?: Date } | undefined) => {
     if (!range) return 
     let from = range.from ? new Date(range.from) : undefined
@@ -194,26 +177,13 @@ export function FilterRange({
     <Card className="bg-transparent border-none shadow-none p-0">
       <CardContent className="p-2 space-y-2">
         <div className="flex items-start gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button aria-label="How selection works" className="h-7 w-7 inline-flex items-center justify-center rounded-md border bg-background text-muted-foreground hover:bg-muted/50">
-                  <InfoIcon className="h-3.5 w-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-[240px] text-[11px] leading-snug">
-                To change the commit range, see the commit list below.<br/> The first click will set the first commit, the second click will set the last commit.
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
 
           <Button
             variant="outline"
             className="h-7 px-2 text-[10px] inline-flex items-center gap-1"
             type="button"
             onClick={() => setDateDialogOpen(true)}>
-            <CalendarIcon className="h-3.5 w-3.5" />
-            Change date range
+            Change Date Range
           </Button>
         </div>
 
@@ -226,11 +196,21 @@ export function FilterRange({
               const inRange = i >= Math.max(0, startIdx) && i <= Math.max(0, endIdx)
               const isStart = i === Math.max(0, startIdx)
               const isEnd = i === Math.max(0, endIdx)
+              const isHovered = hoveredCommitIndex === i
+              
+              const canBeStart = i < startIdx || inRange
+              const canBeEnd = i > endIdx || inRange
+              const showStartClickable = isHovered && canBeStart && !isStart
+              const showEndClickable = isHovered && canBeEnd && !isEnd
+              
               return (
-                <li key={c.hash}>
-                  <button
-                    className={`w-full text-left px-2 py-1 transition-colors hover:bg-muted/60 ${inRange ? "bg-primary/10" : ""}`}
-                    onClick={() => handleCommitClick(i)}
+                <li 
+                  key={c.hash}
+                  onMouseEnter={() => setHoveredCommitIndex(i)}
+                  onMouseLeave={() => setHoveredCommitIndex(null)}
+                >
+                  <div
+                    className={`w-full text-left px-2 py-1 transition-colors ${inRange ? "bg-primary/10" : ""} ${isHovered ? "bg-muted/60" : ""}`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5 min-w-0">
@@ -244,18 +224,38 @@ export function FilterRange({
                         <span className="text-[10px] text-muted-foreground truncate ml-1 max-w-[70px]">{c.message}</span>
                       </div>
                       <div className="flex items-center gap-1">
+
                         {isStart && (
-                          <span className="text-[9px] rounded px-1 py-0.5 bg-white text-primary ">start</span>
+                          <span className="text-[9px] rounded px-1 py-0.5 bg-white text-primary">start</span>
+                        )}
+                        {showStartClickable && (
+                          <button
+                            onClick={() => applyStartSelection(i)}
+                            className="text-[9px] rounded px-1.5 py-0.5 bg-primary/90 text-primary-foreground hover:bg-primary transition-colors"
+                          >
+                            start
+                          </button>
                         )}
                         {isEnd && (
                           <span className="text-[9px] rounded px-1 py-0.5 bg-white text-primary">end</span>
                         )}
-                        {!isStart && !isEnd && (
+                        
+                        
+                        {showEndClickable && (
+                          <button
+                            onClick={() => applyEndSelection(i)}
+                            className="text-[9px] rounded px-1.5 py-0.5 bg-primary/90 text-primary-foreground hover:bg-primary transition-colors"
+                          >
+                            end
+                          </button>
+                        )}
+                        
+                        {!isStart && !isEnd && !isHovered && (
                           <span className="text-[9px] text-muted-foreground flex-shrink-0">{fmtDate(d)}</span>
                         )}
                       </div>
                     </div>
-                  </button>
+                  </div>
                 </li>
               )
             })}
