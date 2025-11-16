@@ -49,6 +49,9 @@ export type Author = {
   aliases_email?: string[];
   commit_hashes: string[];
   files: AuthorFileMetrics[];
+  last_modified_date: string;
+  last_modified_time: string;
+  last_modified_timezone: string;   
   metrics: Metrics; 
 };
 
@@ -79,9 +82,7 @@ export type File = {
 export type Line = {
   number: number;
   content: string;
-  author_id: number;
   commit_hash: string;
-  date: string;
   line_type: number;
 };
 
@@ -89,7 +90,6 @@ export type LineType = "SLOC" | "CLOC" | "WHITESPACE";
 
 export type Metrics = {
   loc?: number;
-  commit_loc?: number[];
   sloc?: number;
   cloc?: number;
   whitespace?: number;

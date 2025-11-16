@@ -11,7 +11,6 @@ import { fmtDate } from "@/components/helpers/formatting_helpers"
 function groupByCommit(lines: Line[]) {
   const groups: Array<{
     commit_hash: string
-    author_id: number
     lines: Line[]
   }> = []
   for (const ln of lines) {
@@ -21,7 +20,6 @@ function groupByCommit(lines: Line[]) {
     } else {
       groups.push({
         commit_hash: ln.commit_hash,
-        author_id: ln.author_id,
         lines: [ln],
       })
     }
@@ -74,7 +72,8 @@ export function BlameView({
   const authorStats = React.useMemo(() => {
     const counts: Record<string, number> = {}
     for (const ln of filteredLines) {
-      const name = authorName(ln.author_id)
+      const fullCommit = commits.find(c => c.hash === ln.commit_hash)
+      const name = authorName(fullCommit?.author_id ?? -1)
       counts[name] = (counts[name] ?? 0) + 1
     }
     const total = filteredLines.length || 1
@@ -191,12 +190,14 @@ export function BlameView({
         <ScrollArea className="flex-1 h-[600px]">
           <div className="font-mono text-[11px] leading-5">
             {groups.map((g, gi) => {
-              const name = authorName(g.author_id)
-              const info = getAuthorColor(name) ?? { color: "#000" }
+              
+              
               const fullCommit = commits.find(c => c.hash === g.commit_hash)
+              const name = authorName(fullCommit?.author_id?? -1)
+              const info = getAuthorColor(name) ?? { color: "#000" }
               const commitHash = fullCommit?.hash ?? ""
               const commitMessage = fullCommit?.message ?? ""
-              const commitDate = new Date(String(fullCommit?.date)) 
+              const commitDate = new Date(`${fullCommit?.date}T${fullCommit?.time}${fullCommit?.timezone}`) 
 
               const commitNum = fullCommit?.id ?? null
               const paddedNum =
