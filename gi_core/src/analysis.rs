@@ -581,6 +581,11 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
                     }
                 }
 
+                // Check if commit has any files after filtering, if not, skip this commit
+                if files_changed.is_empty() {
+                    continue;
+                }
+
                 // Ensure an Author entry exists (or update existing) and get the author id.
                 let author_id = update_author(
                     &mut author_map,
