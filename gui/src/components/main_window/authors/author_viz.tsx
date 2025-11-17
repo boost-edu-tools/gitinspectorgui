@@ -430,45 +430,60 @@ export function AuthorStatisticsVisualisation({
             </ResponsiveContainer>
           </div>
 
-          {pieChartData.length > 0 && (
-            <div className="w-48 flex flex-col">
-              <div className="flex justify-center mb-1">
-                <div className="relative group cursor-pointer">
-                  <span className="text-xs text-muted-foreground"><Info className="h-3 w-3 text-muted-foreground" /></span>
-
-                    <div className="
-                      absolute left-1/2 -translate-x-1/2 mt-2 w-max
-                      rounded-md bg-black text-white text-[10px] p-2 opacity-0
-                      pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto
-                      transition-opacity shadow-lg z-50
-                    ">
-                      {pieTitle}
-                      </div>
-                    </div>
-                  </div>
-                <div className="flex-1">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Tooltip content={<CustomTooltipPie />} />
-                    <Pie
-                      data={pieChartData}
-                      dataKey="value"
-                      nameKey="name"
-                      innerRadius="40%"
-                      outerRadius="80%"
-                      paddingAngle={2}
-                      isAnimationActive={false}
-                    >
-                      {pieChartData.map((entry, index) => {
-                        const { color } = getAuthorColor(entry.name)
-                        return <Cell key={`cell-${index}`} fill={color} />
-                      })}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
+        {pieChartData.length > 0 && (
+          <div className="w-48 flex flex-col">
+                 <div className="flex items-center justify-center gap-1.5 mb-1">
+              <span className="text-sm text-foreground">Distribution</span>
+              <div className="relative group">
+                <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-help" />
+                
+                <div className="
+                  absolute bottom-full mb-2
+                  left-1/2 -translate-x-1/2
+                  sm:left-auto sm:translate-x-0 sm:right-0
+                  w-max max-w-xs
+                  rounded-lg bg-popover border border-border
+                  text-popover-foreground text-xs p-3
+                  opacity-0 invisible
+                  group-hover:opacity-100 group-hover:visible
+                  transition-all duration-200
+                  shadow-lg z-50
+                  pointer-events-none 
+                ">
+                  {pieTitle}
+                  <div className="
+                    absolute top-full left-1/2 -translate-x-1/2 -mt-px
+                    w-0 h-0
+                    border-l-4 border-l-transparent
+                    border-r-4 border-r-transparent
+                    border-t-4 border-t-border
+                  " />
+                </div>
               </div>
             </div>
-          )}
+
+            <div className="flex-1">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Tooltip content={<CustomTooltipPie />} />
+                  <Pie
+                    data={pieChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius="0%"
+                    outerRadius="80%"
+                    isAnimationActive={false}
+                  >
+                    {pieChartData.map((entry, index) => {
+                      const { color } = getAuthorColor(entry.name)
+                      return <Cell key={`cell-${index}`} fill={color} />
+                    })}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
         </div>
       </CardContent>
     </Card>
