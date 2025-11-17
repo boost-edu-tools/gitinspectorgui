@@ -49,17 +49,75 @@ pub fn retrieve_repositories(path_str: &str, depth: usize) -> Result<Vec<PathBuf
 }
 
 // A function for running an analysis on a repository given certain parameters.
+pub fn create_analysis_parameters(
+    repo_path: String,
+    from_time: Option<String>,
+    to_time: Option<String>,
+    from_commit: Option<String>,
+    to_commit: Option<String>,
+    commit_hash_filter: Option<Filter>,
+    commit_message_filter: Option<Filter>,
+    file_types_filter: Option<Filter>,
+    path_filter: Option<Filter>,
+) -> AnalysisParameters {
+    AnalysisParameters {
+        repo_path,
+        from_time,
+        to_time,
+        from_commit,
+        to_commit,
+        commit_hash_filter,
+        commit_message_filter,
+        file_types_filter,
+        path_filter,
+    }
+}
 // This will return an AnalysisResult with the original repository set to None.
+pub fn run_initial_analysis(
+    parameters: AnalysisParameters,
+) -> Result<AnalysisResult, String> {
+    // Placeholder for actual analysis logic.
+    // In a real implementation, this would involve cloning the repository,
+    // applying filters, and collecting metrics.
 
+    // For now, we return an empty AnalysisResult with the provided parameters.
+
+    Ok(AnalysisResult {
+        original_repository: None,
+        parameters,
+        repository,
+    })
+}
 
 // A function for rerunning an already performed analysis with new parameters.
 // This will preserve the original repository in the AnalysisResult under original_repository.
+pub fn rerun_analysis(
+    previous_result: &AnalysisResult,
+    new_parameters: AnalysisParameters,
+) -> Result<AnalysisResult, String> {
+    // Placeholder for actual re-analysis logic.
+    // In a real implementation, this would involve reapplying filters
+    // and collecting metrics on the original repository.
 
-// A function for loading settings from a configuration file.
+    // For now, we return a new AnalysisResult with the original repository preserved.
 
-// A function for saving settings to a configuration file.
+    Ok(AnalysisResult {
+        original_repository: previous_result.original_repository.clone(),
+        parameters: new_parameters,
+        repository,
+    })
+}
 
 // A function for verifying filters
+pub fn verify_filter(filter: &Filter) -> bool {
+    // Placeholder for actual filter verification logic.
+    // In a real implementation, this would check the validity of the filter criteria.
+
+    // For now, we simply return true.
+    true
+}
+
+
 
 /// Loads a Settings struct from a JSON file.
 /// This is a wrapper function that chains the load_file() and convert_from_json() functions for convenience.
