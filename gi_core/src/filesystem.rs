@@ -1,21 +1,29 @@
-use std::fs;
-use std::env;
-use std::path::Path;
-
+use csv;
 use git_wrapper::Repository;
+use serde_json;
+use std::fs;
+use std::path::{Path, PathBuf};
 
-use crate::shared_types::*;
+use crate::Settings;
 
-
-/// Checks if the given Path is a valid and existing path.
 pub fn is_existing_path(path: &Path) -> bool {
-    path.exists()
+    match path.try_exists() {
+        Ok(exists) => exists,
+        Err(error) => {
+            eprintln!("Error checking if path exists: {}", error);
+            false
+        }
+    }
 }
 
-/// Checks if the given Path is a directory.
-/// Returns true if directory, false otherwise (including if path does not exist).
 pub fn is_directory(path: &Path) -> bool {
-    path.is_dir()
+    match fs::metadata(path) {
+        Ok(metadata) => metadata.is_dir(),
+        Err(error) => {
+            eprintln!("Error checking if path is directory: {}", error);
+            false
+        }
+    }
 }
 
 /// Returns true if the given directory (as Path) is a git repository, false otherwise.
@@ -23,73 +31,317 @@ pub fn is_git_repository(path: &Path) -> bool {
     Repository::discover(path).is_ok()
 }
 
-/// Loads the settings.json file into a Settings struct from a given path.
-/// If no path is given, uses the directory of the current executable.
-/// Pre-condition: path is valid
-pub fn load_settings_json(path: Option<&Path>) -> Result<Settings, String> {
-    let settings_path = match path {
-        Some(p) => p.to_path_buf(),
-        None => {
-            let exe_path = env::current_exe().map_err(|e| format!("Failed to get current exe path: {}", e))?;
-            exe_path.parent()
-                .map(|dir| dir.join("settings.json"))
-                .ok_or_else(|| "Failed to get parent directory of exe".to_string())?
-        }
-    };
-    let contents = fs::read_to_string(&settings_path)
-        .map_err(|e| format!("Failed to read settings.json at {}: {}", settings_path.display(), e))?;
-    serde_json::from_str(&contents)
-        .map_err(|e| format!("Failed to parse settings.json: {}", e))
+pub fn load_file(path: &Path) -> Result<String, String> {
+    fs::read_to_string(path).map_err(|error| format!("Error loading file: {}", error))
 }
 
-/// Saves the Settings struct to settings.json at the given path, or next to the executable if no path is provided.
-/// If no Settings is provided, saves the default Settings.
-/// Pre-condition: path is valid
-pub fn save_settings_json(settings: Option<&Settings>, path: Option<&Path>) -> Result<(), String> {
-    let settings_to_save = match settings {
-        Some(s) => s.clone(),
-        None => Settings::default(),
-    };
-    let settings_path = match path {
-        Some(p) => p.to_path_buf(),
-        None => {
-            let exe_path = env::current_exe().map_err(|e| format!("Failed to get current exe path: {}", e))?;
-            exe_path.parent()
-                .map(|dir| dir.join("settings.json"))
-                .ok_or_else(|| "Failed to get parent directory of exe".to_string())?
-        }
-    };
-    let json = serde_json::to_string_pretty(&settings_to_save)
-        .map_err(|e| format!("Failed to serialize Settings: {}", e))?;
-    fs::write(&settings_path, json)
-        .map_err(|e| format!("Failed to write settings.json at {}: {}", settings_path.display(), e))
+pub fn save_file(content: String, path: &Path) -> Result<PathBuf, String> {
+    match fs::write(&path, content) {
+        Ok(_) => Ok(path.to_path_buf()),
+        Err(error) => Err(format!("Error saving file: {}", error)),
+    }
+}
+
+/// Converts a serializable type into a JSON string.
+pub fn convert_to_json<T: serde::Serialize>(object_to_convert: &T) -> Result<String, String> {
+    serde_json::to_string_pretty(object_to_convert)
+        .map_err(|error| format!("Error converting to JSON: {}", error))
+}
+
+/// Converts a JSON string into a deserializable type.
+pub fn convert_from_json<T: serde::de::DeserializeOwned>(json_string: &str) -> Result<T, String> {
+    serde_json::from_str(json_string).map_err(|error| format!("Error parsing JSON: {}", error))
+}
+
+/// Converts a serializable type into csv.
+pub fn convert_to_csv<T: serde::Serialize>(object_to_convert: &[T]) -> Result<String, String> {
+    let mut writer = csv::Writer::from_writer(Vec::new());
+
+    // Write all entries
+    for entry in object_to_convert {
+        writer
+            .serialize(entry)
+            .map_err(|error| format!("Error serializing record to CSV: {}", error))?;
+    }
+
+    // Extract CSV data from writer
+    let data = writer
+        .into_inner()
+        .map_err(|error| format!("Error consuming CSV writer: {}", error))?;
+
+    // Convert data from string
+    String::from_utf8(data)
+        .map_err(|error| format!("Error converting CSV bytes to string: {}", error))
 }
 
 #[cfg(test)]
+
 mod tests {
     use super::*;
+    use crate::Author;
+    use crate::Metrics;
+    use crate::Settings;
+    use std::fs;
+    use tempfile::TempDir;
 
     #[test]
-    fn test_is_existing_path() {
-        let path = Path::new(".");
-        assert!(is_existing_path(path));
-        let non_existent = Path::new("this_should_not_exist_12345");
-        assert!(!is_existing_path(non_existent));
+    fn directory_path_should_exist() {
+        let temp_dir = TempDir::new().unwrap();
+
+        assert!(is_existing_path(temp_dir.path()));
     }
 
     #[test]
-    fn test_is_directory() {
-        let path = Path::new(".");
-        assert!(is_directory(path));
-        let file = Path::new(file!());
-        assert!(!is_directory(file));
+    fn file_path_should_exist() {
+        let temp_dir = TempDir::new().unwrap();
+        let test_file = temp_dir.path().join("test.txt");
+        fs::write(&test_file, "test content").unwrap();
+
+        assert!(is_existing_path(&test_file));
     }
 
     #[test]
-    fn test_is_git_repository() {
-        // This test assumes the current directory is a git repo
-        let path = Path::new(".");
-        // This will pass if run inside a git repo, otherwise will fail.
-        assert!(is_git_repository(path));
+    fn non_path_should_fail() {
+        let temp_dir = TempDir::new().unwrap();
+        let non_existent = temp_dir.path().join("does-not-exist.mp4");
+
+        assert!(!is_existing_path(&non_existent));
+    }
+
+    #[test]
+    fn directory_should_exist() {
+        let temp_dir = TempDir::new().unwrap();
+
+        assert!(is_directory(temp_dir.path()));
+    }
+
+    #[test]
+    fn file_should_not_be_directory() {
+        let temp_dir = TempDir::new().unwrap();
+        let test_file = temp_dir.path().join("test.txt");
+        fs::write(&test_file, "test content").unwrap();
+
+        assert!(!is_directory(&test_file));
+    }
+
+    #[test]
+    fn git_repo_should_exist() {
+        let temp_dir = TempDir::new().unwrap();
+        let git_dir = temp_dir.path().join(".git");
+        fs::create_dir(&git_dir).unwrap();
+
+        assert!(is_git_repository(temp_dir.path()));
+    }
+
+    #[test]
+    fn non_git_repo_should_fail() {
+        let temp_dir = TempDir::new().unwrap();
+
+        assert!(!is_git_repository(temp_dir.path()));
+    }
+
+    #[test]
+    fn file_should_load() {
+        let temp_dir = TempDir::new().unwrap();
+        let test_file = temp_dir.path().join("test.txt");
+        let content = "Hello, world!";
+        fs::write(&test_file, content).unwrap();
+
+        let result = load_file(&test_file);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), content);
+    }
+
+    #[test]
+    fn file_load_should_fail() {
+        let temp_dir = TempDir::new().unwrap();
+        let non_existent = temp_dir.path().join("does-not-exist.txt");
+
+        let result = load_file(&non_existent);
+        assert!(result.is_err());
+        let error_message = result.unwrap_err();
+        assert!(error_message.starts_with("Error loading file:"));
+    }
+
+    #[test]
+    fn test_save_file() {
+        let temp_dir = TempDir::new().unwrap();
+        let test_file = temp_dir.path().join("output.txt");
+        let content = "Hellp, world!".to_string();
+
+        let result = save_file(content.clone(), &test_file);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), test_file);
+
+        // Verify the file was actually written
+        let saved_content = fs::read_to_string(&test_file).unwrap();
+        assert_eq!(saved_content, content);
+    }
+
+    #[test]
+    fn test_save_file_to_invalid_path() {
+        let temp_dir = TempDir::new().unwrap();
+        let invalid_path = temp_dir.path().join("nonexistent_dir").join("test.txt");
+        let content = "Hello, world!".to_string();
+
+        let result = save_file(content, &invalid_path);
+        assert!(result.is_err());
+
+        let error_message = result.unwrap_err();
+        assert!(error_message.starts_with("Error saving file:"));
+    }
+
+    #[test]
+    fn convert_to_json_should_work() {
+        let settings = Settings {
+            repositories: vec!["test.txt".to_string()],
+            search_depth: 10,
+            ignored_file_extensions: vec!["txt".to_string(), "log".to_string()],
+            allowed_file_extensions: vec!["hoi".to_string(), "csv".to_string()],
+        };
+
+        let result = convert_to_json(&settings);
+        assert!(result.is_ok());
+
+        let json_string = result.unwrap();
+        assert!(json_string.contains("\"search_depth\": 10"));
+        assert!(json_string.contains("\"ignored_file_extensions\""));
+        assert!(json_string.contains("\"txt\""));
+        assert!(json_string.contains("\"log\""));
+    }
+
+    #[cfg(test)]
+    fn create_test_settings_json() -> String {
+        r#"{
+            "repositories": ["repo1", "repo2"],
+            "search_depth": 15,
+            "ignored_file_extensions": ["log", "tmp"],
+            "allowed_file_extensions": ["rs", "toml"]
+        }"#
+        .to_string()
+    }
+
+    #[test]
+    fn test_convert_from_json() {
+        let json_string = create_test_settings_json();
+
+        let result: Result<Settings, String> = convert_from_json(&json_string);
+        assert!(result.is_ok());
+
+        let settings = result.unwrap();
+
+        // Verify all fields are accessible and have correct values
+        assert_eq!(settings.repositories, vec!["repo1", "repo2"]);
+        assert_eq!(settings.search_depth, 15);
+        assert_eq!(settings.ignored_file_extensions, vec!["log", "tmp"]);
+        assert_eq!(settings.allowed_file_extensions, vec!["rs", "toml"]);
+    }
+
+    #[test]
+    fn test_convert_from_json_with_invalid_json() {
+        let invalid_json = "This is not JSON.";
+
+        let result: Result<Settings, String> = convert_from_json(invalid_json);
+        assert!(result.is_err());
+
+        let error = result.unwrap_err();
+        assert!(error.starts_with("Error parsing JSON:"));
+    }
+
+    #[test]
+    fn test_convert_author_to_csv() {
+        // Create test authors
+        let authors = vec![Author {
+            name: "Alice".to_string(),
+            email: "alice@gitinspector.com".to_string(),
+        }];
+
+        let result = convert_to_csv(&authors);
+        assert!(result.is_ok());
+
+        let csv_string = result.unwrap();
+
+        // Verify CSV structure
+        assert!(csv_string.contains("name"));
+        assert!(csv_string.contains("email"));
+        assert!(csv_string.contains("Alice"));
+        assert!(csv_string.contains("alice@gitinspector.com"));
+
+        // Verify row count (1 header + 1 data row)
+        assert_eq!(csv_string.lines().count(), 2);
+    }
+
+    #[test]
+    fn test_convert_metrics_to_csv() {
+        // Create representative test metrics
+        let metrics = vec![
+            Metrics {
+                loc: Some(500),
+                sloc: Some(400),
+                cloc: Some(100),
+                insertions: Some(200),
+                deletions: Some(150),
+                total_commits: Some(20),
+                total_authors: Some(3),
+                total_files: Some(45),
+            },
+            Metrics {
+                loc: Some(800),
+                sloc: Some(650),
+                cloc: None,
+                insertions: Some(900),
+                deletions: None,
+                total_commits: Some(75),
+                total_authors: Some(3),
+                total_files: Some(20),
+            },
+        ];
+
+        let result = convert_to_csv(&metrics);
+        assert!(result.is_ok());
+
+        let csv_string = result.unwrap();
+
+        let mut missing = Vec::new();
+        for expected in [
+            // CSV headers
+            "loc",
+            "sloc",
+            "cloc",
+            "insertions",
+            "deletions",
+            "total_commits",
+            "total_authors",
+            "total_files",
+            // Metric values
+            "500",
+            "400",
+            "100",
+            "200",
+            "150",
+            "20",
+            "3",
+            "45",
+            "800",
+            "650",
+            "",
+            "900",
+            "",
+            "75",
+            "3",
+            "20",
+        ] {
+            if !csv_string.contains(expected) {
+                missing.push(expected);
+            }
+        }
+        assert!(
+            missing.is_empty(),
+            "CSV output missing expected values: {:?}",
+            missing
+        );
+
+        // Verify row count (1 header + 2 data rows)
+        assert_eq!(csv_string.lines().count(), 3);
     }
 }

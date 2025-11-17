@@ -221,6 +221,7 @@ software-to-be is to have on its environment.
         * File extension
         * LOCs
         * SLOCs (for supported extensions only)
+        * CLOCs (for supported extensions only)
         * Amount of commits that affected the file
         * Authors that worked on it
         * Percentage of LOCs, SLOCs, insertions, deletions and commits among all
@@ -232,7 +233,6 @@ software-to-be is to have on its environment.
             * Date
             * Commit message
             * Commit SHA
-            * Commit number
             * Code written in the line
         2. GitinspectorGUI shall provide the information mentioned in
            requirement 1.4.1 on a per commit basis.
