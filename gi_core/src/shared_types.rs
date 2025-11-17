@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 /// - Deletions
 /// - Total commits affecting the file
 /// - Total number of authors who modified the file
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct File {
     pub id: usize,
     pub name: String,
@@ -25,7 +25,7 @@ pub struct File {
 }
 
 /// The Line struct represents a line in a file with its associated data.
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Line {
     pub number: usize,
     pub content: String,
@@ -33,7 +33,7 @@ pub struct Line {
     pub line_type: LineType,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum LineType {
     SLOC,
     CLOC,
@@ -47,7 +47,7 @@ pub enum LineType {
 /// - Total number of commits
 /// - Total number of insertions
 /// - Total number of deletions
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Repository {
     pub name: String,
     pub path: String,
@@ -62,7 +62,7 @@ pub struct Repository {
 /// - Number of files changed
 /// - Number of insertions
 /// - Number of deletions
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Commit {
     pub id: usize,
     pub hash: String,
@@ -77,7 +77,7 @@ pub struct Commit {
 
 /// The Author struct represents an author of commits in the repository.
 /// We derive Hash and Eq to allow usage in HashSet for uniqueness.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Author {
     pub id: usize,
     pub name: String,
@@ -93,7 +93,7 @@ pub struct Author {
 /// The Metrics struct stores metrics in the context of the struct it is used in.
 /// For example, in the context of a Repository, it stores overall repository metrics.
 /// All metrics are optional and can be None if not calculated or not applicable.
-#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
 pub struct Metrics {
     pub loc: Option<usize>,        // Lines of Code
     pub sloc: Option<usize>,       // sloc = loc - cloc - whitespace
@@ -131,7 +131,7 @@ pub struct Filter {
 }
 
 /// The AnalysisParameters struct defines parameters for filtering the analysis of a repository.
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct AnalysisParameters {
     pub repo_path: String,
     pub from_time: Option<String>, // YYYY-MM-DDTHH:MM:SS+HHMM e.g., "2023-01-01T00:00:00+0000"
