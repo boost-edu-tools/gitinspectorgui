@@ -48,6 +48,19 @@ pub fn retrieve_repositories(path_str: &str, depth: usize) -> Result<Vec<PathBuf
     Ok(repos)
 }
 
+// A function for running an analysis on a repository given certain parameters.
+// This will return an AnalysisResult with the original repository set to None.
+
+
+// A function for rerunning an already performed analysis with new parameters.
+// This will preserve the original repository in the AnalysisResult under original_repository.
+
+// A function for loading settings from a configuration file.
+
+// A function for saving settings to a configuration file.
+
+// A function for verifying filters
+
 /// Loads a Settings struct from a JSON file.
 /// This is a wrapper function that chains the load_file() and convert_from_json() functions for convenience.
 pub fn load_settings_json(path: &Path) -> Result<Settings, String> {
