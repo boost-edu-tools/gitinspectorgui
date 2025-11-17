@@ -1,13 +1,18 @@
 import { useMemo, useState } from "react"
-import { GitCommit, Percent } from "lucide-react"
+import { GitCommit, Plus, Minus, FileText, Info } from "lucide-react"
 import {
-  ScatterChart,
-  Scatter,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts"
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -17,21 +22,20 @@ import type { AnalysisProps, AnalysisResult, Author } from "@/components/types"
 import { useAnalysis } from "@/hooks/useAnalysis"
 import { fmtDate, fmtDatePlot } from "@/components/helpers/formatting_helpers"
 
-type MetricKey = "commits" | "percent"
-type ViewMode = "authors" | "repo"
+type MetricKey = "commits" | "insertions" | "deletions" | "locs"
 
 export function AuthorStatisticsVisualisation({
   selectedRepo,
 }: Pick<AnalysisProps, "selectedRepo">) {
-  const [metric, setMetric] = useState<MetricKey>("percent")
-  const [viewMode, setViewMode] = useState<ViewMode>("repo")
+  const [metric, setMetric] = useState<MetricKey>("commits")
   const { analysis } = useAnalysis(selectedRepo)
+
   const {
-    perCommit,
-    totalCommits,
+    barData,
+    lineData,
     authorsSorted,
-    dateMin,
-    dateMax,
+    pieData,
+    locPieData,
   } = useMemo(() => {
     const repo = (analysis as AnalysisResult | undefined)?.repository
     const commits = repo?.commits ?? []
@@ -39,166 +43,246 @@ export function AuthorStatisticsVisualisation({
     const authorById = new Map(authorsArr.map((a) => [a.id, a]))
 
     const authorsSet = new Set<string>()
-    let min = Infinity
-    let max = -Infinity
 
-    const points = commits.map((c) => {
-      const ts = +new Date(`${c.date}T${c.time}${c.timezone}`)
-      const author = authorById.get(c.author_id)?.name ?? "Unknown"
-      authorsSet.add(author)
-      if (ts < min) min = ts
-      if (ts > max) max = ts
+    const processedCommits = commits
+      .map((c) => {
+        const ts = +new Date(`${c.date}T${c.time}${c.timezone}`)
+        const author = authorById.get(c.author_id)?.name ?? "Unknown"
+        authorsSet.add(author)
 
-      const locTotal = Object.values(c.metrics.commit_loc ?? {}).reduce(
-        (a, b) => a + b,
-        0
-      )
-      const valuePercent =
-        locTotal > 0
-          ? ((c.metrics.insertions ?? 0) / locTotal) * 100
-          : 0
+        return {
+          ts,
+          author,
+          commits: 1,
+          insertions: c.metrics.insertions ?? 0,
+          deletions: c.metrics.deletions ?? 0,
+          locChange: (c.metrics.insertions ?? 0) - (c.metrics.deletions ?? 0),
+        }
+      })
+      .sort((a, b) => a.ts - b.ts)
 
-      return {
-        date: ts,
-        author,
-        valuePercent,
-        valueCommits: 1,
-        message: c.message,
-        hash: c.hash,
+    const authors = Array.from(authorsSet).sort()
+
+    const grouped = new Map<number, Map<string, any>>()
+
+    processedCommits.forEach((c) => {
+      if (!grouped.has(c.ts)) {
+        grouped.set(c.ts, new Map())
       }
+      const dateGroup = grouped.get(c.ts)!
+
+      const existing = dateGroup.get(c.author) || {
+        commits: 0,
+        insertions: 0,
+        deletions: 0,
+        locs: 0,
+      }
+
+      existing.commits += c.commits
+      existing.insertions += c.insertions
+      existing.deletions += c.deletions
+      existing.locs += c.locChange
+
+      dateGroup.set(c.author, existing)
     })
 
+    const barChartData = Array.from(grouped.entries())
+      .map(([ts, authorMap]) => {
+        const dataPoint: any = { date: ts }
+        authorMap.forEach((metrics, author) => {
+          dataPoint[author] = metrics[metric === "locs" ? "locs" : metric]
+        })
+        return dataPoint
+      })
+      .sort((a, b) => a.date - b.date)
+
+    const cumulativeLOC = new Map<string, number>()
+    authors.forEach((author) => cumulativeLOC.set(author, 0))
+
+    const allTimestamps = new Set<number>()
+    processedCommits.forEach((c) => allTimestamps.add(c.ts))
+    const sortedTimestamps = Array.from(allTimestamps).sort((a, b) => a - b)
+
+    const lineChartData = sortedTimestamps.map((ts) => {
+      const dataPoint: any = { date: ts }
+
+      processedCommits
+        .filter((c) => c.ts === ts)
+        .forEach((c) => {
+          const current = cumulativeLOC.get(c.author) ?? 0
+          cumulativeLOC.set(c.author, current + c.locChange)
+        })
+
+      authors.forEach((author) => {
+        dataPoint[author] = cumulativeLOC.get(author) ?? 0
+      })
+
+      return dataPoint
+    })
+
+    const metricTotals = new Map<string, number>()
+    authors.forEach((a) => metricTotals.set(a, 0))
+
+    processedCommits.forEach((c) => {
+      let value = 0
+      if (metric === "commits") value = c.commits
+      else if (metric === "insertions") value = c.insertions
+      else if (metric === "deletions") value = c.deletions
+
+      const current = metricTotals.get(c.author) ?? 0
+      metricTotals.set(c.author, current + value)
+    })
+
+    const pieChartData = authors.map((author) => ({
+      name: author,
+      value: metricTotals.get(author) ?? 0,
+    }))
+
+    const locPieChartData = authors.map((author) => ({
+      name: author,
+      value: cumulativeLOC.get(author) ?? 0,
+    }))
+
     return {
-      perCommit: points,
-      totalCommits: points.length,
-      authorsSorted: Array.from(authorsSet).sort(),
-      dateMin: min === Infinity ? 0 : min,
-      dateMax: max === -Infinity ? 0 : max,
+      barData: barChartData,
+      lineData: lineChartData,
+      authorsSorted: authors,
+      pieData: pieChartData,
+      locPieData: locPieChartData,
     }
-  }, [analysis])
+  }, [analysis, metric])
 
-  const indexByAuthor = useMemo(
-    () => new Map(authorsSorted.map((a, i) => [a, i] as const)),
-    [authorsSorted]
-  )
-
-  const data = useMemo(() => {
-    if (viewMode === "repo") {
-      return perCommit.map((p) => ({
-        ...p,
-        authorIndex: indexByAuthor.get(p.author) ?? 0,
-        value: metric === "percent" ? p.valuePercent : p.valueCommits,
-      }))
+  const MetricIcon = ({ type }: { type: MetricKey }) => {
+    switch (type) {
+      case "commits":
+        return <GitCommit className="h-4 w-4" />
+      case "insertions":
+        return <Plus className="h-4 w-4" />
+      case "deletions":
+        return <Minus className="h-4 w-4" />
+      case "locs":
+        return <FileText className="h-4 w-4" />
     }
-
-    const byKey = new Map<string, { date: number; authorIndex: number; value: number }>()
-    for (const p of perCommit) {
-      const k = `${p.author}:${p.date}`
-      const base =
-        byKey.get(k) ??
-        { date: p.date, authorIndex: indexByAuthor.get(p.author) ?? 0, value: 0 }
-      base.value += metric === "percent" ? p.valuePercent : p.valueCommits
-      byKey.set(k, base)
-    }
-    return Array.from(byKey.values())
-  }, [viewMode, metric, perCommit, indexByAuthor])
-
-  const { minVal, maxVal } = useMemo(() => {
-    if (viewMode !== "authors" || data.length === 0) return { minVal: 0, maxVal: 1 }
-    let min = Infinity
-    let max = -Infinity
-    for (const d of data) {
-      const v = d.value ?? 0
-      if (v < min) min = v
-      if (v > max) max = v
-    }
-    return {
-      minVal: Math.max(0, isFinite(min) ? min : 0),
-      maxVal: Math.max(1, isFinite(max) ? max : 1),
-    }
-  }, [viewMode, data])
-
-  const getDotSize = (value: number) => {
-    if (viewMode === "repo") return 3.5
-    const s = Math.sqrt(Math.max(0, value))
-    const sMin = Math.sqrt(minVal)
-    const sMax = Math.sqrt(maxVal)
-    const t = (s - sMin) / Math.max(1e-9, sMax - sMin)
-    const px = (3.5 + t * (6))
-    return px
   }
 
-  const legendVals = useMemo(() => {
-    if (viewMode !== "authors") return [] as number[]
-    const mid = minVal + (maxVal - minVal) / 2
-    if (metric === "commits") {
-      const a = Math.max(1, Math.round(minVal))
-      const b = Math.max(a, Math.round(mid))
-      const c = Math.max(b, Math.round(maxVal))
-      return Array.from(new Set([a, b, c]))
+  const getMetricLabel = (type: MetricKey) => {
+    switch (type) {
+      case "commits":
+        return "Commits"
+      case "insertions":
+        return "Insertions"
+      case "deletions":
+        return "Deletions"
+      case "locs":
+        return "Lines of Code"
     }
-    const a = Math.max(0.01, +minVal.toFixed(2))
-    const b = Math.max(a, +mid.toFixed(2))
-    const c = Math.max(b, +maxVal.toFixed(2))
-    return Array.from(new Set([a, b, c]))
-  }, [viewMode, metric, minVal, maxVal])
+  }
 
-  const MetricIcon = ({ type }: { type: MetricKey }) =>
-    type === "commits" ? <GitCommit className="h-4 w-4" /> : <Percent className="h-4 w-4" />
-
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltipBar = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null
-    const d = payload[0].payload
-    const label = metric === "commits" ? "Commits" : "% Changed"
+
     return (
       <Card className="shadow-lg">
         <CardContent className="p-3 space-y-2">
           <div className="font-semibold text-sm border-b pb-2">
-            {viewMode === "authors" ? d.author : d.author || "Repository"}
+            {fmtDate(label)}
           </div>
           <div className="space-y-1 text-xs">
-            <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">Date:</span>
-              <span className="font-medium">{fmtDate(d.date)}</span>
-            </div>
-            <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">{label}:</span>
-              <span className="font-mono font-medium">
-                {metric === "commits" ? Math.round(d.value).toLocaleString() : `${d.value.toFixed(2)}%`}
-              </span>
-            </div>
+            {payload.map((entry: any, index: number) => (
+              <div key={index} className="flex justify-between gap-4">
+                <span style={{ color: entry.color }}>{entry.name}:</span>
+                <span className="font-mono font-medium">
+                  {Math.round(entry.value).toLocaleString()}
+                </span>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
     )
   }
 
-  const yAxisProps =
-    viewMode === "authors"
-      ? {
-          type: "number" as const,
-          dataKey: "authorIndex",
-          domain: authorsSorted.length ? [-1, authorsSorted.length ] : [0, 0],
-          ticks: authorsSorted.map((_, i) => i),
-          tickFormatter: (i: number) => authorsSorted[i] || "",
-          tick: { fontSize: 10 },
-          width: 80,
-          name: "Author",
-        }
-      : {
-          type: "number" as const,
-          dataKey: "value",
-          domain: [0, "auto"] as [number, any],
-          tick: { fontSize: 10 },
-          width: 80,
-          label: {
-            value: metric === "commits" ? "Nr of commits" : "Changes (%)",
-            angle: -90,
-            offset: 0,
-            style: { fontSize: 14 },
-          },
-          allowDecimals: metric !== "commits",
-        }
+  const CustomTooltipLine = ({ active, payload, label }: any) => {
+    if (!active || !payload?.length) return null
+
+    return (
+      <Card className="shadow-lg">
+        <CardContent className="p-3 space-y-2">
+          <div className="font-semibold text-sm border-b pb-2">
+            {fmtDate(label)}
+          </div>
+          <div className="space-y-1 text-xs">
+            {payload
+              .filter((entry: any) => entry.value !== 0 && entry.value !== null)
+              .map((entry: any, index: number) => (
+                <div key={index} className="flex justify-between gap-4">
+                  <span style={{ color: entry.color }}>{entry.name}:</span>
+                  <span className="font-mono font-medium">
+                    {Math.round(entry.value).toLocaleString()}
+                  </span>
+                </div>
+              ))}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const yAxisLabel = getMetricLabel(metric)
+  const isLineChart = metric === "locs"
+  const chartData = isLineChart ? lineData : barData
+
+  const pieChartData = metric === "locs" ? locPieData : pieData
+
+  const totalPieValue = pieChartData.reduce((sum, d) => sum + d.value, 0)
+
+  const CustomTooltipPie = ({ active, payload }: any) => {
+    if (!active || !payload?.length) return null
+    const entry = payload[0]
+    const percentage =
+      totalPieValue > 0 ? ((entry.value / totalPieValue) * 100).toFixed(1) : "0.0"
+
+    return (
+      <Card className="shadow-lg">
+        <CardContent className="p-3 space-y-1 text-xs">
+          <div className="font-semibold text-sm">{entry.name}</div>
+          <div className="flex justify-between gap-4">
+            <span>Value:</span>
+            <span className="font-mono">{entry.value.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between gap-4">
+            <span>Share:</span>
+            <span className="font-mono">{percentage}%</span>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const getPieTitle = () => {
+    const firstPoint = lineData[0]
+    const lastPoint = lineData[lineData.length - 1]
+    if (metric === "locs") {
+      
+      if (lastPoint?.date) {
+        return `Total lines of code per author (as of ${fmtDate(lastPoint.date)})`
+      }
+      return "Current LOC per author"
+    }
+
+    switch (metric) {
+      case "commits":
+        return `Total commits per author (from ${fmtDate(firstPoint.date)} to ${fmtDate(lastPoint.date)})`
+      case "insertions":
+        return `Total insertions per author (from ${fmtDate(firstPoint.date)} to ${fmtDate(lastPoint.date)})`
+      case "deletions":
+        return `Total deletions per author (from ${fmtDate(firstPoint.date)} to ${fmtDate(lastPoint.date)})`
+      default:
+        return "Distribution per author"
+    }
+  }
+
+  const pieTitle = getPieTitle()
 
   return (
     <Card>
@@ -207,102 +291,184 @@ export function AuthorStatisticsVisualisation({
           <div className="flex items-center gap-3">
             <CardTitle className="text-sm">Activity Timeline</CardTitle>
 
-            <Tabs value={metric} onValueChange={(v) => setMetric(v as MetricKey)} className="w-auto">
+            <Tabs
+              value={metric}
+              onValueChange={(v) => setMetric(v as MetricKey)}
+              className="w-auto"
+            >
               <TabsList className="h-7 bg-muted/50 p-0.5">
                 <TabsTrigger value="commits" className="h-6 px-2 text-[10px] gap-1">
                   <MetricIcon type="commits" /> Commits
                 </TabsTrigger>
-                <TabsTrigger value="percent" className="h-6 px-2 text-[10px] gap-1">
-                  <MetricIcon type="percent" /> Changes
+                <TabsTrigger value="insertions" className="h-6 px-2 text-[10px] gap-1">
+                  <MetricIcon type="insertions" /> Insertions
+                </TabsTrigger>
+                <TabsTrigger value="deletions" className="h-6 px-2 text-[10px] gap-1">
+                  <MetricIcon type="deletions" /> Deletions
+                </TabsTrigger>
+                <TabsTrigger value="locs" className="h-6 px-2 text-[10px] gap-1">
+                  <MetricIcon type="locs" /> LOC
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-
-            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)} className="w-auto">
-              <TabsList className="h-7 bg-muted/50 p-0.5 ml-2">
-                <TabsTrigger value="repo" className="h-6 px-2 text-[10px]">All authors</TabsTrigger>
-                <TabsTrigger value="authors" className="h-6 px-2 text-[10px]">Per author</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-
-          <div className="flex gap-1.5 text-[10px]">
-            <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
-              <GitCommit className="h-3 w-3" />
-              <span className="font-mono">{totalCommits}</span>
-            </div>
           </div>
         </div>
       </CardHeader>
 
       <CardContent>
         <div className="h-8 flex items-center">
-        {viewMode === "repo" && authorsSorted.length > 0 && (
-          <div className="mb-2 flex flex-wrap items-center gap-3 text-[10px]">
-            {authorsSorted.map((a) => {
-              const { color } = getAuthorColor(a)
-              return (
-                <div key={a} className="flex items-center gap-1">
-                  <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: color }} />
-                  <span>{a}</span>
-                </div>
-              )
-            })}
-          </div>
-        )}
-
-        {viewMode === "authors" && legendVals.length > 0 && (
-          <div className="flex items-center gap-4 mb-2 text-[10px]">
-            <span className="text-muted-foreground">
-              Dot size; {metric === "commits" ? "nr of commits" : "% changed"}
-            </span>
-            {legendVals.map((v, i) => {
-              const r = Math.max(2, Math.round(getDotSize(Number(v))))
-              const s = r * 2 + 6
-              return (
-                <div key={`${v}-${i}`} className="flex items-center gap-1">
-                  <svg width={s} height={s} className="opacity-70">
-                    <circle cx={s / 2} cy={s / 2} r={r} />
-                  </svg>
-                  <span className="font-mono">
-                    {metric === "commits"
-                      ? Math.round(Number(v)).toLocaleString()
-                      : `${Number(v).toFixed(2)}%`}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        )}
+          {authorsSorted.length > 0 && (
+            <div className="mb-2 flex flex-wrap items-center gap-3 text-[10px]">
+              {authorsSorted.map((a) => {
+                const { color } = getAuthorColor(a)
+                return (
+                  <div key={a} className="flex items-center gap-1">
+                    <span
+                      className="inline-block h-2.5 w-2.5 rounded-sm"
+                      style={{ backgroundColor: color }}
+                    />
+                    <span>{a}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
 
-        <div className="h-[250px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis
-                type="number"
-                dataKey="date"
-                domain={[dateMin - (dateMax - dateMin)*0.03, dateMax + (dateMax - dateMin)*0.03]}
-                tickFormatter={fmtDatePlot}
-                tick={{ fontSize: 10 }}
-                name="Date"
-                height={50}
-                label={{ value: "Date", position: "insideBottom", offset: -5, style: { fontSize: 14 } }}
-              />
-              <YAxis {...(yAxisProps as any)} />
-              <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: "3 3" }} />
-              <Scatter
-                data={data}
-                shape={({ cx, cy, payload }: any) => {
-                  const r = getDotSize(payload.value)
-                  const fill =
-                    viewMode === "repo" ? getAuthorColor(payload.author).color : "#030303"
-                  return <circle cx={cx} cy={cy} r={r} fill={fill} fillOpacity={0.8} />
-                }}
-              />
-            </ScatterChart>
-          </ResponsiveContainer>
+        <div className="h-[250px] w-full flex gap-6">
+          <div className="flex-1">
+            <ResponsiveContainer width="100%" height="100%">
+              {isLineChart ? (
+                <LineChart
+                  data={chartData}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={fmtDatePlot}
+                    tick={{ fontSize: 10 }}
+                    height={50}
+                    label={{
+                      value: "Date",
+                      position: "insideBottom",
+                      offset: -5,
+                      style: { fontSize: 14 },
+                    }}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10 }}
+                    width={80}
+                    label={{
+                      value: yAxisLabel,
+                      angle: -90,
+                      offset: 0,
+                      style: { fontSize: 14 },
+                    }}
+                    allowDecimals={false}
+                  />
+                  <Tooltip content={<CustomTooltipLine />} />
+                  {authorsSorted.map((author) => {
+                    const { color } = getAuthorColor(author)
+                    return (
+                      <Line
+                        key={author}
+                        dataKey={author}
+                        stroke={color}
+                        strokeWidth={2}
+                        dot={false}
+                        connectNulls
+                        isAnimationActive={false}
+                      />
+                    )
+                  })}
+                </LineChart>
+              ) : (
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={fmtDatePlot}
+                    tick={{ fontSize: 10 }}
+                    height={50}
+                    label={{
+                      value: "Date",
+                      position: "insideBottom",
+                      offset: -5,
+                      style: { fontSize: 14 },
+                    }}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10 }}
+                    width={80}
+                    label={{
+                      value: yAxisLabel,
+                      angle: -90,
+                      offset: 0,
+                      style: { fontSize: 14 },
+                    }}
+                    allowDecimals={false}
+                  />
+                  <Tooltip content={<CustomTooltipBar />} />
+                  {authorsSorted.map((author) => {
+                    const { color } = getAuthorColor(author)
+                    return (
+                      <Bar
+                        key={author}
+                        dataKey={author}
+                        stackId="a"
+                        fill={color}
+                        fillOpacity={0.8}
+                      />
+                    )
+                  })}
+                </BarChart>
+              )}
+            </ResponsiveContainer>
+          </div>
+
+          {pieChartData.length > 0 && (
+            <div className="w-48 flex flex-col">
+              <div className="flex justify-center mb-1">
+                <div className="relative group cursor-pointer">
+                  <span className="text-xs text-muted-foreground"><Info className="h-3 w-3 text-muted-foreground" /></span>
+
+                    <div className="
+                      absolute left-1/2 -translate-x-1/2 mt-2 w-max
+                      rounded-md bg-black text-white text-[10px] p-2 opacity-0
+                      pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto
+                      transition-opacity shadow-lg z-50
+                    ">
+                      {pieTitle}
+                      </div>
+                    </div>
+                  </div>
+                <div className="flex-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Tooltip content={<CustomTooltipPie />} />
+                    <Pie
+                      data={pieChartData}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius="40%"
+                      outerRadius="80%"
+                      paddingAngle={2}
+                      isAnimationActive={false}
+                    >
+                      {pieChartData.map((entry, index) => {
+                        const { color } = getAuthorColor(entry.name)
+                        return <Cell key={`cell-${index}`} fill={color} />
+                      })}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
