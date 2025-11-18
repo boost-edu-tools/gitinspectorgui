@@ -85,14 +85,14 @@ mod tests {
     use tempfile::TempDir;
 
     #[test]
-    fn directory_path_should_exist() {
+    fn test_directory_path_should_exist() {
         let temp_dir = TempDir::new().unwrap();
 
         assert!(is_existing_path(temp_dir.path()));
     }
 
     #[test]
-    fn file_path_should_exist() {
+    fn test_file_path_should_exist() {
         let temp_dir = TempDir::new().unwrap();
         let test_file = temp_dir.path().join("test.txt");
         fs::write(&test_file, "test content").unwrap();
@@ -101,7 +101,7 @@ mod tests {
     }
 
     #[test]
-    fn non_path_should_fail() {
+    fn test_non_path_should_fail() {
         let temp_dir = TempDir::new().unwrap();
         let non_existent = temp_dir.path().join("does-not-exist.mp4");
 
@@ -109,14 +109,14 @@ mod tests {
     }
 
     #[test]
-    fn directory_should_exist() {
+    fn test_directory_should_exist() {
         let temp_dir = TempDir::new().unwrap();
 
         assert!(is_directory(temp_dir.path()));
     }
 
     #[test]
-    fn file_should_not_be_directory() {
+    fn test_file_should_not_be_directory() {
         let temp_dir = TempDir::new().unwrap();
         let test_file = temp_dir.path().join("test.txt");
         fs::write(&test_file, "test content").unwrap();
@@ -125,7 +125,7 @@ mod tests {
     }
 
     #[test]
-    fn git_repo_should_exist() {
+    fn test_git_repo_should_exist() {
         let temp_dir = TempDir::new().unwrap();
         let git_dir = temp_dir.path().join(".git");
         fs::create_dir(&git_dir).unwrap();
@@ -134,14 +134,14 @@ mod tests {
     }
 
     #[test]
-    fn non_git_repo_should_fail() {
+    fn test_non_git_repo_should_fail() {
         let temp_dir = TempDir::new().unwrap();
 
         assert!(!is_git_repository(temp_dir.path()));
     }
 
     #[test]
-    fn file_should_load() {
+    fn test_file_should_load() {
         let temp_dir = TempDir::new().unwrap();
         let test_file = temp_dir.path().join("test.txt");
         let content = "Hello, world!";
@@ -153,7 +153,7 @@ mod tests {
     }
 
     #[test]
-    fn file_load_should_fail() {
+    fn test_file_load_should_fail() {
         let temp_dir = TempDir::new().unwrap();
         let non_existent = temp_dir.path().join("does-not-exist.txt");
 
@@ -192,12 +192,15 @@ mod tests {
     }
 
     #[test]
-    fn convert_to_json_should_work() {
+    fn test_convert_to_json_should_work() {
         let settings = Settings {
             repositories: vec!["test.txt".to_string()],
             search_depth: 10,
-            ignored_file_extensions: vec!["txt".to_string(), "log".to_string()],
-            allowed_file_extensions: vec!["hoi".to_string(), "csv".to_string()],
+            max_blame_files: 1000,
+            commit_hash_filter: None,
+            commit_message_filter: None,
+            file_types_filter: None,
+            path_filter: None,
         };
 
         let result = convert_to_json(&settings);
@@ -205,25 +208,27 @@ mod tests {
 
         let json_string = result.unwrap();
         assert!(json_string.contains("\"search_depth\": 10"));
-        assert!(json_string.contains("\"ignored_file_extensions\""));
-        assert!(json_string.contains("\"txt\""));
-        assert!(json_string.contains("\"log\""));
+        assert!(json_string.contains("\"repositories\""));
+        assert!(json_string.contains("test.txt"));
     }
 
     #[cfg(test)]
-    fn create_test_settings_json() -> String {
+    fn test_create_test_settings_json() -> String {
         r#"{
             "repositories": ["repo1", "repo2"],
             "search_depth": 15,
-            "ignored_file_extensions": ["log", "tmp"],
-            "allowed_file_extensions": ["rs", "toml"]
+            "max_blame_files": 500,
+            "commit_hash_filter": null,
+            "commit_message_filter": null,
+            "file_types_filter": null,
+            "path_filter": null
         }"#
         .to_string()
     }
 
     #[test]
     fn test_convert_from_json() {
-        let json_string = create_test_settings_json();
+        let json_string = test_create_test_settings_json();
 
         let result: Result<Settings, String> = convert_from_json(&json_string);
         assert!(result.is_ok());
@@ -233,8 +238,9 @@ mod tests {
         // Verify all fields are accessible and have correct values
         assert_eq!(settings.repositories, vec!["repo1", "repo2"]);
         assert_eq!(settings.search_depth, 15);
-        assert_eq!(settings.ignored_file_extensions, vec!["log", "tmp"]);
-        assert_eq!(settings.allowed_file_extensions, vec!["rs", "toml"]);
+        assert_eq!(settings.max_blame_files, 500);
+        assert!(settings.commit_hash_filter.is_none());
+        assert!(settings.commit_message_filter.is_none());
     }
 
     #[test]
@@ -252,8 +258,15 @@ mod tests {
     fn test_convert_author_to_csv() {
         // Create test authors
         let authors = vec![Author {
+            id: 1,
             name: "Alice".to_string(),
             email: "alice@gitinspector.com".to_string(),
+            commit_hashes: vec![],
+            files: vec![],
+            last_modified_date: "".to_string(),
+            last_modified_time: "".to_string(),
+            last_modified_timezone: "".to_string(),
+            metrics: Metrics::default(),
         }];
 
         let result = convert_to_csv(&authors);
@@ -279,6 +292,7 @@ mod tests {
                 loc: Some(500),
                 sloc: Some(400),
                 cloc: Some(100),
+                whitespace: None,
                 insertions: Some(200),
                 deletions: Some(150),
                 total_commits: Some(20),
@@ -289,6 +303,7 @@ mod tests {
                 loc: Some(800),
                 sloc: Some(650),
                 cloc: None,
+                whitespace: None,
                 insertions: Some(900),
                 deletions: None,
                 total_commits: Some(75),
@@ -308,6 +323,7 @@ mod tests {
             "loc",
             "sloc",
             "cloc",
+            "whitespace",
             "insertions",
             "deletions",
             "total_commits",
@@ -317,6 +333,7 @@ mod tests {
             "500",
             "400",
             "100",
+            "",
             "200",
             "150",
             "20",
