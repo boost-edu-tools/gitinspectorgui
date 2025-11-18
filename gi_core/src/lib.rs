@@ -203,8 +203,11 @@ mod tests {
         r#"{
             "repositories": ["repo1", "repo2"],
             "search_depth": 15,
-            "ignored_file_extensions": ["log", "tmp"],
-            "allowed_file_extensions": ["rs", "toml"]
+            "max_blame_files": 500,
+            "commit_hash_filter": null,
+            "commit_message_filter": null,
+            "file_types_filter": null,
+            "path_filter": null
         }"#
         .to_string()
     }
@@ -224,8 +227,9 @@ mod tests {
         // Verify all fields are accessible and have correct values
         assert_eq!(settings.repositories, vec!["repo1", "repo2"]);
         assert_eq!(settings.search_depth, 15);
-        assert_eq!(settings.ignored_file_extensions, vec!["log", "tmp"]);
-        assert_eq!(settings.allowed_file_extensions, vec!["rs", "toml"]);
+        assert_eq!(settings.max_blame_files, 500);
+        assert!(settings.commit_hash_filter.is_none());
+        assert!(settings.commit_message_filter.is_none());
     }
 
     #[test]
@@ -236,8 +240,11 @@ mod tests {
         let settings = Settings {
             repositories: vec!["repo1".to_string(), "repo2".to_string()],
             search_depth: 15,
-            ignored_file_extensions: vec!["log".to_string(), "tmp".to_string()],
-            allowed_file_extensions: vec!["rs".to_string(), "toml".to_string()],
+            max_blame_files: 500,
+            commit_hash_filter: None,
+            commit_message_filter: None,
+            file_types_filter: None,
+            path_filter: None,
         };
 
         let result = save_settings_json(&settings, &settings_file);
@@ -248,13 +255,8 @@ mod tests {
         let loaded_settings = load_settings_json(&settings_file).unwrap();
         assert_eq!(loaded_settings.repositories, settings.repositories);
         assert_eq!(loaded_settings.search_depth, settings.search_depth);
-        assert_eq!(
-            loaded_settings.ignored_file_extensions,
-            settings.ignored_file_extensions
-        );
-        assert_eq!(
-            loaded_settings.allowed_file_extensions,
-            settings.allowed_file_extensions
-        );
+        assert_eq!(loaded_settings.max_blame_files, settings.max_blame_files);
+        assert!(loaded_settings.commit_hash_filter.is_none());
+        assert!(loaded_settings.commit_message_filter.is_none());
     }
 }
