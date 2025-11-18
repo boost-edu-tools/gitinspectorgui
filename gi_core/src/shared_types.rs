@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 /// - Deletions
 /// - Total commits affecting the file
 /// - Total number of authors who modified the file
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct File {
     pub id: usize,
     pub name: String,
@@ -25,7 +25,7 @@ pub struct File {
 }
 
 /// The Line struct represents a line in a file with its associated data.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Line {
     pub number: usize,
     pub content: String,
@@ -33,7 +33,7 @@ pub struct Line {
     pub line_type: LineType,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum LineType {
     SLOC,
     CLOC,
@@ -47,7 +47,7 @@ pub enum LineType {
 /// - Total number of commits
 /// - Total number of insertions
 /// - Total number of deletions
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Repository {
     pub name: String,
     pub path: String,
@@ -62,7 +62,7 @@ pub struct Repository {
 /// - Number of files changed
 /// - Number of insertions
 /// - Number of deletions
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Commit {
     pub id: usize,
     pub hash: String,
@@ -131,7 +131,7 @@ pub struct Filter {
 }
 
 /// The AnalysisParameters struct defines parameters for filtering the analysis of a repository.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AnalysisParameters {
     pub repo_path: String,
     pub from_time: Option<String>, // YYYY-MM-DDTHH:MM:SS+HHMM e.g., "2023-01-01T00:00:00+0000"
@@ -163,6 +163,7 @@ impl Default for AnalysisParameters {
 /// The AnalysisResult struct encapsulates the results of analyzing a repository.
 /// It includes the full repository (unfiltered), lists of authors, commits, and files involved in the analysis,
 /// as well as aggregated metrics, which can be filtered based on the analysis parameters.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnalysisResult {
     pub original_repository: Option<Repository>, // The full repository (unfiltered). None until set.
     pub parameters: AnalysisParameters,
