@@ -2,9 +2,9 @@ mod analysis;
 mod filesystem;
 mod shared_types;
 pub use analysis::*;
+use analysis::*;
 pub use filesystem::*;
 pub use shared_types::*;
-use analysis::*;
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -92,10 +92,7 @@ pub fn create_analysis_parameters(
 /// - parameters: AnalysisParameters - The parameters to use for the analysis
 /// Returns:
 /// - Result<AnalysisResult, String> - The result of the analysis or an error message
-pub fn run_initial_analysis(
-    parameters: AnalysisParameters,
-) -> Result<AnalysisResult, String> {
-
+pub fn run_initial_analysis(parameters: AnalysisParameters) -> Result<AnalysisResult, String> {
     let repository = analysis::analyse_repository(&parameters)?;
 
     Ok(AnalysisResult {
@@ -132,7 +129,6 @@ pub(crate) fn verify_filter(filter: &Filter, is_path_filter: bool) -> bool {
         Err(_) => false,
     }
 }
-
 
 /// Loads a Settings struct from a JSON file.
 /// This is a wrapper function that chains the load_file() and convert_from_json() functions for convenience.
