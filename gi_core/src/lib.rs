@@ -95,12 +95,7 @@ pub fn create_analysis_parameters(
 pub fn run_initial_analysis(
     parameters: AnalysisParameters,
 ) -> Result<AnalysisResult, String> {
-    // Placeholder for actual analysis logic.
-    // In a real implementation, this would involve cloning the repository,
-    // applying filters, and collecting metrics.
 
-    // For now, we return an empty AnalysisResult with the provided parameters.
-    // Runs the analyse_repository() function from analysis.rs
     let repository = analysis::analyse_repository(&parameters)?;
 
     Ok(AnalysisResult {
@@ -110,17 +105,16 @@ pub fn run_initial_analysis(
     })
 }
 
-// A function for rerunning an already performed analysis with new parameters.
-// This will preserve the original repository in the AnalysisResult under original_repository.
+/// This function re-runs the analysis with new parameters on the same repository.
+/// Arguments:
+/// - previous_result: &AnalysisResult - The previous analysis result to base the re-analysis on
+/// - new_parameters: AnalysisParameters - The new parameters to use for the re-analysis
+/// Returns:
+/// - Result<AnalysisResult, String> - The result of the re-analysis or an error message
 pub fn rerun_analysis(
     previous_result: &AnalysisResult,
     new_parameters: AnalysisParameters,
 ) -> Result<AnalysisResult, String> {
-    // Placeholder for actual re-analysis logic.
-    // In a real implementation, this would involve reapplying filters
-    // and collecting metrics on the original repository.
-
-    // For now, we return a new AnalysisResult with the original repository preserved.
     let repository = analysis::analyse_repository(&new_parameters)?;
 
     Ok(AnalysisResult {
@@ -131,14 +125,13 @@ pub fn rerun_analysis(
 }
 
 // A function for verifying filters
-pub fn verify_filter(filter: &Filter) -> bool {
-    // Placeholder for actual filter verification logic.
-    // In a real implementation, this would check the validity of the filter criteria.
-
-    // For now, we simply return true.
-    true
+pub(crate) fn verify_filter(filter: &Filter, is_path_filter: bool) -> bool {
+    // Use the glob_matcher_builder to validate the filter pattern
+    match crate::analysis::glob_matcher_builder(&filter.value, is_path_filter) {
+        Ok(_) => true,
+        Err(_) => false,
+    }
 }
-
 
 
 /// Loads a Settings struct from a JSON file.
