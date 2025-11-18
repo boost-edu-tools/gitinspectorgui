@@ -305,7 +305,10 @@ fn update_file(
 /// pattern is valid. If validation succeeds, a new configured `GlobBuilder`
 /// is returned to the caller. The returned builder has case-insensitive matching
 /// enabled and uses the provided `literal_separator` setting.
-pub(crate) fn glob_matcher_builder(pattern: &str, literal_separator: bool) -> Result<GlobMatcher, String> {
+pub(crate) fn glob_matcher_builder(
+    pattern: &str,
+    literal_separator: bool,
+) -> Result<GlobMatcher, String> {
     // Configure a builder and attempt to build & compile it to validate the pattern.
     match GlobBuilder::new(pattern)
         .case_insensitive(true)
