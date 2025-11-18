@@ -193,65 +193,107 @@ export function FilterRange({
               const d = new Date(`${c.date}T${c.time}${c.timezone}`)
               const name = authorById.get(c.author_id)?.name ?? "Unknown"
               const colors = getAuthorColor(name)
-              const inRange = i >= Math.max(0, startIdx) && i <= Math.max(0, endIdx)
-              const isStart = i === Math.max(0, startIdx)
-              const isEnd = i === Math.max(0, endIdx)
+
+              const normalizedStart = Math.max(0, startIdx)
+              const normalizedEnd = Math.max(normalizedStart, endIdx)
+
+              const inRange = i >= normalizedStart && i <= normalizedEnd
+              const isStart = i === normalizedStart
+              const isEnd = i === normalizedEnd
               const isHovered = hoveredCommitIndex === i
-              
-              const canBeStart = i < startIdx || inRange
-              const canBeEnd = i > endIdx || inRange
-              const showStartClickable = isHovered && canBeStart && !isStart
-              const showEndClickable = isHovered && canBeEnd && !isEnd
-              
+
+              const beforeStart = i < normalizedStart
+              const afterEnd = i > normalizedEnd
+
+
+              const showStartClickable = isHovered &&  !isStart
+              const showEndClickable = isHovered && !isEnd
+
+              const handleStartClick = () => {
+                if (afterEnd) {
+                  applyStartSelection(i)
+                  applyEndSelection(i)
+                } else {
+                  applyStartSelection(i)
+                }
+              }
+
+              const handleEndClick = () => {
+                if (beforeStart) {
+                  applyStartSelection(i)
+                  applyEndSelection(i)
+                } else {
+                  applyEndSelection(i)
+                }
+              }
+
               return (
-                <li 
+                <li
                   key={c.hash}
                   onMouseEnter={() => setHoveredCommitIndex(i)}
                   onMouseLeave={() => setHoveredCommitIndex(null)}
                 >
                   <div
-                    className={`w-full text-left px-2 py-1 transition-colors ${inRange ? "bg-primary/10" : ""} ${isHovered ? "bg-muted/60" : ""}`}
+                    className={`w-full text-left px-2 py-1 transition-colors ${
+                      inRange ? "bg-gray-200" : ""
+                    } ${isHovered ? "bg-gray-300" : ""}`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5 min-w-0">
                         <span
-                          className={`inline-block h-1.5 w-1.5 rounded-full flex-shrink-0 ${isStart || isEnd ? "bg-primary" : ""}`}
-                          style={{ backgroundColor: isStart || isEnd ? undefined : colors.bgColor ?? "#ccc" }}
+                          className={`inline-block h-1.5 w-1.5 rounded-full flex-shrink-0 ${
+                            isStart || isEnd ? "bg-primary" : ""
+                          }`}
+                          style={{
+                            backgroundColor:
+                              isStart || isEnd ? undefined : colors.bgColor ?? "#ccc",
+                          }}
                         />
-                        <code className="font-mono text-[10px] flex-shrink-0" style={{ color: colors.color ?? "#888" }}>
+                        <code
+                          className="font-mono text-[10px] flex-shrink-0"
+                          style={{ color: colors.color ?? "#888" }}
+                        >
                           {shortHash(c.hash)}
                         </code>
-                        <span className="text-[10px] text-muted-foreground truncate ml-1 max-w-[70px]">{c.message}</span>
+                        <span className="text-[10px] text-muted-foreground truncate ml-1 max-w-[70px]">
+                          {c.message}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-1">
 
+                      <div className="flex items-center gap-1">
                         {isStart && (
-                          <span className="text-[9px] rounded px-1 py-0.5 bg-white text-primary">start</span>
+                          <span className="text-[9px] rounded px-1 py-0.5 bg-white text-primary">
+                            start
+                          </span>
+                          
                         )}
                         {showStartClickable && (
                           <button
-                            onClick={() => applyStartSelection(i)}
+                            onClick={handleStartClick}
                             className="text-[9px] rounded px-1.5 py-0.5 bg-primary/90 text-primary-foreground hover:bg-primary transition-colors"
                           >
                             start
                           </button>
                         )}
+
                         {isEnd && (
-                          <span className="text-[9px] rounded px-1 py-0.5 bg-white text-primary">end</span>
+                          <span className="text-[9px] rounded px-1 py-0.5 bg-white text-primary">
+                            end
+                          </span>
                         )}
-                        
-                        
                         {showEndClickable && (
                           <button
-                            onClick={() => applyEndSelection(i)}
+                            onClick={handleEndClick}
                             className="text-[9px] rounded px-1.5 py-0.5 bg-primary/90 text-primary-foreground hover:bg-primary transition-colors"
                           >
                             end
                           </button>
                         )}
-                        
+
                         {!isStart && !isEnd && !isHovered && (
-                          <span className="text-[9px] text-muted-foreground flex-shrink-0">{fmtDate(d)}</span>
+                          <span className="text-[9px] text-muted-foreground flex-shrink-0">
+                            {fmtDate(d)}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -261,6 +303,7 @@ export function FilterRange({
             })}
           </ul>
         </ScrollArea>
+
                   <div className="flex-1 min-w-0">
             {startCommit && endCommit ? (
               <div className="text-[10px] leading-tight text-foreground truncate">
