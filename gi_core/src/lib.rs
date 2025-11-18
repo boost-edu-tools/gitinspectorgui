@@ -4,6 +4,7 @@ mod shared_types;
 pub use analysis::*;
 pub use filesystem::*;
 pub use shared_types::*;
+use analysis::*;
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -48,7 +49,19 @@ pub fn retrieve_repositories(path_str: &str, depth: usize) -> Result<Vec<PathBuf
     Ok(repos)
 }
 
-// A function for running an analysis on a repository given certain parameters.
+/// This function creates an AnalysisParameters struct from the provided arguments and returns it
+/// Arguments:
+/// - repo_path: String - The file system path to the git repository to analyze
+/// - from_time: Option<String> - The start time for the analysis in YYYY-MM-DDTHH:MM:SS+HHMM format
+/// - to_time: Option<String> - The end time for the analysis in YYYY-MM-DDTHH:MM:SS+HHMM format
+/// - from_commit: Option<String> - The starting commit hash for the analysis
+/// - to_commit: Option<String> - The ending commit hash for the analysis
+/// - commit_hash_filter: Option<Filter> - A filter to apply to commit hashes
+/// - commit_message_filter: Option<Filter> - A filter to apply to commit messages
+/// - file_types_filter: Option<Filter> - A filter to apply to file types
+/// - path_filter: Option<Filter> - A filter to apply to file paths
+/// Returns:
+/// - AnalysisParameters - The constructed AnalysisParameters struct
 pub fn create_analysis_parameters(
     repo_path: String,
     from_time: Option<String>,
@@ -72,7 +85,13 @@ pub fn create_analysis_parameters(
         path_filter,
     }
 }
-// This will return an AnalysisResult with the original repository set to None.
+
+/// This function performs the initial analysis of a repository based on the provided parameters and returns the analysis result.
+/// Sets original_repository and repository to the same Repository instance initially.
+/// Arguments:
+/// - parameters: AnalysisParameters - The parameters to use for the analysis
+/// Returns:
+/// - Result<AnalysisResult, String> - The result of the analysis or an error message
 pub fn run_initial_analysis(
     parameters: AnalysisParameters,
 ) -> Result<AnalysisResult, String> {
@@ -81,9 +100,11 @@ pub fn run_initial_analysis(
     // applying filters, and collecting metrics.
 
     // For now, we return an empty AnalysisResult with the provided parameters.
+    // Runs the analyse_repository() function from analysis.rs
+    let repository = analysis::analyse_repository(&parameters)?;
 
     Ok(AnalysisResult {
-        original_repository: None,
+        original_repository: Some(repository.clone()),
         parameters,
         repository,
     })
@@ -100,6 +121,7 @@ pub fn rerun_analysis(
     // and collecting metrics on the original repository.
 
     // For now, we return a new AnalysisResult with the original repository preserved.
+    let repository = analysis::analyse_repository(&new_parameters)?;
 
     Ok(AnalysisResult {
         original_repository: previous_result.original_repository.clone(),
