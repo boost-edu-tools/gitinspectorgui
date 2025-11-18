@@ -33,10 +33,10 @@ export function FilterFiles({
             <span className="text-xs">Files</span>
           </span>
           <span className="flex items-center gap-2">
-            <Button variant="secondary" onClick={selectAll} className="h-7 px-2 text-[8px]">
+            <Button variant="secondary" onClick={selectAll} className="h-7 px-2 text-[8px] bg-gray-200 hover:bg-gray-300 text-gray-900">
               Select all
             </Button>
-            <Button variant="secondary" onClick={clearAll} className="h-7 px-2 text-[8px]">
+            <Button variant="secondary" onClick={clearAll} className="h-7 px-2 text-[8px] bg-gray-200 hover:bg-gray-300 text-gray-900">
               Clear all
             </Button>
           </span>

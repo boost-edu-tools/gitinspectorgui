@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Plus, Minus, Folder } from "lucide-react"
+import { Plus, Minus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -171,7 +171,7 @@ export function DataImport() {
   }
 
   return (
-    <SidebarGroup>
+    <SidebarGroup className="mt-3">
       <SidebarGroupLabel>Data import</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuItem>
@@ -180,7 +180,7 @@ export function DataImport() {
               <Button
                 size="sm"
                 variant="secondary"
-                className="w-full justify-start"
+                className="w-full gap-1 bg-gray-200 hover:bg-gray-300 text-gray-900"
                 aria-label="Start a new analysis"
               >
                 <Plus className="mr-2 h-3 w-3" />
@@ -353,12 +353,6 @@ export function DataImport() {
           </AlertDialog>
         </SidebarMenuItem>
 
-        <SidebarMenuItem>
-          <div className="min-w-0 px-2 py-1 text-xs text-muted-foreground flex items-center gap-2">
-            <Folder className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">{path || "(no path set)"}</span>
-          </div>
-        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   )

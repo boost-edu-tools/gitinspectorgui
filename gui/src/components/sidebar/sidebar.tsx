@@ -2,8 +2,9 @@
 import { DataImport } from "@/components/sidebar/data_import"
 import { ListRepos } from "@/components/sidebar/list_repos"
 import { FilterData} from "@/components/sidebar/filter/filter_main"
-import { Separator } from "@radix-ui/react-separator"
+import { Separator } from "@/components/ui/separator"
 import { AnalysisProps } from '@/components/types';
+import { DataExport } from "@/components/sidebar/data_export"
 import {
   Sidebar,
   SidebarContent,
@@ -69,12 +70,12 @@ export function AppSidebar({
     <Sidebar >
       <SidebarContent>
         <DataImport/>
-        <Separator className="my-0 h-px bg-border" />
+        <Separator className="mt-3" />
         <ListRepos
           allRepos={allRepos}
           selectedRepo={selectedRepo}
           setSelectedRepo={setSelectedRepo}/>
-        <Separator className="my-0 h-px bg-border" />
+        <Separator className="mt-3" />
         <FilterData
           selectedRepo={selectedRepo}
           allAuthors={allAuthors}
@@ -92,7 +93,10 @@ export function AppSidebar({
           onStartDateChange={onStartDateChange}
           onEndDateChange={onEndDateChange}
           onStartCommitChange={onStartCommitChange}
-          onEndCommitChange={onEndCommitChange}/>         
+          onEndCommitChange={onEndCommitChange}/> 
+        <Separator className="mt-0" />
+        <DataExport/>
+
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

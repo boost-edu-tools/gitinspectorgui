@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react";
 import { AppSidebar } from "@/components/sidebar/sidebar";
 import { AppMainWindow } from "@/components/main_window/main_window";

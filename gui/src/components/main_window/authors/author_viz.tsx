@@ -296,7 +296,7 @@ export function AuthorStatisticsVisualisation({
               onValueChange={(v) => setMetric(v as MetricKey)}
               className="w-auto"
             >
-              <TabsList className="h-7 bg-muted/50 p-0.5">
+              <TabsList className="h-7 bg-gray-200  p-0.5">
                 <TabsTrigger value="commits" className="h-6 px-2 text-[10px] gap-1">
                   <MetricIcon type="commits" /> Commits
                 </TabsTrigger>

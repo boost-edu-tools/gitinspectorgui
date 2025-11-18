@@ -272,7 +272,8 @@ export function FileStatisticsTable({
               <CardTitle className="text-sm">File Statistics</CardTitle>
               <div className="flex items-center gap-4">
                 <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "repo" | "author-file")}>
-                  <TabsList className="grid w-full grid-cols-2">
+                  
+                  <TabsList className="h-7 bg-gray-200  p-0.5">
                     <TabsTrigger className="text-[10px]" value="repo">All authors</TabsTrigger>
                     <TabsTrigger className="text-[10px]" value="author-file">Per author</TabsTrigger>
                   </TabsList>

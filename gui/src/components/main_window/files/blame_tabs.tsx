@@ -59,7 +59,7 @@ export function BlameViewMultiTab({
           <span>{openPaths.length} file{openPaths.length !== 1 ? "s" : ""} open</span>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={() => setAddOpen(true)}>
+          <Button variant="secondary" size="sm" className="bg-gray-200 hover:bg-gray-300 text-gray-900" onClick={() => setAddOpen(true)}>
             <Plus className="h-4 w-4 mr-1" /> Add files
           </Button>
           <Button variant="ghost" size="sm" onClick={closeAll}>Close all</Button>
@@ -73,10 +73,10 @@ export function BlameViewMultiTab({
             <TabsList className="flex flex-wrap bg-transparent">
               {openFileEntries.map((f) => (
                 <div key={f.path} className="relative">
+
                   <TabsTrigger value={f.path} className="pr-7 font-mono text-xs rounded-md transition-colors 
                    hover:bg-muted hover:text-foreground 
-                   data-[state=active]:bg-muted data-[state=active]:text-foreground 
-                   data-[state=active]:shadow-sm">
+                   data-[state=active]:bg-gray-200  data-[state=active]:text-gray-900">
                     <span className="font-mono text-xs ">{f.path}</span>
                   </TabsTrigger>
                   <button
@@ -122,6 +122,7 @@ export function BlameViewMultiTab({
                   type="button"
                   variant="secondary"
                   size="sm"
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-900"
                   onClick={() => setOpenPaths(Array.from(allFiles))}
                 >
                   Select all
