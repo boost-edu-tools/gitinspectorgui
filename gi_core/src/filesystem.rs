@@ -75,7 +75,6 @@ pub fn convert_to_csv<T: serde::Serialize>(object_to_convert: &[T]) -> Result<St
 }
 
 #[cfg(test)]
-
 mod tests {
     use super::*;
     use crate::Author;
@@ -213,7 +212,7 @@ mod tests {
     }
 
     #[cfg(test)]
-    fn test_create_test_settings_json() -> String {
+    fn create_test_settings_json() -> String {
         r#"{
             "repositories": ["repo1", "repo2"],
             "search_depth": 15,
@@ -228,7 +227,7 @@ mod tests {
 
     #[test]
     fn test_convert_from_json() {
-        let json_string = test_create_test_settings_json();
+        let json_string = create_test_settings_json();
 
         let result: Result<Settings, String> = convert_from_json(&json_string);
         assert!(result.is_ok());
