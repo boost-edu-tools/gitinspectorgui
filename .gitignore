@@ -181,3 +181,4 @@ uv.lock
 # Added by cargo
 
 /target
+gui/target/
