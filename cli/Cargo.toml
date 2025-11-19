@@ -27,5 +27,5 @@ interprocess = "2.2"
 gi_core = { path = "../gi_core" }
 
 # [lib]
-# name = "gitinspectorgui_cli"
+# name = "cli"
 # path = "src/lib.rs"

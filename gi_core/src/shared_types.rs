@@ -1,47 +1,53 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct Settings {
-    pub repositories: Vec<String>,
-    pub search_depth: usize,
-    pub ignored_file_extensions: Vec<String>,
-
-}
-
-impl Default for Settings {
-    fn default() -> Self {
-        Settings {
-            repositories: vec![],
-            search_depth: 3,
-            ignored_file_extensions: vec![],
-        }
-    }
-}
-
-pub struct Author {
-    pub name: String,
-    pub email: String,
-}
-
+/// The File struct represents a file in the repository with its associated data.
+/// Metrics of a file:
+/// - Lines of Code (LOC)
+/// - Source Lines of Code (SLOC)
+/// - Comment Lines of Code (CLOC)
+/// - Whitespace Lines
+/// - Insertions
+/// - Deletions
+/// - Total commits affecting the file
+/// - Total number of authors who modified the file
+#[derive(Clone, Serialize, Deserialize)]
 pub struct File {
+    pub id: usize,
     pub name: String,
     pub extension: String,
     pub path: String,
-    pub file_size: usize,
-    pub lines: usize,
+    pub file_size: Option<usize>,
+    pub lines: Vec<Line>,
     pub metrics: Metrics,
+    pub last_modified_date: String,
+    pub last_modified_time: String,
+    pub last_modified_timezone: String,
 }
 
-pub struct Commit {
-    pub hash: String,
-    pub author: Author,
-    pub date: String,
-    pub message: String,
-    pub files_changed: Vec<File>,
-    pub metrics: Metrics,
+/// The Line struct represents a line in a file with its associated data.
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Line {
+    pub number: usize,
+    pub content: String,
+    pub commit_hash: String,
+    pub line_type: LineType,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+pub enum LineType {
+    SLOC,
+    CLOC,
+    WHITESPACE,
+}
+
+/// The Repository struct represents a git repository with its associated data.
+/// Metrics of a repository:
+/// - Total number of files
+/// - Total number of authors
+/// - Total number of commits
+/// - Total number of insertions
+/// - Total number of deletions
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Repository {
     pub name: String,
     pub path: String,
@@ -51,13 +57,48 @@ pub struct Repository {
     pub metrics: Metrics,
 }
 
+/// The Commit struct represents a git commit with its associated data.
+/// Metrics of a commit:
+/// - Number of files changed
+/// - Number of insertions
+/// - Number of deletions
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Commit {
+    pub id: usize,
+    pub hash: String,
+    pub author_id: usize,
+    pub date: String,
+    pub time: String,
+    pub timezone: String,
+    pub message: String,
+    pub files_changed: Vec<(usize, Metrics)>,
+    pub metrics: Metrics,
+}
+
+/// The Author struct represents an author of commits in the repository.
+/// We derive Hash and Eq to allow usage in HashSet for uniqueness.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct Author {
+    pub id: usize,
+    pub name: String,
+    pub email: String,
+    pub commit_hashes: Vec<String>, // List of commit hashes authored by this author
+    pub files: Vec<(usize, Metrics)>, // List of file paths modified by this author
+    pub last_modified_date: String,
+    pub last_modified_time: String,
+    pub last_modified_timezone: String,
+    pub metrics: Metrics,
+}
+
 /// The Metrics struct stores metrics in the context of the struct it is used in.
 /// For example, in the context of a Repository, it stores overall repository metrics.
 /// All metrics are optional and can be None if not calculated or not applicable.
+#[derive(Clone, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
 pub struct Metrics {
-    pub loc: Option<usize>,
-    pub sloc: Option<usize>,
-    pub cloc: Option<usize>,
+    pub loc: Option<usize>,        // Lines of Code
+    pub sloc: Option<usize>,       // sloc = loc - cloc - whitespace
+    pub cloc: Option<usize>,       // cloc = loc - sloc
+    pub whitespace: Option<usize>, // whitespace = loc - sloc - cloc
     pub insertions: Option<usize>,
     pub deletions: Option<usize>,
     pub total_commits: Option<usize>,
@@ -65,33 +106,91 @@ pub struct Metrics {
     pub total_files: Option<usize>,
 }
 
+// Implement a default empty Metrics struct
+impl Default for Metrics {
+    fn default() -> Self {
+        Metrics {
+            loc: None,
+            sloc: None,
+            cloc: None,
+            whitespace: None,
+            insertions: None,
+            deletions: None,
+            total_commits: None,
+            total_authors: None,
+            total_files: None,
+        }
+    }
+}
+
+/// The Filter struct represents a filter used in analysis parameters.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Filter {
+    pub value: String,
+    pub include: bool, // true for include, false for exclude
+}
+
+/// The AnalysisParameters struct defines parameters for filtering the analysis of a repository.
+#[derive(Clone, Serialize, Deserialize)]
 pub struct AnalysisParameters {
-    pub from_time: Option<String>, // e.g., "2023-01-01"
-    pub to_time: Option<String>,   // e.g., "2023-12-31"
+    pub repo_path: String,
+    pub from_time: Option<String>, // YYYY-MM-DDTHH:MM:SS+HHMM e.g., "2023-01-01T00:00:00+0000"
+    pub to_time: Option<String>,   // YYYY-MM-DDTHH:MM:SS+HHMM e.g., "2023-12-31T23:59:59+0000"
     pub from_commit: Option<String>,
     pub to_commit: Option<String>,
-    // TODO: Check if Vec<&T> is appropriate here or if we should use Vec<String> or similar
-    pub exclude_authors: Vec<&Author>,
-    pub exclude_files: Vec<&File>,       
+    pub commit_hash_filter: Option<Filter>,
+    pub commit_message_filter: Option<Filter>,
+    pub file_types_filter: Option<Filter>,
+    pub path_filter: Option<Filter>,
 }
 
 impl Default for AnalysisParameters {
     fn default() -> Self {
         AnalysisParameters {
+            repo_path: String::new(),
             from_time: None,
             to_time: None,
             from_commit: None,
             to_commit: None,
-            exclude_authors: vec![],
-            exclude_files: vec![],
+            commit_hash_filter: None,
+            commit_message_filter: None,
+            file_types_filter: None,
+            path_filter: None,
         }
     }
 }
 
+/// The AnalysisResult struct encapsulates the results of analyzing a repository.
+/// It includes the full repository (unfiltered), lists of authors, commits, and files involved in the analysis,
+/// as well as aggregated metrics, which can be filtered based on the analysis parameters.
 pub struct AnalysisResult {
-    pub repository: Repository,
-    pub authors: Vec<Author>,
-    pub commits: Vec<Commit>,
-    pub files: Vec<File>,
-    pub metrics: Metrics,
+    pub original_repository: Option<Repository>, // The full repository (unfiltered). None until set.
+    pub parameters: AnalysisParameters,
+    pub repository: Repository, // The filtered repository based on analysis parameters
+}
+
+/// The Settings struct holds configuration settings for the analysis.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Settings {
+    pub repositories: Vec<String>,
+    pub search_depth: usize,
+    pub max_blame_files: usize,
+    pub commit_hash_filter: Option<Filter>,
+    pub commit_message_filter: Option<Filter>,
+    pub file_types_filter: Option<Filter>,
+    pub path_filter: Option<Filter>,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Settings {
+            repositories: vec![],
+            search_depth: 3,
+            max_blame_files: 1000,
+            commit_hash_filter: None,
+            commit_message_filter: None,
+            file_types_filter: None,
+            path_filter: None,
+        }
+    }
 }
