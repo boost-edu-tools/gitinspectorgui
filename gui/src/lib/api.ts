@@ -33,6 +33,26 @@ export async function executeAnalysis(
     }
 }
 
+export async function retrieveRepositories(path: string, depth: number): Promise<string[]> {
+    try {
+        const result = await invoke<string[]>("retrieve_repositories", { path, depth });
+        return result || [];
+    } catch (error) {
+        console.error("Failed to retrieve repositories:", error);
+        throw error;
+    }
+}
+
+export async function runInitialAnalysis(parameters: any): Promise<any> {
+    try {
+        const result = await invoke<any>("run_initial_analysis", { parameters });
+        return result;
+    } catch (error) {
+        console.error("Failed to run initial analysis:", error);
+        throw error;
+    }
+}
+
 export async function getSettings(): Promise<Settings> {
     try {
         const settings = await invoke<Settings>("get_settings");

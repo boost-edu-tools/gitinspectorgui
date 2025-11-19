@@ -4,7 +4,6 @@ use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::Settings;
 
 pub fn is_existing_path(path: &Path) -> bool {
     match path.try_exists() {
@@ -28,6 +27,19 @@ pub fn is_directory(path: &Path) -> bool {
 
 /// Returns true if the given directory (as Path) is a git repository, false otherwise.
 pub fn is_git_repository(path: &Path) -> bool {
+    // Fast path: check for a .git directory or HEAD file which indicates a git repo.
+    // These are inexpensive filesystem checks and avoid the heavier Repository::discover call
+    // when scanning many directories.
+    let git_dir = path.join(".git");
+    if git_dir.exists() {
+        return true;
+    }
+    let head_file = path.join("HEAD");
+    if head_file.exists() {
+        return true;
+    }
+
+    // Fallback to the more thorough discovery used previously for edge cases
     Repository::discover(path).is_ok()
 }
 

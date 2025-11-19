@@ -1,4 +1,4 @@
-import { executeAnalysis } from "@/lib/api";
+import { executeAnalysis, retrieveRepositories } from "@/lib/api";
 import type { AnalysisResult, RepositoryResult } from "@/types/results";
 import type { Settings } from "@/types/settings";
 import { create } from "zustand";
@@ -58,10 +58,60 @@ export const useResultsStore = create<ResultsStore>((set, get) => ({
             return;
         }
 
-        console.log("B. Production mode - calling executeAnalysis API");
+        console.log("B. Production mode - expanding repository paths and calling executeAnalysis API");
 
         try {
-            const results = await executeAnalysis(settings);
+            // Expand user-provided repository paths by calling the Tauri `retrieve_repositories` command.
+            // This will search folders for git repos up to the configured depth.
+            const expandedPaths: string[] = [];
+            for (const inputPath of settings.input_fstrs) {
+                try {
+                    const found = await retrieveRepositories(inputPath, Number(settings.depth || 1));
+                    if (found && found.length > 0) {
+                        expandedPaths.push(...found);
+                    }
+                } catch (err) {
+                    console.warn("retrieve_repositories failed for path", inputPath, err);
+                }
+            }
+
+            // If we found expanded paths, use them for analysis; otherwise fall back to original inputs.
+            const analysisSettings = {
+                ...settings,
+                input_fstrs: expandedPaths.length > 0 ? expandedPaths : settings.input_fstrs,
+            };
+
+            let results;
+            try {
+                results = await executeAnalysis(analysisSettings as any);
+            } catch (err) {
+                const errMsg = err instanceof Error ? err.message : String(err);
+                // If Python backend was removed, show the expanded repository list instead of failing
+                if (errMsg.includes("Python backend has been removed")) {
+                    const repoPaths: string[] = (analysisSettings as any).input_fstrs || [];
+                    const repos = repoPaths.map((p) => ({
+                        name: p.split(/[\\/]/).pop() || p,
+                        path: p,
+                        authors: [],
+                        files: [],
+                        blame_data: [],
+                    }));
+                    const stub: AnalysisResult = {
+                        repositories: repos,
+                        success: true,
+                    };
+
+                    set({
+                        results: stub,
+                        isAnalyzing: false,
+                        error: null,
+                        selectedRepository: repos.length > 0 ? repos[0].name : null,
+                    });
+                    return;
+                }
+                // rethrow other errors to be handled by outer catch
+                throw err;
+            }
 
             console.log("C. Analysis completed, received results:", {
                 success: results.success,
