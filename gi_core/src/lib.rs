@@ -295,11 +295,24 @@ mod tests {
     #[test]
     fn test_run_initial_analysis_on_repo_root() {
         // Use the repository root (parent of this crate) as the repo to analyze
-        let repo_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().to_path_buf();
+        let repo_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .unwrap()
+            .to_path_buf();
         let repo_path = repo_root.to_str().unwrap().to_string();
 
         // Create parameters for initial analysis
-        let params = create_analysis_parameters(repo_path.clone(), None, None, None, None, None, None, None, None);
+        let params = create_analysis_parameters(
+            repo_path.clone(),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        );
 
         // Run initial analysis
         let initial_res = run_initial_analysis(params.clone());
@@ -315,34 +328,71 @@ mod tests {
     #[test]
     fn test_rerun_analysis_on_repo_root() {
         // Use the repository root (parent of this crate) as the repo to analyze
-        let repo_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().to_path_buf();
+        let repo_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .unwrap()
+            .to_path_buf();
         let repo_path = repo_root.to_str().unwrap().to_string();
 
         // Create parameters for initial analysis and run it
-        let params = create_analysis_parameters(repo_path.clone(), None, None, None, None, None, None, None, None);
-        let initial = run_initial_analysis(params.clone()).expect("Initial analysis should succeed");
+        let params = create_analysis_parameters(
+            repo_path.clone(),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        );
+        let initial =
+            run_initial_analysis(params.clone()).expect("Initial analysis should succeed");
 
         // Rerun analysis with a time range that likely yields fewer commits
-        let new_params = create_analysis_parameters(repo_path.clone(), Some("2100-01-01T00:00:00+0000".to_string()), None, None, None, None, None, None, None);
+        let new_params = create_analysis_parameters(
+            repo_path.clone(),
+            Some("2100-01-01T00:00:00+0000".to_string()),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        );
         let rerun_res = rerun_analysis(&initial, new_params.clone());
         assert!(rerun_res.is_ok(), "Rerun analysis should succeed");
         let rerun = rerun_res.unwrap();
 
         // original_repository should be preserved from the initial result
         assert!(rerun.original_repository.is_some());
-        assert_eq!(rerun.original_repository.as_ref().unwrap().path, initial.original_repository.as_ref().unwrap().path);
+        assert_eq!(
+            rerun.original_repository.as_ref().unwrap().path,
+            initial.original_repository.as_ref().unwrap().path
+        );
         // New parameters must match the provided new_params
         assert_eq!(rerun.parameters.repo_path, new_params.repo_path);
     }
 
     #[test]
     fn test_verify_filter_patterns() {
-        let good = Filter { value: "*.rs".to_string(), include: true };
-        let bad = Filter { value: "[invalid[".to_string(), include: true };
+        let good = Filter {
+            value: "*.rs".to_string(),
+            include: true,
+        };
+        let bad = Filter {
+            value: "[invalid[".to_string(),
+            include: true,
+        };
 
-        assert!(verify_filter(&good, false), "Valid glob pattern should verify true");
-        assert!(!verify_filter(&bad, true), "Invalid glob pattern should verify false");
+        assert!(
+            verify_filter(&good, false),
+            "Valid glob pattern should verify true"
+        );
+        assert!(
+            !verify_filter(&bad, true),
+            "Invalid glob pattern should verify false"
+        );
     }
-
-    
 }
