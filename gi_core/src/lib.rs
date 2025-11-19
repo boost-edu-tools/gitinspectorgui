@@ -270,4 +270,79 @@ mod tests {
         assert!(loaded_settings.commit_hash_filter.is_none());
         assert!(loaded_settings.commit_message_filter.is_none());
     }
+
+    #[test]
+    fn test_create_analysis_parameters() {
+        let repo = "C:/test/repo".to_string();
+        let params = create_analysis_parameters(
+            repo.clone(),
+            Some("2020-01-01T00:00:00+0000".to_string()),
+            Some("2020-12-31T23:59:59+0000".to_string()),
+            Some("abc123".to_string()),
+            Some("def456".to_string()),
+            None,
+            None,
+            None,
+            None,
+        );
+
+        assert_eq!(params.repo_path, repo);
+        assert_eq!(params.from_commit.unwrap(), "abc123");
+        assert_eq!(params.to_commit.unwrap(), "def456");
+        assert!(params.commit_hash_filter.is_none());
+    }
+
+    #[test]
+    fn test_run_initial_analysis_on_repo_root() {
+        // Use the repository root (parent of this crate) as the repo to analyze
+        let repo_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().to_path_buf();
+        let repo_path = repo_root.to_str().unwrap().to_string();
+
+        // Create parameters for initial analysis
+        let params = create_analysis_parameters(repo_path.clone(), None, None, None, None, None, None, None, None);
+
+        // Run initial analysis
+        let initial_res = run_initial_analysis(params.clone());
+        assert!(initial_res.is_ok(), "Initial analysis should succeed");
+        let initial = initial_res.unwrap();
+        assert_eq!(initial.parameters.repo_path, repo_path);
+        // Repository should have been populated (may have zero commits in some cases, but path must match)
+        assert_eq!(initial.repository.path, repo_path);
+        // original_repository should be set by run_initial_analysis
+        assert!(initial.original_repository.is_some());
+    }
+
+    #[test]
+    fn test_rerun_analysis_on_repo_root() {
+        // Use the repository root (parent of this crate) as the repo to analyze
+        let repo_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().to_path_buf();
+        let repo_path = repo_root.to_str().unwrap().to_string();
+
+        // Create parameters for initial analysis and run it
+        let params = create_analysis_parameters(repo_path.clone(), None, None, None, None, None, None, None, None);
+        let initial = run_initial_analysis(params.clone()).expect("Initial analysis should succeed");
+
+        // Rerun analysis with a time range that likely yields fewer commits
+        let new_params = create_analysis_parameters(repo_path.clone(), Some("2100-01-01T00:00:00+0000".to_string()), None, None, None, None, None, None, None);
+        let rerun_res = rerun_analysis(&initial, new_params.clone());
+        assert!(rerun_res.is_ok(), "Rerun analysis should succeed");
+        let rerun = rerun_res.unwrap();
+
+        // original_repository should be preserved from the initial result
+        assert!(rerun.original_repository.is_some());
+        assert_eq!(rerun.original_repository.as_ref().unwrap().path, initial.original_repository.as_ref().unwrap().path);
+        // New parameters must match the provided new_params
+        assert_eq!(rerun.parameters.repo_path, new_params.repo_path);
+    }
+
+    #[test]
+    fn test_verify_filter_patterns() {
+        let good = Filter { value: "*.rs".to_string(), include: true };
+        let bad = Filter { value: "[invalid[".to_string(), include: true };
+
+        assert!(verify_filter(&good, false), "Valid glob pattern should verify true");
+        assert!(!verify_filter(&bad, true), "Invalid glob pattern should verify false");
+    }
+
+    
 }
