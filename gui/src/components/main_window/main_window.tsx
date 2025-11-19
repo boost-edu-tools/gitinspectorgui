@@ -10,7 +10,7 @@ import { AuthorStatisticsOverview} from "@/components/main_window/authors/author
 import { AuthorStatisticsVisualisation } from "@/components/main_window/authors/author_viz"
 import { BlameViewMultiTab } from "./files/blame_tabs"
 import { FileSatisticsVisualisation } from "./files/file_viz"
-import { FileStatisticsTable } from "./files/files_table"
+import { FileStatisticsTable } from "./files/file_table"
 
 import type { AnalysisProps } from "@/components/types"
 

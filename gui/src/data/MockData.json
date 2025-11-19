@@ -26,7 +26,10 @@
           { "file_path": "src/file3.ts", "metrics": { "insertions": 12, "deletions": 11, "loc": 1, "sloc": 1, "total_commits": 3 } },
           { "file_path": "src/file4.ts", "metrics": { "insertions": 12, "deletions": 9, "loc": 2, "sloc": 2, "total_commits": 1 } }
         ],
-        "metrics": { "insertions": 50, "deletions": 40, "total_commits": 12, "loc": 12, "sloc": 10, "stability": 42}
+        "metrics": { "insertions": 50, "deletions": 40, "total_commits": 12, "loc": 12, "sloc": 10, "stability": 42},
+        "last_modified_date": "2024-04-26",
+        "last_modified_time": "09:00:00",
+        "last_modified_timezone": "Z"
       },
       {
         "id": 2,
@@ -40,7 +43,10 @@
           { "file_path": "src/file3.ts", "metrics": { "insertions": 15, "deletions": 12, "loc": 0, "sloc": 0, "total_commits": 2 } },
           { "file_path": "src/file4.ts", "metrics": { "insertions": 15, "deletions": 10, "loc": 2, "sloc": 0, "total_commits": 2 } }
         ],
-        "metrics": { "insertions": 60, "deletions": 45, "total_commits": 11, "loc": 9, "sloc": 1, "stability": 60}
+        "metrics": { "insertions": 60, "deletions": 45, "total_commits": 11, "loc": 9, "sloc": 1, "stability": 60},
+        "last_modified_date": "2024-04-26",
+        "last_modified_time": "06:00:00",
+        "last_modified_timezone": "Z"
       },
       {
         "id": 3,
@@ -54,7 +60,10 @@
           { "file_path": "src/file3.ts", "metrics": { "insertions": 12, "deletions": 10, "loc": 4, "sloc": 3, "total_commits": 2 } },
           { "file_path": "src/file4.ts", "metrics": { "insertions": 11, "deletions": 10, "loc": 2, "sloc": 1, "total_commits": 2 } }
         ],
-        "metrics": { "insertions": 45, "deletions": 40, "total_commits": 9, "loc": 9, "sloc": 5, "stability": 63}
+        "metrics": { "insertions": 45, "deletions": 40, "total_commits": 9, "loc": 9, "sloc": 5, "stability": 63},
+        "last_modified_date": "2024-04-26",
+        "last_modified_time": "02:00:00",
+        "last_modified_timezone": "Z"
       },
       {
         "id": 4,
@@ -71,7 +80,10 @@
           { "file_path": "src/file3.ts", "metrics": { "insertions": 11, "deletions": 10, "loc": 5, "sloc": 1, "total_commits": 3 } },
           { "file_path": "src/file4.ts", "metrics": { "insertions": 12, "deletions": 10, "loc": 4, "sloc": 2, "total_commits": 2 } }
         ],
-        "metrics": { "insertions": 45, "deletions": 35, "total_commits": 8, "loc": 10, "sloc": 4, "stability": 52}
+        "metrics": { "insertions": 45, "deletions": 35, "total_commits": 8, "loc": 10, "sloc": 4, "stability": 52},
+        "last_modified_date": "2024-04-16",
+        "last_modified_time": "09:00:00",
+        "last_modified_timezone": "Z"
       }
     ],
     "commits": [

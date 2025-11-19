@@ -188,7 +188,9 @@ export function AuthorStatisticsVisualisation({
             {fmtDate(label)}
           </div>
           <div className="space-y-1 text-xs">
-            {payload.map((entry: any, index: number) => (
+            {payload
+            .filter((entry: any) => entry.value !== 0 && entry.value !== null)
+            .map((entry: any, index: number) => (
               <div key={index} className="flex justify-between gap-4">
                 <span style={{ color: entry.color }}>{entry.name}:</span>
                 <span className="font-mono font-medium">

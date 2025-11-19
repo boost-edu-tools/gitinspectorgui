@@ -15,35 +15,9 @@ import { Users, User } from "lucide-react"
 
 import { getAuthorColor } from "@/components/helpers/author_colors"
 import { useAnalysis } from "@/hooks/useAnalysis"
-import type { AnalysisProps, AnalysisResult, Author, Commit } from "@/components/types"
+import type { AnalysisProps, AnalysisResult, Author} from "@/components/types"
 
 import { fmt_pct_abs, time_diff_YDH, MetricHeader} from "@/components/helpers/formatting_helpers"
-
-function EmailCell({
-  primary,
-  aliases,
-  showAliases,
-}: {
-  primary?: string | null
-  aliases: string[] | undefined
-  showAliases: boolean
-}) {
-
-  return (
-    <div className="flex flex-col gap-1 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="font-mono break-all">{primary}</span>
-        </div>
-
-      {showAliases && aliases && 
-        aliases.map((em) => (
-          <div className="flex items-center gap-2">
-            <span className="font-mono break-all">{em}</span>
-          </div>
-        ))}
-    </div>
-  )
-}
 
 export function AuthorStatisticsOverview({
   selectedRepo,
@@ -56,8 +30,6 @@ export function AuthorStatisticsOverview({
   const { analysis } = useAnalysis(selectedRepo)
   const repo = (analysis as AnalysisResult | undefined)?.repository
   const authors: Author[] = repo?.authors ?? []
-  const [showRenames, setShowRenames] = React.useState<boolean>(false)
-  const commits: Commit[] = repo?.commits ?? []
 
   const totals = React.useMemo(() => {
     return authors.reduce(
@@ -89,10 +61,6 @@ export function AuthorStatisticsOverview({
 
             <div className="flex items-center space-x-2">
 
-            <div className="flex items-center space-x-2  pr-4">
-              <Label htmlFor="show-renames" className="text-[13px]">Show renames</Label>
-              <Switch id="show-renames" checked={showRenames} onCheckedChange={setShowRenames} />
-            </div>
               <Label htmlFor="display-mode" className="text-[13px]">
                 Relative
               </Label>
@@ -113,7 +81,7 @@ export function AuthorStatisticsOverview({
                   <TableHead className="font-semibold sticky left-0 bg-background border-r w-[200px] z-10">
                     Author
                   </TableHead>
-                  <TableHead className="min-w-[170px] max-w-[170x] w-[170px]">Email(s)</TableHead>
+                  <TableHead className="min-w-[170px] max-w-[170x] w-[170px]">Email</TableHead>
                   <TableHead className="text-right">
                     <MetricHeader metricKey="total_commits" />
                   </TableHead>
@@ -164,9 +132,7 @@ export function AuthorStatisticsOverview({
                 {Array.from(sortedAuthors).map((a) => {
                   
                   const m = a.metrics ?? {}
-
-                  const lastCommit = commits.find(c => c.hash === a.commit_hashes[a.commit_hashes.length - 1]);
-                  const lastModified = new Date(`${lastCommit?.date}T${lastCommit?.time}${lastCommit?.timezone}`);  
+                  const lastModified = new Date(`${a.last_modified_date}T${a.last_modified_time}${a.last_modified_timezone}`);  
                   const now = new Date();                  
                   const diffMs = Math.max(0, now.getTime() - lastModified.getTime());
                   const { years, days, hours } = time_diff_YDH(diffMs);
@@ -185,9 +151,7 @@ export function AuthorStatisticsOverview({
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-xs align-top min-w-[170px] max-w-[170px] w-[170px]">
-                        <EmailCell primary={a.email} aliases={a.aliases_email} showAliases={showRenames} />
-                      </TableCell>
+                      <TableCell className="text-xs align-top min-w-[170px] max-w-[170px] w-[170px]"><span className="font-mono break-all">{a.email}</span></TableCell>
                       <TableCell className="text-right">{fmt_pct_abs(m.total_commits ?? 0, totals.total_commits, displayMode)}</TableCell>
                       <TableCell className="text-right">{fmt_pct_abs(m.insertions ?? 0, totals.insertions, displayMode)}</TableCell>
                       <TableCell className="text-right">{fmt_pct_abs(m.deletions ?? 0, totals.deletions, displayMode)}</TableCell>

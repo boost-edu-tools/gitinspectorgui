@@ -42,9 +42,10 @@ function buildAuthorFileRows(
     const authorName = a.name ?? "Unknown"
     for (const f of a.files ?? []) {
       const value = (f.metrics as any)?.[metric] ?? 0
-      const rec = fileMap.get(f.file_path) ?? {}
+      const file_path = repo.files.find((file) => file.id === f.id)?.path ?? "Unknown"
+      const rec = fileMap.get(file_path) ?? {}
       rec[authorName] = (rec[authorName] ?? 0) + value
-      fileMap.set(f.file_path, rec)
+      fileMap.set(file_path, rec)
     }
   }
 

@@ -61,8 +61,8 @@ export function BlameView({
   const filteredLines = React.useMemo(() => {
     const lines = file.lines ?? []
     return lines.filter((ln) => {
-      if (hideEmpty && ln.line_type === 0) return false
-      if (hideComments && ln.line_type === 1) return false
+      if (hideEmpty && ln.line_type === "WHITESPACE") return false
+      if (hideComments && ln.line_type === "CLOC") return false
       return true
     })
   }, [file.lines, hideEmpty, hideComments])

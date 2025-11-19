@@ -37,18 +37,18 @@ export function FileSatisticsVisualisation({
   const { analysis } = useAnalysis(selectedRepo)
   const repo = (analysis as AnalysisResult | undefined)?.repository
   const allAuthors = Array.from(new Set(repo?.authors.map((a: any) => (a?.name ?? ""))))
-  const allFiles = Array.from(new Set(repo?.files.map((a: any) => (a?.path ?? ""))))
+  const allFiles = Array.from(new Set(repo?.files.map((a: any) => (a?.id ?? ""))))
 
   const authorFileIndex = useMemo(() => {
     const idx: Record<string, Record<string, Metrics>> = {}
     if (!repo?.authors) return idx
     for (const a of repo.authors) {
       const name = a.name ?? "Unknown"
-      const byPath: Record<string, Metrics> = {}
+      const byId: Record<string, Metrics> = {}
       for (const af of a.files ?? []) {
-        byPath[af.file_path] = af.metrics ?? {}
+        byId[af.id] = af.metrics ?? {}
       }
-      idx[name] = byPath
+      idx[name] = byId
     }
     return idx
   }, [repo?.authors])
@@ -65,7 +65,7 @@ export function FileSatisticsVisualisation({
 
         const breakdown: Breakdown = {}
         for (const author of allAuthors) {
-          const am = authorFileIndex[author]?.[f.path]
+          const am = authorFileIndex[author]?.[f.id]
           breakdown[author] = {
             total_commits: am?.total_commits ?? 0,
             insertions: am?.insertions ?? 0,
@@ -74,7 +74,8 @@ export function FileSatisticsVisualisation({
         }
 
         return {
-          path: f.path,
+          id: f.id,
+          fullPath: f.path,
           fileName: f.path.split("/").pop() || f.path,
           totals: {
             total_commits: totalCommits,
@@ -96,7 +97,7 @@ export function FileSatisticsVisualisation({
     return fileRows.map((r) => {
       const base = {
         fileName: r.fileName,
-        fullPath: r.path,
+        fullPath: r.fullPath,
         absoluteTotal: r.totals[metric],
         total:
           displayMode === "percentage" && grandTotal > 0

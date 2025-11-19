@@ -32,7 +32,6 @@ export type AnalysisProps = {
   setSelectedFile: Dispatch<SetStateAction<string | null>>;
 };
 
-
 export type Repository = {
   name: string;
   path: string;
@@ -46,13 +45,17 @@ export type Author = {
   id: number;
   name: string;
   email: string;
-  aliases_email?: string[];
   commit_hashes: string[];
   files: AuthorFileMetrics[];
   last_modified_date: string;
   last_modified_time: string;
   last_modified_timezone: string;   
   metrics: Metrics; 
+};
+
+export type AuthorFileMetrics = {
+  id: number;
+  metrics: Metrics;
 };
 
 export type Commit = {
@@ -63,14 +66,20 @@ export type Commit = {
   time: string;
   timezone: string;   
   message: string;
-  files_changed: string[];
+  files_changed: CommitMetrics[];
+  metrics: Metrics;
+};
+
+export type CommitMetrics = {
+  id: number;
   metrics: Metrics;
 };
 
 export type File = {
+  id: number;
   name: string;
-  path: string;
   extension: string;
+  path: string;
   file_size?: number;
   lines: Line[];
   metrics: Metrics;  
@@ -83,7 +92,7 @@ export type Line = {
   number: number;
   content: string;
   commit_hash: string;
-  line_type: number;
+  line_type: LineType;
 };
 
 export type LineType = "SLOC" | "CLOC" | "WHITESPACE";
@@ -101,11 +110,6 @@ export type Metrics = {
   stability?: number;
 };
 
-export type AuthorFileMetrics = {
-  file_path: string;
-  metrics: Metrics;
-};
-
 export type Filter ={
   value: string;
   include: boolean;
@@ -114,18 +118,13 @@ export type Filter ={
 export type Settings = {
   repositories: string[];
   search_depth: number;
-  max_blame_files: number;
+  max_compute_resources: number;
   commit_hash_filter?: Filter[];
   commit_message_filter?: Filter[];
   file_types_filter?: Filter[];
   path_filter?: Filter[];
-  max_repo_size_mb?: number;
-  detect_mode?: string;
-  paths?: string[];
-  authorNames?: string[];
-  authorEmails?: string[];
-  commitHashes?: string[]
-  commitMessages?: string[];
+  author_names_filter?: Filter[];
+  author_emails_filter?: Filter[];
 }
 
 export type AnalysisParameters = {
@@ -138,6 +137,8 @@ export type AnalysisParameters = {
   commit_message_filter?: Filter[];
   file_types_filter?: Filter[];
   path_filter?: Filter[];
+  author_names_filter?: Filter[];
+  author_emails_filter?: Filter[];
 }
 
 export type AnalysisResult = {
