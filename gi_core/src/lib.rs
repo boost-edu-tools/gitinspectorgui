@@ -122,7 +122,7 @@ pub fn rerun_analysis(
 }
 
 // A function for verifying filters
-pub(crate) fn verify_filter(filter: &Filter, is_path_filter: bool) -> bool {
+pub fn verify_filter(filter: &Filter, is_path_filter: bool) -> bool {
     // Use the glob_matcher_builder to validate the filter pattern
     match crate::analysis::glob_matcher_builder(&filter.value, is_path_filter) {
         Ok(_) => true,
