@@ -320,7 +320,7 @@ export function FilterRange({
           </div>
 
         <AlertDialog open={dateDialogOpen} onOpenChange={setDateDialogOpen}>
-          <AlertDialogContent className="w-[92vw] max-w-[380px] p-0 gap-0 overflow-hidden">
+          <AlertDialogContent className="w-[92vw] max-w-[380px] p-0 gap-0 overflow-hidden max-h-[90vh] overflow-y-auto">
             <AlertDialogHeader className="px-4 pt-4 pb-2 border-b bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40">
               <AlertDialogTitle className="text-sm font-semibold tracking-tight">Select date & time</AlertDialogTitle>
               <AlertDialogDescription className="text-[11px] mt-1.5">
