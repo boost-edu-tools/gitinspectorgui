@@ -103,27 +103,27 @@ export function DataImport() {
 
   const defaultState = React.useMemo(
     () => ({
-      path: settings.path ?? "",
+      path: "",
       searchDepth: String(settings.search_depth ?? 5),
       maxComputeResources: String(settings.max_compute_resources ?? 90),
 
-      fileTypesMode: (settings.allowed_file_types.include === true ? "include" : "exclude") as Mode,
-      fileTypes: String(settings.allowed_file_types.value),
+      fileTypesMode: (settings.file_types_filter.include === true ? "include" : "exclude") as Mode,
+      fileTypes: String(settings.file_types_filter.value),
 
-      pathsMode: (settings.paths.include === true ? "include" : "exclude") as Mode,
-      paths: String(settings.paths.value),
+      pathsMode: (settings.path_filter.include === true ? "include" : "exclude") as Mode,
+      paths: String(settings.path_filter.value),
 
-      authorNameMode:(settings.authorNames.include === true ? "include" : "exclude") as Mode,
-      authorNames: String(settings.authorNames.value),
+      authorNameMode:(settings.author_names_filter.include === true ? "include" : "exclude") as Mode,
+      authorNames: String(settings.author_names_filter.value),
 
-      authorEmailMode: (settings.authorEmails.include === true ? "include" : "exclude") as Mode,
-      authorEmails: String(settings.authorEmails.value),
+      authorEmailMode: (settings.author_emails_filter.include === true ? "include" : "exclude") as Mode,
+      authorEmails: String(settings.author_emails_filter.value),
 
-      commitHashMode: (settings.commitHashes.include === true ? "include" : "exclude") as Mode,
-      commitHashes: String(settings.commitHashes.value),
+      commitHashMode: (settings.commit_hash_filter.include === true ? "include" : "exclude") as Mode,
+      commitHashes: String(settings.commit_hash_filter.value),
 
-      commitMessageMode: (settings.commitMessages.include === true ? "include" : "exclude") as Mode,
-      commitMessages: String(settings.commitMessages.value),
+      commitMessageMode: (settings.commit_message_filter.include === true ? "include" : "exclude") as Mode,
+      commitMessages: String(settings.commit_message_filter.value),
     }),
     []
   )
@@ -153,10 +153,8 @@ export function DataImport() {
 
   const onReset = () => {
     setPath(defaultState.path)
-
     setSearchDepth(defaultState.searchDepth)
     setMaxComputeResources(defaultState.maxComputeResources)
-
     setFileTypesMode(defaultState.fileTypesMode); setFileTypes(defaultState.fileTypes)
     setPathsMode(defaultState.pathsMode); setPaths(defaultState.paths)
     setAuthorNameMode(defaultState.authorNameMode); setAuthorNames(defaultState.authorNames)
@@ -207,7 +205,7 @@ export function DataImport() {
                         id="path"
                         value={path}
                         onChange={(e) => setPath(e.target.value)}
-                        placeholder="e.g. C:\work\repos or /home/user/repos"
+                        placeholder="e.g. /home/user/repos"
                       />
                     </div>
                   </section>

@@ -66,11 +66,11 @@ export type Commit = {
   time: string;
   timezone: string;   
   message: string;
-  files_changed: CommitMetrics[];
+  files_changed: CommitFileMetrics[];
   metrics: Metrics;
 };
 
-export type CommitMetrics = {
+export type CommitFileMetrics = {
   id: number;
   metrics: Metrics;
 };

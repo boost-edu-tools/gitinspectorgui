@@ -1,16 +1,12 @@
-{"path": "/home/user/projects",
-  "repositories": [
-  ],
+{ "repositories": [],
   "search_depth": 5,
-  "ignored_file_extensions": [".test"],
-  "allowed_file_types":{"include": true, "value": ["py", "ts", "md"]},
-  "subfolder": {"include":"src"},
+  "file_types_filter":{"include": true, "value": ["py", "ts", "md"]},
   "max_compute_resources": 70,
-  "paths": {"include": true, "value": []},
-  "authorNames": {"include": false, "value": ["bot", "ci"]},
-  "authorEmails": {"include": true,  "value": []},
-  "commitHashes": {"include": true, "value": []},
-  "commitMessages": {"include": true, "value": []}
+  "path_filter": {"include": true, "value": []},
+  "author_names_filter": {"include": false, "value": ["bot", "ci"]},
+  "author_emails_filter": {"include": true,  "value": []},
+  "commit_hash_filter": {"include": true, "value": []},
+  "commit_message_filter": {"include": true, "value": []}
 
 
 }
