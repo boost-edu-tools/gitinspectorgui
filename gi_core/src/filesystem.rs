@@ -28,6 +28,17 @@ pub fn is_directory(path: &Path) -> bool {
 
 /// Returns true if the given directory (as Path) is a git repository, false otherwise.
 pub fn is_git_repository(path: &Path) -> bool {
+    // Check for the .git directory first as this is significantly faster
+    let git_dir = path.join(".git");
+    if git_dir.exists() && git_dir.is_dir() {
+        return true;
+    }
+    // Also check for the HEAD file in case of a bare repository
+    let head_file = git_dir.join("HEAD");
+    if head_file.exists() && head_file.is_file() {
+        return true;
+    }
+    // Only as a last resort, try to check using git_wrapper
     Repository::discover(path).is_ok()
 }
 
