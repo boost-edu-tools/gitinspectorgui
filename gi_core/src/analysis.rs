@@ -305,7 +305,10 @@ fn update_file(
 /// pattern is valid. If validation succeeds, a new configured `GlobBuilder`
 /// is returned to the caller. The returned builder has case-insensitive matching
 /// enabled and uses the provided `literal_separator` setting.
-fn glob_matcher_builder(pattern: &str, literal_separator: bool) -> Result<GlobMatcher, String> {
+pub(crate) fn glob_matcher_builder(
+    pattern: &str,
+    literal_separator: bool,
+) -> Result<GlobMatcher, String> {
     // Configure a builder and attempt to build & compile it to validate the pattern.
     match GlobBuilder::new(pattern)
         .case_insensitive(true)
@@ -369,7 +372,7 @@ pub fn build_glob_matchers_from_params(
 /// If from_time or to_time are specified, they are used instead of commit hashes.
 /// It returns an AnalysisResult containing the parsed commits, authors, and files.
 /// Files are just fetched, not processed by the analysis. This functionality is handled by analyse_blames()
-fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, String> {
+pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Repository, String> {
     // Resolve repo path
     let repo = Path::new(&params.repo_path);
 
@@ -670,11 +673,7 @@ fn analyse_repository(params: &AnalysisParameters) -> Result<AnalysisResult, Str
             metrics: repo_metrics,
         };
 
-        Ok(AnalysisResult {
-            original_repository: None,
-            parameters: params.clone(),
-            repository,
-        })
+        Ok(repository)
     } else {
         let stderr = str::from_utf8(&output.stderr).unwrap_or("Unknown error");
         Err(format!("Git log failed: {}", stderr))
@@ -1078,8 +1077,8 @@ mod tests {
         params.to_commit = Some(end_commit.to_string());
         let result = analyse_repository(&params);
         match result {
-            Ok(analysis) => {
-                print_repository_info(&analysis.repository);
+            Ok(repo) => {
+                print_repository_info(&repo);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -1104,8 +1103,8 @@ mod tests {
         params.to_commit = Some(end_commit.to_string());
         let result = analyse_repository(&params);
         match result {
-            Ok(analysis) => {
-                print_repository_info(&analysis.repository);
+            Ok(repo) => {
+                print_repository_info(&repo);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -1130,8 +1129,8 @@ mod tests {
         params.to_commit = Some(end_commit.to_string());
         let result = analyse_repository(&params);
         match result {
-            Ok(analysis) => {
-                print_repository_info(&analysis.repository);
+            Ok(repo) => {
+                print_repository_info(&repo);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -1157,8 +1156,8 @@ mod tests {
 
         let result = analyse_repository(&params);
         match result {
-            Ok(analysis) => {
-                print_repository_info(&analysis.repository);
+            Ok(repo) => {
+                print_repository_info(&repo);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -1182,8 +1181,8 @@ mod tests {
 
         let result = analyse_repository(&params);
         match result {
-            Ok(analysis) => {
-                print_repository_info(&analysis.repository);
+            Ok(repo) => {
+                print_repository_info(&repo);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -1208,8 +1207,8 @@ mod tests {
 
         let result = analyse_repository(&params);
         match result {
-            Ok(analysis) => {
-                print_repository_info(&analysis.repository);
+            Ok(repo) => {
+                print_repository_info(&repo);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -1427,8 +1426,8 @@ mod tests {
 
         let result = analyse_repository(&params);
         match result {
-            Ok(analysis) => {
-                print_repository_info(&analysis.repository);
+            Ok(repo) => {
+                print_repository_info(&repo);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -1477,8 +1476,8 @@ mod tests {
 
         let result = analyse_repository(&params);
         match result {
-            Ok(analysis) => {
-                print_repository_info(&analysis.repository);
+            Ok(repo) => {
+                print_repository_info(&repo);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -1523,8 +1522,8 @@ mod tests {
         assert!(!ft_matcher.is_match(".py"));
         let result = analyse_repository(&params);
         match result {
-            Ok(analysis) => {
-                print_repository_info(&analysis.repository);
+            Ok(repo) => {
+                print_repository_info(&repo);
             }
             Err(e) => {
                 println!("Error: {}", e);
@@ -1565,8 +1564,8 @@ mod tests {
 
         let result = analyse_repository(&params);
         match result {
-            Ok(analysis) => {
-                print_repository_info(&analysis.repository);
+            Ok(repo) => {
+                print_repository_info(&repo);
             }
             Err(e) => {
                 println!("Error: {}", e);
