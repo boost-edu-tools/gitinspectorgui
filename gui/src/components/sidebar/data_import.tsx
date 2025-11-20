@@ -33,6 +33,15 @@ import {
 } from "@/components/ui/tooltip"
 
 import settings from "@/data/Settings.json"
+import {
+  retrieveRepositories,
+  createAnalysisParameters,
+  runInitialAnalysis,
+  rerunAnalysis,
+  verifyFilter,
+  loadSettingsJson,
+  saveSettingsJson,
+} from "@/lib/api"
 
 type Mode = "include" | "exclude"
 
@@ -164,7 +173,85 @@ export function DataImport() {
   }
 
   const onSave = () => {
-    // to be implemented with call to core
+    // TODO: Remove this test code for a proper implementation
+    // This place has been used to trigger all API endpoints for testing purposes
+    
+
+    // If no path provided, notify the user
+    if (!path || path.trim() === "") {
+      alert("Please provide a root path to search for repositories.");
+      return;
+    }
+
+    (async () => {
+      try {
+        const depthNum = Number(searchDepth) || 1
+        console.log("DataImport: retrieving repositories for", path, "depth", depthNum)
+        const repos = await retrieveRepositories(path, depthNum)
+        console.log("retrieve_repositories result:", repos)
+
+        // Choose a repository for subsequent tests (fallback to provided path)
+        const firstRepo = repos && repos.length > 0 ? repos[0] : path
+
+        // 1) createAnalysisParameters
+        try {
+          const params = await createAnalysisParameters(firstRepo, null, null, null, null, null, null, null, null)
+          console.log("createAnalysisParameters result:", params)
+
+          // 2) runInitialAnalysis
+          try {
+            const initialResult = await runInitialAnalysis(params)
+            console.log("runInitialAnalysis result:", initialResult)
+
+            // 3) rerunAnalysis (use same params for test)
+            try {
+              const rerunResult = await rerunAnalysis(initialResult, params)
+              console.log("rerunAnalysis result:", rerunResult)
+            } catch (err) {
+              console.error("rerunAnalysis failed:", err)
+            }
+          } catch (err) {
+            console.error("runInitialAnalysis failed:", err)
+          }
+        } catch (err) {
+          console.error("createAnalysisParameters failed:", err)
+        }
+
+        // 4) verifyFilter - test with current file types and paths inputs
+        try {
+          const ftFilter = { include: fileTypesMode === "include", value: fileTypes }
+          const pathsFilter = { include: pathsMode === "include", value: paths }
+          const verifyFileTypes = await verifyFilter(ftFilter as any, false)
+          console.log("verifyFilter (fileTypes) result:", verifyFileTypes)
+          const verifyPaths = await verifyFilter(pathsFilter as any, true)
+          console.log("verifyFilter (paths) result:", verifyPaths)
+        } catch (err) {
+          console.error("verifyFilter failed:", err)
+        }
+
+        // 5) loadSettingsJson / saveSettingsJson - UNTESTED
+        // try {
+        //   const settingsPath = `${path.replace(/\\/g, "/")}/Settings.json`
+        //   const loaded = await loadSettingsJson(settingsPath)
+        //   console.log("loadSettingsJson result:", loaded)
+        // } catch (err) {
+        //   console.error("loadSettingsJson failed:", err)
+        // }
+
+        // try {
+        //   const savePath = `${path.replace(/\\/g, "/")}/Settings.saved.json`
+        //   const saveRes = await saveSettingsJson(settings as any, savePath)
+        //   console.log("saveSettingsJson result:", saveRes)
+        // } catch (err) {
+        //   console.error("saveSettingsJson failed:", err)
+        // }
+
+      } catch (err) {
+        console.error("Failed to retrieve repositories:", err)
+        alert(`Failed to retrieve repositories: ${String(err)}`)
+      }
+    })()
+
     return
   }
 
