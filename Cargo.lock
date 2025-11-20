@@ -1542,6 +1542,7 @@ dependencies = [
 name = "gui"
 version = "0.1.0"
 dependencies = [
+ "gi_core",
  "serde",
  "serde_json",
  "tauri",
