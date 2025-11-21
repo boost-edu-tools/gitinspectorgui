@@ -347,6 +347,22 @@ pub fn build_glob_matchers_from_params(
         out.push(None);
     }
 
+    // Author name filter (case-insensitive, literal_separator = false)
+    if let Some(filter) = &params.author_name_filter {
+        let m = glob_matcher_builder(&filter.value, false)?;
+        out.push(Some(m));
+    } else {
+        out.push(None);
+    }
+
+    // Author email filter (case-insensitive, literal_separator = false)
+    if let Some(filter) = &params.author_email_filter {
+        let m = glob_matcher_builder(&filter.value, false)?;
+        out.push(Some(m));
+    } else {
+        out.push(None);
+    }
+    
     // file_types_filter (case-insensitive, literal_separator = false)
     if let Some(filter) = &params.file_types_filter {
         let m = glob_matcher_builder(&filter.value, false)?;
@@ -482,6 +498,48 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
                     }
                 }
 
+                // Check author name filter (if present) and apply include/exclude semantics.
+                // matchers[2] corresponds to author_name_filter.
+                if let Some(matcher_opt) = matchers.get(2) {
+                    if let Some(matcher) = matcher_opt {
+                        if let Some(filter) = &params.author_name_filter {
+                            let is_match = matcher.is_match(&author_name);
+                            if filter.include {
+                                // include=true -> only keep commits whose author name matches
+                                if !is_match {
+                                    continue;
+                                }
+                            } else {
+                                // include=false -> exclude commits whose author name matches
+                                if is_match {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Check author email filter (if present) and apply include/exclude semantics.
+                // Matchers[3] corresponds to author_email_filter.
+                if let Some(matcher_opt) = matchers.get(3) {
+                    if let Some(matcher) = matcher_opt {
+                        if let Some(filter) = &params.author_email_filter {
+                            let is_match = matcher.is_match(&author_email);
+                            if filter.include {
+                                // include=true -> only keep commits whose author email matches
+                                if !is_match {
+                                    continue;
+                                }
+                            } else {
+                                // include=false -> exclude commits whose author email matches
+                                if is_match {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Keep track of commit level statistics when looping through files
                 // We collect (file_id, Metrics) tuples for the commit
                 let mut files_changed: Vec<(usize, Metrics)> = Vec::new();
@@ -500,8 +558,8 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
                     // "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
                     match parse_file_line(line) {
                         Ok((ins, del, path)) => {
-                            // Apply file types filter (if present). matchers[2] corresponds to file_types_filter
-                            if let Some(matcher_opt) = matchers.get(2) {
+                            // Apply file types filter (if present). matchers[4] corresponds to file_types_filter
+                            if let Some(matcher_opt) = matchers.get(4) {
                                 if let Some(matcher) = matcher_opt {
                                     if let Some(filter) = &params.file_types_filter {
                                         // Extract extension from the filename and add a leading dot
@@ -531,9 +589,8 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
                                 }
                             }
 
-                            // Apply path filter (if present). matchers[3] corresponds to path_filter
-                            // TODO: This can result in empty commits, as files may be all filtered out. Is this acceptable?
-                            if let Some(matcher_opt) = matchers.get(3) {
+                            // Apply path filter (if present). matchers[5] corresponds to path_filter
+                            if let Some(matcher_opt) = matchers.get(5) {
                                 if let Some(matcher) = matcher_opt {
                                     if let Some(filter) = &params.path_filter {
                                         // Use the full file path for path matching
