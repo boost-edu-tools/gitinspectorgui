@@ -142,6 +142,8 @@ pub struct AnalysisParameters {
     pub commit_message_filter: Option<Filter>,
     pub file_types_filter: Option<Filter>,
     pub path_filter: Option<Filter>,
+    pub author_name_filter: Option<Filter>,
+    pub author_email_filter: Option<Filter>,
 }
 
 impl Default for AnalysisParameters {
@@ -156,6 +158,8 @@ impl Default for AnalysisParameters {
             commit_message_filter: None,
             file_types_filter: None,
             path_filter: None,
+            author_name_filter: None,
+            author_email_filter: None,
         }
     }
 }
