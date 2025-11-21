@@ -1470,8 +1470,8 @@ mod tests {
 
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
 
-        // Ensure we have 4 elements and the first (commit hash) matcher is present
-        assert_eq!(matchers.len(), 4);
+        // Ensure we have 6 elements (two new author filters added)
+        assert_eq!(matchers.len(), 6);
         let commit_matcher = matchers[0].as_ref().expect("commit matcher should be Some");
 
         // Should match hashes that start with a digit
@@ -1517,8 +1517,8 @@ mod tests {
 
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
 
-        // Ensure we have 4 elements and the second (commit message) matcher is present
-        assert_eq!(matchers.len(), 4);
+        // Ensure we have 6 elements (two new author filters added)
+        assert_eq!(matchers.len(), 6);
         let msg_matcher = matchers[1]
             .as_ref()
             .expect("commit message matcher should be Some");
@@ -1564,9 +1564,9 @@ mod tests {
         });
 
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
-        assert_eq!(matchers.len(), 4);
+        assert_eq!(matchers.len(), 6);
 
-        let ft_matcher = matchers[2]
+        let ft_matcher = matchers[4]
             .as_ref()
             .expect("file types matcher should be Some");
 
@@ -1610,14 +1610,99 @@ mod tests {
         });
 
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
-        assert_eq!(matchers.len(), 4);
+        assert_eq!(matchers.len(), 6);
 
-        let path_matcher = matchers[3].as_ref().expect("path matcher should be Some");
+        let path_matcher = matchers[5].as_ref().expect("path matcher should be Some");
 
         // Should match the exact path
         assert!(path_matcher.is_match("gi_core/src/shared_types.rs"));
         // Should not match other paths
         assert!(!path_matcher.is_match("gui/src/main.ts"));
+
+        let result = analyse_repository(&params);
+        match result {
+            Ok(repo) => {
+                print_repository_info(&repo);
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_build_glob_matchers_author_name_max_include_true() {
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+
+        let start_commit = "02c101f";
+        let end_commit = "c1dd7cd";
+
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+
+        // Author name filter: include only names that end with 'Max'
+        params.author_name_filter = Some(Filter {
+            value: "*Max".to_string(),
+            include: true,
+        });
+
+        let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
+        assert_eq!(matchers.len(), 6);
+
+        let name_matcher = matchers[2].as_ref().expect("author name matcher should be Some");
+
+        // Should match names that end with 'Max'
+        assert!(name_matcher.is_match("Max"));
+        assert!(name_matcher.is_match("Big Max"));
+
+        // Should not match names that do not end with 'Max'
+        assert!(!name_matcher.is_match("Maximilian"));
+
+        let result = analyse_repository(&params);
+        match result {
+            Ok(repo) => {
+                print_repository_info(&repo);
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_build_glob_matchers_author_email_gmail_exclude() {
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+
+        let start_commit = "02c101f";
+        let end_commit = "c1dd7cd";
+
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+
+        // Author email filter: exclude any author emails that match '*gmail.com'
+        params.author_email_filter = Some(Filter {
+            value: "*gmail.com".to_string(),
+            include: false,
+        });
+
+        let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
+        assert_eq!(matchers.len(), 6);
+
+        let email_matcher = matchers[3].as_ref().expect("author email matcher should be Some");
+
+        // Should match gmail addresses
+        assert!(email_matcher.is_match("user@gmail.com"));
+        assert!(!email_matcher.is_match("user@company.com"));
 
         let result = analyse_repository(&params);
         match result {
