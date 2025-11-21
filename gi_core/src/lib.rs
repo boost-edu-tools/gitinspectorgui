@@ -72,6 +72,8 @@ pub fn create_analysis_parameters(
     commit_message_filter: Option<Filter>,
     file_types_filter: Option<Filter>,
     path_filter: Option<Filter>,
+    author_name_filter: Option<Filter>,
+    author_email_filter: Option<Filter>,
 ) -> AnalysisParameters {
     AnalysisParameters {
         repo_path,
@@ -83,6 +85,8 @@ pub fn create_analysis_parameters(
         commit_message_filter,
         file_types_filter,
         path_filter,
+        author_name_filter,
+        author_email_filter,
     }
 }
 
@@ -284,6 +288,8 @@ mod tests {
             None,
             None,
             None,
+            None,
+            None,
         );
 
         assert_eq!(params.repo_path, repo);
@@ -304,6 +310,8 @@ mod tests {
         // Create parameters for initial analysis
         let params = create_analysis_parameters(
             repo_path.clone(),
+            None,
+            None,
             None,
             None,
             None,
@@ -345,6 +353,8 @@ mod tests {
             None,
             None,
             None,
+            None,
+            None,
         );
         let initial =
             run_initial_analysis(params.clone()).expect("Initial analysis should succeed");
@@ -353,6 +363,8 @@ mod tests {
         let new_params = create_analysis_parameters(
             repo_path.clone(),
             Some("2100-01-01T00:00:00+0000".to_string()),
+            None,
+            None,
             None,
             None,
             None,
