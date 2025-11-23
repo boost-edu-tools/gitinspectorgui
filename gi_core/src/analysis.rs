@@ -1714,4 +1714,29 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn test_glob_brace_matches_multiple_entries() {
+        // Brace-style glob should match either alternative
+        let res = glob_matcher_builder("{test,case}", false);
+        assert!(res.is_ok(), "Brace glob should compile");
+        let matcher = res.unwrap();
+        assert!(matcher.is_match("test"), "Brace glob should match 'test'");
+        assert!(matcher.is_match("case"), "Brace glob should match 'case'");
+        // It should not match the literal comma string
+        assert!(!matcher.is_match("test,case"), "Brace glob should not match the literal 'test,case'");
+    }
+
+    #[test]
+    fn test_glob_without_braces_treats_comma_as_literal() {
+        // Without braces the comma is a literal character in the pattern
+        let res = glob_matcher_builder("test,case", false);
+        assert!(res.is_ok(), "Literal-comma glob should compile");
+        let matcher = res.unwrap();
+        // Should match the full string containing the comma
+        assert!(matcher.is_match("test,case"), "Literal-comma glob should match 'test,case'");
+        // Should not match the individual alternatives
+        assert!(!matcher.is_match("test"), "Literal-comma glob should not match 'test'");
+        assert!(!matcher.is_match("case"), "Literal-comma glob should not match 'case'");
+    }
 }
