@@ -44,7 +44,8 @@ export function ListRepos({
         )}
       </div>
 
-      <SidebarMenu className="space-y-0.5 border rounded-md max-h-20 overflow-y-auto">
+      {allRepos.size > 0 &&
+      (<SidebarMenu className="space-y-0.5 border rounded-md max-h-20 overflow-y-auto">
 
         {Array.from(allRepos).map((item) => {
           const parts = item.split(/[\\/]/).filter(Boolean)
@@ -68,7 +69,7 @@ export function ListRepos({
             </SidebarMenuItem>
           )
         })}
-      </SidebarMenu>
+      </SidebarMenu>)}
     </SidebarGroup>
   )
 }

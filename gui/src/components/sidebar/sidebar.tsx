@@ -88,7 +88,7 @@ export function AppSidebar({
           setSelectedRepo={setSelectedRepo}/>
         <Separator className="mt-3" />
         <FilterData
-          repository={repo_analysis.repository}         
+          repository={repo_analysis.original_repository}         
           allAuthors={allAuthors}
           selectedAuthors={selectedAuthors}
           selectAuthors={selectAuthors} 

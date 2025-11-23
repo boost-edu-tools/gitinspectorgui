@@ -7,7 +7,6 @@ import { initializeAuthorColors } from "@/components/helpers/author_colors";
 import { AnalysisResult } from "@/components/types";
 
 import {
-  retrieveRepositories,
   createAnalysisParameters,
   runInitialAnalysis,
   rerunAnalysis,
@@ -17,9 +16,11 @@ import {
 } from "@/lib/api"
 
 import "./App.css";
+import { CommandList } from "cmdk";
 
 export default function App() {
   
+  const isInitialFilterSetup = React.useRef(true);
   
   const [allAuthors, setAllAuthors] = React.useState<Set<string>>(new Set());
   const [allRepos, setAllRepos]     = React.useState<Set<string>>(new Set());
@@ -37,6 +38,14 @@ export default function App() {
 
   const defaultRepoAnalysis: AnalysisResult = {
   parameters: { repo_path: "" },
+  original_repository: {
+    name: "",
+    path: "",
+    authors: [],
+    commits: [],
+    files: [],
+    metrics: {},
+    },
   repository: {
     name: "",
     path: "",
@@ -49,26 +58,41 @@ export default function App() {
 
   const [repoAnalysis, setRepoAnalysis] = React.useState<AnalysisResult>(defaultRepoAnalysis);
 
-
   React.useEffect(() => {
+    console.log("Selected repo changed:", selectedRepo);
     if (!selectedRepo) {
     setRepoAnalysis(defaultRepoAnalysis);
     return;
   }
+    isInitialFilterSetup.current = true;
 
     (async () => {
       try {
-
-      // const authorFilter = { include: true, value: Array.from(selectedAuthors)[0] }
-  //     const verifyAuthor = await verifyFilter(authorFilter as any, true)
-  //     console.log("verifyFilter (authors) result:", verifyAuthor)
-  // const params = await createAnalysisParameters(selectedRepo, null, null, null, null, null, null, verifyAuthor, null)
 
       const params = await createAnalysisParameters(selectedRepo, null, null, null, null, null, null, null, null)
 
       try {
         const initialResult = await runInitialAnalysis(params)
         setRepoAnalysis(initialResult)
+        const authors = initialResult.original_repository.authors.map(a => a.name);
+        const files = initialResult.original_repository.files.map(f => f.path);
+        const commits = initialResult.original_repository.commits;
+        
+        if (commits.length > 0) {
+        
+          const startCommit = commits[commits.length - 1];
+          const endCommit = commits[0]; 
+          setStartCommitHash(startCommit.hash);
+          setEndCommitHash(endCommit.hash);
+          }
+
+        setAllAuthors(new Set(authors));
+        setAllFiles(new Set(files));
+
+        selectAuthors(authors);
+        selectFiles(files);
+        initializeAuthorColors(authors);
+
         console.log("Initial analysis completed");
       } catch (err) {
         console.error("runInitialAnalysis failed:", err)
@@ -76,21 +100,49 @@ export default function App() {
       } catch (err) {
         console.error("createAnalysisParameters failed:", err)}
       })();
-  }, [selectedRepo]);
+
+}, [selectedRepo]);
 
 
-  React.useEffect(() => {
-    const authors = repoAnalysis.repository.authors.map(a => a.name);
-    const files = repoAnalysis.repository.files.map(f => f.path);
+    React.useEffect(() => {
+    if (!selectedRepo) return;
 
-    setAllAuthors(new Set(authors));
-    setAllFiles(new Set(files));
+    if (selectedAuthors.length === 0 && selectedFiles.length === 0) return;
+    
+    if (isInitialFilterSetup.current) {
+        isInitialFilterSetup.current = false;
+        return;
+      }
 
-    selectAuthors(authors);
-    selectFiles(files);
-    initializeAuthorColors(authors);
+    (async () => {
+      try {
+        const authorsFilter = selectedAuthors.length > 0
+          ? { include: true, value: `{${selectedAuthors.join(",")}}`}
+          : null;
 
-}, [selectedRepo, repoAnalysis.repository.path]);
+        const params = await createAnalysisParameters(
+          selectedRepo,
+          null,
+          null,               
+          null,
+          null,            
+          null,            
+          null,     
+          null,
+          null,          
+          authorsFilter,      
+          null                
+        );
+
+        const rerun = await rerunAnalysis(repoAnalysis, params);
+        setRepoAnalysis(rerun);
+        console.log("Re-analysis", rerun);
+
+      } catch (err) {
+        console.error("Re-analysis failed:", err);
+      }
+    })();
+  }, [selectedAuthors]);
 
 
   return (

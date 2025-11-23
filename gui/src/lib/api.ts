@@ -25,7 +25,10 @@ export async function createAnalysisParameters(
   commit_hash_filter?: any | null,
   commit_message_filter?: any | null,
   file_types_filter?: any | null,
-  path_filter?: any | null
+  path_filter?: any | null,
+  author_name_filter?: any | null,
+  author_email_filter?: any | null
+  
 ): Promise<AnalysisParameters> {
   try {
     const result = await invoke<AnalysisParameters>("create_analysis_parameters", {
@@ -38,6 +41,8 @@ export async function createAnalysisParameters(
       commitMessageFilter: commit_message_filter,
       fileTypesFilter: file_types_filter,
       pathFilter: path_filter,
+      authorNameFilter: author_name_filter,
+      authorEmailFilter: author_email_filter
     });
     return result as AnalysisParameters;
   } catch (err) {

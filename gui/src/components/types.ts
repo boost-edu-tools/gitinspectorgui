@@ -147,6 +147,6 @@ export type AnalysisParameters = {
 
 export type AnalysisResult = {
   parameters: AnalysisParameters;
-  original_repository?: Repository;
+  original_repository: Repository;
   repository: Repository;
 };
