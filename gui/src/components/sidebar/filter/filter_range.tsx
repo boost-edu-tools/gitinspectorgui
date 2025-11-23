@@ -204,8 +204,6 @@ export function FilterRange({
   }
 
   return (
-      console.log("absoluteMinDate:", range.startDate),
-      console.log("absoluteMaxDate:", range.endDate),
     <Card className="bg-transparent border-none shadow-none p-0">
       <CardContent className="p-2 space-y-2">
         <div className="flex items-start gap-2">
