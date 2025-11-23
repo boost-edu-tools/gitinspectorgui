@@ -16,6 +16,8 @@ export type AnalysisProps = {
   setFilterData: Dispatch<SetStateAction<boolean>>;
 
   allRepos: Set<string>;
+  setAllRepos: Dispatch<SetStateAction<Set<string>>>;
+
   selectedRepo: string | null;
   setSelectedRepo: Dispatch<SetStateAction<string>>;
 
@@ -30,6 +32,8 @@ export type AnalysisProps = {
 
   selectedFile: string | undefined;
   setSelectedFile: Dispatch<SetStateAction<string | null>>;
+
+  setRepoAnalysis: React.Dispatch<React.SetStateAction<AnalysisResult>>
 };
 
 export type Repository = {

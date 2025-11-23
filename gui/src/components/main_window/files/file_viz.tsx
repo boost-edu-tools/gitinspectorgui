@@ -15,8 +15,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { getAuthorColor } from "@/components/helpers/author_colors"
-import type { AnalysisProps, AnalysisResult, Metrics } from "@/components/types"
-import { useAnalysis } from "@/hooks/useAnalysis"
+import type { AnalysisResult, Metrics } from "@/components/types"
+
 
 type MetricKey = "total_commits" | "insertions" | "deletions"
 type DisplayMode = "absolute" | "percentage"
@@ -26,23 +26,19 @@ const formatPercent = (p: number) => `${p.toFixed(0)}%`
 
 type Breakdown = Record<string, { total_commits: number; insertions: number; deletions: number }>
 
-export function FileSatisticsVisualisation({
-  selectedRepo,
-}: Pick<
-  AnalysisProps,
-  | "selectedRepo"
->) {
+export function FileSatisticsVisualisation(
+  {repository}: Pick<AnalysisResult, "repository">) {
+
   const [metric, setMetric] = useState<MetricKey>("total_commits")
   const [displayMode, setDisplayMode] = useState<DisplayMode>("absolute")
-  const { analysis } = useAnalysis(selectedRepo)
-  const repo = (analysis as AnalysisResult | undefined)?.repository
-  const allAuthors = Array.from(new Set(repo?.authors.map((a: any) => (a?.name ?? ""))))
-  const allFiles = Array.from(new Set(repo?.files.map((a: any) => (a?.id ?? ""))))
+
+  const allAuthors = Array.from(new Set(repository.authors.map((a: any) => (a?.name ?? ""))))
+  const allFiles = Array.from(new Set(repository.files.map((a: any) => (a?.id ?? ""))))
 
   const authorFileIndex = useMemo(() => {
     const idx: Record<string, Record<string, Metrics>> = {}
-    if (!repo?.authors) return idx
-    for (const a of repo.authors) {
+    if (!repository.authors) return idx
+    for (const a of repository.authors) {
       const name = a.name ?? "Unknown"
       const byId: Record<string, Metrics> = {}
       for (const af of a.files ?? []) {
@@ -51,12 +47,14 @@ export function FileSatisticsVisualisation({
       idx[name] = byId
     }
     return idx
-  }, [repo?.authors])
+  }, [repository.authors])
+
+  const MAX_FILES = 25
 
   const fileRows = useMemo(() => {
-    if (!repo?.files?.length) return []
+    if (!repository.files?.length) return []
 
-      const rows = repo.files
+      const rows = repository.files
       .map((f) => {
         const m = f.metrics ?? {}
         const totalCommits = (m.total_commits ?? 0)
@@ -85,8 +83,9 @@ export function FileSatisticsVisualisation({
           breakdown,
         }
       })
-
-    return rows.sort((a, b) => b.totals[metric] - a.totals[metric])
+      .sort((a, b) => b.totals[metric] - a.totals[metric])
+      .slice(0, MAX_FILES)
+    return rows
   }, [allFiles, allAuthors, authorFileIndex, metric])
 
   const grandTotal = useMemo(() => {
@@ -180,6 +179,9 @@ export function FileSatisticsVisualisation({
     return [0, "auto"]
   }, [displayMode, chartData])
 
+  const totalFiles = repository.files?.length ?? 0
+  const filesShown = fileRows.length
+
   return (
     <Card>
       <CardHeader className="pb-2 space-y-0">
@@ -219,9 +221,12 @@ export function FileSatisticsVisualisation({
               </div>
             )}
             <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
-              <Folder className="h-3 w-3" />
-              <span className="font-mono">{fileRows.length} files</span>
-            </div>
+            <Folder className="h-3 w-3" />
+            <span className="font-mono">
+              {filesShown}
+              {totalFiles > filesShown ? ` / ${totalFiles}` : ""} files shown
+            </span>
+          </div>
           </div>
         </div>
       </CardHeader>
@@ -242,6 +247,7 @@ export function FileSatisticsVisualisation({
         )}
 
         <div className="h-[250px] w-full">
+          
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }} maxBarSize={80}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
@@ -252,7 +258,8 @@ export function FileSatisticsVisualisation({
                 textAnchor="end"
                 height={50}
                 interval={0}
-                label={{ value: "File name", position: "insideBottom", offset: -5, style: { fontSize: 14 } }}
+                tickFormatter={(value) => value.length > 8 ? value.slice(0, 8) + "…" : value}
+                label={{ value: "File name", position: "insideBottom", offset: -10, style: { fontSize: 14 } }}
               />
               <YAxis
                 tick={{ fontSize: 10 }}

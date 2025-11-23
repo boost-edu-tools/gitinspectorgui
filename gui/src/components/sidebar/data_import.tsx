@@ -43,6 +43,8 @@ import {
   saveSettingsJson,
 } from "@/lib/api"
 
+import type { AnalysisProps} from "@/components/types"
+
 type Mode = "include" | "exclude"
 
 function ModeButton({
@@ -108,7 +110,14 @@ function ToggleRuleRow({
   )
 }
 
-export function DataImport() {
+export function DataImport({
+    setAllRepos,
+    setSelectedRepo}
+   : 
+   Pick<AnalysisProps, 
+   "setAllRepos"
+   | "setSelectedRepo">  
+) {
 
   const defaultState = React.useMemo(
     () => ({
@@ -189,6 +198,9 @@ export function DataImport() {
         console.log("DataImport: retrieving repositories for", path, "depth", depthNum)
         const repos = await retrieveRepositories(path, depthNum)
         console.log("retrieve_repositories result:", repos)
+        setAllRepos(new Set(repos));
+        setSelectedRepo(repos[0] || "");
+
 
         // Choose a repository for subsequent tests (fallback to provided path)
         const firstRepo = repos && repos.length > 0 ? repos[0] : path
@@ -201,7 +213,10 @@ export function DataImport() {
           // 2) runInitialAnalysis
           try {
             const initialResult = await runInitialAnalysis(params)
+            
             console.log("runInitialAnalysis result:", initialResult)
+
+            
 
             // 3) rerunAnalysis (use same params for test)
             try {

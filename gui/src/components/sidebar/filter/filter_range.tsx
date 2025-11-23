@@ -14,14 +14,13 @@ import {
 } from "@/components/ui/alert-dialog"
 
 import { getAuthorColor } from "@/components/helpers/author_colors"
-import { useAnalysis } from "@/hooks/useAnalysis"
 import { Commit, AnalysisProps, AnalysisResult, Author } from "@/components/types"
 
 import { shortHash, fmtDate } from "@/components/helpers/formatting_helpers"
 
 
 export function FilterRange({
-  selectedRepo,
+  repository,
   startDate,
   endDate,
   startCommitHash,
@@ -31,10 +30,9 @@ export function FilterRange({
   onStartCommitChange,
   onEndCommitChange,
 }: 
+  Pick<AnalysisResult, "repository"> &
   Pick<
     AnalysisProps,
-    | "selectedRepo"
-    | "selectedAuthors"
     | "startDate"
     | "endDate"
     | "startCommitHash"
@@ -45,14 +43,25 @@ export function FilterRange({
     | "onEndCommitChange"
   >) {
   
-  const { analysis } = useAnalysis(selectedRepo)
-  const repo = (analysis as AnalysisResult).repository
-  const commits: Commit[] = repo.commits
-  const authors: Author[] = repo.authors
+
+  const commits: Commit[] = React.useMemo(
+  () =>
+    [...repository.commits].sort((a, b) => {
+      const da = new Date(`${a.date}T${a.time}${a.timezone}`)
+      const db = new Date(`${b.date}T${b.time}${b.timezone}`)
+      return da.getTime() - db.getTime() 
+    }),
+  [repository.commits]
+)
+
+
+  const authors: Author[] = repository.authors
   const authorById = React.useMemo(
     () => new Map<number, Author>(authors.map((a) => [a.id, a])),
     [authors]
   )
+
+  const hasCommits = commits.length > 0
 
   const clampDate = (d: Date, min?: Date, max?: Date) => {
   if (!d) return d
@@ -75,6 +84,15 @@ export function FilterRange({
   }
 
   const getFullRepoRange = (commits: Commit[]) => {
+    if (commits.length === 0) {
+      const now = new Date()
+      return {
+        startHash: "",
+        endHash: "",
+        startDate: now,
+        endDate: now,
+      }
+    }
 
     const first = commits[0]
     const last = commits[commits.length - 1]
@@ -91,9 +109,9 @@ export function FilterRange({
 
   const { range } = React.useMemo(() => {
     return {
-      range: getFullRepoRange(repo.commits)
+      range: getFullRepoRange(commits)
     }
-  }, [selectedRepo])
+  }, [repository])
 
   React.useEffect(() => {
     onStartCommitChange(range.startHash)
@@ -106,7 +124,7 @@ export function FilterRange({
   const { absoluteMinDate, absoluteMaxDate } = React.useMemo(() => {
     return {
       absoluteMinDate: range.startDate,
-      absoluteMaxDate: range.endDate,
+      absoluteMaxDate: range.endDate
     }
   }, [range])
 
@@ -114,11 +132,13 @@ export function FilterRange({
   const [hoveredCommitIndex, setHoveredCommitIndex] = React.useState<number | null>(null)
 
   const safeStartDate = React.useMemo(() => {
-    return clampDate(startDate, absoluteMinDate, absoluteMaxDate)
+    const base = startDate ?? absoluteMinDate
+    return clampDate(base, absoluteMinDate, absoluteMaxDate)
   }, [startDate, absoluteMinDate, absoluteMaxDate])
 
   const safeEndDate = React.useMemo(() => {
-    return clampDate(endDate, absoluteMinDate, absoluteMaxDate)
+    const base = endDate ?? absoluteMaxDate
+    return clampDate(base, absoluteMinDate, absoluteMaxDate)
   }, [endDate, absoluteMinDate, absoluteMaxDate])
 
   const commitsInDateRange = React.useMemo<Commit[]>(() => {
@@ -173,7 +193,19 @@ export function FilterRange({
     if (norm.to) onEndDateChange(norm.to)
   }
 
+  if (!hasCommits) {
+    return (
+      <Card className="bg-transparent border-none shadow-none p-0">
+        <CardContent className="p-2 space-y-2 text-[10px] text-muted-foreground">
+          No commits available for this repository.
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
+      console.log("absoluteMinDate:", range.startDate),
+      console.log("absoluteMaxDate:", range.endDate),
     <Card className="bg-transparent border-none shadow-none p-0">
       <CardContent className="p-2 space-y-2">
         <div className="flex items-start gap-2">
@@ -187,8 +219,9 @@ export function FilterRange({
           </Button>
         </div>
 
-        <ScrollArea className="h-30 rounded border">
+        <ScrollArea className="h-30 w-full rounded border">
           <ul className="divide-y divide-border/40">
+            
             {commits.map((c, i) => {
               const d = new Date(`${c.date}T${c.time}${c.timezone}`)
               const name = authorById.get(c.author_id)?.name ?? "Unknown"
@@ -250,7 +283,7 @@ export function FilterRange({
                           }}
                         />
                         <code
-                          className="font-mono text-[10px] flex-shrink-0"
+                          className="font-mono text-[8px] flex-shrink-0"
                           style={{ color: colors.color ?? "#888" }}
                         >
                           {shortHash(c.hash)}
@@ -365,8 +398,8 @@ export function FilterRange({
                   <label className="text-[11px] text-muted-foreground">End time</label>
                   <input
                     type="time"
-                    value={`${String(endDate.getHours()).padStart(2, "0")}:${String(endDate.getMinutes()).padStart(2, "0")}`}
-                    onChange={(e) => onEndDateChange(setTimeOnDate(endDate, e.target.value))}
+                    value={`${String(safeEndDate.getHours()).padStart(2, "0")}:${String(safeEndDate.getMinutes()).padStart(2, "0")}`}
+                    onChange={(e) => onEndDateChange(setTimeOnDate(safeEndDate, e.target.value))}
                     className="h-8 rounded-md border bg-background px-2 text-xs"
                   />
                 </div>

@@ -8,11 +8,11 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
 } from "@/components/ui/sidebar"
-import { AnalysisProps } from '@/components/types'
+import { AnalysisProps, AnalysisResult } from '@/components/types'
 
 
 export function FilterData({
-  selectedRepo, 
+  repository,
   allAuthors, 
   selectedAuthors, 
   selectAuthors, 
@@ -30,9 +30,9 @@ export function FilterData({
   onStartCommitChange,
   onEndCommitChange,
 }: 
+  Pick<AnalysisResult, "repository"> &
   Pick<
     AnalysisProps,
-      "selectedRepo"   
       |"allAuthors"  
       |"selectedAuthors"  
       |"selectAuthors"  
@@ -77,8 +77,7 @@ export function FilterData({
               </span>
             </a>
                   <FilterRange
-                    selectedRepo={selectedRepo}
-                    selectedAuthors={selectedAuthors}
+                    repository={repository}
                     startDate={startDate}
                     endDate={endDate}
                     startCommitHash={startCommitHash}

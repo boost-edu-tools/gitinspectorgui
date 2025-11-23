@@ -2,7 +2,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { METRIC_DESCRIPTIONS } from "@/components/main_window/metrics_descriptions"
 import { Info } from "lucide-react"
 
-export const shortHash = (h: string) => h.slice(0, 7)
+export const shortHash = (h: string) => h.slice(0, 6)
 
 export const fmtDate = (d: Date | null) => {
   if (!d) return "—"
@@ -30,19 +30,22 @@ export const fmt_pct_abs = (v: number, total: number, displayMode: string) => {
       : String(v)}
 
 
-export const time_diff_YDH = (ms: number) => {
-    const MS_PER_HOUR = 60 * 60 * 1000;
-    const MS_PER_DAY  = 24 * MS_PER_HOUR;
-    const MS_PER_YEAR = 365 * MS_PER_DAY; 
+export const time_diff_YMD = (ms: number) => {
+  const MS_PER_DAY  = 24 * 60 * 60 * 1000;
+  const MS_PER_MONTH = 30 * MS_PER_DAY;    // approx.
+  const MS_PER_YEAR  = 365 * MS_PER_DAY;   // approx.
 
-    const years = Math.floor(ms / MS_PER_YEAR);
-    ms %= MS_PER_YEAR;
-    const days  = Math.floor(ms / MS_PER_DAY);
-    ms %= MS_PER_DAY;
-    const hours = Math.floor(ms / MS_PER_HOUR);
+  const years = Math.floor(ms / MS_PER_YEAR);
+  ms %= MS_PER_YEAR;
 
-    return { years, days, hours };
+  const months = Math.floor(ms / MS_PER_MONTH);
+  ms %= MS_PER_MONTH;
+
+  const days = Math.floor(ms / MS_PER_DAY);
+
+  return { years, months, days };
 };
+
 
 export function MetricHeader({ metricKey }: { metricKey: keyof typeof METRIC_DESCRIPTIONS}) {
   const info = METRIC_DESCRIPTIONS[metricKey]

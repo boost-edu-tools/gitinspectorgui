@@ -4,50 +4,30 @@ import { AppMainWindow } from "@/components/main_window/main_window";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 import { initializeAuthorColors } from "@/components/helpers/author_colors";
-import { ANALYSIS_BY_NAME} from "@/components/helpers/analysis_registry";
 import { AnalysisResult } from "@/components/types";
+
+import {
+  retrieveRepositories,
+  createAnalysisParameters,
+  runInitialAnalysis,
+  rerunAnalysis,
+  verifyFilter,
+  loadSettingsJson,
+  saveSettingsJson,
+} from "@/lib/api"
 
 import "./App.css";
 
 export default function App() {
-    const repoOptions = React.useMemo<string[]>(() => {
-    return Object.keys(ANALYSIS_BY_NAME);
-  }, []);
+  
+  
+  const [allAuthors, setAllAuthors] = React.useState<Set<string>>(new Set());
+  const [allRepos, setAllRepos]     = React.useState<Set<string>>(new Set());
+  const [allFiles, setAllFiles]     = React.useState<Set<string>>(new Set());
 
-  const [selectedRepo, setSelectedRepo] = React.useState<string>(repoOptions[0]);
-
-  const currentAnalysis = React.useMemo<AnalysisResult>(() => {
-    const analysis = ANALYSIS_BY_NAME[selectedRepo as keyof typeof ANALYSIS_BY_NAME];
-    return analysis;
-  }, [selectedRepo]);
-
-  const authorNames = React.useMemo(() => {
-    const authors = currentAnalysis.repository.authors;
-    return Array.from(new Set(
-      authors.map((a: any) => (a?.name ?? "").trim()).filter(Boolean)
-    ));
-  }, [currentAnalysis]);
-
-  React.useEffect(() => {
-    initializeAuthorColors(authorNames);
-  }, [authorNames]);
-
-  const filePaths = React.useMemo(() => {
-    const analysisFiles = currentAnalysis.repository.files 
-    return analysisFiles.map((p: any) => String(p.path))
-  }, [currentAnalysis]);
-
-  React.useEffect(() => {
-    selectAuthors(authorNames);
-    selectFiles(filePaths);
-  }, [authorNames, filePaths, selectedRepo]);
-
-  const allAuthors = React.useMemo(() => new Set<string>(authorNames), [authorNames]);
-  const allRepos   = React.useMemo(() => new Set<string>(repoOptions), [repoOptions]);
-  const allFiles   = React.useMemo(() => new Set<string>(filePaths), [filePaths]);
-
-  const [selectedAuthors, selectAuthors] = React.useState<string[]>(authorNames);
-  const [selectedFiles, selectFiles]     = React.useState<string[]>(filePaths);
+  const [selectedAuthors, selectAuthors] = React.useState<string[]>([]);
+  const [selectedFiles, selectFiles]     = React.useState<string[]>([]);
+  const [selectedRepo, setSelectedRepo] = React.useState<string>("");
 
   const [filterData, setFilterData] = React.useState(true);
   const [startDate, setStartDate] = React.useState<Date>(new Date());
@@ -55,9 +35,62 @@ export default function App() {
   const [startCommitHash, setStartCommitHash] = React.useState<string>("");
   const [endCommitHash, setEndCommitHash] = React.useState<string>("");
 
+  const [repoAnalysis, setRepoAnalysis] = React.useState<AnalysisResult>({
+  parameters: { repo_path: "" },
+  repository: {
+    name: "",
+    path: "",
+    authors: [],
+    commits: [],
+    files: [],
+    metrics: {},
+  },
+});
+
+  React.useEffect(() => {
+    if (!selectedRepo) return;
+    (async () => {
+      try {
+
+      // const authorFilter = { include: true, value: Array.from(selectedAuthors)[0] }
+  //     const verifyAuthor = await verifyFilter(authorFilter as any, true)
+  //     console.log("verifyFilter (authors) result:", verifyAuthor)
+  // const params = await createAnalysisParameters(selectedRepo, null, null, null, null, null, null, verifyAuthor, null)
+
+      const params = await createAnalysisParameters(selectedRepo, null, null, null, null, null, null, null, null)
+
+      try {
+        const initialResult = await runInitialAnalysis(params)
+        setRepoAnalysis(initialResult)
+        console.log("Initial analysis completed");
+      } catch (err) {
+        console.error("runInitialAnalysis failed:", err)
+      }
+      } catch (err) {
+        console.error("createAnalysisParameters failed:", err)}
+      })();
+  }, [selectedRepo]);
+
+
+  React.useEffect(() => {
+    const authors = repoAnalysis.repository.authors.map(a => a.name);
+    const files = repoAnalysis.repository.files.map(f => f.path);
+
+    setAllAuthors(new Set(authors));
+    setAllFiles(new Set(files));
+
+    selectAuthors(authors);
+    selectFiles(files);
+    initializeAuthorColors(authors);
+
+}, [selectedRepo, repoAnalysis.repository.path]);
+
+
   return (
     <SidebarProvider>
       <AppSidebar
+
+        repo_analysis={repoAnalysis}
 
         allAuthors={allAuthors}
         selectedAuthors={selectedAuthors}
@@ -71,6 +104,8 @@ export default function App() {
         setFilterData={setFilterData}
 
         allRepos={allRepos}
+        setAllRepos={setAllRepos}
+        
         selectedRepo={selectedRepo}
         setSelectedRepo={setSelectedRepo}
 
@@ -86,7 +121,7 @@ export default function App() {
       />
 
       <AppMainWindow
-        selectedRepo={selectedRepo}
+        repo_analysis={repoAnalysis}
       />
     </SidebarProvider>
   );

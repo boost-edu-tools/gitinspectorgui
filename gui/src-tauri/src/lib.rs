@@ -28,6 +28,9 @@ async fn create_analysis_parameters(
     commit_message_filter: Option<gi_core::Filter>,
     file_types_filter: Option<gi_core::Filter>,
     path_filter: Option<gi_core::Filter>,
+    author_name_filter: Option<gi_core::Filter>,
+    author_email_filter: Option<gi_core::Filter>,
+
 ) -> Result<serde_json::Value, String> {
     let params = gi_core::create_analysis_parameters(
         repo_path,
@@ -39,6 +42,8 @@ async fn create_analysis_parameters(
         commit_message_filter,
         file_types_filter,
         path_filter,
+        author_name_filter,
+        author_email_filter
     );
 
     let json = serde_json::to_value(params).map_err(|e| e.to_string())?;

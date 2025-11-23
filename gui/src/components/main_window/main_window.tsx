@@ -12,18 +12,14 @@ import { BlameViewMultiTab } from "./files/blame_tabs"
 import { FileSatisticsVisualisation } from "./files/file_viz"
 import { FileStatisticsTable } from "./files/file_table"
 
-import type { AnalysisProps } from "@/components/types"
+import type { AnalysisResult } from "@/components/types"
 
 
 
-export function AppMainWindow({
-  selectedRepo,
-}: Pick<
-  AnalysisProps,
-  | "selectedRepo"
->) {
+export function AppMainWindow({ repo_analysis }: { repo_analysis: AnalysisResult }) {
 
   const [selectedFile, setSelectedFile] = React.useState<string | null>(null)
+  const repository = repo_analysis.repository
 
 
   return (
@@ -39,7 +35,7 @@ export function AppMainWindow({
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbLink>{selectedRepo}</BreadcrumbLink>
+                <BreadcrumbLink>{repo_analysis.repository.name}</BreadcrumbLink>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -70,12 +66,12 @@ export function AppMainWindow({
               <div className="mt-4 px-8">
                 <div className="p-4">
                   <AuthorStatisticsVisualisation
-                    selectedRepo={selectedRepo}
+                    repository={repository}
                   />
                 </div>
                 <div className="p-4">
                   <AuthorStatisticsOverview
-                    selectedRepo={selectedRepo}
+                    repository={repository}
                   />
                 </div>
               </div>
@@ -85,7 +81,7 @@ export function AppMainWindow({
               { selectedFile?  (
                   <div className="space-y-2 py-4 mt-4 px-8">
                     <BlameViewMultiTab
-                      selectedRepo={selectedRepo}
+                      repository={repository}
                       selectedFile={selectedFile}
                       setSelectedFile={setSelectedFile}
                       onExit={() => setSelectedFile(null)}
@@ -95,13 +91,13 @@ export function AppMainWindow({
                 (<div className="mt-4 px-8">
                   <div className="p-4">
                     <FileSatisticsVisualisation
-                      selectedRepo={selectedRepo}
+                      repository={repository}
                     />
                   </div>
 
                   <div className="p-4">
                     <FileStatisticsTable
-                      selectedRepo={selectedRepo}
+                      repository={repository}
                       setSelectedFile={setSelectedFile}
                     />
                   </div>

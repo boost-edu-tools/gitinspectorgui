@@ -3,7 +3,7 @@ import { DataImport } from "@/components/sidebar/data_import"
 import { ListRepos } from "@/components/sidebar/list_repos"
 import { FilterData} from "@/components/sidebar/filter/filter_main"
 import { Separator } from "@/components/ui/separator"
-import { AnalysisProps } from '@/components/types';
+import { AnalysisProps, AnalysisResult } from '@/components/types';
 import { DataExport } from "@/components/sidebar/data_export"
 import {
   Sidebar,
@@ -11,7 +11,10 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
+
 export function AppSidebar({
+
+  repo_analysis,
 
   allAuthors, 
   selectedAuthors, 
@@ -25,6 +28,8 @@ export function AppSidebar({
   setFilterData, 
 
   allRepos, 
+  setAllRepos,
+
   selectedRepo, 
   setSelectedRepo,
 
@@ -38,6 +43,7 @@ export function AppSidebar({
   onEndCommitChange,
 
 }:
+  {repo_analysis: AnalysisResult } &
   Pick<
     AnalysisProps,
 
@@ -53,6 +59,7 @@ export function AppSidebar({
       |"setFilterData"  
 
       |"allRepos"
+      |"setAllRepos"
       |"selectedRepo"
       |"setSelectedRepo"
 
@@ -69,7 +76,10 @@ export function AppSidebar({
   return (
     <Sidebar >
       <SidebarContent>
-        <DataImport/>
+        <DataImport
+          setAllRepos={setAllRepos}
+          setSelectedRepo={setSelectedRepo}
+          />
         <Separator className="mt-3" />
         <ListRepos
           allRepos={allRepos}
@@ -77,7 +87,7 @@ export function AppSidebar({
           setSelectedRepo={setSelectedRepo}/>
         <Separator className="mt-3" />
         <FilterData
-          selectedRepo={selectedRepo}
+          repository={repo_analysis.repository}         
           allAuthors={allAuthors}
           selectedAuthors={selectedAuthors}
           selectAuthors={selectAuthors} 

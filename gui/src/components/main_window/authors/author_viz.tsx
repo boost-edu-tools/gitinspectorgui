@@ -18,17 +18,15 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getAuthorColor } from "@/components/helpers/author_colors"
-import type { AnalysisProps, AnalysisResult, Author } from "@/components/types"
-import { useAnalysis } from "@/hooks/useAnalysis"
+import type { AnalysisResult, Author } from "@/components/types"
 import { fmtDate, fmtDatePlot } from "@/components/helpers/formatting_helpers"
 
 type MetricKey = "commits" | "insertions" | "deletions" | "locs"
 
-export function AuthorStatisticsVisualisation({
-  selectedRepo,
-}: Pick<AnalysisProps, "selectedRepo">) {
+export function AuthorStatisticsVisualisation(
+  {repository}: Pick<AnalysisResult, "repository">) {
+
   const [metric, setMetric] = useState<MetricKey>("commits")
-  const { analysis } = useAnalysis(selectedRepo)
 
   const {
     barData,
@@ -37,9 +35,8 @@ export function AuthorStatisticsVisualisation({
     pieData,
     locPieData,
   } = useMemo(() => {
-    const repo = (analysis as AnalysisResult | undefined)?.repository
-    const commits = repo?.commits ?? []
-    const authorsArr: Author[] = repo?.authors ?? []
+    const commits = repository?.commits ?? []
+    const authorsArr: Author[] = repository?.authors ?? []
     const authorById = new Map(authorsArr.map((a) => [a.id, a]))
 
     const authorsSet = new Set<string>()
@@ -56,7 +53,7 @@ export function AuthorStatisticsVisualisation({
           commits: 1,
           insertions: c.metrics.insertions ?? 0,
           deletions: c.metrics.deletions ?? 0,
-          locChange: (c.metrics.insertions ?? 0) - (c.metrics.deletions ?? 0),
+          locChange: c.metrics.loc ?? 0
         }
       })
       .sort((a, b) => a.ts - b.ts)
@@ -150,7 +147,7 @@ export function AuthorStatisticsVisualisation({
       pieData: pieChartData,
       locPieData: locPieChartData,
     }
-  }, [analysis, metric])
+  }, [repository, metric])
 
   const MetricIcon = ({ type }: { type: MetricKey }) => {
     switch (type) {
@@ -250,7 +247,7 @@ export function AuthorStatisticsVisualisation({
           <div className="font-semibold text-sm">{entry.name}</div>
           <div className="flex justify-between gap-4">
             <span>Value:</span>
-            <span className="font-mono">{entry.value.toLocaleString()}</span>
+            <span className="font-mono">{entry.value}</span>
           </div>
           <div className="flex justify-between gap-4">
             <span>Share:</span>
@@ -262,6 +259,11 @@ export function AuthorStatisticsVisualisation({
   }
 
   const getPieTitle = () => {
+
+    if (!lineData || lineData.length === 0) {
+    return "No data available";
+  }
+  
     const firstPoint = lineData[0]
     const lastPoint = lineData[lineData.length - 1]
     if (metric === "locs") {
@@ -360,11 +362,13 @@ export function AuthorStatisticsVisualisation({
                   />
                   <YAxis
                     tick={{ fontSize: 10 }}
-                    width={80}
+                    width={60}
                     label={{
                       value: yAxisLabel,
                       angle: -90,
-                      offset: 0,
+                      position: "insideLeft",
+                      dy: 30,   
+                      dx: 0,   
                       style: { fontSize: 14 },
                     }}
                     allowDecimals={false}
@@ -405,11 +409,13 @@ export function AuthorStatisticsVisualisation({
                   />
                   <YAxis
                     tick={{ fontSize: 10 }}
-                    width={80}
+                    width={60}
                     label={{
                       value: yAxisLabel,
                       angle: -90,
-                      offset: 0,
+                      position: "insideLeft",
+                      dy: 30,   
+                      dx: 0,   
                       style: { fontSize: 14 },
                     }}
                     allowDecimals={false}

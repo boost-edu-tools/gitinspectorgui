@@ -2,17 +2,22 @@ import * as React from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { FolderOpen, FileText, } from "lucide-react"
 import { getAuthorColor } from "@/components/helpers/author_colors"
-import { fmt_pct_abs, time_diff_YDH, MetricHeader} from "@/components/helpers/formatting_helpers"
+import { fmt_pct_abs, time_diff_YMD, MetricHeader} from "@/components/helpers/formatting_helpers"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import type { AnalysisResult, AnalysisProps } from "@/components/types"
-import { useAnalysis } from "@/hooks/useAnalysis"
+import type { Repository, AnalysisProps } from "@/components/types"
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip"
 
-function extractFileMetadata(analysis: AnalysisResult | undefined) {
-  const fm = analysis?.repository?.files ?? []
+function extractFileMetadata(repository: Repository) {
+  const fm = repository.files ?? []
   return fm
     .map((f) => ({
       path: f.path,
@@ -26,23 +31,20 @@ function extractFileMetadata(analysis: AnalysisResult | undefined) {
       last_modified_time: f.last_modified_time ?? "",
       last_modified_timezone: f.last_modified_timezone ?? ""
     }))
-    .sort((a, b) => b.total_commits - a.total_commits)
+    .sort((a, b) => a.path.localeCompare(b.path))
 }
 
 function buildAuthorFileRows(
-  analysis: AnalysisResult | undefined,
+  repository: Repository,
   metric: "total_commits" | "insertions" | "deletions" | "loc" | "sloc"
 ) {
-  const repo = analysis?.repository
-  if (!repo) return []
-
   const fileMap = new Map<string, Record<string, number>>()
 
-  for (const a of repo.authors ?? []) {
+  for (const a of repository.authors ?? []) {
     const authorName = a.name ?? "Unknown"
     for (const f of a.files ?? []) {
       const value = (f.metrics as any)?.[metric] ?? 0
-      const file_path = repo.files.find((file) => file.id === f.id)?.path ?? "Unknown"
+      const file_path = repository.files.find((file) => file.id === f.id)?.path ?? "Unknown"
       const rec = fileMap.get(file_path) ?? {}
       rec[authorName] = (rec[authorName] ?? 0) + value
       fileMap.set(file_path, rec)
@@ -121,17 +123,30 @@ function RepositoryViewTable({
             const lastModified = new Date(iso);  
             const now = new Date();                  
             const diffMs = Math.max(0, now.getTime() - lastModified.getTime());
-            const { years, days, hours } = time_diff_YDH(diffMs);
-            ageYDH = `${years}:${days}:${hours}`;
+            const { years, months, days} = time_diff_YMD(diffMs);
+            ageYDH = `${years}:${months}:${days}`;
             
             return (
             <TableRow key={f.path} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onFileSelect(f.path)}>
-              <TableCell className="font-mono text-xs sticky left-0 bg-background border-r z-10">
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span>{f.path}</span>
-                </div>
-              </TableCell>
+              <TableCell
+                      className="font-mono text-xs sticky left-0 bg-background border-r z-10"
+                    >
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2 w-[300px] overflow-hidden">
+                              <FileText className="h-4 w-4 text-muted-foreground" />
+                              <span className="truncate">{f.path}</span>
+                            </div>
+                          </TooltipTrigger>
+
+                          <TooltipContent side="right" className="max-w-[600px] break-all">
+                            <p className="font-mono text-xs">{f.path}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+
               <TableCell className="text-right">{fmt_pct_abs(f.total_commits, totals.total_commits, displayMode)}</TableCell>
               <TableCell className="text-right">{fmt_pct_abs(f.insertions, totals.insertions, displayMode)}</TableCell>
               <TableCell className="text-right">{fmt_pct_abs(f.deletions, totals.deletions, displayMode)}</TableCell>
@@ -236,33 +251,27 @@ function AuthorFileViewTable({
 }
 
 export function FileStatisticsTable({
-  selectedRepo, 
+  repository, 
   setSelectedFile
-  }: Pick<
-    AnalysisProps,
-    "selectedRepo"
-    | "setSelectedFile">)  
+  }: {repository: Repository} & Pick<AnalysisProps, "setSelectedFile">)  
 
  {
-
   const [displayMode, setDisplayMode] = React.useState<"absolute" | "percentage">("absolute")
   const [viewMode, setViewMode] = React.useState<"repo" | "author-file">("repo")
   const [authorFileMetricType, setAuthorFileMetricType] = React.useState<
     "total_commits" | "insertions" | "deletions" | "loc" | "sloc"
   >("total_commits")
 
-  const { analysis } = useAnalysis(selectedRepo)
-  const repo = (analysis as AnalysisResult | undefined)?.repository
-  const allAuthors = Array.from(new Set(repo?.authors.map((a: any) => (a?.name ?? ""))))
+  const allAuthors = Array.from(new Set(repository.authors.map((a: any) => (a?.name ?? ""))))
 
   const fileMetadata = React.useMemo(
-      () => extractFileMetadata(analysis),
-      [analysis]
+      () => extractFileMetadata(repository),
+      [repository]
     )
 
   const authorFileRows = React.useMemo(
-      () => buildAuthorFileRows(analysis, authorFileMetricType),
-      [analysis, authorFileMetricType]
+      () => buildAuthorFileRows(repository, authorFileMetricType),
+      [repository, authorFileMetricType]
     )
 
     return (
