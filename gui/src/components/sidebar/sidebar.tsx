@@ -83,6 +83,7 @@ export function AppSidebar({
         <Separator className="mt-3" />
         <ListRepos
           allRepos={allRepos}
+          setAllRepos={setAllRepos}
           selectedRepo={selectedRepo}
           setSelectedRepo={setSelectedRepo}/>
         <Separator className="mt-3" />

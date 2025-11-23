@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Plus, Minus } from "lucide-react"
+import { Plus, Minus, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -24,26 +24,18 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Info } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Checkbox } from "@/components/ui/checkbox"
 
 import settings from "@/data/Settings.json"
-import {
-  retrieveRepositories,
-  createAnalysisParameters,
-  runInitialAnalysis,
-  rerunAnalysis,
-  verifyFilter,
-  loadSettingsJson,
-  saveSettingsJson,
-} from "@/lib/api"
+import { retrieveRepositories } from "@/lib/api"
 
-import type { AnalysisProps} from "@/components/types"
+import type { AnalysisProps } from "@/components/types"
 
 type Mode = "include" | "exclude"
 
@@ -111,14 +103,9 @@ function ToggleRuleRow({
 }
 
 export function DataImport({
-    setAllRepos,
-    setSelectedRepo}
-   : 
-   Pick<AnalysisProps, 
-   "setAllRepos"
-   | "setSelectedRepo">  
-) {
-
+  setAllRepos,
+  setSelectedRepo,
+}: Pick<AnalysisProps, "setAllRepos" | "setSelectedRepo">) {
   const defaultState = React.useMemo(
     () => ({
       path: "",
@@ -131,7 +118,7 @@ export function DataImport({
       pathsMode: (settings.path_filter.include === true ? "include" : "exclude") as Mode,
       paths: String(settings.path_filter.value),
 
-      authorNameMode:(settings.author_names_filter.include === true ? "include" : "exclude") as Mode,
+      authorNameMode: (settings.author_names_filter.include === true ? "include" : "exclude") as Mode,
       authorNames: String(settings.author_names_filter.value),
 
       authorEmailMode: (settings.author_emails_filter.include === true ? "include" : "exclude") as Mode,
@@ -147,7 +134,6 @@ export function DataImport({
   )
 
   const [path, setPath] = React.useState(defaultState.path)
-
   const [searchDepth, setSearchDepth] = React.useState(defaultState.searchDepth)
   const [maxComputeResources, setMaxComputeResources] = React.useState(defaultState.maxComputeResources)
 
@@ -169,106 +155,119 @@ export function DataImport({
   const [commitMessageMode, setCommitMessageMode] = React.useState<Mode>(defaultState.commitMessageMode)
   const [commitMessages, setCommitMessages] = React.useState(defaultState.commitMessages)
 
+  // New state for repos found for the given path
+  const [foundRepos, setFoundRepos] = React.useState<string[]>([])
+  const [selectedRepos, setSelectedRepos] = React.useState<Set<string>>(new Set())
+  const [isCheckingPath, setIsCheckingPath] = React.useState(false)
+  const [pathError, setPathError] = React.useState<string | null>(null)
+
+  const handleToggleRepo = (repo: string) => {
+    setSelectedRepos((prev) => {
+      const next = new Set(prev)
+      if (next.has(repo)) {
+        next.delete(repo)
+      } else {
+        next.add(repo)
+      }
+      return next
+    })
+  }
+
+  const handleToggleAllRepos = () => {
+    if (!foundRepos.length) return
+
+    setSelectedRepos((prev) => {
+      if (prev.size === foundRepos.length) {
+        // all selected -> clear
+        return new Set()
+      }
+      // select all
+      return new Set(foundRepos)
+    })
+  }
+
+  const handleSetPath = async () => {
+    if (!path || path.trim() === "") {
+      setPathError("Please provide a root path to search for repositories.")
+      setFoundRepos([])
+      setSelectedRepos(new Set())
+      return
+    }
+
+    setIsCheckingPath(true)
+    setPathError(null)
+
+    try {
+      const depthNum = Number(searchDepth) || 1
+      console.log("DataImport: retrieving repositories for", path, "depth", depthNum)
+      const repos = await retrieveRepositories(path, depthNum)
+      console.log("retrieve_repositories result:", repos)
+
+      if (!repos || repos.length === 0) {
+        setFoundRepos([])
+        setSelectedRepos(new Set())
+        setPathError("No Git repositories found in this path.")
+      } else {
+        setFoundRepos(repos)
+        setSelectedRepos(new Set(repos))
+      }
+    } catch (err) {
+      console.error("Failed to retrieve repositories:", err)
+      setFoundRepos([])
+      setSelectedRepos(new Set())
+      setPathError(`Failed to retrieve repositories: ${String(err)}`)
+    } finally {
+      setIsCheckingPath(false)
+    }
+  }
+
   const onReset = () => {
     setPath(defaultState.path)
     setSearchDepth(defaultState.searchDepth)
     setMaxComputeResources(defaultState.maxComputeResources)
-    setFileTypesMode(defaultState.fileTypesMode); setFileTypes(defaultState.fileTypes)
-    setPathsMode(defaultState.pathsMode); setPaths(defaultState.paths)
-    setAuthorNameMode(defaultState.authorNameMode); setAuthorNames(defaultState.authorNames)
-    setAuthorEmailMode(defaultState.authorEmailMode); setAuthorEmails(defaultState.authorEmails)
-    setCommitHashMode(defaultState.commitHashMode); setCommitHashes(defaultState.commitHashes)
-    setCommitMessageMode(defaultState.commitMessageMode); setCommitMessages(defaultState.commitMessages)
+    setFileTypesMode(defaultState.fileTypesMode)
+    setFileTypes(defaultState.fileTypes)
+    setPathsMode(defaultState.pathsMode)
+    setPaths(defaultState.paths)
+    setAuthorNameMode(defaultState.authorNameMode)
+    setAuthorNames(defaultState.authorNames)
+    setAuthorEmailMode(defaultState.authorEmailMode)
+    setAuthorEmails(defaultState.authorEmails)
+    setCommitHashMode(defaultState.commitHashMode)
+    setCommitHashes(defaultState.commitHashes)
+    setCommitMessageMode(defaultState.commitMessageMode)
+    setCommitMessages(defaultState.commitMessages)
+
+    setFoundRepos([])
+    setSelectedRepos(new Set())
+    setPathError(null)
   }
 
   const onSave = () => {
-    // TODO: Remove this test code for a proper implementation
-    // This place has been used to trigger all API endpoints for testing purposes
-    
-
-    // If no path provided, notify the user
     if (!path || path.trim() === "") {
-      alert("Please provide a root path to search for repositories.");
-      return;
+      alert("Please provide a root path to search for repositories.")
+      return
     }
 
-    (async () => {
-      try {
-        const depthNum = Number(searchDepth) || 1
-        console.log("DataImport: retrieving repositories for", path, "depth", depthNum)
-        const repos = await retrieveRepositories(path, depthNum)
-        console.log("retrieve_repositories result:", repos)
-        setAllRepos(new Set(repos));
-        setSelectedRepo(repos[0] || "");
+    const finalReposArray =
+      selectedRepos.size > 0
+        ? Array.from(selectedRepos)
+        : foundRepos
 
+    if (!finalReposArray || finalReposArray.length === 0) {
+      alert("No repositories selected. Please click 'Set' and select at least one repository.")
+      return
+    }
 
-        // Choose a repository for subsequent tests (fallback to provided path)
-        const firstRepo = repos && repos.length > 0 ? repos[0] : path
-
-        // 1) createAnalysisParameters
-        try {
-          const params = await createAnalysisParameters(firstRepo, null, null, null, null, null, null, null, null)
-          console.log("createAnalysisParameters result:", params)
-
-          // 2) runInitialAnalysis
-          try {
-            const initialResult = await runInitialAnalysis(params)
-            
-            console.log("runInitialAnalysis result:", initialResult)
-
-            
-
-            // 3) rerunAnalysis (use same params for test)
-            try {
-              const rerunResult = await rerunAnalysis(initialResult, params)
-              console.log("rerunAnalysis result:", rerunResult)
-            } catch (err) {
-              console.error("rerunAnalysis failed:", err)
-            }
-          } catch (err) {
-            console.error("runInitialAnalysis failed:", err)
-          }
-        } catch (err) {
-          console.error("createAnalysisParameters failed:", err)
-        }
-
-        // 4) verifyFilter - test with current file types and paths inputs
-        try {
-          const ftFilter = { include: fileTypesMode === "include", value: fileTypes }
-          const pathsFilter = { include: pathsMode === "include", value: paths }
-          const verifyFileTypes = await verifyFilter(ftFilter as any, false)
-          console.log("verifyFilter (fileTypes) result:", verifyFileTypes)
-          const verifyPaths = await verifyFilter(pathsFilter as any, true)
-          console.log("verifyFilter (paths) result:", verifyPaths)
-        } catch (err) {
-          console.error("verifyFilter failed:", err)
-        }
-
-        // 5) loadSettingsJson / saveSettingsJson - UNTESTED
-        // try {
-        //   const settingsPath = `${path.replace(/\\/g, "/")}/Settings.json`
-        //   const loaded = await loadSettingsJson(settingsPath)
-        //   console.log("loadSettingsJson result:", loaded)
-        // } catch (err) {
-        //   console.error("loadSettingsJson failed:", err)
-        // }
-
-        // try {
-        //   const savePath = `${path.replace(/\\/g, "/")}/Settings.saved.json`
-        //   const saveRes = await saveSettingsJson(settings as any, savePath)
-        //   console.log("saveSettingsJson result:", saveRes)
-        // } catch (err) {
-        //   console.error("saveSettingsJson failed:", err)
-        // }
-
-      } catch (err) {
-        console.error("Failed to retrieve repositories:", err)
-        alert(`Failed to retrieve repositories: ${String(err)}`)
-      }
-    })()
-
-    return
+    setAllRepos(prev => {
+      const updated = new Set(prev);
+      finalReposArray.forEach(r => updated.add(r));
+      return updated;
+    });
+    setSelectedRepo(prev => prev || finalReposArray[0]);
   }
+
+  const allSelected = foundRepos.length > 0 && selectedRepos.size === foundRepos.length
 
   return (
     <SidebarGroup className="mt-3">
@@ -298,29 +297,88 @@ export function DataImport({
                   <section className="space-y-3">
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-medium">General</h3>
-                      <span className="rounded bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium">Required</span>
+                      <span className="rounded bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium">
+                        Required
+                      </span>
                     </div>
                     <Separator />
                     <div className="space-y-1.5">
                       <Label htmlFor="path">Root path (folder with Git repo/s)</Label>
-                      <Input
-                        id="path"
-                        value={path}
-                        onChange={(e) => setPath(e.target.value)}
-                        placeholder="e.g. /home/user/repos"
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          id="path"
+                          value={path}
+                          onChange={(e) => setPath(e.target.value)}
+                          placeholder="e.g. /home/user/repos"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={handleSetPath}
+                          disabled={isCheckingPath}
+                          className="shrink-0"
+                        >
+                          {isCheckingPath ? "Checking..." : "Set"}
+                        </Button>
+                      </div>
+                      {pathError && (
+                        <p className="text-xs text-red-500 mt-1">{pathError}</p>
+                      )}
+                      {!pathError && foundRepos.length > 0 && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Found {foundRepos.length} repositories. Select which ones to keep below.
+                        </p>
+                      )}
                     </div>
-                  </section>
 
+                    {foundRepos.length > 0 && (
+                      <div className="space-y-2 mt-3">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                            Repositories in path
+                          </Label>
+                          <Button
+                            variant="ghost"
+                            type="button"
+                            onClick={handleToggleAllRepos}
+                            className="text-xs h-7 px-2"
+                          >
+                            {allSelected ? "Deselect all" : "Select all"}
+                          </Button>
+                        </div>
+                        <div className="border rounded-md max-h-30 overflow-y-auto">
+                          <ul className="divide-y">
+                            {foundRepos.map((repo) => (
+                              <li
+                                key={repo}
+                                className="flex items-center gap-2 px-3 py-2 text-sm"
+                              >
+                                <Checkbox
+                                  checked={selectedRepos.has(repo)}
+                                  onCheckedChange={() => handleToggleRepo(repo)}
+                                  className="mt-0.5"
+                                />
+                                <span className="truncate max-w-[180px] block [direction:rtl] text-left" title={repo}>
+                                  {repo}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </section>
 
                   <Accordion type="multiple" defaultValue={[]}>
                     <AccordionItem value="filters">
                       <AccordionTrigger className="text-sm font-medium">
                         <div className="flex items-center gap-2">
                           <h3 className="text-sm font-medium">Filters</h3>
-                          <span className="rounded bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium">Optional</span>
+                          <span className="rounded bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium">
+                            Optional
+                          </span>
                         </div>
-                     </AccordionTrigger>
+                      </AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-3">
                           <Separator />
@@ -334,15 +392,18 @@ export function DataImport({
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p>
-                                    Click the <span className="text-emerald-600 font-medium">green +</span> or{" "}
-                                    <span className="text-red-600 font-medium">red –</span> button to toggle between
-                                    <strong> include</strong> and <strong>exclude</strong> mode for each filter.
+                                    Click the{" "}
+                                    <span className="text-emerald-600 font-medium">green +</span>{" "}
+                                    or{" "}
+                                    <span className="text-red-600 font-medium">red –</span> button to
+                                    toggle between <strong>include</strong> and{" "}
+                                    <strong>exclude</strong> mode for each filter.
                                   </p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
                           </div>
-                    
+
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <ToggleRuleRow
                               id="file-types"
@@ -350,7 +411,9 @@ export function DataImport({
                               placeholder="e.g. .ts, .js, .html"
                               value={fileTypes}
                               mode={fileTypesMode}
-                              onToggle={() => setFileTypesMode((m) => (m === "include" ? "exclude" : "include"))}
+                              onToggle={() =>
+                                setFileTypesMode((m) => (m === "include" ? "exclude" : "include"))
+                              }
                               onChange={setFileTypes}
                             />
                             <ToggleRuleRow
@@ -359,7 +422,9 @@ export function DataImport({
                               placeholder="e.g. ./src/*, ./docs, /workflows/workt*"
                               value={paths}
                               mode={pathsMode}
-                              onToggle={() => setPathsMode((m) => (m === "include" ? "exclude" : "include"))}
+                              onToggle={() =>
+                                setPathsMode((m) => (m === "include" ? "exclude" : "include"))
+                              }
                               onChange={setPaths}
                             />
                             <ToggleRuleRow
@@ -368,7 +433,11 @@ export function DataImport({
                               placeholder="e.g. John*, Jane"
                               value={authorNames}
                               mode={authorNameMode}
-                              onToggle={() => setAuthorNameMode((m) => (m === "include" ? "exclude" : "include"))}
+                              onToggle={() =>
+                                setAuthorNameMode((m) =>
+                                  m === "include" ? "exclude" : "include"
+                                )
+                              }
                               onChange={setAuthorNames}
                             />
                             <ToggleRuleRow
@@ -377,7 +446,11 @@ export function DataImport({
                               placeholder="e.g. *@gmail.com, john.joe@github.*"
                               value={authorEmails}
                               mode={authorEmailMode}
-                              onToggle={() => setAuthorEmailMode((m) => (m === "include" ? "exclude" : "include"))}
+                              onToggle={() =>
+                                setAuthorEmailMode((m) =>
+                                  m === "include" ? "exclude" : "include"
+                                )
+                              }
                               onChange={setAuthorEmails}
                             />
                             <ToggleRuleRow
@@ -386,7 +459,11 @@ export function DataImport({
                               placeholder="e.g. 123456, 121*"
                               value={commitHashes}
                               mode={commitHashMode}
-                              onToggle={() => setCommitHashMode((m) => (m === "include" ? "exclude" : "include"))}
+                              onToggle={() =>
+                                setCommitHashMode((m) =>
+                                  m === "include" ? "exclude" : "include"
+                                )
+                              }
                               onChange={setCommitHashes}
                             />
                             <ToggleRuleRow
@@ -395,7 +472,11 @@ export function DataImport({
                               placeholder="e.g. docs:*"
                               value={commitMessages}
                               mode={commitMessageMode}
-                              onToggle={() => setCommitMessageMode((m) => (m === "include" ? "exclude" : "include"))}
+                              onToggle={() =>
+                                setCommitMessageMode((m) =>
+                                  m === "include" ? "exclude" : "include"
+                                )
+                              }
                               onChange={setCommitMessages}
                             />
                           </div>
@@ -407,7 +488,9 @@ export function DataImport({
                       <AccordionTrigger className="text-sm font-medium">
                         <div className="flex items-center gap-2">
                           <h3 className="text-sm font-medium">Advanced settings</h3>
-                          <span className="rounded bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium">Optional</span>
+                          <span className="rounded bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium">
+                            Optional
+                          </span>
                         </div>
                       </AccordionTrigger>
                       <AccordionContent>
@@ -426,7 +509,9 @@ export function DataImport({
                             </div>
 
                             <div className="space-y-1.5">
-                              <Label htmlFor="maxComputeResources">Max compute resource allocation (%)</Label>
+                              <Label htmlFor="maxComputeResources">
+                                Max compute resource allocation (%)
+                              </Label>
                               <Input
                                 id="maxComputeResources"
                                 inputMode="numeric"
@@ -435,7 +520,6 @@ export function DataImport({
                                 placeholder="500"
                               />
                             </div>
-
                           </div>
                         </div>
                       </AccordionContent>
@@ -445,14 +529,15 @@ export function DataImport({
 
                 <div className="px-6 py-4 border-t bg-background flex items-center justify-end gap-2">
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <Button variant="secondary" onClick={onReset}>Reset</Button>
+                  <Button variant="secondary" onClick={onReset}>
+                    Reset
+                  </Button>
                   <AlertDialogAction onClick={onSave}>Save</AlertDialogAction>
                 </div>
               </div>
             </AlertDialogContent>
           </AlertDialog>
         </SidebarMenuItem>
-
       </SidebarMenu>
     </SidebarGroup>
   )

@@ -35,7 +35,7 @@ export default function App() {
   const [startCommitHash, setStartCommitHash] = React.useState<string>("");
   const [endCommitHash, setEndCommitHash] = React.useState<string>("");
 
-  const [repoAnalysis, setRepoAnalysis] = React.useState<AnalysisResult>({
+  const defaultRepoAnalysis: AnalysisResult = {
   parameters: { repo_path: "" },
   repository: {
     name: "",
@@ -44,11 +44,18 @@ export default function App() {
     commits: [],
     files: [],
     metrics: {},
-  },
-});
+    },
+  };
+
+  const [repoAnalysis, setRepoAnalysis] = React.useState<AnalysisResult>(defaultRepoAnalysis);
+
 
   React.useEffect(() => {
-    if (!selectedRepo) return;
+    if (!selectedRepo) {
+    setRepoAnalysis(defaultRepoAnalysis);
+    return;
+  }
+
     (async () => {
       try {
 
