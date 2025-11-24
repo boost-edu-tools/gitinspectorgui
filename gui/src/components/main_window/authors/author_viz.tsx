@@ -19,7 +19,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getAuthorColor } from "@/components/helpers/author_colors"
 import type { AnalysisResult, Author } from "@/components/types"
-import { fmtDate, fmtDatePlot } from "@/components/helpers/formatting_helpers"
+import { fmtDate, fmtDatePlot, fmtDateNoTime } from "@/components/helpers/formatting_helpers"
 
 type MetricKey = "commits" | "insertions" | "deletions" | "locs"
 
@@ -63,10 +63,14 @@ export function AuthorStatisticsVisualisation(
     const grouped = new Map<number, Map<string, any>>()
 
     processedCommits.forEach((c) => {
-      if (!grouped.has(c.ts)) {
-        grouped.set(c.ts, new Map())
+      const dayStart = new Date(c.ts)
+      dayStart.setHours(0, 0, 0, 0)
+      const dayTimestamp = dayStart.getTime()
+      
+      if (!grouped.has(dayTimestamp)) {
+        grouped.set(dayTimestamp, new Map())
       }
-      const dateGroup = grouped.get(c.ts)!
+      const dateGroup = grouped.get(dayTimestamp)!
 
       const existing = dateGroup.get(c.author) || {
         commits: 0,
@@ -96,9 +100,13 @@ export function AuthorStatisticsVisualisation(
     const cumulativeLOC = new Map<string, number>()
     authors.forEach((author) => cumulativeLOC.set(author, 0))
 
-    const allTimestamps = new Set<number>()
-    processedCommits.forEach((c) => allTimestamps.add(c.ts))
-    const sortedTimestamps = Array.from(allTimestamps).sort((a, b) => a - b)
+    const allDays = new Set<number>()
+    processedCommits.forEach((c) => {
+      const dayStart = new Date(c.ts)
+      dayStart.setHours(0, 0, 0, 0)
+      allDays.add(dayStart.getTime())
+    })
+    const sortedTimestamps = Array.from(allDays).sort((a, b) => a - b)
 
     const lineChartData = sortedTimestamps.map((ts) => {
       const dataPoint: any = { date: ts }
@@ -182,7 +190,7 @@ export function AuthorStatisticsVisualisation(
       <Card className="shadow-lg">
         <CardContent className="p-3 space-y-2">
           <div className="font-semibold text-sm border-b pb-2">
-            {fmtDate(label)}
+            {fmtDateNoTime(label)}
           </div>
           <div className="space-y-1 text-xs">
             {payload

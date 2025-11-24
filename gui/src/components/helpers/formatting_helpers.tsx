@@ -15,6 +15,15 @@ export const fmtDate = (d: Date | null) => {
     }).format(d)
 }
 
+export const fmtDateNoTime = (d: Date | null) => {
+  if (!d) return "—"
+    return new Intl.DateTimeFormat(undefined, {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(d)
+}
+
 export const fmtDatePlot = (d: Date | null) => {
   if (!d) return "—"
     return new Intl.DateTimeFormat(undefined, {
