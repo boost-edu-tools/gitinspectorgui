@@ -12,17 +12,25 @@ import { BlameViewMultiTab } from "./files/blame_tabs"
 import { FileSatisticsVisualisation } from "./files/file_viz"
 import { FileStatisticsTable } from "./files/file_table"
 
-import type { AnalysisResult } from "@/components/types"
+import type { AnalysisResult, AnalysisProps } from "@/components/types"
 
 
 
-export function AppMainWindow({ repo_analysis }: { repo_analysis: AnalysisResult }) {
+export function AppMainWindow({ repo_analysis, filterData }: {repo_analysis: AnalysisResult } &
+  Pick<AnalysisProps,"filterData"> ) {
 
   const [selectedFile, setSelectedFile] = React.useState<string | null>(null)
-  const repository = repo_analysis.repository
-
+  
+  const repository = filterData
+      ? repo_analysis.repository
+      : repo_analysis.original_repository
 
   return (
+    (repository.path === "") ? (
+      <div className="flex flex-1 items-center justify-center">
+        <p className="text-muted-foreground text-center">No repository selected. <br /> Click 'New Analysis' on the top right to find repositories to analyze!</p>
+      </div>
+    ) : (
     <SidebarInset>
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
         <div className="flex items-center gap-2 px-4">
@@ -107,5 +115,5 @@ export function AppMainWindow({ repo_analysis }: { repo_analysis: AnalysisResult
           </Tabs>
       </div>
     </SidebarInset>
-  );
+  ))
 }
