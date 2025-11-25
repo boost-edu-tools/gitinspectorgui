@@ -103,7 +103,10 @@ function ToggleRuleRow({
 export function DataImport({
   setAllRepos,
   setSelectedRepo,
-}: Pick<AnalysisProps, "setAllRepos" | "setSelectedRepo">) {
+  path,
+  setPath,
+  onSettingsSaved,
+}: Pick<AnalysisProps, "setAllRepos" | "setSelectedRepo" | "path" | "setPath" | "onSettingsSaved">) {
 
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
 
@@ -114,29 +117,29 @@ export function DataImport({
       maxComputeResources: String( 90),
       max_blame_files: 1000,
 
-      fileTypesMode: true,
+      fileTypesMode: false,
       fileTypes: "",
 
-      pathsMode: true,
+      pathsMode: false,
       paths:  "",
 
-      authorNameMode: true,
+      authorNameMode: false,
       authorNames: "",
 
-      authorEmailMode: true,
+      authorEmailMode: false,
       authorEmails:  "",
 
-      commitHashMode: true,
+      commitHashMode: false,
       commitHashes: "",
 
-      commitMessageMode: true,
+      commitMessageMode: false,
       commitMessages: "",
     }),
     []
   )
 
 
-  const [path, setPath] = React.useState(defaultState.path)
+  
   const [searchDepth, setSearchDepth] = React.useState(defaultState.searchDepth)
   const [maxComputeResources, setMaxComputeResources] = React.useState(defaultState.maxComputeResources)
 
@@ -346,6 +349,7 @@ export function DataImport({
       const result = await saveSettingsJson(settingsToSave, `${path}/Settings.json`)
       console.debug("[onSave] saveSettingsJson result:", result)
       console.log("Saved settings:", settingsToSave)
+      onSettingsSaved?.();
     } catch (err) {
       console.error("[onSave] Failed to save settings:", err)
       alert("Failed to save settings. Check the console for details.")

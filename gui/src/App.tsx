@@ -4,12 +4,13 @@ import { AppMainWindow } from "@/components/main_window/main_window";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 import { initializeAuthorColors } from "@/components/helpers/author_colors";
-import { AnalysisResult } from "@/components/types";
+import { AnalysisResult, Settings } from "@/components/types";
 
 import {
   createAnalysisParameters,
   runInitialAnalysis,
   rerunAnalysis,
+  loadSettingsJson
 } from "@/lib/api"
 
 import "./App.css";
@@ -17,6 +18,9 @@ import "./App.css";
 export default function App() {
   const isInitialFilterSetup = React.useRef(true);
   const isUserChange = React.useRef(false); 
+  const [settingsVersion, setSettingsVersion] = React.useState(0)
+
+  const [path, setPath] = React.useState("")
 
   const [allAuthors, setAllAuthors] = React.useState<Set<string>>(new Set());
   const [allRepos, setAllRepos]     = React.useState<Set<string>>(new Set());
@@ -77,16 +81,28 @@ export default function App() {
 
     (async () => {
       try {
+
+        let settings: Settings | null = null;
+        try {
+        const settingsPath = `${path}/Settings.json`;
+            settings = await loadSettingsJson(settingsPath);
+            console.log("[App] Loaded settings:", settings);
+          } catch (e) {
+            console.log("[App] No Settings.json found, using defaults:", e);
+          }
+
         const params = await createAnalysisParameters(
           selectedRepo,
           null,
           null,
           null,
           null,
-          null,
-          null,
-          null,
-          null
+          settings?.commit_hash_filter ?? null,
+          settings?.commit_message_filter ?? null,
+          settings?.file_types_filter ?? null,
+          settings?.path_filter ?? null,
+          settings?.author_names_filter ?? null,
+          settings?.author_emails_filter ?? null,
         );
 
         try {
@@ -114,6 +130,7 @@ export default function App() {
           initializeAuthorColors(authors);
 
           console.log("Initial analysis completed");
+          console.log(initialResult);
         } catch (err) {
           console.error("runInitialAnalysis failed:", err);
         }
@@ -121,7 +138,7 @@ export default function App() {
         console.error("createAnalysisParameters failed:", err);
       }
     })();
-  }, [selectedRepo]);
+  }, [selectedRepo, settingsVersion]);
 
 
   const handleSelectAuthors = React.useCallback((authors: string[]) => {
@@ -152,6 +169,10 @@ export default function App() {
   const handleEndDateChange = React.useCallback((date: Date) => {
     isUserChange.current = true;
     setEndDate(date);
+  }, []);
+
+  const handleSettingsSaved = React.useCallback(() => {
+    setSettingsVersion(v => v + 1); 
   }, []);
 
 
@@ -215,6 +236,8 @@ export default function App() {
   return (
     <SidebarProvider>
       <AppSidebar
+        path = {path}
+        setPath={setPath}
         repo_analysis={repoAnalysis}
 
         allAuthors={allAuthors}
@@ -242,7 +265,9 @@ export default function App() {
         startCommitHash={startCommitHash}
         endCommitHash={endCommitHash}
         onStartCommitChange={handleStartCommitChange} 
-        onEndCommitChange={handleEndCommitChange}    
+        onEndCommitChange={handleEndCommitChange} 
+        
+        onSettingsSaved={handleSettingsSaved}
       />
 
       <AppMainWindow 

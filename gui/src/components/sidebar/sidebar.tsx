@@ -14,6 +14,9 @@ import {
 
 export function AppSidebar({
 
+  path,
+  setPath,
+  
   repo_analysis,
 
   allAuthors, 
@@ -41,11 +44,15 @@ export function AppSidebar({
   onEndDateChange,
   onStartCommitChange,
   onEndCommitChange,
+  onSettingsSaved
 
 }:
   {repo_analysis: AnalysisResult } &
   Pick<
     AnalysisProps,
+
+      "path"
+      | "setPath"
 
       |"allAuthors"  
       |"selectedAuthors"  
@@ -71,6 +78,7 @@ export function AppSidebar({
       |"onEndDateChange"  
       |"onStartCommitChange"  
       |"onEndCommitChange" 
+      |"onSettingsSaved"
 >) {
 
   return (
@@ -79,6 +87,9 @@ export function AppSidebar({
         <DataImport
           setAllRepos={setAllRepos}
           setSelectedRepo={setSelectedRepo}
+          path = {path}
+          setPath={setPath}
+          onSettingsSaved={onSettingsSaved}
           />
         <Separator className="mt-3" />
         <ListRepos

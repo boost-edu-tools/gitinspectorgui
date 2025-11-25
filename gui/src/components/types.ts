@@ -3,6 +3,9 @@ import type { Dispatch, SetStateAction } from "react";
 
 
 export type AnalysisProps = { 
+
+  path: string;
+  setPath: Dispatch<SetStateAction<string>>;
   
   allAuthors: Set<string>;
   selectedAuthors: string[];
@@ -34,6 +37,7 @@ export type AnalysisProps = {
   setSelectedFile: Dispatch<SetStateAction<string | null>>;
 
   setRepoAnalysis: React.Dispatch<React.SetStateAction<AnalysisResult>>
+  onSettingsSaved?: () => void
 };
 
 export type Repository = {
