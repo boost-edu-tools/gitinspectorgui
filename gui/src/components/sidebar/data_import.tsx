@@ -292,6 +292,25 @@ export function DataImport({
     setPathError(null)
   }
 
+  React.useEffect(() => {
+  if (!path) return
+
+  const load = async () => {
+    try {
+      const loadedSettings = await loadSettingsJson(`${path}/Settings.json`)
+      applyLoadedSettings(loadedSettings)
+      console.log("[DataImport] Loaded settings for path change:", loadedSettings)
+    } catch (err) {
+      console.log(
+        "[DataImport] Could not load settings for path change, keeping defaults. Error:",
+        err
+      )
+    }
+  }
+
+  void load()
+}, [path])
+
   const onSave = async () => {
     if (!path || path.trim() === "") {
       alert("Please provide a root path to search for repositories.")
