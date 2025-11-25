@@ -10,18 +10,14 @@ import {
   createAnalysisParameters,
   runInitialAnalysis,
   rerunAnalysis,
-  verifyFilter,
-  loadSettingsJson,
-  saveSettingsJson,
 } from "@/lib/api"
 
 import "./App.css";
-import { CommandList } from "cmdk";
 
 export default function App() {
-  
   const isInitialFilterSetup = React.useRef(true);
-  
+  const isUserChange = React.useRef(false); 
+
   const [allAuthors, setAllAuthors] = React.useState<Set<string>>(new Set());
   const [allRepos, setAllRepos]     = React.useState<Set<string>>(new Set());
   const [allFiles, setAllFiles]     = React.useState<Set<string>>(new Set());
@@ -58,83 +54,149 @@ export default function App() {
 
   const [repoAnalysis, setRepoAnalysis] = React.useState<AnalysisResult>(defaultRepoAnalysis);
 
+
   React.useEffect(() => {
     console.log("Selected repo changed:", selectedRepo);
+
     if (!selectedRepo) {
-    setRepoAnalysis(defaultRepoAnalysis);
-    return;
-  }
+      setRepoAnalysis(defaultRepoAnalysis);
+      setAllAuthors(new Set());
+      setAllFiles(new Set());
+      selectAuthors([]);
+      selectFiles([]);
+
+      setStartDate(new Date());
+      setEndDate(new Date());
+      setStartCommitHash("");
+      setEndCommitHash("");
+
+      return;
+    }
+
     isInitialFilterSetup.current = true;
 
     (async () => {
       try {
+        const params = await createAnalysisParameters(
+          selectedRepo,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        );
 
-      const params = await createAnalysisParameters(selectedRepo, null, null, null, null, null, null, null, null)
+        try {
+          const initialResult = await runInitialAnalysis(params);
+          setRepoAnalysis(initialResult);
 
-      try {
-        const initialResult = await runInitialAnalysis(params)
-        setRepoAnalysis(initialResult)
-        const authors = initialResult.original_repository.authors.map(a => a.name);
-        const files = initialResult.original_repository.files.map(f => f.path);
-        const commits = initialResult.original_repository.commits;
-        
-        if (commits.length > 0) {
-        
-          const startCommit = commits[commits.length - 1];
-          const endCommit = commits[0]; 
-          setStartCommitHash(startCommit.hash);
-          setEndCommitHash(endCommit.hash);
+          const authors =
+            initialResult.original_repository.authors.map((a) => a.name);
+          const files =
+            initialResult.original_repository.files.map((f) => f.path);
+          const commits = initialResult.original_repository.commits;
+
+          if (commits.length > 0) {
+            const startCommit = commits[commits.length - 1];
+            const endCommit = commits[0];
+            setStartCommitHash(startCommit.hash);
+            setEndCommitHash(endCommit.hash);
           }
 
-        setAllAuthors(new Set(authors));
-        setAllFiles(new Set(files));
+          setAllAuthors(new Set(authors));
+          setAllFiles(new Set(files));
 
-        selectAuthors(authors);
-        selectFiles(files);
-        initializeAuthorColors(authors);
+          selectAuthors(authors);
+          selectFiles(files);
+          initializeAuthorColors(authors);
 
-        console.log("Initial analysis completed");
+          console.log("Initial analysis completed");
+        } catch (err) {
+          console.error("runInitialAnalysis failed:", err);
+        }
       } catch (err) {
-        console.error("runInitialAnalysis failed:", err)
+        console.error("createAnalysisParameters failed:", err);
       }
-      } catch (err) {
-        console.error("createAnalysisParameters failed:", err)}
-      })();
-
-}, [selectedRepo]);
+    })();
+  }, [selectedRepo]);
 
 
-    React.useEffect(() => {
+  const handleSelectAuthors = React.useCallback((authors: string[]) => {
+    isUserChange.current = true;
+    selectAuthors(authors);
+  }, []);
+
+  const handleSelectFiles = React.useCallback((files: string[]) => {
+    isUserChange.current = true;
+    selectFiles(files);
+  }, []);
+
+  const handleStartCommitChange = React.useCallback((hash: string) => {
+    isUserChange.current = true;
+    setStartCommitHash(hash);
+  }, []);
+
+  const handleEndCommitChange = React.useCallback((hash: string) => {
+    isUserChange.current = true;
+    setEndCommitHash(hash);
+  }, []);
+
+  const handleStartDateChange = React.useCallback((date: Date) => {
+    isUserChange.current = true;
+    setStartDate(date);
+  }, []);
+
+  const handleEndDateChange = React.useCallback((date: Date) => {
+    isUserChange.current = true;
+    setEndDate(date);
+  }, []);
+
+
+  React.useEffect(() => {
     if (!selectedRepo) return;
 
-    if (selectedAuthors.length === 0 && selectedFiles.length === 0) return;
-    
     if (isInitialFilterSetup.current) {
-        isInitialFilterSetup.current = false;
-        return;
-      }
+      isInitialFilterSetup.current = false;
+      return;
+    }
+
+    if (!isUserChange.current) {
+      return;
+    }
+
+    isUserChange.current = false;
 
     (async () => {
+      console.time("⏱️ Re-analysis Duration");
       try {
-        const authorsFilter = selectedAuthors.length > 0
-          ? { include: true, value: `{${selectedAuthors.join(",")}}`}
-          : null;
+        const authorsFilter = {
+          include: true,
+          value: `{${selectedAuthors.join(",")}}`,
+        };
+        const filesFilter = {
+          include: true,
+          value: `{${selectedFiles.join(",")}}`,
+        };
 
         const params = await createAnalysisParameters(
           selectedRepo,
           null,
-          null,               
           null,
-          null,            
-          null,            
-          null,     
+          startCommitHash,
+          endCommitHash,
           null,
-          null,          
-          authorsFilter,      
-          null                
+          null,
+          null,
+          filesFilter,
+          authorsFilter,
+          null
         );
 
         const rerun = await rerunAnalysis(repoAnalysis, params);
+        console.timeEnd("⏱️ Re-analysis Duration");
         setRepoAnalysis(rerun);
         console.log("Re-analysis", rerun);
 
@@ -142,46 +204,50 @@ export default function App() {
         console.error("Re-analysis failed:", err);
       }
     })();
-  }, [selectedAuthors]);
-
+  }, [
+    selectedRepo,
+    selectedAuthors,
+    selectedFiles,
+    startCommitHash,
+    endCommitHash,
+  ]);
 
   return (
     <SidebarProvider>
       <AppSidebar
-
         repo_analysis={repoAnalysis}
 
         allAuthors={allAuthors}
         selectedAuthors={selectedAuthors}
-        selectAuthors={selectAuthors}
+        selectAuthors={handleSelectAuthors}  
 
         allFiles={allFiles}
         selectedFiles={selectedFiles}
-        selectFiles={selectFiles}
+        selectFiles={handleSelectFiles}    
 
         filterData={filterData}
         setFilterData={setFilterData}
 
         allRepos={allRepos}
         setAllRepos={setAllRepos}
-        
+
         selectedRepo={selectedRepo}
         setSelectedRepo={setSelectedRepo}
 
         startDate={startDate}
         endDate={endDate}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
+        onStartDateChange={handleStartDateChange} 
+        onEndDateChange={handleEndDateChange}  
 
         startCommitHash={startCommitHash}
         endCommitHash={endCommitHash}
-        onStartCommitChange={setStartCommitHash}
-        onEndCommitChange={setEndCommitHash}
+        onStartCommitChange={handleStartCommitChange} 
+        onEndCommitChange={handleEndCommitChange}    
       />
 
-      <AppMainWindow
-        repo_analysis={repoAnalysis}
-      />
+      <AppMainWindow 
+      repo_analysis={repoAnalysis}
+      filterData = {filterData} />
     </SidebarProvider>
   );
 }
