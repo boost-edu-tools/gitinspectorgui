@@ -123,12 +123,12 @@ export type Settings = {
   repositories: string[];
   search_depth: number;
   max_compute_resources: number;
-  commit_hash_filter?: Filter[];
-  commit_message_filter?: Filter[];
-  file_types_filter?: Filter[];
-  path_filter?: Filter[];
-  author_names_filter?: Filter[];
-  author_emails_filter?: Filter[];
+  commit_hash_filter?: Filter;
+  commit_message_filter?: Filter;
+  file_types_filter?: Filter;
+  path_filter?: Filter;
+  author_names_filter?: Filter;
+  author_emails_filter?: Filter;
 }
 
 export type AnalysisParameters = {

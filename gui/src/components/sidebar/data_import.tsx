@@ -16,6 +16,7 @@ import {
   AlertDialogContent,
   AlertDialogTitle,
   AlertDialogTrigger,
+  AlertDialogDescription
 } from "@/components/ui/alert-dialog"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -32,24 +33,21 @@ import {
 } from "@/components/ui/tooltip"
 import { Checkbox } from "@/components/ui/checkbox"
 
-import settings from "@/data/Settings.json"
-import { retrieveRepositories } from "@/lib/api"
+import { retrieveRepositories, loadSettingsJson, saveSettingsJson } from "@/lib/api"
 
-import type { AnalysisProps } from "@/components/types"
-
-type Mode = "include" | "exclude"
+import type { AnalysisProps, Filter } from "@/components/types"
 
 function ModeButton({
-  mode,
+  include,
   onToggle,
   ariaLabel,
 }: {
-  mode: Mode
+  include: Boolean
   onToggle: () => void
   ariaLabel: string
 }) {
-  const isInclude = mode === "include"
-  const Icon = isInclude ? Plus : Minus
+
+  const Icon = include ? Plus : Minus
   return (
     <button
       type="button"
@@ -57,11 +55,11 @@ function ModeButton({
       onClick={onToggle}
       className={
         "h-9 w-9 shrink-0 rounded-l-md border-r inline-flex items-center justify-center " +
-        (isInclude
+        (include
           ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
           : "bg-red-500/10 text-red-600 border-red-500/30")
       }
-      title={isInclude ? "Include" : "Exclude"}
+      title={include ? "Include" : "Exclude"}
     >
       <Icon className="h-4 w-4" />
     </button>
@@ -73,7 +71,7 @@ function ToggleRuleRow({
   label,
   placeholder,
   value,
-  mode,
+  include,
   onChange,
   onToggle,
 }: {
@@ -81,7 +79,7 @@ function ToggleRuleRow({
   label: string
   placeholder?: string
   value: string
-  mode: Mode
+  include: Boolean
   onChange: (v: string) => void
   onToggle: () => void
 }) {
@@ -89,7 +87,7 @@ function ToggleRuleRow({
     <div className="space-y-1.5">
       <Label htmlFor={id}>{label}</Label>
       <div className="flex rounded-md border">
-        <ModeButton mode={mode} onToggle={onToggle} ariaLabel={`${label} mode`} />
+        <ModeButton include={include} onToggle={onToggle} ariaLabel={`${label} mode`} />
         <Input
           id={id}
           value={value}
@@ -106,60 +104,110 @@ export function DataImport({
   setAllRepos,
   setSelectedRepo,
 }: Pick<AnalysisProps, "setAllRepos" | "setSelectedRepo">) {
+
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+
   const defaultState = React.useMemo(
     () => ({
       path: "",
-      searchDepth: String(settings.search_depth ?? 5),
-      maxComputeResources: String(settings.max_compute_resources ?? 90),
+      searchDepth: String(5),
+      maxComputeResources: String( 90),
+      max_blame_files: 1000,
 
-      fileTypesMode: (settings.file_types_filter.include === true ? "include" : "exclude") as Mode,
-      fileTypes: String(settings.file_types_filter.value),
+      fileTypesMode: true,
+      fileTypes: "",
 
-      pathsMode: (settings.path_filter.include === true ? "include" : "exclude") as Mode,
-      paths: String(settings.path_filter.value),
+      pathsMode: true,
+      paths:  "",
 
-      authorNameMode: (settings.author_names_filter.include === true ? "include" : "exclude") as Mode,
-      authorNames: String(settings.author_names_filter.value),
+      authorNameMode: true,
+      authorNames: "",
 
-      authorEmailMode: (settings.author_emails_filter.include === true ? "include" : "exclude") as Mode,
-      authorEmails: String(settings.author_emails_filter.value),
+      authorEmailMode: true,
+      authorEmails:  "",
 
-      commitHashMode: (settings.commit_hash_filter.include === true ? "include" : "exclude") as Mode,
-      commitHashes: String(settings.commit_hash_filter.value),
+      commitHashMode: true,
+      commitHashes: "",
 
-      commitMessageMode: (settings.commit_message_filter.include === true ? "include" : "exclude") as Mode,
-      commitMessages: String(settings.commit_message_filter.value),
+      commitMessageMode: true,
+      commitMessages: "",
     }),
     []
   )
+
 
   const [path, setPath] = React.useState(defaultState.path)
   const [searchDepth, setSearchDepth] = React.useState(defaultState.searchDepth)
   const [maxComputeResources, setMaxComputeResources] = React.useState(defaultState.maxComputeResources)
 
-  const [fileTypesMode, setFileTypesMode] = React.useState<Mode>(defaultState.fileTypesMode)
+  const [fileTypesMode, setFileTypesMode] = React.useState<Boolean>(defaultState.fileTypesMode)
   const [fileTypes, setFileTypes] = React.useState(defaultState.fileTypes)
 
-  const [pathsMode, setPathsMode] = React.useState<Mode>(defaultState.pathsMode)
+  const [pathsMode, setPathsMode] = React.useState<Boolean>(defaultState.pathsMode)
   const [paths, setPaths] = React.useState(defaultState.paths)
 
-  const [authorNameMode, setAuthorNameMode] = React.useState<Mode>(defaultState.authorNameMode)
+  const [authorNameMode, setAuthorNameMode] = React.useState<Boolean>(defaultState.authorNameMode)
   const [authorNames, setAuthorNames] = React.useState(defaultState.authorNames)
 
-  const [authorEmailMode, setAuthorEmailMode] = React.useState<Mode>(defaultState.authorEmailMode)
+  const [authorEmailMode, setAuthorEmailMode] = React.useState<Boolean>(defaultState.authorEmailMode)
   const [authorEmails, setAuthorEmails] = React.useState(defaultState.authorEmails)
 
-  const [commitHashMode, setCommitHashMode] = React.useState<Mode>(defaultState.commitHashMode)
+  const [commitHashMode, setCommitHashMode] = React.useState<Boolean>(defaultState.commitHashMode)
   const [commitHashes, setCommitHashes] = React.useState(defaultState.commitHashes)
 
-  const [commitMessageMode, setCommitMessageMode] = React.useState<Mode>(defaultState.commitMessageMode)
+  const [commitMessageMode, setCommitMessageMode] = React.useState<Boolean>(defaultState.commitMessageMode)
   const [commitMessages, setCommitMessages] = React.useState(defaultState.commitMessages)
 
-  // New state for repos found for the given path
   const [foundRepos, setFoundRepos] = React.useState<string[]>([])
   const [selectedRepos, setSelectedRepos] = React.useState<Set<string>>(new Set())
   const [isCheckingPath, setIsCheckingPath] = React.useState(false)
   const [pathError, setPathError] = React.useState<string | null>(null)
+
+  const applyLoadedSettings = (loaded: any) => {
+    console.log("[DataImport] Applying loaded settings:", loaded)
+
+    setSearchDepth(String(loaded.search_depth ?? defaultState.searchDepth))
+    setMaxComputeResources(String(loaded.max_compute_resources ?? defaultState.maxComputeResources))
+
+    setFileTypesMode(loaded.file_types_filter?.include ?? defaultState.fileTypesMode)
+    setFileTypes(String(loaded.file_types_filter?.value ?? defaultState.fileTypes))
+
+    setPathsMode(loaded.path_filter?.include ?? defaultState.pathsMode)
+    setPaths(String(loaded.path_filter?.value ?? defaultState.paths))
+
+    setAuthorNameMode(loaded.author_names_filter?.include ?? defaultState.authorNameMode)
+    setAuthorNames(String(loaded.author_names_filter?.value ?? defaultState.authorNames))
+
+    setAuthorEmailMode(loaded.author_emails_filter?.include ?? defaultState.authorEmailMode)
+    setAuthorEmails(String(loaded.author_emails_filter?.value ?? defaultState.authorEmails))
+
+    setCommitHashMode(loaded.commit_hash_filter?.include ?? defaultState.commitHashMode)
+    setCommitHashes(String(loaded.commit_hash_filter?.value ?? defaultState.commitHashes))
+
+    setCommitMessageMode(loaded.commit_message_filter?.include ?? defaultState.commitMessageMode)
+    setCommitMessages(String(loaded.commit_message_filter?.value ?? defaultState.commitMessages))
+  }
+
+  const handleDialogOpen = React.useCallback(async () => {
+    if (!path) {
+      console.timeLog("[DataImport] No path set yet, using defaults")
+      return
+    }
+
+    const settingsPath = `${path}/Settings.json`
+    console.log("[DataImport] Trying to load settings from:", settingsPath)
+
+    try {
+      const loadedSettings = await loadSettingsJson(settingsPath)
+      console.log("[DataImport] Loaded settings:", loadedSettings)
+      applyLoadedSettings(loadedSettings)
+    } catch (err) {
+      console.log(
+        "[DataImport] Could not load settings, keeping defaults. Error:",
+        err
+      )
+    }
+  }, [path, applyLoadedSettings])
 
   const handleToggleRepo = (repo: string) => {
     setSelectedRepos((prev) => {
@@ -178,10 +226,8 @@ export function DataImport({
 
     setSelectedRepos((prev) => {
       if (prev.size === foundRepos.length) {
-        // all selected -> clear
         return new Set()
       }
-      // select all
       return new Set(foundRepos)
     })
   }
@@ -243,7 +289,7 @@ export function DataImport({
     setPathError(null)
   }
 
-  const onSave = () => {
+  const onSave = async () => {
     if (!path || path.trim() === "") {
       alert("Please provide a root path to search for repositories.")
       return
@@ -265,6 +311,45 @@ export function DataImport({
       return updated;
     });
     setSelectedRepo(prev => prev || finalReposArray[0]);
+
+    const settingsToSave = {
+      repositories: finalReposArray,
+      search_depth: Number(searchDepth) ?? defaultState.searchDepth,
+      max_compute_resources: Number(maxComputeResources) ?? defaultState.maxComputeResources, 
+      max_blame_files: defaultState.max_blame_files,
+      file_types_filter: {
+        value: fileTypes,
+        include: fileTypesMode, 
+     } as Filter,
+      path_filter: {
+        value: paths, 
+        include: pathsMode,
+      } as Filter,
+      author_names_filter: {
+        value: authorNames,
+        include: authorNameMode,
+      } as Filter,
+      author_emails_filter: {
+        value: authorEmails,
+        include: authorEmailMode,
+      } as Filter,
+      commit_hash_filter: {
+        value: commitHashes,
+        include: commitHashMode,
+      } as Filter,
+      commit_message_filter: {    
+        value: commitMessages,
+        include: commitMessageMode,
+      } as Filter,
+    }
+    try {
+      const result = await saveSettingsJson(settingsToSave, `${path}/Settings.json`)
+      console.debug("[onSave] saveSettingsJson result:", result)
+      console.log("Saved settings:", settingsToSave)
+    } catch (err) {
+      console.error("[onSave] Failed to save settings:", err)
+      alert("Failed to save settings. Check the console for details.")
+    }
   }
 
   const allSelected = foundRepos.length > 0 && selectedRepos.size === foundRepos.length
@@ -274,7 +359,15 @@ export function DataImport({
       <SidebarGroupLabel>Data import</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuItem>
-          <AlertDialog>
+          <AlertDialog
+              open={isDialogOpen}
+              onOpenChange={(open) => {
+                setIsDialogOpen(open)
+                if (open) {
+                  void handleDialogOpen()
+                }
+              }}
+            >
             <AlertDialogTrigger asChild>
               <Button
                 size="sm"
@@ -291,6 +384,9 @@ export function DataImport({
               <div className="flex flex-col max-h-[85vh]">
                 <div className="px-6 pt-5 pb-3 border-b bg-background">
                   <AlertDialogTitle>Analysis Settings</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Configure the root path, repository filters, and advanced settings for a new analysis.
+                  </AlertDialogDescription>
                 </div>
 
                 <div className="px-6 py-4 overflow-y-auto space-y-8">
@@ -410,9 +506,9 @@ export function DataImport({
                               label="File types"
                               placeholder="e.g. .ts, .js, .html"
                               value={fileTypes}
-                              mode={fileTypesMode}
+                              include={fileTypesMode}
                               onToggle={() =>
-                                setFileTypesMode((m) => (m === "include" ? "exclude" : "include"))
+                                setFileTypesMode((m) => (m === true ? false : true))
                               }
                               onChange={setFileTypes}
                             />
@@ -421,9 +517,9 @@ export function DataImport({
                               label="Paths"
                               placeholder="e.g. ./src/*, ./docs, /workflows/workt*"
                               value={paths}
-                              mode={pathsMode}
+                              include={pathsMode}
                               onToggle={() =>
-                                setPathsMode((m) => (m === "include" ? "exclude" : "include"))
+                                setPathsMode((m) => (m === true ? false : true))
                               }
                               onChange={setPaths}
                             />
@@ -432,11 +528,10 @@ export function DataImport({
                               label="Author name"
                               placeholder="e.g. John*, Jane"
                               value={authorNames}
-                              mode={authorNameMode}
+                              include={authorNameMode}
                               onToggle={() =>
                                 setAuthorNameMode((m) =>
-                                  m === "include" ? "exclude" : "include"
-                                )
+                                  (m === true ? false : true))
                               }
                               onChange={setAuthorNames}
                             />
@@ -445,11 +540,9 @@ export function DataImport({
                               label="Author email"
                               placeholder="e.g. *@gmail.com, john.joe@github.*"
                               value={authorEmails}
-                              mode={authorEmailMode}
+                              include={authorEmailMode}
                               onToggle={() =>
-                                setAuthorEmailMode((m) =>
-                                  m === "include" ? "exclude" : "include"
-                                )
+                                setAuthorEmailMode((m) => (m === true ? false : true))
                               }
                               onChange={setAuthorEmails}
                             />
@@ -458,11 +551,9 @@ export function DataImport({
                               label="Commit hash"
                               placeholder="e.g. 123456, 121*"
                               value={commitHashes}
-                              mode={commitHashMode}
+                              include ={commitHashMode}
                               onToggle={() =>
-                                setCommitHashMode((m) =>
-                                  m === "include" ? "exclude" : "include"
-                                )
+                                setCommitHashMode((m) => (m === true ? false : true))
                               }
                               onChange={setCommitHashes}
                             />
@@ -471,11 +562,9 @@ export function DataImport({
                               label="Commit message"
                               placeholder="e.g. docs:*"
                               value={commitMessages}
-                              mode={commitMessageMode}
+                              include={commitMessageMode}
                               onToggle={() =>
-                                setCommitMessageMode((m) =>
-                                  m === "include" ? "exclude" : "include"
-                                )
+                                setCommitMessageMode((m) => (m === true ? false : true))
                               }
                               onChange={setCommitMessages}
                             />
@@ -532,7 +621,9 @@ export function DataImport({
                   <Button variant="secondary" onClick={onReset}>
                     Reset
                   </Button>
-                  <AlertDialogAction onClick={onSave}>Save</AlertDialogAction>
+                  <AlertDialogAction onClick={onSave}
+                  disabled={!path || foundRepos.length === 0}
+                  >Save</AlertDialogAction>
                 </div>
               </div>
             </AlertDialogContent>
