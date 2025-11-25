@@ -358,9 +358,13 @@ export function AuthorStatisticsVisualisation(
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis
                     dataKey="date"
+                    type="number"
+                    scale="time"
+                    domain={['dataMin', 'dataMax']}
                     tickFormatter={fmtDatePlot}
                     tick={{ fontSize: 10 }}
                     height={50}
+                    
                     label={{
                       value: "Date",
                       position: "insideBottom",
@@ -371,6 +375,7 @@ export function AuthorStatisticsVisualisation(
                   <YAxis
                     tick={{ fontSize: 10 }}
                     width={60}
+                    domain = {[0, 'dataMax + 1']}  
                     label={{
                       value: yAxisLabel,
                       angle: -90,
@@ -400,12 +405,17 @@ export function AuthorStatisticsVisualisation(
               ) : (
                 <BarChart
                   data={chartData}
+                  maxBarSize={20} 
                   margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis
                     dataKey="date"
+                    type="number"
+                    scale="time"
+                    domain={['dataMin', 'dataMax']}
                     tickFormatter={fmtDatePlot}
+                    padding={{ left: 10, right: 10 }}
                     tick={{ fontSize: 10 }}
                     height={50}
                     label={{
@@ -418,12 +428,13 @@ export function AuthorStatisticsVisualisation(
                   <YAxis
                     tick={{ fontSize: 10 }}
                     width={60}
+                    domain = {[0, 'dataMax + 1']} 
                     label={{
                       value: yAxisLabel,
                       angle: -90,
                       position: "insideLeft",
                       dy: 30,   
-                      dx: 0,   
+                      dx: 5,   
                       style: { fontSize: 14 },
                     }}
                     allowDecimals={false}
