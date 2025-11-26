@@ -4,7 +4,7 @@ use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::Settings;
+use crate::Author;
 
 pub fn is_existing_path(path: &Path) -> bool {
     match path.try_exists() {
@@ -258,8 +258,11 @@ mod tests {
         let settings = Settings {
             repositories: vec!["test.txt".to_string()],
             search_depth: 10,
-            ignored_file_extensions: vec!["txt".to_string(), "log".to_string()],
-            allowed_file_extensions: vec!["hoi".to_string(), "csv".to_string()],
+            max_blame_files: 1000,
+            commit_hash_filter: None,
+            commit_message_filter: None,
+            file_types_filter: None,
+            path_filter: None,
         };
 
         let result = convert_to_json(&settings);
@@ -267,9 +270,7 @@ mod tests {
 
         let json_string = result.unwrap();
         assert!(json_string.contains("\"search_depth\": 10"));
-        assert!(json_string.contains("\"ignored_file_extensions\""));
-        assert!(json_string.contains("\"txt\""));
-        assert!(json_string.contains("\"log\""));
+        assert!(json_string.contains("\"max_blame_files\": 1000"));
     }
 
     #[cfg(test)]
@@ -277,8 +278,11 @@ mod tests {
         r#"{
             "repositories": ["repo1", "repo2"],
             "search_depth": 15,
-            "ignored_file_extensions": ["log", "tmp"],
-            "allowed_file_extensions": ["rs", "toml"]
+            "max_blame_files": 500,
+            "commit_hash_filter": null,
+            "commit_message_filter": null,
+            "file_types_filter": null,
+            "path_filter": null
         }"#
         .to_string()
     }
@@ -295,8 +299,7 @@ mod tests {
         // Verify all fields are accessible and have correct values
         assert_eq!(settings.repositories, vec!["repo1", "repo2"]);
         assert_eq!(settings.search_depth, 15);
-        assert_eq!(settings.ignored_file_extensions, vec!["log", "tmp"]);
-        assert_eq!(settings.allowed_file_extensions, vec!["rs", "toml"]);
+        assert_eq!(settings.max_blame_files, 500);
     }
 
     #[test]
@@ -312,24 +315,45 @@ mod tests {
 
     #[test]
     fn test_convert_author_to_csv() {
-        // Create test authors
         let authors = vec![Author {
+            id: 1,
             name: "Alice".to_string(),
             email: "alice@gitinspector.com".to_string(),
+            commit_hashes: vec!["abc123".to_string(), "def456".to_string()],
+            files: vec![
+                (1, Metrics {
+                    insertions: Some(100),
+                    deletions: Some(20),
+                    ..Default::default()
+                }),
+                (2, Metrics {
+                    insertions: Some(50),
+                    deletions: Some(10),
+                    ..Default::default()
+                }),
+            ],
+            last_modified_date: "2025-11-26".to_string(),
+            last_modified_time: "10:00:00".to_string(),
+            last_modified_timezone: "+0000".to_string(),
+            metrics: Metrics {
+                insertions: Some(150),
+                deletions: Some(30),
+                total_commits: Some(2),
+                ..Default::default()
+            },
         }];
 
-        let result = convert_to_csv(&authors);
+        let result = convert_authors_to_csv(&authors);
         assert!(result.is_ok());
 
         let csv_string = result.unwrap();
 
-        // Verify CSV structure
         assert!(csv_string.contains("name"));
         assert!(csv_string.contains("email"));
         assert!(csv_string.contains("Alice"));
         assert!(csv_string.contains("alice@gitinspector.com"));
+        assert!(csv_string.contains("abc123,def456"));
 
-        // Verify row count (1 header + 1 data row)
         assert_eq!(csv_string.lines().count(), 2);
     }
 
@@ -341,6 +365,7 @@ mod tests {
                 loc: Some(500),
                 sloc: Some(400),
                 cloc: Some(100),
+                whitespace: Some(0),
                 insertions: Some(200),
                 deletions: Some(150),
                 total_commits: Some(20),
@@ -351,6 +376,7 @@ mod tests {
                 loc: Some(800),
                 sloc: Some(650),
                 cloc: None,
+                whitespace: None,
                 insertions: Some(900),
                 deletions: None,
                 total_commits: Some(75),
