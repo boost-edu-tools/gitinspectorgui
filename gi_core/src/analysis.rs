@@ -680,33 +680,38 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
     }
 }
 
-// fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Result<AnalysisResult, String> {
-//     let mut result = result;
-//     let exclude_set: HashSet<Author> = authors_to_exclude.into_iter().collect();
+fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Result<AnalysisResult, String> {
+    let mut result = result;
+    let exclude_set: HashSet<usize> = authors_to_exclude
+        .iter()
+        .map(|a| a.id)
+        .collect();
 
-//     // Keep only the commits whose author is NOT in authors_to_exclude
-//     result.repository.commits.retain(|commit| !exclude_set.contains(&commit.author));
+    // Keep only the commits whose author id is NOT in authors_to_exclude
+    result.repository.commits.retain(|commit| !exclude_set.contains(&commit.author_id));
 
-//     // Rebuild authors list
-//     let unique_authors: HashSet<Author> = result.repository.commits
-//         .iter()
-//         .map(|commit| commit.author.clone())
-//         .collect();
-//     result.repository.authors = unique_authors.into_iter().collect();
+    // Rebuild list of author IDs
+    let active_author_ids: HashSet<usize> = result.repository.commits
+        .iter()
+        .map(|commit| commit.author_id)
+        .collect();
 
-//     // Get files from commits
-//     let commit_files: HashSet<String> = result.repository.commits
-//         .iter()
-//         .flat_map(|commit| commit.files_changed.iter())
-//         .map(|file| file.path.clone())
-//         .collect();
+    // Update authors list based on remaining IDs
+    result.repository.authors.retain(|author| active_author_ids.contains(&author.id));
 
-//     result.repository.files = commit_files.into_iter().collect();
+    // Get files from remaining commits
+    let commit_files: HashSet<usize> = result.repository.commits
+        .iter()
+        .flat_map(|commit| commit.files_changed.iter())
+        .map(|(file_id, _metrics)| *file_id)
+        .collect();
 
-//     // TODO: Calculate repository-level metrics
-//     // result.repository.metrics = calculate_metrics();
-//     Ok(result)
-// }
+    result.repository.files.retain(|file| commit_files.contains(&file.id));
+
+    // TODO: Calculate repository-level metrics
+    // result.repository.metrics = calculate_metrics();
+    Ok(result)
+}
 
 fn filter_files(result: AnalysisResult) {
     // Placeholder for future implementation
