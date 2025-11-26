@@ -714,8 +714,14 @@ fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Re
     Ok(result)
 }
 
-fn filter_files(result: AnalysisResult) {
-    // Placeholder for future implementation
+fn filter_files(result: AnalysisResult, files_to_exclude: Vec<File>) -> Result<AnalysisResult, String> {
+    let mut result = result;
+    let exclude_set: HashSet<File> = files_to_exclude.into_iter().collect();
+
+    // Keep only the files that are NOT in files_to_exclude
+    result.repository.files.retain(|file| !exclude_set.contains(file));
+
+    Ok(result)
 }
 
 fn filter_metrics(result: AnalysisResult) {
@@ -1243,135 +1249,257 @@ mod tests {
         assert!(err.contains("Cannot mix commit-range"));
     }
 
-    // // Helper function to create a complete test AnalysisResult
-    // fn create_test_analysis_result() -> AnalysisResult {
-    //     let author1 = Author {
-    //         name: "Alice".to_string(),
-    //         email: "alice@example.com".to_string(),
-    //     };
-    //     let author2 = Author {
-    //         name: "Bert".to_string(),
-    //         email: "bert@example.com".to_string(),
-    //     };
+    // Helper function to create a complete test AnalysisResult
+    fn create_test_analysis_result() -> AnalysisResult {
+        let author1 = Author {
+            id: 1,
+            name: "Alice".to_string(),
+            email: "alice@example.com".to_string(),
+            commit_hashes: vec!["abc123".to_string()],
+            files: vec![
+                (1, Metrics {
+                    insertions: Some(100),
+                    deletions: Some(20),
+                    ..Default::default()
+                }),
+            ],
+            last_modified_date: "2025-08-02".to_string(),
+            last_modified_time: "10:30:00".to_string(),
+            last_modified_timezone: "+0000".to_string(),
+            metrics: Metrics {
+                insertions: Some(100),
+                deletions: Some(20),
+                total_commits: Some(1),
+                ..Default::default()
+            },
+        };
 
-    //     let commit1 = Commit {
-    //         hash: "abc123".to_string(),
-    //         author: author1.clone(),
-    //         date: "02-08-2025".to_string(),
-    //         message: "First commit".to_string(),
-    //         files_changed: vec![
-    //             File {
-    //                 name: "main.rs".to_string(),
-    //                 extension: "rs".to_string(),
-    //                 path: "src/main.rs".to_string(),
-    //                 file_size: 0,
-    //                 lines: vec![],
-    //                 metrics: Metrics::default(),
-    //             }
-    //         ],
-    //         metrics: Metrics::default(),
-    //     };
+        let author2 = Author {
+            id: 2,
+            name: "Bert".to_string(),
+            email: "bert@example.com".to_string(),
+            commit_hashes: vec!["def456".to_string()],
+            files: vec![
+                (2, Metrics {
+                    insertions: Some(50),
+                    deletions: Some(10),
+                    ..Default::default()
+                }),
+            ],
+            last_modified_date: "2025-01-01".to_string(),
+            last_modified_time: "14:20:00".to_string(),
+            last_modified_timezone: "+0000".to_string(),
+            metrics: Metrics {
+                insertions: Some(50),
+                deletions: Some(10),
+                total_commits: Some(1),
+                ..Default::default()
+            },
+        };
 
-    //     let commit2 = Commit {
-    //         hash: "def456".to_string(),
-    //         author: author2.clone(),
-    //         date: "2025-01-01".to_string(),
-    //         message: "Second commit".to_string(),
-    //         files_changed: vec![
-    //             File {
-    //                 name: "lib.rs".to_string(),
-    //                 extension: "rs".to_string(),
-    //                 path: "src/lib.rs".to_string(),
-    //                 file_size: 0,
-    //                 lines: vec![],
-    //                 metrics: Metrics::default(),
-    //             }
-    //         ],
-    //         metrics: Metrics::default(),
-    //     };
+        let file1 = File {
+            id: 1,
+            name: "main.rs".to_string(),
+            extension: "rs".to_string(),
+            path: "src/main.rs".to_string(),
+            file_size: Some(1024),
+            lines: vec![],
+            metrics: Metrics {
+                insertions: Some(100),
+                deletions: Some(20),
+                ..Default::default()
+            },
+            last_modified_date: "2025-08-02".to_string(),
+            last_modified_time: "10:30:00".to_string(),
+            last_modified_timezone: "+0000".to_string(),
+        };
 
-    //     let repository = Repository {
-    //         name: "test-repo".to_string(),
-    //         path: "/path/to/repo".to_string(),
-    //         authors: vec![author1, author2],
-    //         commits: vec![commit1, commit2],
-    //         files: vec!["src/main.rs".to_string(), "src/lib.rs".to_string()],
-    //         metrics: Metrics::default(),
-    //     };
+        let file2 = File {
+            id: 2,
+            name: "lib.rs".to_string(),
+            extension: "rs".to_string(),
+            path: "src/lib.rs".to_string(),
+            file_size: Some(512),
+            lines: vec![],
+            metrics: Metrics {
+                insertions: Some(50),
+                deletions: Some(10),
+                ..Default::default()
+            },
+            last_modified_date: "2025-01-01".to_string(),
+            last_modified_time: "14:20:00".to_string(),
+            last_modified_timezone: "+0000".to_string(),
+        };
 
-    //     AnalysisResult {
-    //         parameters: AnalysisParameters::default(),
-    //         repository,
-    //     }
-    // }
+        let commit1 = Commit {
+            id: 1,
+            hash: "abc123".to_string(),
+            author_id: 1,
+            date: "2025-08-02".to_string(),
+            time: "10:30:00".to_string(),
+            timezone: "+0000".to_string(),
+            message: "First commit".to_string(),
+            files_changed: vec![
+                (1, Metrics {
+                    insertions: Some(100),
+                    deletions: Some(20),
+                    ..Default::default()
+                }),
+            ],
+            metrics: Metrics {
+                insertions: Some(100),
+                deletions: Some(20),
+                ..Default::default()
+            },
+        };
 
-    // #[test]
-    // fn test_filter_authors_removes_commits_files_and_authors() {
-    //     let analysis_result = create_test_analysis_result();
-    //     let author_alice = analysis_result.repository.authors[0].clone();
-    //     let author_bert = analysis_result.repository.authors[1].clone();
+        let commit2 = Commit {
+            id: 2,
+            hash: "def456".to_string(),
+            author_id: 2,
+            date: "2025-01-01".to_string(),
+            time: "14:20:00".to_string(),
+            timezone: "+0000".to_string(),
+            message: "Second commit".to_string(),
+            files_changed: vec![
+                (2, Metrics {
+                    insertions: Some(50),
+                    deletions: Some(10),
+                    ..Default::default()
+                }),
+            ],
+            metrics: Metrics {
+                insertions: Some(50),
+                deletions: Some(10),
+                ..Default::default()
+            },
+        };
 
-    //     let filtered = filter_authors(analysis_result, vec![author_alice]).unwrap();
+        let repository = Repository {
+            name: "test-repo".to_string(),
+            path: "/path/to/repo".to_string(),
+            authors: vec![author1, author2],
+            commits: vec![commit1, commit2],
+            files: vec![file1, file2],
+            metrics: Metrics {
+                total_files: Some(2),
+                total_authors: Some(2),
+                total_commits: Some(2),
+                insertions: Some(150),
+                deletions: Some(30),
+                ..Default::default()
+            },
+        };
 
-    //     // Should have only 1 commit (from Bert)
-    //     assert_eq!(filtered.repository.commits.len(), 1);
-    //     assert_eq!(filtered.repository.commits[0].author, author_bert);
+        AnalysisResult {
+            original_repository: None,
+            parameters: AnalysisParameters::default(),
+            repository,
+        }
+    }
 
-    //     // Should have only 1 author (Bert)
-    //     assert_eq!(filtered.repository.authors.len(), 1);
-    //     assert_eq!(filtered.repository.authors[0], author_bert);
+    #[test]
+    fn test_filter_authors_removes_commits_files_and_authors() {
+        let analysis_result = create_test_analysis_result();
+        let author_alice = analysis_result.repository.authors[0].clone();
+        let author_bert = analysis_result.repository.authors[1].clone();
+        let filtered = filter_authors(analysis_result, vec![author_alice]).unwrap();
+        
+        // Should have only 1 commit (from Bert)
+        assert_eq!(filtered.repository.commits.len(), 1);
+        assert_eq!(filtered.repository.commits[0].author_id, author_bert.id);
+        
+        // Should have only 1 author (Bert)
+        assert_eq!(filtered.repository.authors.len(), 1);
+        assert_eq!(filtered.repository.authors[0], author_bert);
+        
+        // Should have only 1 file (lib.rs)
+        assert_eq!(filtered.repository.files.len(), 1);
+        assert_eq!(filtered.repository.files[0].id, 2);
+        assert_eq!(filtered.repository.files[0].path, "src/lib.rs");
+    }
 
-    //     // Should only 1 file (lib.rs)
-    //     assert_eq!(filtered.repository.files.len(), 1);
-    //     assert!(filtered.repository.files.contains(&"src/lib.rs".to_string()));
-    // }
+    #[test]
+    fn test_filter_non_existing_author() {
+        let analysis_result = create_test_analysis_result();
+        let non_existing_author = Author {
+            id: 999,
+            name: "Fake".to_string(),
+            email: "fake@example.com".to_string(),
+            commit_hashes: vec!["xyz789".to_string()],
+            files: vec![
+                (999, Metrics {
+                    insertions: Some(50),
+                    deletions: Some(10),
+                    ..Default::default()
+                }),
+            ],
+            last_modified_date: "2025-01-01".to_string(),
+            last_modified_time: "14:20:00".to_string(),
+            last_modified_timezone: "+0000".to_string(),
+            metrics: Metrics {
+                insertions: Some(50),
+                deletions: Some(10),
+                total_commits: Some(1),
+                ..Default::default()
+            }
+        };
+        let filtered = filter_authors(analysis_result, vec![non_existing_author]).unwrap();
+        
+        // Should have 2 commits
+        assert_eq!(filtered.repository.commits.len(), 2);
+        // Should have 2 authors
+        assert_eq!(filtered.repository.authors.len(), 2);
+        // Should have 2 files
+        assert_eq!(filtered.repository.files.len(), 2);
+    }
 
-    // #[test]
-    // fn test_filter_non_existing_author() {
-    //     let analysis_result = create_test_analysis_result();
-    //     let non_existing_author = Author {
-    //         name: "Fake".to_string(),
-    //         email: "fake@example.com".to_string(),
-    //     };
-
-    //     let filtered = filter_authors(analysis_result, vec![non_existing_author]).unwrap();
-    //     // Should have 2 commits
-    //     assert_eq!(filtered.repository.commits.len(), 2);
-    //     // Should have 2 authors
-    //     assert_eq!(filtered.repository.authors.len(), 2);
-    //     // Should have 2 files
-    //     assert_eq!(filtered.repository.files.len(), 2);
-    // }
-
-    // #[test]
-    // fn test_filter_empty_analysis_result() {
-    //     let repository = Repository {
-    //         name: "empty-repo".to_string(),
-    //         path: "/path/to/empty".to_string(),
-    //         authors: vec![],
-    //         commits: vec![],
-    //         files: vec![],
-    //         metrics: Metrics::default(),
-    //     };
-
-    //     let analysis_result = AnalysisResult {
-    //         parameters: AnalysisParameters::default(),
-    //         repository,
-    //     };
-
-    //     let author_to_exclude = Author {
-    //         name: "Fake".to_string(),
-    //         email: "fake@example.com".to_string(),
-    //     };
-
-    //     // Filter on empty result
-    //     let filtered = filter_authors(analysis_result, vec![author_to_exclude]).unwrap();
-
-    //     // Should remain empty
-    //     assert_eq!(filtered.repository.commits.len(), 0);
-    //     assert_eq!(filtered.repository.authors.len(), 0);
-    //     assert_eq!(filtered.repository.files.len(), 0);
-    // }
+    #[test]
+    fn test_filter_empty_analysis_result() {
+        let repository = Repository {
+            name: "empty-repo".to_string(),
+            path: "/path/to/empty".to_string(),
+            authors: vec![],
+            commits: vec![],
+            files: vec![],
+            metrics: Metrics::default(),
+        };
+        let analysis_result = AnalysisResult {
+            original_repository: None,
+            parameters: AnalysisParameters::default(),
+            repository,
+        };
+        let author_to_exclude = Author {
+            id: 2,
+            name: "Fake".to_string(),
+            email: "fake@example.com".to_string(),
+            commit_hashes: vec!["def456".to_string()],
+            files: vec![
+                (2, Metrics {
+                    insertions: Some(50),
+                    deletions: Some(10),
+                    ..Default::default()
+                }),
+            ],
+            last_modified_date: "2025-01-01".to_string(),
+            last_modified_time: "14:20:00".to_string(),
+            last_modified_timezone: "+0000".to_string(),
+            metrics: Metrics {
+                insertions: Some(50),
+                deletions: Some(10),
+                total_commits: Some(1),
+                ..Default::default()
+            }
+        };
+        
+        // Filter on empty result
+        let filtered = filter_authors(analysis_result, vec![author_to_exclude]).unwrap();
+        
+        // Should remain empty
+        assert_eq!(filtered.repository.commits.len(), 0);
+        assert_eq!(filtered.repository.authors.len(), 0);
+        assert_eq!(filtered.repository.files.len(), 0);
+    }
 
     #[test]
     fn test_filter_files() {
