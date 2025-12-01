@@ -116,7 +116,31 @@ pub fn rerun_analysis(
     previous_result: &AnalysisResult,
     new_parameters: AnalysisParameters,
 ) -> Result<AnalysisResult, String> {
-    let repository = analysis::analyse_repository(&new_parameters)?;
+    // If the new parameters only specify author/file filters we can avoid re-running
+    // a full repository analysis and instead apply in-memory filters to the previous
+    // repository. Author filtering is applied before file filtering.
+    let author_filters_present = new_parameters.author_name_filter.is_some()
+        || new_parameters.author_email_filter.is_some();
+    let file_filters_present = new_parameters.file_types_filter.is_some()
+        || new_parameters.path_filter.is_some();
+
+    let repository = if author_filters_present || file_filters_present {
+        // Start from the previously analyzed repository snapshot
+        let mut repo = previous_result.repository.clone();
+
+        if author_filters_present {
+            repo = analysis::filter_authors(&repo, &new_parameters)?;
+        }
+
+        if file_filters_present {
+            repo = analysis::filter_files(&repo, &new_parameters)?;
+        }
+
+        repo
+    } else {
+        // No author/file-only filters provided; perform a full analysis with new parameters
+        analysis::analyse_repository(&new_parameters)?
+    };
 
     Ok(AnalysisResult {
         original_repository: previous_result.original_repository.clone(),
