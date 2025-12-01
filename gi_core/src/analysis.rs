@@ -765,8 +765,24 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
 //     Ok(result)
 // }
 
-fn filter_files(result: AnalysisResult) {
-    // Placeholder for future implementation
+/// Filter repository by authors based on `author_name_filter` and `author_email_filter` in
+/// `params`. Returns a new `Repository` with commits and authors filtered accordingly.
+pub fn filter_authors(
+    repository: &Repository,
+    params: &AnalysisParameters,
+) -> Result<Repository, String> {
+// Placeholder for future implementation
+    Ok(repository.clone())
+}
+
+/// Filter repository by files based on `file_types_filter` and `path_filter` in `params`.
+/// Returns a new `Repository` with commits and files filtered accordingly.
+pub fn filter_files(
+    repository: &Repository,
+    params: &AnalysisParameters,
+) -> Result<Repository, String> {
+// Placeholder for future implementation
+    Ok(repository.clone())
 }
 
 fn filter_metrics(result: AnalysisResult) {
