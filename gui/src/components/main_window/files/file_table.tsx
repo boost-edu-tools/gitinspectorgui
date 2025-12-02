@@ -118,14 +118,17 @@ function RepositoryViewTable({
 
           {fileMetadata.map((f) => {
 
-            let ageYDH: string | undefined;
             const iso = `${f.last_modified_date}T${f.last_modified_time}${f.last_modified_timezone}`;
             const lastModified = new Date(iso);  
             const now = new Date();                  
             const diffMs = Math.max(0, now.getTime() - lastModified.getTime());
             const { years, months, days} = time_diff_YMD(diffMs);
-            ageYDH = `${years}:${months}:${days}`;
-            
+            const formattedDate = lastModified.toISOString().slice(0, 10); 
+                  const formattedRelative = `${years}y ${months}m ${days}d ago`;
+
+            const lastModifiedDisplay =
+              displayMode === "percentage" ? formattedRelative : formattedDate;
+      
             return (
             <TableRow key={f.path} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onFileSelect(f.path)}>
               <TableCell
@@ -153,7 +156,7 @@ function RepositoryViewTable({
               <TableCell className="text-right">{fmt_pct_abs(f.loc, totals.loc, displayMode)}</TableCell>
               <TableCell className="text-right">{fmt_pct_abs(f.sloc, totals.sloc, displayMode)}</TableCell>
               <TableCell className="text-right"><span>{f.stability}</span></TableCell>
-              <TableCell className="text-right">{ageYDH}</TableCell>
+              <TableCell className="text-right">{lastModifiedDisplay}</TableCell>
             </TableRow>
           )})}
         </TableBody>

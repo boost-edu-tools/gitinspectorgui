@@ -1,5 +1,5 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { METRIC_DESCRIPTIONS } from "@/components/main_window/metrics_descriptions"
+import { METRIC_DESCRIPTIONS } from "@/components/helpers/metrics_descriptions"
 import { Info } from "lucide-react"
 
 export const shortHash = (h: string) => h.slice(0, 6)

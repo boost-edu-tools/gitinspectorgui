@@ -137,7 +137,11 @@ export function AuthorStatisticsOverview(
                   const now = new Date();                  
                   const diffMs = Math.max(0, now.getTime() - lastModified.getTime());
                   const { years, months, days } = time_diff_YMD(diffMs);
-                  const ageYDH = `${years}:${months}:${days}`;
+                  const formattedDate = lastModified.toISOString().slice(0, 10); // YYYY-MM-DD
+                  const formattedRelative = `${years}y ${months}m ${days}d ago`;
+
+                  const lastModifiedDisplay =
+                    displayMode === "percentage" ? formattedRelative : formattedDate;
                                    
                   return (
                     <TableRow key={a.id} className="hover:bg-muted/50 transition-colors">
@@ -172,7 +176,7 @@ export function AuthorStatisticsOverview(
                       <TableCell className="text-right">{fmt_pct_abs(m.loc ?? 0, totals.loc, displayMode)}</TableCell>
                       <TableCell className="text-right">{fmt_pct_abs(m.sloc ?? 0, totals.sloc, displayMode)}</TableCell>
                       <TableCell className="text-right">{m.stability}</TableCell>
-                      <TableCell className="text-right">{ageYDH}</TableCell>
+                      <TableCell className="text-right">{lastModifiedDisplay}</TableCell>
                     </TableRow>
                   )
                 })}
