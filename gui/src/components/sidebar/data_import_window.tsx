@@ -1,14 +1,9 @@
 import * as React from "react"
-import { Plus, Minus, Info } from "lucide-react"
+import { Plus, Minus, Info, FolderPlus} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar"
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +31,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { retrieveRepositories, loadSettingsJson, saveSettingsJson } from "@/lib/api"
 
 import type { AnalysisProps, Filter } from "@/components/types"
+
+
 
 function ModeButton({
   include,
@@ -100,13 +97,14 @@ function ToggleRuleRow({
   )
 }
 
-export function DataImport({
+export function DataImportWindow({
   setAllRepos,
   setSelectedRepo,
   path,
   setPath,
   onSettingsSaved,
-}: Pick<AnalysisProps, "setAllRepos" | "setSelectedRepo" | "path" | "setPath" | "onSettingsSaved">) {
+  buttonSidebar
+}: Pick<AnalysisProps, "setAllRepos" | "setSelectedRepo" | "path" | "setPath" | "onSettingsSaved" | "buttonSidebar">) {
 
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
 
@@ -377,12 +375,10 @@ export function DataImport({
 
   const allSelected = foundRepos.length > 0 && selectedRepos.size === foundRepos.length
 
+  
+
   return (
-    <SidebarGroup className="mt-3">
-      <SidebarGroupLabel>Data import</SidebarGroupLabel>
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <AlertDialog
+      <AlertDialog
               open={isDialogOpen}
               onOpenChange={(open) => {
                 setIsDialogOpen(open)
@@ -392,15 +388,21 @@ export function DataImport({
               }}
             >
             <AlertDialogTrigger asChild>
+              {buttonSidebar ? (
               <Button
-                size="sm"
                 variant="secondary"
-                className="w-full gap-1 bg-gray-200 hover:bg-gray-300 text-gray-900"
+                className="h-5 px-2 text-[7px] bg-gray-200 hover:bg-gray-300 text-gray-900"
                 aria-label="Start a new analysis"
               >
-                <Plus className="mr-2 h-3 w-3" />
-                New analysis
-              </Button>
+                <Plus/>
+              </Button>): (
+              <Button
+                variant="secondary"
+                className="px-8 py-7 text-base font-semibold bg-gray-200 hover:bg-gray-300 text-gray-900
+             rounded-xl shadow-md hover:shadow-lg transition gap-3">
+                <FolderPlus className="h-5 w-5" />
+                Start Analysis
+              </Button>)}
             </AlertDialogTrigger>
 
             <AlertDialogContent className="w-[92vw] sm:max-w-3xl max-w-[960px] p-0">
@@ -650,9 +652,6 @@ export function DataImport({
                 </div>
               </div>
             </AlertDialogContent>
-          </AlertDialog>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    </SidebarGroup>
+      </AlertDialog>
   )
 }

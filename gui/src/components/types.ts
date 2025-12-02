@@ -4,6 +4,8 @@ import type { Dispatch, SetStateAction } from "react";
 
 export type AnalysisProps = { 
 
+  buttonSidebar: boolean;
+
   path: string;
   setPath: Dispatch<SetStateAction<string>>;
   
