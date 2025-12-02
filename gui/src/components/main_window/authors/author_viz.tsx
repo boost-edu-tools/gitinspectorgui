@@ -254,12 +254,8 @@ export function AuthorStatisticsVisualisation(
         <CardContent className="p-3 space-y-1 text-xs">
           <div className="font-semibold text-sm">{entry.name}</div>
           <div className="flex justify-between gap-4">
-            <span>Value:</span>
-            <span className="font-mono">{entry.value}</span>
-          </div>
-          <div className="flex justify-between gap-4">
-            <span>Share:</span>
-            <span className="font-mono">{percentage}%</span>
+            <span>{metric}</span>
+            <span className="font-mono">{entry.value} ({percentage}%)</span>
           </div>
         </CardContent>
       </Card>
