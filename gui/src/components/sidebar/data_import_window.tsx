@@ -418,9 +418,6 @@ export function DataImportWindow({
                   <section className="space-y-3">
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-medium">General</h3>
-                      <span className="rounded bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium">
-                        Required
-                      </span>
                     </div>
                     <Separator />
                     <div className="space-y-1.5">
@@ -459,7 +456,7 @@ export function DataImportWindow({
                             Repositories in path
                           </Label>
                           <Button
-                            variant="ghost"
+                            variant="secondary"
                             type="button"
                             onClick={handleToggleAllRepos}
                             className="text-xs h-7 px-2"
@@ -467,7 +464,7 @@ export function DataImportWindow({
                             {allSelected ? "Deselect all" : "Select all"}
                           </Button>
                         </div>
-                        <div className="border rounded-md max-h-30 overflow-y-auto">
+                        <div className="border rounded-md max-h-60 overflow-y-auto">
                           <ul className="divide-y">
                             {foundRepos.map((repo) => (
                               <li
@@ -490,14 +487,11 @@ export function DataImportWindow({
                     )}
                   </section>
 
-                  <Accordion type="multiple" defaultValue={[]}>
-                    <AccordionItem value="filters">
+                  <Accordion type="multiple" defaultValue={["filters"]}>
+                    <AccordionItem value="filters" >
                       <AccordionTrigger className="text-sm font-medium">
                         <div className="flex items-center gap-2">
                           <h3 className="text-sm font-medium">Filters</h3>
-                          <span className="rounded bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium">
-                            Optional
-                          </span>
                         </div>
                       </AccordionTrigger>
                       <AccordionContent>
@@ -602,9 +596,6 @@ export function DataImportWindow({
                       <AccordionTrigger className="text-sm font-medium">
                         <div className="flex items-center gap-2">
                           <h3 className="text-sm font-medium">Advanced settings</h3>
-                          <span className="rounded bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium">
-                            Optional
-                          </span>
                         </div>
                       </AccordionTrigger>
                       <AccordionContent>
