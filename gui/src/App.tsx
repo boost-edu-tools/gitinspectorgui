@@ -271,8 +271,15 @@ export default function App() {
       />
 
       <AppMainWindow 
-      repo_analysis={repoAnalysis}
-      filterData = {filterData} />
+        repo_analysis={repoAnalysis}
+        filterData = {filterData}
+        setAllRepos={setAllRepos}
+        setSelectedRepo={setSelectedRepo}
+        path = {path}
+        setPath={setPath}
+        onSettingsSaved={handleSettingsSaved}
+
+       />
     </SidebarProvider>
   );
 }

@@ -13,11 +13,26 @@ import { FileSatisticsVisualisation } from "./files/file_viz"
 import { FileStatisticsTable } from "./files/file_table"
 
 import type { AnalysisResult, AnalysisProps } from "@/components/types"
+import { DataImportWindow } from "../sidebar/data_import_window"
 
 
-
-export function AppMainWindow({ repo_analysis, filterData }: {repo_analysis: AnalysisResult } &
-  Pick<AnalysisProps,"filterData"> ) {
+export function AppMainWindow({ 
+  repo_analysis, 
+  filterData,
+  setAllRepos,
+  setSelectedRepo,
+  path, 
+  setPath,
+  onSettingsSaved
+ }: 
+  {repo_analysis: AnalysisResult } &
+  Pick<AnalysisProps,
+  "filterData"
+  | "setAllRepos"
+  | "setSelectedRepo"
+  | "path"
+  | "setPath"
+  | "onSettingsSaved"> ) {
 
   const [selectedFile, setSelectedFile] = React.useState<string | null>(null)
   
@@ -28,7 +43,14 @@ export function AppMainWindow({ repo_analysis, filterData }: {repo_analysis: Ana
   return (
     (repository.path === "") ? (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-muted-foreground text-center">No repository selected. <br /> Click 'New Analysis' on the top right to find repositories to analyze!</p>
+        <DataImportWindow
+          buttonSidebar={false}
+          setAllRepos={setAllRepos}
+          setSelectedRepo={setSelectedRepo}
+          path = {path}
+          setPath={setPath}
+          onSettingsSaved={onSettingsSaved}
+          />
       </div>
     ) : (
     <SidebarInset>
