@@ -54,7 +54,7 @@ export function FilterData({
   return (
 
      <SidebarGroup>
-      <div className="flex items-center justify-between w-full py-0">
+      <div className="flex items-center justify-between w-full px-2">
       <SidebarGroupLabel>Filter data</SidebarGroupLabel>
       <Switch checked={filterData} onCheckedChange={setFilterData} />
       </div>  
