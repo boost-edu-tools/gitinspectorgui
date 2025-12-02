@@ -1,6 +1,5 @@
 
-import { DataImport } from "@/components/sidebar/data_import"
-import { ListRepos } from "@/components/sidebar/list_repos"
+import { AnalysedRepos } from "./analysed_repos";
 import { FilterData} from "@/components/sidebar/filter/filter_main"
 import { Separator } from "@/components/ui/separator"
 import { AnalysisProps, AnalysisResult } from '@/components/types';
@@ -84,19 +83,16 @@ export function AppSidebar({
   return (
     <Sidebar >
       <SidebarContent>
-        <DataImport
+        <div className={!selectedRepo ? "opacity-50 pointer-events-none" : ""}>
+        <AnalysedRepos
+          allRepos={allRepos}
           setAllRepos={setAllRepos}
+          selectedRepo={selectedRepo}
           setSelectedRepo={setSelectedRepo}
           path = {path}
           setPath={setPath}
           onSettingsSaved={onSettingsSaved}
           />
-        <Separator className="mt-3" />
-        <ListRepos
-          allRepos={allRepos}
-          setAllRepos={setAllRepos}
-          selectedRepo={selectedRepo}
-          setSelectedRepo={setSelectedRepo}/>
         <Separator className="mt-3" />
         <FilterData
           repository={repo_analysis.original_repository}         
@@ -118,8 +114,9 @@ export function AppSidebar({
           onEndCommitChange={onEndCommitChange}/> 
         <Separator className="mt-0" />
         <DataExport/>
-
+      </div>
       </SidebarContent>
+      
       <SidebarRail />
     </Sidebar>
   )
