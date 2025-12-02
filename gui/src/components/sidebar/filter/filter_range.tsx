@@ -217,19 +217,20 @@ export function FilterRange({
     onEndCommitChange(range.endHash)
   }
 
-  if (!hasCommits) {
-    return (
-      <Card className="bg-transparent border-none shadow-none p-0">
-
-      </Card>
-    )
-  }
+  
 
   return (
     <Card className="bg-transparent border-none shadow-none p-0">
       <CardContent className="p-2 space-y-2">
-        <div className="flex items-start gap-2">
-          <Button
+        {commits.length === 0 && (
+          <ScrollArea className="h-30 w-full rounded border">
+            </ScrollArea>
+        )}
+        
+        {commits.length > 0 && (
+          <div className="flex items-start gap-2">
+          
+            <Button
             variant="outline"
             className="h-7 px-2 text-[10px] inline-flex items-center gap-1"
             type="button"
@@ -237,9 +238,13 @@ export function FilterRange({
           >
             Change Date Range
           </Button>
-        </div>
+        </div>)}
 
-        <ScrollArea className="h-30 w-full rounded border">
+        
+
+        {commits.length > 0 && (
+          <ScrollArea className="h-30 w-full rounded border">
+          
           <ul className="divide-y divide-border/40">
             {commits.map((c, i) => {
               const d = new Date(`${c.date}T${c.time}${c.timezone}`)
@@ -350,9 +355,10 @@ export function FilterRange({
               )
             })}
           </ul>
-        </ScrollArea>
+        </ScrollArea>)}
 
-        <div className="flex-1 min-w-0">
+        {commits.length > 0 && (
+          <div className="flex-1 min-w-0">
           {startCommit && endCommit ? (
             <div className="text-[10px] leading-tight text-foreground truncate">
               <div className="truncate">
@@ -369,9 +375,9 @@ export function FilterRange({
           ) : (
             <div className="text-[10px] text-muted-foreground">No selection</div>
           )}
-        </div>
+        </div>)}
 
-        <AlertDialog open={dateDialogOpen} onOpenChange={setDateDialogOpen}>
+        {commits.length > 0 && (<AlertDialog open={dateDialogOpen} onOpenChange={setDateDialogOpen}>
           <AlertDialogContent className="w-[92vw] max-w-[380px] p-0 gap-0 overflow-hidden max-h-[90vh] overflow-y-auto">
             <AlertDialogHeader className="px-4 pt-4 pb-2 border-b bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40">
               <AlertDialogTitle className="text-sm font-semibold tracking-tight">
@@ -476,7 +482,7 @@ export function FilterRange({
               </div>
             </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialog>
+        </AlertDialog>)}
       </CardContent>
     </Card>
   )
