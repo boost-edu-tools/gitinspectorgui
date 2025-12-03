@@ -177,6 +177,8 @@ export function DataImportWindow({
   const [isCheckingPath, setIsCheckingPath] = React.useState(false)
   const [pathError, setPathError] = React.useState<string | null>(null)
 
+  const [repoSearch, setRepoSearch] = React.useState("")
+
   const applyLoadedSettings = (loaded: any) => {
     console.log("[DataImport] Applying loaded settings:", loaded)
 
@@ -251,13 +253,10 @@ export function DataImportWindow({
       const selected = await open({
         directory: true,
         multiple: false,
-        // optional:
-        // defaultPath: path || undefined,
         title: "Select root folder for Git repositories",
       })
 
-      if (!selected) return // user cancelled
-
+      if (!selected) return 
       if (typeof selected === "string") {
         setPath(selected)
         await fetchReposForPath(selected)
@@ -325,6 +324,7 @@ export function DataImportWindow({
     setFoundRepos([])
     setSelectedRepos(new Set())
     setPathError(null)
+    setRepoSearch("")
   }
 
   React.useEffect(() => {
@@ -411,8 +411,12 @@ export function DataImportWindow({
   }
 
   const allSelected = foundRepos.length > 0 && selectedRepos.size === foundRepos.length
-
   
+  const visibleRepos = React.useMemo(() => {
+  const q = repoSearch.trim().toLowerCase()
+      if (!q) return foundRepos
+      return foundRepos.filter((repo) => repo.toLowerCase().includes(q))
+    }, [repoSearch, foundRepos])
 
   return (
       <AlertDialog
@@ -420,6 +424,7 @@ export function DataImportWindow({
               onOpenChange={(open) => {
                 setIsDialogOpen(open)
                 if (open) {
+                  onReset()
                   void handleDialogOpen()
                 }
               }}
@@ -496,22 +501,34 @@ export function DataImportWindow({
 
                     {foundRepos.length > 0 && (
                       <div className="space-y-2 mt-3">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-                            Repositories in path
-                          </Label>
-                          <Button
-                            variant="secondary"
-                            type="button"
-                            onClick={handleToggleAllRepos}
-                            className="text-xs h-7 px-2"
-                          >
-                            {allSelected ? "Deselect all" : "Select all"}
-                          </Button>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex flex-col">
+                            <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                              Repositories in path
+                            </Label>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Input
+                              className="h-7 text-xs w-40"
+                              placeholder="Search repositories..."
+                              value={repoSearch}
+                              onChange={(e) => setRepoSearch(e.target.value)}
+                            />
+                            <Button
+                              variant="secondary"
+                              type="button"
+                              onClick={handleToggleAllRepos}
+                              className="text-xs h-7 px-2"
+                            >
+                              {allSelected ? "Deselect all" : "Select all"}
+                            </Button>
+                          </div>
                         </div>
+
                         <div className="border rounded-md max-h-60 overflow-y-auto">
                           <ul className="divide-y">
-                            {foundRepos.map((repo) => (
+                            {visibleRepos.map((repo) => (
                               <li
                                 key={repo}
                                 className="flex items-center gap-2 px-3 py-2 text-sm"
@@ -521,7 +538,10 @@ export function DataImportWindow({
                                   onCheckedChange={() => handleToggleRepo(repo)}
                                   className="mt-0.5"
                                 />
-                                <span className="truncate max-w-[180px] block [direction:rtl] text-left" title={repo}>
+                                <span
+                                  className="truncate max-w-[180px] block [direction:rtl] text-left"
+                                  title={repo}
+                                >
                                   {repo}
                                 </span>
                               </li>
@@ -530,6 +550,7 @@ export function DataImportWindow({
                         </div>
                       </div>
                     )}
+
                   </section>
 
                   <Accordion type="multiple" defaultValue={["filters"]}>
