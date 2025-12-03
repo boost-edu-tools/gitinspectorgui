@@ -36,6 +36,8 @@ export default function App() {
   const [startCommitHash, setStartCommitHash] = React.useState<string>("");
   const [endCommitHash, setEndCommitHash] = React.useState<string>("");
 
+  const [loading, setLoading] = React.useState(false);
+
   const defaultRepoAnalysis: AnalysisResult = {
   parameters: { repo_path: "" },
   original_repository: {
@@ -78,8 +80,9 @@ export default function App() {
     }
 
     isInitialFilterSetup.current = true;
-
+    
     (async () => {
+      setLoading(true);
       try {
 
         let settings: Settings | null = null;
@@ -137,7 +140,9 @@ export default function App() {
       } catch (err) {
         console.error("createAnalysisParameters failed:", err);
       }
-    })();
+      finally {
+    setLoading(false);}
+  })();
   }, [selectedRepo, settingsVersion]);
 
 
@@ -192,6 +197,7 @@ export default function App() {
 
     (async () => {
       console.time("⏱️ Re-analysis Duration");
+      setLoading(true);
       try {
         const authorsFilter = {
           include: true,
@@ -224,6 +230,9 @@ export default function App() {
       } catch (err) {
         console.error("Re-analysis failed:", err);
       }
+      finally {
+        setLoading(false);
+      }
     })();
   }, [
     selectedRepo,
@@ -234,7 +243,8 @@ export default function App() {
   ]);
 
   return (
-    <SidebarProvider>
+
+    <SidebarProvider> 
       <AppSidebar
         path = {path}
         setPath={setPath}
@@ -269,6 +279,7 @@ export default function App() {
         
         onSettingsSaved={handleSettingsSaved}
       />
+      
 
       <AppMainWindow 
         repo_analysis={repoAnalysis}
@@ -280,6 +291,12 @@ export default function App() {
         onSettingsSaved={handleSettingsSaved}
 
        />
-    </SidebarProvider>
+
+       {loading && (
+          <div className="loading-overlay">
+            <div className="spinner" />
+          </div>
+        )}
+  </SidebarProvider>
   );
 }

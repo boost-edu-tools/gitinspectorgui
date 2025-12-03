@@ -32,8 +32,6 @@ import { retrieveRepositories, loadSettingsJson, saveSettingsJson } from "@/lib/
 
 import type { AnalysisProps, Filter } from "@/components/types"
 
-
-
 function ModeButton({
   include,
   onToggle,
@@ -643,6 +641,13 @@ export function DataImportWindow({
                 </div>
               </div>
             </AlertDialogContent>
+
+            {isCheckingPath && (
+          <div className="loading-overlay">
+            <div className="spinner" />
+          </div>
+        )}
+
       </AlertDialog>
   )
 }
