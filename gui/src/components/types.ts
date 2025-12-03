@@ -56,16 +56,11 @@ export type Author = {
   name: string;
   email: string;
   commit_hashes: string[];
-  files: AuthorFileMetrics[];
+  files: [number, Metrics][];
   last_modified_date: string;
   last_modified_time: string;
   last_modified_timezone: string;   
   metrics: Metrics; 
-};
-
-export type AuthorFileMetrics = {
-  id: number;
-  metrics: Metrics;
 };
 
 export type Commit = {
@@ -76,12 +71,7 @@ export type Commit = {
   time: string;
   timezone: string;   
   message: string;
-  files_changed: CommitFileMetrics[];
-  metrics: Metrics;
-};
-
-export type CommitFileMetrics = {
-  id: number;
+  files_changed: [number, Metrics][];
   metrics: Metrics;
 };
 

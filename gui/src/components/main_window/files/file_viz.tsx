@@ -42,7 +42,7 @@ export function FileSatisticsVisualisation(
       const name = a.name ?? "Unknown"
       const byId: Record<string, Metrics> = {}
       for (const af of a.files ?? []) {
-        byId[af.id] = af.metrics ?? {}
+        byId[af[0]] = af[1] ?? {}
       }
       idx[name] = byId
     }
