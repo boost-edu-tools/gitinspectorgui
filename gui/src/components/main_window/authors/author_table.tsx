@@ -109,7 +109,7 @@ export function AuthorStatisticsOverview(
 
               <TableBody>
                 <TableRow className="bg-muted/30 border-b-2">
-                  <TableCell className="font-semibold sticky left-0 bg-muted/30 border-r z-10">
+                  <TableCell className="font-semibold sticky left-0 bg-muted border-r z-10">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
                     <span>All Authors ({sortedAuthors.length})</span>
@@ -144,9 +144,9 @@ export function AuthorStatisticsOverview(
                     displayMode === "percentage" ? formattedRelative : formattedDate;
                                    
                   return (
-                    <TableRow key={a.id} className="hover:bg-muted/50 transition-colors">
+                    <TableRow key={a.id} >
                       <TableCell className="font-mono text-xs sticky left-0 bg-background border-r z-10">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 ">
                           <User className="h-4 w-4 text-muted-foreground" />
                           <span
                             style={{ color: getAuthorColor(a.name ?? "").color }}

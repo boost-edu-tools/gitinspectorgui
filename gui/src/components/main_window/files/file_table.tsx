@@ -84,7 +84,7 @@ function RepositoryViewTable({
   }, [fileMetadata])
 
   return (
-    <div className="border rounded-lg overflow-x-auto">
+    <div className="border rounded-lg overflow-auto max-h-[60vh]">
       <Table className="min-w-full">
         <TableHeader>
           <TableRow className="hover:bg-background">
@@ -101,7 +101,7 @@ function RepositoryViewTable({
         </TableHeader>
         <TableBody>
           <TableRow className="bg-muted/30 hover:bg-muted/40 border-b-2">
-            <TableCell className="font-semibold sticky left-0 bg-muted/30 border-r z-10">
+            <TableCell className="font-semibold sticky left-0 bg-muted border-r z-10">
               <div className="flex items-center gap-2">
                 <FolderOpen className="h-4 w-4 text-muted-foreground" />
                 <span>All Files ({fileMetadata.length})</span>
