@@ -445,6 +445,7 @@ export function AuthorStatisticsVisualisation(
                         stackId="a"
                         fill={color}
                         fillOpacity={0.8}
+                        isAnimationActive={false}
                       />
                     )
                   })}
