@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Plus, Minus, Info, FolderPlus} from "lucide-react"
+import { Plus, Minus, Circle, FolderPlus} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -20,12 +20,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+
 import { Checkbox } from "@/components/ui/checkbox"
 
 import { retrieveRepositories, loadSettingsJson, saveSettingsJson } from "@/lib/api"
@@ -34,31 +29,42 @@ import type { AnalysisProps, Filter } from "@/components/types"
 
 function ModeButton({
   include,
+  isActive,
   onToggle,
   ariaLabel,
 }: {
   include: Boolean
+  isActive: Boolean
   onToggle: () => void
   ariaLabel: string
 }) {
+  const Icon = !isActive ? Circle : include ? Plus : Minus
 
-  const Icon = include ? Plus : Minus
-  return (
+  const baseClasses =
+    "h-9 w-9 shrink-0 rounded-l-md border-r inline-flex items-center justify-center"
+
+  const colorClasses = !isActive
+    ? "bg-muted text-muted-foreground border-border"
+    : include
+    ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+    : "bg-red-500/10 text-red-600 border-red-500/30"
+
+  const title = !isActive
+    ? "Filter inactive"
+    : include
+    ? "Include"
+    : "Exclude"
+
+  return(
     <button
       type="button"
       aria-label={ariaLabel}
       onClick={onToggle}
-      className={
-        "h-9 w-9 shrink-0 rounded-l-md border-r inline-flex items-center justify-center " +
-        (include
-          ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
-          : "bg-red-500/10 text-red-600 border-red-500/30")
-      }
-      title={include ? "Include" : "Exclude"}
+      className={`${baseClasses} ${colorClasses}`}
+      title={title}
     >
       <Icon className="h-4 w-4" />
-    </button>
-  )
+    </button>)
 }
 
 function ToggleRuleRow({
@@ -78,11 +84,18 @@ function ToggleRuleRow({
   onChange: (v: string) => void
   onToggle: () => void
 }) {
+  const isActive = value.trim().length > 0
+
   return (
     <div className="space-y-1.5">
       <Label htmlFor={id}>{label}</Label>
       <div className="flex rounded-md border">
-        <ModeButton include={include} onToggle={onToggle} ariaLabel={`${label} mode`} />
+        <ModeButton
+          include={include}
+          isActive={isActive}
+          onToggle={onToggle}
+          ariaLabel={`${label} mode`}
+        />
         <Input
           id={id}
           value={value}
@@ -94,6 +107,7 @@ function ToggleRuleRow({
     </div>
   )
 }
+
 
 export function DataImportWindow({
   setAllRepos,
@@ -493,29 +507,16 @@ export function DataImportWindow({
                         </div>
                       </AccordionTrigger>
                       <AccordionContent>
+                        
                         <div className="space-y-3">
                           <Separator />
-                          <div className="flex justify-end items-center gap-2 text-sm text-muted-foreground">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="flex items-center gap-1 cursor-help">
-                                    <Info className="h-4 w-4 text-muted-foreground" />
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>
-                                    Click the{" "}
-                                    <span className="text-emerald-600 font-medium">green +</span>{" "}
-                                    or{" "}
-                                    <span className="text-red-600 font-medium">red –</span> button to
-                                    toggle between <strong>include</strong> and{" "}
-                                    <strong>exclude</strong> mode for each filter.
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
+                          <div className="flex flex-col items-start gap-1">
+                          <p className="text-xs font-normal text-muted-foreground text-left">
+                            A gray circle means the filter is inactive. When you type this will change to a red -, which you can use to exclude, or change to a green + to include.
+                            Standard Unix-style glob syntax is supported, e.g.{" "}
+                            <code>*.rs</code>, <code>src/**/tests/*</code>.
+                          </p>
+                        </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <ToggleRuleRow
