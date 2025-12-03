@@ -27,6 +27,8 @@ import { retrieveRepositories, loadSettingsJson, saveSettingsJson } from "@/lib/
 
 import type { AnalysisProps, Filter } from "@/components/types"
 
+import { open } from "@tauri-apps/plugin-dialog"
+
 function ModeButton({
   include,
   isActive,
@@ -107,7 +109,6 @@ function ToggleRuleRow({
     </div>
   )
 }
-
 
 export function DataImportWindow({
   setAllRepos,
@@ -244,41 +245,65 @@ export function DataImportWindow({
       return new Set(foundRepos)
     })
   }
-
-  const handleSetPath = async () => {
-    if (!path || path.trim() === "") {
-      setPathError("Please provide a root path to search for repositories.")
-      setFoundRepos([])
-      setSelectedRepos(new Set())
-      return
-    }
-
-    setIsCheckingPath(true)
-    setPathError(null)
-
+  
+  const handleBrowseFolder = async () => {
     try {
-      const depthNum = Number(searchDepth) || 1
-      console.log("DataImport: retrieving repositories for", path, "depth", depthNum)
-      const repos = await retrieveRepositories(path, depthNum)
-      console.log("retrieve_repositories result:", repos)
+      const selected = await open({
+        directory: true,
+        multiple: false,
+        // optional:
+        // defaultPath: path || undefined,
+        title: "Select root folder for Git repositories",
+      })
 
-      if (!repos || repos.length === 0) {
-        setFoundRepos([])
-        setSelectedRepos(new Set())
-        setPathError("No Git repositories found in this path.")
-      } else {
-        setFoundRepos(repos)
-        setSelectedRepos(new Set(repos))
+      if (!selected) return // user cancelled
+
+      if (typeof selected === "string") {
+        setPath(selected)
+        await fetchReposForPath(selected)
       }
     } catch (err) {
-      console.error("Failed to retrieve repositories:", err)
-      setFoundRepos([])
-      setSelectedRepos(new Set())
-      setPathError(`Failed to retrieve repositories: ${String(err)}`)
-    } finally {
-      setIsCheckingPath(false)
+      console.error("Failed to open folder dialog:", err)
+      setPathError("Failed to open folder dialog.")
     }
   }
+
+
+  const fetchReposForPath = async (rootPath: string) => {
+  if (!rootPath || rootPath.trim() === "") {
+    setPathError("Please provide a root path to search for repositories.")
+    setFoundRepos([])
+    setSelectedRepos(new Set())
+    return
+  }
+
+  setIsCheckingPath(true)
+  setPathError(null)
+
+  try {
+    const depthNum = Number(searchDepth) || 1
+    console.log("DataImport: retrieving repositories for", rootPath, "depth", depthNum)
+    const repos = await retrieveRepositories(rootPath, depthNum)
+    console.log("retrieve_repositories result:", repos)
+
+    if (!repos || repos.length === 0) {
+      setFoundRepos([])
+      setSelectedRepos(new Set())
+      setPathError("No Git repositories found in this path.")
+    } else {
+      setFoundRepos(repos)
+      setSelectedRepos(new Set(repos))
+    }
+  } catch (err) {
+    console.error("Failed to retrieve repositories:", err)
+    setFoundRepos([])
+    setSelectedRepos(new Set())
+    setPathError(`Failed to retrieve repositories: ${String(err)}`)
+  } finally {
+    setIsCheckingPath(false)
+  }
+}
+
 
   const onReset = () => {
     setPath(defaultState.path)
@@ -439,18 +464,26 @@ export function DataImportWindow({
                           id="path"
                           value={path}
                           onChange={(e) => setPath(e.target.value)}
-                          placeholder="e.g. /home/user/repos"
+                          onBlur={(e) => {
+                            const newPath = e.target.value.trim()
+                            if (newPath) {
+                              void fetchReposForPath(newPath)
+                            }
+                          }}
+                          className="cursor-text"
                         />
+
                         <Button
                           type="button"
                           variant="secondary"
-                          onClick={handleSetPath}
+                          onClick={handleBrowseFolder}
                           disabled={isCheckingPath}
                           className="shrink-0"
                         >
-                          {isCheckingPath ? "Checking..." : "Set"}
+                          {isCheckingPath ? "Checking..." : "Browse"}
                         </Button>
                       </div>
+
                       {pathError && (
                         <p className="text-xs text-red-500 mt-1">{pathError}</p>
                       )}
@@ -513,8 +546,7 @@ export function DataImportWindow({
                           <div className="flex flex-col items-start gap-1">
                           <p className="text-xs font-normal text-muted-foreground text-left">
                             A gray circle means the filter is inactive. When you type this will change to a red -, which you can use to exclude, or change to a green + to include.
-                            Standard Unix-style glob syntax is supported, e.g.{" "}
-                            <code>*.rs</code>, <code>src/**/tests/*</code>.
+                            Standard Unix-style glob syntax is supported.
                           </p>
                         </div>
 
