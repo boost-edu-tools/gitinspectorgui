@@ -88,7 +88,7 @@ function RepositoryViewTable({
       <Table className="min-w-full">
         <TableHeader>
           <TableRow className="hover:bg-background">
-            <TableHead className="font-semibold sticky left-0 bg-background border-r w-[200px] z-10">File</TableHead>
+            <TableHead className="font-semibold sticky left-0 bg-muted border-r w-[200px] z-10">File</TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="total_commits" /></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="insertions" /></TableHead>
             <TableHead className="text-right"><MetricHeader metricKey="deletions" /></TableHead>
@@ -132,7 +132,7 @@ function RepositoryViewTable({
             return (
             <TableRow key={f.path} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onFileSelect(f.path)}>
               <TableCell
-                      className="font-mono text-xs sticky left-0 bg-background border-r z-10"
+                      className="font-mono text-xs sticky left-0 bg-muted border-r z-10"
                     >
                       <TooltipProvider>
                         <Tooltip>
@@ -191,7 +191,7 @@ function AuthorFileViewTable({
   }, [rows])
 
   return (
-    <div className="border rounded-lg overflow-x-auto">
+    <div className="border rounded-lg overflow-auto">
       <Table className="min-w-full">
         <TableHeader>
           <TableRow className="hover:bg-background">
@@ -330,7 +330,7 @@ export function FileStatisticsTable({
               </div>
             )}
 
-            <div className="grid w-full [&>div]:border [&>div]:rounded overflow-x-auto">
+            <div className="grid w-full [&>div]:border [&>div]:rounded overflow-auto">
               <p className="text-xs text-muted-foreground pb-4">
                 Click on any file in the table below to view its detailed blame information
               </p>

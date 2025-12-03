@@ -75,11 +75,11 @@ export function AuthorStatisticsOverview(
             </div>
           </div>
 
-          <div className="grid w-full [&>div]:border [&>div]:rounded overflow-x-auto py-4">
+          <div className="grid w-full [&>div]:border [&>div]:rounded overflow-auto py-4">
             <Table className="min-w-full">
               <TableHeader>
                 <TableRow className="hover:bg-background">
-                  <TableHead className="font-semibold sticky left-0 bg-background border-r w-[200px] z-10">
+                  <TableHead className="font-semibold sticky left-0 bg-muted border-r w-[200px] z-10">
                     Author
                   </TableHead>
                   <TableHead className="min-w-[170px] max-w-[170x] w-[170px]">Email</TableHead>
@@ -145,7 +145,7 @@ export function AuthorStatisticsOverview(
                                    
                   return (
                     <TableRow key={a.id} >
-                      <TableCell className="font-mono text-xs sticky left-0 bg-background border-r z-10">
+                      <TableCell className="font-mono text-xs sticky left-0 bg-muted border-r z-10">
                         <div className="flex items-center gap-2 ">
                           <User className="h-4 w-4 text-muted-foreground" />
                           <span
