@@ -1595,10 +1595,73 @@ mod tests {
     }
 
     #[test]
-    fn test_filter_files() {
-        // Placeholder test
-        // let dummy = make_dummy_analysis_result();
-        // filter_files(dummy);
+    fn test_filter_files_updates_files_and_commits() {
+        let analysis_result = create_test_analysis_result();
+
+        // Get the first file in analysis_result so it can be excluded
+        let file_to_exclude = analysis_result.repository.files[0].clone();
+
+        let filtered = filter_files(analysis_result, vec![file_to_exclude]).unwrap();
+
+        // Verify files are filtered
+        assert_eq!(filtered.files.len(), 1);
+        assert_eq!(filtered.files[0].id, 2);
+        assert_eq!(filtered.files[0].path, "src/lib.rs");
+
+        // Verify commit 1 is deleted
+        assert_eq!(filtered.commits.len(), 1);
+
+        // Verify commit 2 metrics remain unchanged
+        let commit2 = &filtered.commits[0];
+        assert_eq!(commit2.id, 2);
+        assert_eq!(commit2.files_changed.len(), 1); // lib.rs still there
+        assert_eq!(commit2.files_changed[0].0, 2); // file id=2
+        assert_eq!(commit2.metrics.insertions, Some(50));
+        assert_eq!(commit2.metrics.deletions, Some(10));
+        assert_eq!(commit2.metrics.total_files, Some(1));
+
+        // Verify repository-level metrics
+        assert_eq!(filtered.metrics.total_files, Some(1)); // only lib.rs remains
+        assert_eq!(filtered.metrics.total_authors, Some(2)); // both authors still present
+        assert_eq!(filtered.metrics.total_commits, Some(1)); // only one commit present
+        assert_eq!(filtered.metrics.insertions, Some(50)); // only from commit2
+        assert_eq!(filtered.metrics.deletions, Some(10)); // only from commit2
+        assert_eq!(filtered.metrics.loc, Some(0));
+        assert_eq!(filtered.metrics.sloc, Some(0));
+        assert_eq!(filtered.metrics.cloc, Some(0));
+        assert_eq!(filtered.metrics.whitespace, Some(0));
+    }
+
+    #[test]
+    fn test_filter_non_existing_file() {
+        let analysis_result = create_test_analysis_result();
+
+        // Exclude a non-existing file
+        let file_to_exclude = File {
+            id: 999,
+            name: "nonexistent.rs".to_string(),
+            extension: "rs".to_string(),
+            path: "src/nonexistent.rs".to_string(),
+            file_size: Some(0),
+            lines: vec![],
+            metrics: Metrics {
+                insertions: Some(50),
+                deletions: Some(10),
+                ..Default::default()
+            },
+            last_modified_date: "2025-01-01".to_string(),
+            last_modified_time: "00:00:00".to_string(),
+            last_modified_timezone: "+0000".to_string(),
+        };           
+
+        let filtered = filter_files(analysis_result, vec![file_to_exclude]).unwrap();
+
+        // Verify files are unfiltered
+        assert_eq!(filtered.files.len(), 2);
+        assert_eq!(filtered.files[0].id, 1);
+        assert_eq!(filtered.files[0].path, "src/main.rs");
+        assert_eq!(filtered.files[1].id, 2);
+        assert_eq!(filtered.files[1].path, "src/lib.rs");
     }
     }
 
