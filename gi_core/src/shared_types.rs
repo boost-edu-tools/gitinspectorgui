@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 /// - Deletions
 /// - Total commits affecting the file
 /// - Total number of authors who modified the file
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct File {
     pub id: usize,
     pub name: String,
@@ -25,7 +25,7 @@ pub struct File {
 }
 
 /// The Line struct represents a line in a file with its associated data.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Line {
     pub number: usize,
     pub content: String,
@@ -33,7 +33,7 @@ pub struct Line {
     pub line_type: LineType,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum LineType {
     SLOC,
     CLOC,
