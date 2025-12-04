@@ -4,7 +4,7 @@ use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::Settings;
+use crate::{Settings, Author};
 
 pub fn is_existing_path(path: &Path) -> bool {
     match path.try_exists() {
