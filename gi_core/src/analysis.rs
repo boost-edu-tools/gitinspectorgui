@@ -1663,6 +1663,24 @@ mod tests {
         assert_eq!(filtered.files[1].id, 2);
         assert_eq!(filtered.files[1].path, "src/lib.rs");
     }
+
+    #[test]
+    fn test_filter_files_removes_empty_commits() {
+        let analysis_result = create_test_analysis_result();
+
+        // Exclude main.rs, which is the only file in commit 1
+        let file_to_exclude = analysis_result.repository.files[0].clone();
+        let filtered = filter_files(analysis_result, vec![file_to_exclude]).unwrap();
+
+        // Should have only one commit left
+        assert_eq!(filtered.commits.len(), 1);
+        assert_eq!(filtered.commits[0].id, 2);
+        assert_eq!(filtered.commits[0].author_id, 2);
+
+        // Repository metrics should reflect only one commit
+        assert_eq!(filtered.metrics.total_commits, Some(1));
+        assert_eq!(filtered.metrics.insertions, Some(50)); // only from commit 2
+        assert_eq!(filtered.metrics.deletions, Some(10)); // only from commit 2
     }
 
     #[test]
