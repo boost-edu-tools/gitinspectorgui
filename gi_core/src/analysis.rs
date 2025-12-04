@@ -1552,6 +1552,37 @@ mod tests {
     }
 
     #[test]
+    fn test_filter_authors_updates_repository_metrics() {
+        let analysis_result = create_test_analysis_result();
+        let author_alice = analysis_result.repository.authors[0].clone();
+        
+        // Filter out Alice
+        let filtered = filter_authors(analysis_result, vec![author_alice]).unwrap();
+        
+        // Should have only 1 commit (from Bert)
+        assert_eq!(filtered.commits.len(), 1);
+        
+        // Should have only 1 author (Bert)
+        assert_eq!(filtered.authors.len(), 1);
+        assert_eq!(filtered.authors[0].name, "Bert");
+        
+        // Should have only 1 file (lib.rs)
+        assert_eq!(filtered.files.len(), 1);
+        assert_eq!(filtered.files[0].path, "src/lib.rs");
+        
+        // Verify repository-level metrics are recalculated
+        assert_eq!(filtered.metrics.total_files, Some(1));
+        assert_eq!(filtered.metrics.total_authors, Some(1));
+        assert_eq!(filtered.metrics.total_commits, Some(1));
+        assert_eq!(filtered.metrics.insertions, Some(50)); // only Bert's commit
+        assert_eq!(filtered.metrics.deletions, Some(10)); // only Bert's commit
+        assert_eq!(filtered.metrics.loc, Some(0));
+        assert_eq!(filtered.metrics.sloc, Some(0));
+        assert_eq!(filtered.metrics.cloc, Some(0));
+        assert_eq!(filtered.metrics.whitespace, Some(0));
+    }
+
+    #[test]
     fn test_filter_empty_analysis_result() {
         let repository = Repository {
             name: "empty-repo".to_string(),
