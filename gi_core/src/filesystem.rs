@@ -195,10 +195,10 @@ mod tests {
     }
 
     #[test]
-    fn test_non_git_repo_should_fail() {
+    fn test_upward_git_repo_discovery() {
         let temp_dir = TempDir::new().unwrap();
-
-        assert!(!is_git_repository(temp_dir.path()));
+        // Should find the top-level .git file in the gitinspectorgui folder
+        assert!(is_git_repository(temp_dir.path()));
     }
 
     #[test]
@@ -330,7 +330,7 @@ mod tests {
             metrics: Metrics::default(),
         }];
 
-        let result = convert_to_csv(&authors);
+        let result = convert_authors_to_csv(&authors);
         assert!(result.is_ok());
 
         let csv_string = result.unwrap();
