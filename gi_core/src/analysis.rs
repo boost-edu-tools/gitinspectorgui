@@ -713,18 +713,112 @@ fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Re
     Ok(result)
 }
 
-fn filter_files(result: AnalysisResult, files_to_exclude: Vec<File>) -> Result<AnalysisResult, String> {
-    let mut result = result;
-    let exclude_set: HashSet<File> = files_to_exclude.into_iter().collect();
+fn filter_files(result: AnalysisResult, files_to_exclude: Vec<File>) -> Result<Repository, String> {
+    let mut repository = result.repository;
+    let exclude_set: HashSet<usize> = files_to_exclude
+        .iter()
+        .map(|f| f.id)
+        .collect();
 
     // Keep only the files that are NOT in files_to_exclude
-    result.repository.files.retain(|file| !exclude_set.contains(file));
+    repository.files.retain(|file| !exclude_set.contains(&file.id));
 
-    Ok(result)
-}
+    // Update commits - remove files and subtract their metrics from the commit metrics
+    for commit in &mut repository.commits {
+        let mut removed_ins: usize = 0;
+        let mut removed_del: usize = 0;
 
-        let mut removed_del = 0;
-    // Placeholder for future implementation
+        commit.files_changed.retain(|(file_id, file_metrics)| {
+            if exclude_set.contains(file_id) {
+                removed_ins = removed_ins.saturating_add(file_metrics.insertions.unwrap_or(0));
+                removed_del = removed_del.saturating_add(file_metrics.deletions.unwrap_or(0));
+                false
+            } else {
+                true
+            }
+        });
+
+        // Update the per-commit metrics
+        commit.metrics.insertions = Some(
+            commit.metrics.insertions.unwrap_or(0).saturating_sub(removed_ins)
+        );
+        commit.metrics.deletions = Some(
+            commit.metrics.deletions.unwrap_or(0).saturating_sub(removed_del)
+        );
+        commit.metrics.total_files = Some(commit.files_changed.len());
+    }
+
+    // Remove commits with no files
+    repository.commits.retain(|commit| !commit.files_changed.is_empty());
+
+    // Update authors - remove files and subtract their metrics from author metrics
+    for author in &mut repository.authors {
+        let mut removed_ins: usize = 0;
+        let mut removed_del: usize = 0;
+
+        author.files.retain(|(file_id, file_metrics)| {
+            if exclude_set.contains(file_id) {
+                removed_ins = removed_ins.saturating_add(file_metrics.insertions.unwrap_or(0));
+                removed_del = removed_del.saturating_add(file_metrics.deletions.unwrap_or(0));
+                false
+            } else {
+                true
+            }
+        });
+
+        // Update the per-author metrics
+        author.metrics.insertions = Some(
+            author.metrics.insertions.unwrap_or(0).saturating_sub(removed_ins)
+        );
+        author.metrics.deletions = Some(
+            author.metrics.deletions.unwrap_or(0).saturating_sub(removed_del)
+        );
+        author.metrics.total_files = Some(author.files.len());
+    }
+
+    // Recalculate repository-level metrics
+    let mut total_loc: usize = 0;
+    let mut total_sloc: usize = 0;
+    let mut total_cloc: usize = 0;
+    let mut total_whitespace: usize = 0;
+
+    for file in &repository.files {
+        if let Some(loc) = file.metrics.loc {
+            total_loc = total_loc.saturating_add(loc);
+        }
+        if let Some(sloc) = file.metrics.sloc {
+            total_sloc = total_sloc.saturating_add(sloc);
+        }
+        if let Some(cloc) = file.metrics.cloc {
+            total_cloc = total_cloc.saturating_add(cloc);
+        }
+        if let Some(whitespace) = file.metrics.whitespace {
+            total_whitespace = total_whitespace.saturating_add(whitespace);
+        }
+    }
+
+    // Calculate total insertions and deletions from remaining commits
+    let total_insertions: usize = repository.commits
+        .iter()
+        .map(|commit| commit.metrics.insertions.unwrap_or(0))
+        .sum();
+    let total_deletions: usize = repository.commits
+        .iter()
+        .map(|commit| commit.metrics.deletions.unwrap_or(0))
+        .sum();    
+
+    // Write new values to repository fields
+    repository.metrics.loc = Some(total_loc);
+    repository.metrics.sloc = Some(total_sloc);
+    repository.metrics.cloc = Some(total_cloc);
+    repository.metrics.whitespace = Some(total_whitespace);
+    repository.metrics.total_files = Some(repository.files.len());
+    repository.metrics.total_authors = Some(repository.authors.len());
+    repository.metrics.total_commits = Some(repository.commits.len());
+    repository.metrics.insertions = Some(total_insertions);
+    repository.metrics.deletions = Some(total_deletions);
+
+    Ok(repository)
 }
 
 /// This function retrieves blame information up until the latest commit in the AnalysisResult.
