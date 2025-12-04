@@ -680,8 +680,50 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
     }
 }
 
-fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Result<AnalysisResult, String> {
-    let mut result = result;
+fn recalculate_repository_metrics(repository: &mut Repository) {
+    // Recalculate line metrics from remaining files
+    let mut total_loc: usize = 0;
+    let mut total_sloc: usize = 0;
+    let mut total_cloc: usize = 0;
+    let mut total_whitespace: usize = 0;
+
+    for file in &repository.files {
+        if let Some(loc) = file.metrics.loc {
+            total_loc = total_loc.saturating_add(loc);
+        }
+        if let Some(sloc) = file.metrics.sloc {
+            total_sloc = total_sloc.saturating_add(sloc);
+        }
+        if let Some(cloc) = file.metrics.cloc {
+            total_cloc = total_cloc.saturating_add(cloc);
+        }
+        if let Some(whitespace) = file.metrics.whitespace {
+            total_whitespace = total_whitespace.saturating_add(whitespace);
+        }
+    }
+
+    // Calculate total insertions and deletions from remaining commits
+    let total_insertions: usize = repository.commits
+        .iter()
+        .map(|commit| commit.metrics.insertions.unwrap_or(0))
+        .sum();
+    let total_deletions: usize = repository.commits
+        .iter()
+        .map(|commit| commit.metrics.deletions.unwrap_or(0))
+        .sum();    
+
+    // Write new values to repository fields
+    repository.metrics.loc = Some(total_loc);
+    repository.metrics.sloc = Some(total_sloc);
+    repository.metrics.cloc = Some(total_cloc);
+    repository.metrics.whitespace = Some(total_whitespace);
+    repository.metrics.total_files = Some(repository.files.len());
+    repository.metrics.total_authors = Some(repository.authors.len());
+    repository.metrics.total_commits = Some(repository.commits.len());
+    repository.metrics.insertions = Some(total_insertions);
+    repository.metrics.deletions = Some(total_deletions);
+}
+
     let exclude_set: HashSet<usize> = authors_to_exclude
         .iter()
         .map(|a| a.id)
