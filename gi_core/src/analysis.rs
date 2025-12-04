@@ -724,35 +724,37 @@ fn recalculate_repository_metrics(repository: &mut Repository) {
     repository.metrics.deletions = Some(total_deletions);
 }
 
+fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Result<Repository, String> {
+    let mut repository = result.repository;
     let exclude_set: HashSet<usize> = authors_to_exclude
         .iter()
         .map(|a| a.id)
         .collect();
 
     // Keep only the commits whose author id is NOT in authors_to_exclude
-    result.repository.commits.retain(|commit| !exclude_set.contains(&commit.author_id));
+    repository.commits.retain(|commit| !exclude_set.contains(&commit.author_id));
 
     // Rebuild list of author IDs
-    let active_author_ids: HashSet<usize> = result.repository.commits
+    let active_author_ids: HashSet<usize> = repository.commits
         .iter()
         .map(|commit| commit.author_id)
         .collect();
 
     // Update authors list based on remaining IDs
-    result.repository.authors.retain(|author| active_author_ids.contains(&author.id));
+    repository.authors.retain(|author| active_author_ids.contains(&author.id));
 
     // Get files from remaining commits
-    let commit_files: HashSet<usize> = result.repository.commits
+    let commit_files: HashSet<usize> = repository.commits
         .iter()
         .flat_map(|commit| commit.files_changed.iter())
         .map(|(file_id, _metrics)| *file_id)
         .collect();
 
-    result.repository.files.retain(|file| commit_files.contains(&file.id));
+    repository.files.retain(|file| commit_files.contains(&file.id));
 
     // TODO: Calculate repository-level metrics
     // result.repository.metrics = calculate_metrics();
-    Ok(result)
+    Ok(repository)
 }
 
 fn filter_files(result: AnalysisResult, files_to_exclude: Vec<File>) -> Result<Repository, String> {
@@ -1541,17 +1543,17 @@ mod tests {
         let filtered = filter_authors(analysis_result, vec![author_alice]).unwrap();
         
         // Should have only 1 commit (from Bert)
-        assert_eq!(filtered.repository.commits.len(), 1);
-        assert_eq!(filtered.repository.commits[0].author_id, author_bert.id);
+        assert_eq!(filtered.commits.len(), 1);
+        assert_eq!(filtered.commits[0].author_id, author_bert.id);
         
         // Should have only 1 author (Bert)
-        assert_eq!(filtered.repository.authors.len(), 1);
-        assert_eq!(filtered.repository.authors[0], author_bert);
+        assert_eq!(filtered.authors.len(), 1);
+        assert_eq!(filtered.authors[0], author_bert);
         
         // Should have only 1 file (lib.rs)
-        assert_eq!(filtered.repository.files.len(), 1);
-        assert_eq!(filtered.repository.files[0].id, 2);
-        assert_eq!(filtered.repository.files[0].path, "src/lib.rs");
+        assert_eq!(filtered.files.len(), 1);
+        assert_eq!(filtered.files[0].id, 2);
+        assert_eq!(filtered.files[0].path, "src/lib.rs");
     }
 
     #[test]
@@ -1582,11 +1584,11 @@ mod tests {
         let filtered = filter_authors(analysis_result, vec![non_existing_author]).unwrap();
         
         // Should have 2 commits
-        assert_eq!(filtered.repository.commits.len(), 2);
+        assert_eq!(filtered.commits.len(), 2);
         // Should have 2 authors
-        assert_eq!(filtered.repository.authors.len(), 2);
+        assert_eq!(filtered.authors.len(), 2);
         // Should have 2 files
-        assert_eq!(filtered.repository.files.len(), 2);
+        assert_eq!(filtered.files.len(), 2);
     }
 
     #[test]
@@ -1631,9 +1633,9 @@ mod tests {
         let filtered = filter_authors(analysis_result, vec![author_to_exclude]).unwrap();
         
         // Should remain empty
-        assert_eq!(filtered.repository.commits.len(), 0);
-        assert_eq!(filtered.repository.authors.len(), 0);
-        assert_eq!(filtered.repository.files.len(), 0);
+        assert_eq!(filtered.commits.len(), 0);
+        assert_eq!(filtered.authors.len(), 0);
+        assert_eq!(filtered.files.len(), 0);
     }
 
     #[test]
