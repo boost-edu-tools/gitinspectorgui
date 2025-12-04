@@ -723,7 +723,7 @@ fn filter_files(result: AnalysisResult, files_to_exclude: Vec<File>) -> Result<A
     Ok(result)
 }
 
-fn filter_metrics(result: AnalysisResult) {
+        let mut removed_del = 0;
     // Placeholder for future implementation
 }
 
@@ -1506,12 +1506,6 @@ mod tests {
         // let dummy = make_dummy_analysis_result();
         // filter_files(dummy);
     }
-
-    #[test]
-    fn test_filter_metrics() {
-        // Placeholder test
-        // let dummy = make_dummy_analysis_result();
-        // filter_metrics(dummy);
     }
 
     #[test]
