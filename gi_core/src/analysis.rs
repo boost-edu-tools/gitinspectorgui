@@ -1779,6 +1779,32 @@ mod tests {
     }
 
     #[test]
+    fn test_filter_files_include_rs_files() {
+        let analysis_result = create_test_analysis_result();
+        
+        // Filter to only include .rs files
+        let filter = Filter {
+            value: ".rs".to_string(),
+            include: true,
+        };
+        
+        let filtered = filter_files(analysis_result.repository, filter).unwrap();
+        
+        // Both files are .rs, so both should remain
+        assert_eq!(filtered.files.len(), 2);
+        assert!(filtered.files.iter().all(|f| f.extension == "rs"));
+        
+        // Both commits should remain (they only have .rs files)
+        assert_eq!(filtered.commits.len(), 2);
+        
+        // Repository metrics should be unchanged
+        assert_eq!(filtered.metrics.total_files, Some(2));
+        assert_eq!(filtered.metrics.total_commits, Some(2));
+        assert_eq!(filtered.metrics.insertions, Some(150));
+        assert_eq!(filtered.metrics.deletions, Some(30));
+    }
+
+    #[test]
     fn test_analyse_blames() {
         // Placeholder test
         // analyse_blames();
