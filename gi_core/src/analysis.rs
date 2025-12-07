@@ -1675,6 +1675,43 @@ mod tests {
     }
 
     #[test]
+    fn test_filter_authors_by_email_pattern() {
+        let analysis_result = create_test_analysis_result();
+        
+        // Filter to include only authors with @example.com email
+        let filter = Filter {
+            value: "*@example.com".to_string(),
+            include: true,
+        };
+        
+        let filtered = filter_authors(analysis_result.repository, filter).unwrap();
+        
+        // Both authors have @example.com emails, so both should remain
+        assert_eq!(filtered.authors.len(), 2);
+        assert_eq!(filtered.commits.len(), 2);
+        assert_eq!(filtered.files.len(), 2);
+    }
+
+    #[test]
+    fn test_filter_authors_by_name_wildcard() {
+        let analysis_result = create_test_analysis_result();
+        
+        // Filter to exclude authors whose name starts with 'A'
+        let filter = Filter {
+            value: "A*".to_string(),
+            include: false,
+        };
+        
+        let filtered = filter_authors(analysis_result.repository, filter).unwrap();
+        
+        // Alice should be excluded, only Bert remains
+        assert_eq!(filtered.authors.len(), 1);
+        assert_eq!(filtered.authors[0].name, "Bert");
+        assert_eq!(filtered.commits.len(), 1);
+        assert_eq!(filtered.files.len(), 1);
+    }
+
+    #[test]
     fn test_filter_files_updates_files_and_commits() {
         let mut analysis_result = create_test_analysis_result();
 
