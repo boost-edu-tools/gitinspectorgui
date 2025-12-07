@@ -1690,12 +1690,18 @@ mod tests {
 
     #[test]
     fn test_filter_files_updates_files_and_commits() {
-        let analysis_result = create_test_analysis_result();
+        let mut analysis_result = create_test_analysis_result();
 
-        // Get the first file in analysis_result so it can be excluded
-        let file_to_exclude = analysis_result.repository.files[0].clone();
+        analysis_result.repository.files[0].extension = "txt".to_string();
+        analysis_result.repository.files[0].name = "main.txt".to_string();
 
-        let filtered = filter_files(analysis_result, vec![file_to_exclude]).unwrap();
+        // Change first file extension so it can be filtered
+        let filter = Filter {
+            value: ".txt".to_string(),
+            include: false, // Exclude .txt files
+        };
+        
+        let filtered = filter_files(analysis_result.repository, filter).unwrap();
 
         // Verify files are filtered
         assert_eq!(filtered.files.len(), 1);
@@ -1730,25 +1736,13 @@ mod tests {
     fn test_filter_non_existing_file() {
         let analysis_result = create_test_analysis_result();
 
-        // Exclude a non-existing file
-        let file_to_exclude = File {
-            id: 999,
-            name: "nonexistent.rs".to_string(),
-            extension: "rs".to_string(),
-            path: "src/nonexistent.rs".to_string(),
-            file_size: Some(0),
-            lines: vec![],
-            metrics: Metrics {
-                insertions: Some(50),
-                deletions: Some(10),
-                ..Default::default()
-            },
-            last_modified_date: "2025-01-01".to_string(),
-            last_modified_time: "00:00:00".to_string(),
-            last_modified_timezone: "+0000".to_string(),
-        };           
+        // Use a filter that matches a non-existent extension
+        let filter = Filter {
+            value: ".nonexistent".to_string(),
+            include: false, // Exclude .nonexistent files (none exist)
+        };
 
-        let filtered = filter_files(analysis_result, vec![file_to_exclude]).unwrap();
+        let filtered = filter_files(analysis_result.repository, filter).unwrap();
 
         // Verify files are unfiltered
         assert_eq!(filtered.files.len(), 2);
@@ -1760,12 +1754,19 @@ mod tests {
 
     #[test]
     fn test_filter_files_removes_empty_commits() {
-        let analysis_result = create_test_analysis_result();
+        let mut analysis_result = create_test_analysis_result();
 
-        // Exclude main.rs, which is the only file in commit 1
-        let file_to_exclude = analysis_result.repository.files[0].clone();
-        let filtered = filter_files(analysis_result, vec![file_to_exclude]).unwrap();
-
+        // Change the first file to have a different extension
+        analysis_result.repository.files[0].extension = "txt".to_string();
+        analysis_result.repository.files[0].name = "main.txt".to_string();
+        
+        // Exclude .txt files (which is only main.rs renamed to main.txt)
+        let filter = Filter {
+            value: ".txt".to_string(),
+            include: false,
+        };
+        
+        let filtered = filter_files(analysis_result.repository, filter).unwrap();
         // Should have only one commit left
         assert_eq!(filtered.commits.len(), 1);
         assert_eq!(filtered.commits[0].id, 2);
