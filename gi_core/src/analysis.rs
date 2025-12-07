@@ -680,59 +680,50 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
     }
 }
 
-fn recalculate_repository_metrics(repository: &mut Repository) {
-    // Recalculate line metrics from remaining files
-    let mut total_loc: usize = 0;
-    let mut total_sloc: usize = 0;
-    let mut total_cloc: usize = 0;
-    let mut total_whitespace: usize = 0;
+fn filter_authors(repository: Repository, filter: Filter) -> Result<Repository, String> {
+    let mut repository = repository;
 
-    for file in &repository.files {
-        if let Some(loc) = file.metrics.loc {
-            total_loc = total_loc.saturating_add(loc);
-        }
-        if let Some(sloc) = file.metrics.sloc {
-            total_sloc = total_sloc.saturating_add(sloc);
-        }
-        if let Some(cloc) = file.metrics.cloc {
-            total_cloc = total_cloc.saturating_add(cloc);
-        }
-        if let Some(whitespace) = file.metrics.whitespace {
-            total_whitespace = total_whitespace.saturating_add(whitespace);
-        }
-    }
+    // Build a glob matcher for author filtering
+    let matcher = glob_matcher_builder(&filter.value, false)?;
 
-    // Calculate total insertions and deletions from remaining commits
-    let total_insertions: usize = repository.commits
+    let exclude_set: HashSet<usize> = repository.authors
         .iter()
-        .map(|commit| commit.metrics.insertions.unwrap_or(0))
-        .sum();
-    let total_deletions: usize = repository.commits
-        .iter()
-        .map(|commit| commit.metrics.deletions.unwrap_or(0))
-        .sum();    
+        .filter(|author| {
+            // Match against both name and email
+            let name_match = matcher.is_match(&author.name);
+            let email_match = matcher.is_match(&author.email);
+            let is_match = name_match || email_match;
 
-    // Write new values to repository fields
-    repository.metrics.loc = Some(total_loc);
-    repository.metrics.sloc = Some(total_sloc);
-    repository.metrics.cloc = Some(total_cloc);
-    repository.metrics.whitespace = Some(total_whitespace);
-    repository.metrics.total_files = Some(repository.files.len());
-    repository.metrics.total_authors = Some(repository.authors.len());
-    repository.metrics.total_commits = Some(repository.commits.len());
-    repository.metrics.insertions = Some(total_insertions);
-    repository.metrics.deletions = Some(total_deletions);
-}
+            // If include = true, include files that match
+            if filter.include {
+                !is_match
+            } else {
+                is_match
+            }
+        })
 
-fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Result<Repository, String> {
-    let mut repository = result.repository;
-    let exclude_set: HashSet<usize> = authors_to_exclude
-        .iter()
-        .map(|a| a.id)
+        .map(|author| author.id)
         .collect();
 
+    // Initialize repo-level metrics
+    let mut repo_total_loc: usize = 0;
+    let mut repo_total_sloc: usize = 0;
+    let mut repo_total_cloc: usize = 0;
+    let mut repo_total_whitespace: usize = 0;
+    let mut repo_total_insertions: usize = 0;
+    let mut repo_total_deletions: usize = 0;
+
     // Keep only the commits whose author id is NOT in authors_to_exclude
-    repository.commits.retain(|commit| !exclude_set.contains(&commit.author_id));
+    repository.commits.retain(|commit| {
+        if !exclude_set.contains(&commit.author_id) {
+            // Commit is kept, accumulate its metrics
+            repo_total_insertions = repo_total_insertions.saturating_add(commit.metrics.insertions.unwrap_or(0));
+            repo_total_deletions = repo_total_deletions.saturating_add(commit.metrics.deletions.unwrap_or(0));
+            true
+        } else {
+            false
+        }
+    });
 
     // Rebuild list of author IDs
     let active_author_ids: HashSet<usize> = repository.commits
@@ -750,10 +741,30 @@ fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Re
         .map(|(file_id, _metrics)| *file_id)
         .collect();
 
-    repository.files.retain(|file| commit_files.contains(&file.id));
+    repository.files.retain(|file| {
+        if commit_files.contains(&file.id) {
+            // File is kept, accumulate its metrics
+            repo_total_loc = repo_total_loc.saturating_add(file.metrics.loc.unwrap_or(0));
+            repo_total_sloc = repo_total_sloc.saturating_add(file.metrics.sloc.unwrap_or(0));
+            repo_total_cloc = repo_total_cloc.saturating_add(file.metrics.cloc.unwrap_or(0));
+            repo_total_whitespace = repo_total_whitespace.saturating_add(file.metrics.whitespace.unwrap_or(0));
+            true
+        } else {
+            false
+        }
+    });
 
-    // Recalculate the repository-level metrics
-    recalculate_repository_metrics(&mut repository);
+    // Update the repository-level metrics
+    repository.metrics.loc = Some(repo_total_loc);
+    repository.metrics.sloc = Some(repo_total_sloc);
+    repository.metrics.cloc = Some(repo_total_cloc);
+    repository.metrics.whitespace = Some(repo_total_whitespace);
+    repository.metrics.total_files = Some(repository.files.len());
+    repository.metrics.total_authors = Some(repository.authors.len());
+    repository.metrics.total_commits = Some(repository.commits.len());
+    repository.metrics.insertions = Some(repo_total_insertions);
+    repository.metrics.deletions = Some(repo_total_deletions);
+
     Ok(repository)
 }
 
@@ -1559,7 +1570,14 @@ mod tests {
         let analysis_result = create_test_analysis_result();
         let author_alice = analysis_result.repository.authors[0].clone();
         let author_bert = analysis_result.repository.authors[1].clone();
-        let filtered = filter_authors(analysis_result, vec![author_alice]).unwrap();
+        
+        // Filter to exclude Alice by name
+        let filter = Filter {
+            value: "Alice".to_string(),
+            include: false,
+        };
+
+        let filtered = filter_authors(analysis_result.repository, filter).unwrap();
         
         // Should have only 1 commit (from Bert)
         assert_eq!(filtered.commits.len(), 1);
