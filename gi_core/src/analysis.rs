@@ -757,15 +757,56 @@ fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Re
     Ok(repository)
 }
 
-fn filter_files(result: AnalysisResult, files_to_exclude: Vec<File>) -> Result<Repository, String> {
-    let mut repository = result.repository;
-    let exclude_set: HashSet<usize> = files_to_exclude
+fn filter_files(repository: Repository, filter: Filter) -> Result<Repository, String> {
+    let mut repository = repository;
+
+    // Build glob matcher
+    let matcher = glob_matcher_builder(&filter.value, false)?;
+
+    let exclude_set: HashSet<usize> = repository.files
         .iter()
-        .map(|f| f.id)
+        .filter(|file| {
+            // Extract extension from filename and add leading dot
+            let ext = if file.name.contains('.') {
+                format!(".{}", file.name.rsplitn(2, '.').next().unwrap_or(""))
+            } else {
+                // Set extension to empty string if no extension is found
+                String::new()
+            };
+
+            let is_match = matcher.is_match(&ext);
+
+            // If include = true, include files that match
+            if filter.include {
+                !is_match
+            } else {
+                is_match
+            }
+        })
+        .map(|file| file.id)
         .collect();
 
+    // Repository-level metrics
+    let mut repo_total_loc: usize = 0;
+    let mut repo_total_sloc: usize = 0;
+    let mut repo_total_cloc: usize = 0;
+    let mut repo_total_whitespace: usize = 0;
+    let mut repo_total_insertions: usize = 0;
+    let mut repo_total_deletions: usize = 0;
+
     // Keep only the files that are NOT in files_to_exclude
-    repository.files.retain(|file| !exclude_set.contains(&file.id));
+    repository.files.retain(|file| {
+        if !exclude_set.contains(&file.id) {
+            // File is kept, accumulate its metrics
+            repo_total_loc = repo_total_loc.saturating_add(file.metrics.loc.unwrap_or(0));
+            repo_total_sloc = repo_total_sloc.saturating_add(file.metrics.sloc.unwrap_or(0));
+            repo_total_cloc = repo_total_cloc.saturating_add(file.metrics.cloc.unwrap_or(0));
+            repo_total_whitespace = repo_total_whitespace.saturating_add(file.metrics.whitespace.unwrap_or(0));
+            true
+        } else {
+            false
+        }
+    });
 
     // Update commits - remove files and subtract their metrics from the commit metrics
     for commit in &mut repository.commits {
@@ -793,7 +834,16 @@ fn filter_files(result: AnalysisResult, files_to_exclude: Vec<File>) -> Result<R
     }
 
     // Remove commits with no files
-    repository.commits.retain(|commit| !commit.files_changed.is_empty());
+    repository.commits.retain(|commit| {
+        if !commit.files_changed.is_empty() {
+            // Commit is kept, accumulate its metrics
+            repo_total_insertions = repo_total_insertions.saturating_add(commit.metrics.insertions.unwrap_or(0));
+            repo_total_deletions = repo_total_deletions.saturating_add(commit.metrics.deletions.unwrap_or(0));
+            true
+        } else {
+            false
+        }
+    });
 
     // Update authors - remove files and subtract their metrics from author metrics
     for author in &mut repository.authors {
@@ -820,8 +870,17 @@ fn filter_files(result: AnalysisResult, files_to_exclude: Vec<File>) -> Result<R
         author.metrics.total_files = Some(author.files.len());
     }
 
-    // Recalculate the repository-level metrics
-    recalculate_repository_metrics(&mut repository);
+    // Update the repository-level metrics
+    repository.metrics.loc = Some(repo_total_loc);
+    repository.metrics.sloc = Some(repo_total_sloc);
+    repository.metrics.cloc = Some(repo_total_cloc);
+    repository.metrics.whitespace = Some(repo_total_whitespace);
+    repository.metrics.total_files = Some(repository.files.len());
+    repository.metrics.total_authors = Some(repository.authors.len());
+    repository.metrics.total_commits = Some(repository.commits.len());
+    repository.metrics.insertions = Some(repo_total_insertions);
+    repository.metrics.deletions = Some(repo_total_deletions);
+
     Ok(repository)
 }
 
