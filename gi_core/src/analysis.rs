@@ -1596,29 +1596,14 @@ mod tests {
     #[test]
     fn test_filter_non_existing_author() {
         let analysis_result = create_test_analysis_result();
-        let non_existing_author = Author {
-            id: 999,
-            name: "Fake".to_string(),
-            email: "fake@example.com".to_string(),
-            commit_hashes: vec!["xyz789".to_string()],
-            files: vec![
-                (999, Metrics {
-                    insertions: Some(50),
-                    deletions: Some(10),
-                    ..Default::default()
-                }),
-            ],
-            last_modified_date: "2025-01-01".to_string(),
-            last_modified_time: "14:20:00".to_string(),
-            last_modified_timezone: "+0000".to_string(),
-            metrics: Metrics {
-                insertions: Some(50),
-                deletions: Some(10),
-                total_commits: Some(1),
-                ..Default::default()
-            }
+        
+        // Filter to exclude a non-existing author name
+        let filter = Filter {
+            value: "Fake".to_string(),
+            include: false,
         };
-        let filtered = filter_authors(analysis_result, vec![non_existing_author]).unwrap();
+        
+        let filtered = filter_authors(analysis_result.repository, filter).unwrap();
         
         // Should have 2 commits
         assert_eq!(filtered.commits.len(), 2);
@@ -1631,10 +1616,14 @@ mod tests {
     #[test]
     fn test_filter_authors_updates_repository_metrics() {
         let analysis_result = create_test_analysis_result();
-        let author_alice = analysis_result.repository.authors[0].clone();
         
-        // Filter out Alice
-        let filtered = filter_authors(analysis_result, vec![author_alice]).unwrap();
+        // Filter out Alice by email
+        let filter = Filter {
+            value: "alice@example.com".to_string(),
+            include: false,
+        };
+        
+        let filtered = filter_authors(analysis_result.repository, filter).unwrap();
         
         // Should have only 1 commit (from Bert)
         assert_eq!(filtered.commits.len(), 1);
@@ -1669,36 +1658,15 @@ mod tests {
             files: vec![],
             metrics: Metrics::default(),
         };
-        let analysis_result = AnalysisResult {
-            original_repository: None,
-            parameters: AnalysisParameters::default(),
-            repository,
+
+        // Filter to exclude a non-existing author
+        let filter = Filter {
+            value: "Fake".to_string(),
+            include: false,
         };
-        let author_to_exclude = Author {
-            id: 2,
-            name: "Fake".to_string(),
-            email: "fake@example.com".to_string(),
-            commit_hashes: vec!["def456".to_string()],
-            files: vec![
-                (2, Metrics {
-                    insertions: Some(50),
-                    deletions: Some(10),
-                    ..Default::default()
-                }),
-            ],
-            last_modified_date: "2025-01-01".to_string(),
-            last_modified_time: "14:20:00".to_string(),
-            last_modified_timezone: "+0000".to_string(),
-            metrics: Metrics {
-                insertions: Some(50),
-                deletions: Some(10),
-                total_commits: Some(1),
-                ..Default::default()
-            }
-        };
-        
+
         // Filter on empty result
-        let filtered = filter_authors(analysis_result, vec![author_to_exclude]).unwrap();
+        let filtered = filter_authors(repository, filter).unwrap();
         
         // Should remain empty
         assert_eq!(filtered.commits.len(), 0);
