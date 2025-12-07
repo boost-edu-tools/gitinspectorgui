@@ -74,68 +74,6 @@ pub fn convert_to_csv<T: serde::Serialize>(object_to_convert: &[T]) -> Result<St
         .map_err(|error| format!("Error converting CSV bytes to string: {}", error))
 }
 
-pub fn convert_authors_to_csv(authors: &[Author]) -> Result<String, String> {
-    use serde::Serialize;
-    
-    // Define a flattened Author struct for CSV export
-    #[derive(Serialize)]
-    struct AuthorCsv {
-        id: usize,
-        name: String,
-        email: String,
-        commit_hashes: String,              // Comma-separated
-        file_ids: String,                   // Comma-separated
-        file_insertions: String,            // Comma-separated
-        file_deletions: String,             // Comma-separated
-        total_insertions: usize,
-        total_deletions: usize,
-        total_commits: usize,
-        last_modified_date: String,
-        last_modified_time: String,
-        last_modified_timezone: String,
-    }
-
-    // Convert each Author to the flattened AuthorCsv format
-    let csv_authors: Vec<AuthorCsv> = authors.iter().map(|author| {
-        // Join commit hashes with commas
-        let commit_hashes = author.commit_hashes.join(",");
-        
-        // Extract and join file IDs
-        let file_ids: Vec<String> = author.files.iter()
-            .map(|(id, _)| id.to_string())
-            .collect();
-        
-        // Extract and join file insertions
-        let file_insertions: Vec<String> = author.files.iter()
-            .map(|(_, metrics)| metrics.insertions.unwrap_or(0).to_string())
-            .collect();
-        
-        // Extract and join file deletions
-        let file_deletions: Vec<String> = author.files.iter()
-            .map(|(_, metrics)| metrics.deletions.unwrap_or(0).to_string())
-            .collect();
-        
-        AuthorCsv {
-            id: author.id,
-            name: author.name.clone(),
-            email: author.email.clone(),
-            commit_hashes,
-            file_ids: file_ids.join(","),
-            file_insertions: file_insertions.join(","),
-            file_deletions: file_deletions.join(","),
-            total_insertions: author.metrics.insertions.unwrap_or(0),
-            total_deletions: author.metrics.deletions.unwrap_or(0),
-            total_commits: author.metrics.total_commits.unwrap_or(0),
-            last_modified_date: author.last_modified_date.clone(),
-            last_modified_time: author.last_modified_time.clone(),
-            last_modified_timezone: author.last_modified_timezone.clone(),
-        }
-    }).collect();
-
-    // Convert the flattened authors to csv
-    convert_to_csv(&csv_authors)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -330,7 +268,7 @@ mod tests {
             metrics: Metrics::default(),
         }];
 
-        let result = convert_authors_to_csv(&authors);
+        let result = Author::to_csv(&authors);
         assert!(result.is_ok());
 
         let csv_string = result.unwrap();
