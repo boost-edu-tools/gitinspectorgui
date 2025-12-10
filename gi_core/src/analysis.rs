@@ -737,28 +737,61 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
     }
 }
 
-fn filter_authors(repository: Repository, filter: Filter) -> Result<Repository, String> {
-    let mut repository = repository;
+pub(crate) fn filter_authors(repository: &Repository, params: &AnalysisParameters) -> Result<Repository, String> {
+    // Clone the incoming repository so we can return a filtered copy
+    let mut repository = repository.clone();
 
-    // Build a glob matcher for author filtering
-    let matcher = glob_matcher_builder(&filter.value, false)?;
+    // If no author filters are present, return repository unchanged
+    if params.author_name_filter.is_none() && params.author_email_filter.is_none() {
+        return Ok(repository);
+    }
 
-    let exclude_set: HashSet<usize> = repository.authors
+    // Build matchers where filters are present
+    let name_matcher = if let Some(f) = &params.author_name_filter {
+        Some((glob_matcher_builder(&f.value, false)?, f.include))
+    } else {
+        None
+    };
+    let email_matcher = if let Some(f) = &params.author_email_filter {
+        Some((glob_matcher_builder(&f.value, false)?, f.include))
+    } else {
+        None
+    };
+
+    // Determine which authors to exclude based on the provided filters.
+    // We treat multiple filters as cumulative constraints: an author is kept only
+    // if they satisfy all provided include/exclude rules.
+    let exclude_set: HashSet<usize> = repository
+        .authors
         .iter()
         .filter(|author| {
-            // Match against both name and email
-            let name_match = matcher.is_match(&author.name);
-            let email_match = matcher.is_match(&author.email);
-            let is_match = name_match || email_match;
+            let mut keep = true;
 
-            // If include = true, include files that match
-            if filter.include {
-                !is_match
-            } else {
-                is_match
+            if let Some((matcher, include)) = &name_matcher {
+                let is_match = matcher.is_match(&author.name);
+                if *include {
+                    if !is_match {
+                        keep = false;
+                    }
+                } else if is_match {
+                    keep = false;
+                }
             }
-        })
 
+            if let Some((matcher, include)) = &email_matcher {
+                let is_match = matcher.is_match(&author.email);
+                if *include {
+                    if !is_match {
+                        keep = false;
+                    }
+                } else if is_match {
+                    keep = false;
+                }
+            }
+
+            // We want authors to be excluded when keep == false
+            !keep
+        })
         .map(|author| author.id)
         .collect();
 
@@ -825,31 +858,62 @@ fn filter_authors(repository: Repository, filter: Filter) -> Result<Repository, 
     Ok(repository)
 }
 
-fn filter_files(repository: Repository, filter: Filter) -> Result<Repository, String> {
-    let mut repository = repository;
+pub(crate) fn filter_files(repository: &Repository, params: &AnalysisParameters) -> Result<Repository, String> {
+    // Clone repository for mutation
+    let mut repository = repository.clone();
 
-    // Build glob matcher
-    let matcher = glob_matcher_builder(&filter.value, false)?;
+    // If no file filters present, return unchanged
+    if params.file_types_filter.is_none() && params.path_filter.is_none() {
+        return Ok(repository);
+    }
+
+    // Build matchers for the filters present
+    let ft_matcher = if let Some(f) = &params.file_types_filter {
+        Some((glob_matcher_builder(&f.value, false)?, f.include))
+    } else {
+        None
+    };
+    let path_matcher = if let Some(f) = &params.path_filter {
+        Some((glob_matcher_builder(&f.value, true)?, f.include))
+    } else {
+        None
+    };
 
     let exclude_set: HashSet<usize> = repository.files
         .iter()
         .filter(|file| {
-            // Extract extension from filename and add leading dot
+            let mut keep = true;
+
+            // Extract extension with leading dot
             let ext = if file.name.contains('.') {
                 format!(".{}", file.name.rsplitn(2, '.').next().unwrap_or(""))
             } else {
-                // Set extension to empty string if no extension is found
                 String::new()
             };
 
-            let is_match = matcher.is_match(&ext);
-
-            // If include = true, include files that match
-            if filter.include {
-                !is_match
-            } else {
-                is_match
+            if let Some((matcher, include)) = &ft_matcher {
+                let is_match = matcher.is_match(&ext);
+                if *include {
+                    if !is_match {
+                        keep = false;
+                    }
+                } else if is_match {
+                    keep = false;
+                }
             }
+
+            if let Some((matcher, include)) = &path_matcher {
+                let is_match = matcher.is_match(&file.path);
+                if *include {
+                    if !is_match {
+                        keep = false;
+                    }
+                } else if is_match {
+                    keep = false;
+                }
+            }
+
+            !keep
         })
         .map(|file| file.id)
         .collect();
@@ -1633,8 +1697,10 @@ mod tests {
             value: "Alice".to_string(),
             include: false,
         };
+        let mut params = AnalysisParameters::default();
+        params.author_name_filter = Some(filter.clone());
 
-        let filtered = filter_authors(analysis_result.repository, filter).unwrap();
+        let filtered = filter_authors(&analysis_result.repository, &params).unwrap();
         
         // Should have only 1 commit (from Bert)
         assert_eq!(filtered.commits.len(), 1);
@@ -1659,8 +1725,10 @@ mod tests {
             value: "Fake".to_string(),
             include: false,
         };
-        
-        let filtered = filter_authors(analysis_result.repository, filter).unwrap();
+        let mut params = AnalysisParameters::default();
+        params.author_name_filter = Some(filter.clone());
+
+        let filtered = filter_authors(&analysis_result.repository, &params).unwrap();
         
         // Should have 2 commits
         assert_eq!(filtered.commits.len(), 2);
@@ -1679,8 +1747,10 @@ mod tests {
             value: "alice@example.com".to_string(),
             include: false,
         };
-        
-        let filtered = filter_authors(analysis_result.repository, filter).unwrap();
+        let mut params = AnalysisParameters::default();
+        params.author_email_filter = Some(filter.clone());
+
+        let filtered = filter_authors(&analysis_result.repository, &params).unwrap();
         
         // Should have only 1 commit (from Bert)
         assert_eq!(filtered.commits.len(), 1);
@@ -1721,9 +1791,11 @@ mod tests {
             value: "Fake".to_string(),
             include: false,
         };
+        let mut params = AnalysisParameters::default();
+        params.author_name_filter = Some(filter.clone());
 
         // Filter on empty result
-        let filtered = filter_authors(repository, filter).unwrap();
+        let filtered = filter_authors(&repository, &params).unwrap();
         
         // Should remain empty
         assert_eq!(filtered.commits.len(), 0);
@@ -1740,8 +1812,10 @@ mod tests {
             value: "*@example.com".to_string(),
             include: true,
         };
-        
-        let filtered = filter_authors(analysis_result.repository, filter).unwrap();
+        let mut params = AnalysisParameters::default();
+        params.author_email_filter = Some(filter.clone());
+
+        let filtered = filter_authors(&analysis_result.repository, &params).unwrap();
         
         // Both authors have @example.com emails, so both should remain
         assert_eq!(filtered.authors.len(), 2);
@@ -1758,8 +1832,10 @@ mod tests {
             value: "A*".to_string(),
             include: false,
         };
-        
-        let filtered = filter_authors(analysis_result.repository, filter).unwrap();
+        let mut params = AnalysisParameters::default();
+        params.author_name_filter = Some(filter.clone());
+
+        let filtered = filter_authors(&analysis_result.repository, &params).unwrap();
         
         // Alice should be excluded, only Bert remains
         assert_eq!(filtered.authors.len(), 1);
@@ -1780,8 +1856,10 @@ mod tests {
             value: ".txt".to_string(),
             include: false, // Exclude .txt files
         };
-        
-        let filtered = filter_files(analysis_result.repository, filter).unwrap();
+        let mut params = AnalysisParameters::default();
+        params.file_types_filter = Some(filter.clone());
+
+        let filtered = filter_files(&analysis_result.repository, &params).unwrap();
 
         // Verify files are filtered
         assert_eq!(filtered.files.len(), 1);
@@ -1821,8 +1899,10 @@ mod tests {
             value: ".nonexistent".to_string(),
             include: false, // Exclude .nonexistent files (none exist)
         };
+        let mut params = AnalysisParameters::default();
+        params.file_types_filter = Some(filter.clone());
 
-        let filtered = filter_files(analysis_result.repository, filter).unwrap();
+        let filtered = filter_files(&analysis_result.repository, &params).unwrap();
 
         // Verify files are unfiltered
         assert_eq!(filtered.files.len(), 2);
@@ -1845,8 +1925,10 @@ mod tests {
             value: ".txt".to_string(),
             include: false,
         };
-        
-        let filtered = filter_files(analysis_result.repository, filter).unwrap();
+        let mut params = AnalysisParameters::default();
+        params.file_types_filter = Some(filter.clone());
+
+        let filtered = filter_files(&analysis_result.repository, &params).unwrap();
         // Should have only one commit left
         assert_eq!(filtered.commits.len(), 1);
         assert_eq!(filtered.commits[0].id, 2);
@@ -1867,8 +1949,10 @@ mod tests {
             value: ".rs".to_string(),
             include: true,
         };
-        
-        let filtered = filter_files(analysis_result.repository, filter).unwrap();
+        let mut params = AnalysisParameters::default();
+        params.file_types_filter = Some(filter.clone());
+
+        let filtered = filter_files(&analysis_result.repository, &params).unwrap();
         
         // Both files are .rs, so both should remain
         assert_eq!(filtered.files.len(), 2);
