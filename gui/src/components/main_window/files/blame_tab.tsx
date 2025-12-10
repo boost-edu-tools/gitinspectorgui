@@ -3,7 +3,6 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { getAuthorColor } from "@/components/helpers/author_colors"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { useAnalysis } from "@/hooks/useAnalysis"
 import type { AnalysisResult, Author, File, Line, Commit, AnalysisProps } from "@/components/types"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { fmtDate } from "@/components/helpers/formatting_helpers"
@@ -28,26 +27,21 @@ function groupByCommit(lines: Line[]) {
 }
 
 export function BlameView({
-  selectedRepo,
+  repository,
   selectedFile,
 }:
-  Pick<
-    AnalysisProps,
-    "selectedRepo"
-    | "selectedFile"> 
+  Pick<AnalysisResult, "repository"> &
+  Pick<AnalysisProps, "selectedFile"> 
     ) {
-  const { analysis } = useAnalysis(selectedRepo)
 
   const [showMetadata, setShowMetadata] = React.useState(true)
   const [hideEmpty, setHideEmpty] = React.useState(false)
   const [hideComments, setHideComments] = React.useState(false)
   const [colorize, setColorize] = React.useState(true)
  
-
-  const repo = (analysis as AnalysisResult | undefined)?.repository
-  const commits: Commit[] = repo?.commits ?? []
-  const authors: Author[] = repo?.authors ?? []
-  const files: File[] = repo?.files ?? []
+  const commits: Commit[] = repository.commits ?? []
+  const authors: Author[] = repository.authors ?? []
+  const files: File[] = repository.files ?? []
   const fileIdx = files.findIndex((f) => f.path === selectedFile)
   const file = files[fileIdx]
 

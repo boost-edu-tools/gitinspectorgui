@@ -46,9 +46,11 @@ export function FilterAuthors({
 
       <Card className="bg-transparent border-none shadow-none p-0 ">
         <CardContent className="p-0">
-          <ScrollArea className="rounded-md border h-20">
+          <ScrollArea className="rounded-md border h-25">
             <ul className="divide-y">
-              {Array.from(allAuthors).map((author: string) => (
+              {Array.from(allAuthors)
+              .sort((a, b) => a.localeCompare(b))
+              .map((author: string) => (
                 <li key={author} className="flex items-center gap-2 p-1">
                   <Checkbox
                     className="h-3 w-3"

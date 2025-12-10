@@ -347,6 +347,22 @@ pub fn build_glob_matchers_from_params(
         out.push(None);
     }
 
+    // Author name filter (case-insensitive, literal_separator = false)
+    if let Some(filter) = &params.author_name_filter {
+        let m = glob_matcher_builder(&filter.value, false)?;
+        out.push(Some(m));
+    } else {
+        out.push(None);
+    }
+
+    // Author email filter (case-insensitive, literal_separator = false)
+    if let Some(filter) = &params.author_email_filter {
+        let m = glob_matcher_builder(&filter.value, false)?;
+        out.push(Some(m));
+    } else {
+        out.push(None);
+    }
+    
     // file_types_filter (case-insensitive, literal_separator = false)
     if let Some(filter) = &params.file_types_filter {
         let m = glob_matcher_builder(&filter.value, false)?;
@@ -482,6 +498,48 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
                     }
                 }
 
+                // Check author name filter (if present) and apply include/exclude semantics.
+                // matchers[2] corresponds to author_name_filter.
+                if let Some(matcher_opt) = matchers.get(2) {
+                    if let Some(matcher) = matcher_opt {
+                        if let Some(filter) = &params.author_name_filter {
+                            let is_match = matcher.is_match(&author_name);
+                            if filter.include {
+                                // include=true -> only keep commits whose author name matches
+                                if !is_match {
+                                    continue;
+                                }
+                            } else {
+                                // include=false -> exclude commits whose author name matches
+                                if is_match {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Check author email filter (if present) and apply include/exclude semantics.
+                // Matchers[3] corresponds to author_email_filter.
+                if let Some(matcher_opt) = matchers.get(3) {
+                    if let Some(matcher) = matcher_opt {
+                        if let Some(filter) = &params.author_email_filter {
+                            let is_match = matcher.is_match(&author_email);
+                            if filter.include {
+                                // include=true -> only keep commits whose author email matches
+                                if !is_match {
+                                    continue;
+                                }
+                            } else {
+                                // include=false -> exclude commits whose author email matches
+                                if is_match {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Keep track of commit level statistics when looping through files
                 // We collect (file_id, Metrics) tuples for the commit
                 let mut files_changed: Vec<(usize, Metrics)> = Vec::new();
@@ -500,8 +558,8 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
                     // "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
                     match parse_file_line(line) {
                         Ok((ins, del, path)) => {
-                            // Apply file types filter (if present). matchers[2] corresponds to file_types_filter
-                            if let Some(matcher_opt) = matchers.get(2) {
+                            // Apply file types filter (if present). matchers[4] corresponds to file_types_filter
+                            if let Some(matcher_opt) = matchers.get(4) {
                                 if let Some(matcher) = matcher_opt {
                                     if let Some(filter) = &params.file_types_filter {
                                         // Extract extension from the filename and add a leading dot
@@ -531,9 +589,8 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
                                 }
                             }
 
-                            // Apply path filter (if present). matchers[3] corresponds to path_filter
-                            // TODO: This can result in empty commits, as files may be all filtered out. Is this acceptable?
-                            if let Some(matcher_opt) = matchers.get(3) {
+                            // Apply path filter (if present). matchers[5] corresponds to path_filter
+                            if let Some(matcher_opt) = matchers.get(5) {
                                 if let Some(matcher) = matcher_opt {
                                     if let Some(filter) = &params.path_filter {
                                         // Use the full file path for path matching
@@ -1859,8 +1916,8 @@ mod tests {
 
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
 
-        // Ensure we have 4 elements and the first (commit hash) matcher is present
-        assert_eq!(matchers.len(), 4);
+        // Ensure we have 6 elements (two new author filters added)
+        assert_eq!(matchers.len(), 6);
         let commit_matcher = matchers[0].as_ref().expect("commit matcher should be Some");
 
         // Should match hashes that start with a digit
@@ -1906,8 +1963,8 @@ mod tests {
 
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
 
-        // Ensure we have 4 elements and the second (commit message) matcher is present
-        assert_eq!(matchers.len(), 4);
+        // Ensure we have 6 elements (two new author filters added)
+        assert_eq!(matchers.len(), 6);
         let msg_matcher = matchers[1]
             .as_ref()
             .expect("commit message matcher should be Some");
@@ -1953,9 +2010,9 @@ mod tests {
         });
 
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
-        assert_eq!(matchers.len(), 4);
+        assert_eq!(matchers.len(), 6);
 
-        let ft_matcher = matchers[2]
+        let ft_matcher = matchers[4]
             .as_ref()
             .expect("file types matcher should be Some");
 
@@ -1999,9 +2056,9 @@ mod tests {
         });
 
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
-        assert_eq!(matchers.len(), 4);
+        assert_eq!(matchers.len(), 6);
 
-        let path_matcher = matchers[3].as_ref().expect("path matcher should be Some");
+        let path_matcher = matchers[5].as_ref().expect("path matcher should be Some");
 
         // Should match the exact path
         assert!(path_matcher.is_match("gi_core/src/shared_types.rs"));
@@ -2017,5 +2074,115 @@ mod tests {
                 println!("Error: {}", e);
             }
         }
+    }
+
+    #[test]
+    fn test_build_glob_matchers_author_name_max_include_true() {
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+
+        let start_commit = "02c101f";
+        let end_commit = "c1dd7cd";
+
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+
+        // Author name filter: include only names that end with 'Max'
+        params.author_name_filter = Some(Filter {
+            value: "*Max".to_string(),
+            include: true,
+        });
+
+        let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
+        assert_eq!(matchers.len(), 6);
+
+        let name_matcher = matchers[2].as_ref().expect("author name matcher should be Some");
+
+        // Should match names that end with 'Max'
+        assert!(name_matcher.is_match("Max"));
+        assert!(name_matcher.is_match("Big Max"));
+
+        // Should not match names that do not end with 'Max'
+        assert!(!name_matcher.is_match("Maximilian"));
+
+        let result = analyse_repository(&params);
+        match result {
+            Ok(repo) => {
+                print_repository_info(&repo);
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_build_glob_matchers_author_email_gmail_exclude() {
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+
+        let start_commit = "02c101f";
+        let end_commit = "c1dd7cd";
+
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+
+        // Author email filter: exclude any author emails that match '*gmail.com'
+        params.author_email_filter = Some(Filter {
+            value: "*gmail.com".to_string(),
+            include: false,
+        });
+
+        let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
+        assert_eq!(matchers.len(), 6);
+
+        let email_matcher = matchers[3].as_ref().expect("author email matcher should be Some");
+
+        // Should match gmail addresses
+        assert!(email_matcher.is_match("user@gmail.com"));
+        assert!(!email_matcher.is_match("user@company.com"));
+
+        let result = analyse_repository(&params);
+        match result {
+            Ok(repo) => {
+                print_repository_info(&repo);
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_glob_brace_matches_multiple_entries() {
+        // Brace-style glob should match either alternative
+        let res = glob_matcher_builder("{test,case}", false);
+        assert!(res.is_ok(), "Brace glob should compile");
+        let matcher = res.unwrap();
+        assert!(matcher.is_match("test"), "Brace glob should match 'test'");
+        assert!(matcher.is_match("case"), "Brace glob should match 'case'");
+        // It should not match the literal comma string
+        assert!(!matcher.is_match("test,case"), "Brace glob should not match the literal 'test,case'");
+    }
+
+    #[test]
+    fn test_glob_without_braces_treats_comma_as_literal() {
+        // Without braces the comma is a literal character in the pattern
+        let res = glob_matcher_builder("test,case", false);
+        assert!(res.is_ok(), "Literal-comma glob should compile");
+        let matcher = res.unwrap();
+        // Should match the full string containing the comma
+        assert!(matcher.is_match("test,case"), "Literal-comma glob should match 'test,case'");
+        // Should not match the individual alternatives
+        assert!(!matcher.is_match("test"), "Literal-comma glob should not match 'test'");
+        assert!(!matcher.is_match("case"), "Literal-comma glob should not match 'case'");
     }
 }

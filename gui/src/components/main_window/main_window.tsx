@@ -12,21 +12,47 @@ import { BlameViewMultiTab } from "./files/blame_tabs"
 import { FileSatisticsVisualisation } from "./files/file_viz"
 import { FileStatisticsTable } from "./files/file_table"
 
-import type { AnalysisProps } from "@/components/types"
+import type { AnalysisResult, AnalysisProps } from "@/components/types"
+import { DataImportWindow } from "../sidebar/data_import_window"
 
 
-
-export function AppMainWindow({
-  selectedRepo,
-}: Pick<
-  AnalysisProps,
-  | "selectedRepo"
->) {
+export function AppMainWindow({ 
+  repo_analysis, 
+  filterData,
+  setAllRepos,
+  setSelectedRepo,
+  path, 
+  setPath,
+  onSettingsSaved
+ }: 
+  {repo_analysis: AnalysisResult } &
+  Pick<AnalysisProps,
+  "filterData"
+  | "setAllRepos"
+  | "setSelectedRepo"
+  | "path"
+  | "setPath"
+  | "onSettingsSaved"> ) {
 
   const [selectedFile, setSelectedFile] = React.useState<string | null>(null)
-
+  
+  const repository = filterData
+      ? repo_analysis.repository
+      : repo_analysis.original_repository
 
   return (
+    (repository.path === "") ? (
+      <div className="flex flex-1 items-center justify-center">
+        <DataImportWindow
+          buttonSidebar={false}
+          setAllRepos={setAllRepos}
+          setSelectedRepo={setSelectedRepo}
+          path = {path}
+          setPath={setPath}
+          onSettingsSaved={onSettingsSaved}
+          />
+      </div>
+    ) : (
     <SidebarInset>
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
         <div className="flex items-center gap-2 px-4">
@@ -39,7 +65,7 @@ export function AppMainWindow({
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbLink>{selectedRepo}</BreadcrumbLink>
+                <BreadcrumbLink>{repo_analysis.repository.name}</BreadcrumbLink>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -70,12 +96,12 @@ export function AppMainWindow({
               <div className="mt-4 px-8">
                 <div className="p-4">
                   <AuthorStatisticsVisualisation
-                    selectedRepo={selectedRepo}
+                    repository={repository}
                   />
                 </div>
                 <div className="p-4">
                   <AuthorStatisticsOverview
-                    selectedRepo={selectedRepo}
+                    repository={repository}
                   />
                 </div>
               </div>
@@ -85,7 +111,7 @@ export function AppMainWindow({
               { selectedFile?  (
                   <div className="space-y-2 py-4 mt-4 px-8">
                     <BlameViewMultiTab
-                      selectedRepo={selectedRepo}
+                      repository={repository}
                       selectedFile={selectedFile}
                       setSelectedFile={setSelectedFile}
                       onExit={() => setSelectedFile(null)}
@@ -95,13 +121,13 @@ export function AppMainWindow({
                 (<div className="mt-4 px-8">
                   <div className="p-4">
                     <FileSatisticsVisualisation
-                      selectedRepo={selectedRepo}
+                      repository={repository}
                     />
                   </div>
 
                   <div className="p-4">
                     <FileStatisticsTable
-                      selectedRepo={selectedRepo}
+                      repository={repository}
                       setSelectedFile={setSelectedFile}
                     />
                   </div>
@@ -111,5 +137,5 @@ export function AppMainWindow({
           </Tabs>
       </div>
     </SidebarInset>
-  );
+  ))
 }

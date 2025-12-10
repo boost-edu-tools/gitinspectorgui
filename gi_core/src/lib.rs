@@ -72,6 +72,8 @@ pub fn create_analysis_parameters(
     commit_message_filter: Option<Filter>,
     file_types_filter: Option<Filter>,
     path_filter: Option<Filter>,
+    author_name_filter: Option<Filter>,
+    author_email_filter: Option<Filter>,
 ) -> AnalysisParameters {
     AnalysisParameters {
         repo_path,
@@ -83,6 +85,8 @@ pub fn create_analysis_parameters(
         commit_message_filter,
         file_types_filter,
         path_filter,
+        author_name_filter,
+        author_email_filter,
     }
 }
 
@@ -112,7 +116,31 @@ pub fn rerun_analysis(
     previous_result: &AnalysisResult,
     new_parameters: AnalysisParameters,
 ) -> Result<AnalysisResult, String> {
-    let repository = analysis::analyse_repository(&new_parameters)?;
+    // If the new parameters only specify author/file filters we can avoid re-running
+    // a full repository analysis and instead apply in-memory filters to the previous
+    // repository. Author filtering is applied before file filtering.
+    let author_filters_present = new_parameters.author_name_filter.is_some()
+        || new_parameters.author_email_filter.is_some();
+    let file_filters_present = new_parameters.file_types_filter.is_some()
+        || new_parameters.path_filter.is_some();
+
+    let repository = if author_filters_present || file_filters_present {
+        // Start from the previously analyzed repository snapshot
+        let mut repo = previous_result.repository.clone();
+
+        if author_filters_present {
+            repo = analysis::filter_authors(&repo, &new_parameters)?;
+        }
+
+        if file_filters_present {
+            repo = analysis::filter_files(&repo, &new_parameters)?;
+        }
+
+        repo
+    } else {
+        // No author/file-only filters provided; perform a full analysis with new parameters
+        analysis::analyse_repository(&new_parameters)?
+    };
 
     Ok(AnalysisResult {
         original_repository: previous_result.original_repository.clone(),
@@ -284,6 +312,8 @@ mod tests {
             None,
             None,
             None,
+            None,
+            None,
         );
 
         assert_eq!(params.repo_path, repo);
@@ -304,6 +334,8 @@ mod tests {
         // Create parameters for initial analysis
         let params = create_analysis_parameters(
             repo_path.clone(),
+            None,
+            None,
             None,
             None,
             None,
@@ -345,6 +377,8 @@ mod tests {
             None,
             None,
             None,
+            None,
+            None,
         );
         let initial =
             run_initial_analysis(params.clone()).expect("Initial analysis should succeed");
@@ -353,6 +387,8 @@ mod tests {
         let new_params = create_analysis_parameters(
             repo_path.clone(),
             Some("2100-01-01T00:00:00+0000".to_string()),
+            None,
+            None,
             None,
             None,
             None,

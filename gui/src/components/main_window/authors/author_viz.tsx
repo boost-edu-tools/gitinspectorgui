@@ -18,17 +18,15 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getAuthorColor } from "@/components/helpers/author_colors"
-import type { AnalysisProps, AnalysisResult, Author } from "@/components/types"
-import { useAnalysis } from "@/hooks/useAnalysis"
-import { fmtDate, fmtDatePlot } from "@/components/helpers/formatting_helpers"
+import type { AnalysisResult, Author } from "@/components/types"
+import { fmtDate, fmtDatePlot, fmtDateNoTime } from "@/components/helpers/formatting_helpers"
 
 type MetricKey = "commits" | "insertions" | "deletions" | "locs"
 
-export function AuthorStatisticsVisualisation({
-  selectedRepo,
-}: Pick<AnalysisProps, "selectedRepo">) {
+export function AuthorStatisticsVisualisation(
+  {repository}: Pick<AnalysisResult, "repository">) {
+
   const [metric, setMetric] = useState<MetricKey>("commits")
-  const { analysis } = useAnalysis(selectedRepo)
 
   const {
     barData,
@@ -37,9 +35,8 @@ export function AuthorStatisticsVisualisation({
     pieData,
     locPieData,
   } = useMemo(() => {
-    const repo = (analysis as AnalysisResult | undefined)?.repository
-    const commits = repo?.commits ?? []
-    const authorsArr: Author[] = repo?.authors ?? []
+    const commits = repository?.commits ?? []
+    const authorsArr: Author[] = repository?.authors ?? []
     const authorById = new Map(authorsArr.map((a) => [a.id, a]))
 
     const authorsSet = new Set<string>()
@@ -56,7 +53,7 @@ export function AuthorStatisticsVisualisation({
           commits: 1,
           insertions: c.metrics.insertions ?? 0,
           deletions: c.metrics.deletions ?? 0,
-          locChange: (c.metrics.insertions ?? 0) - (c.metrics.deletions ?? 0),
+          locChange: c.metrics.loc ?? 0
         }
       })
       .sort((a, b) => a.ts - b.ts)
@@ -66,10 +63,14 @@ export function AuthorStatisticsVisualisation({
     const grouped = new Map<number, Map<string, any>>()
 
     processedCommits.forEach((c) => {
-      if (!grouped.has(c.ts)) {
-        grouped.set(c.ts, new Map())
+      const dayStart = new Date(c.ts)
+      dayStart.setHours(0, 0, 0, 0)
+      const dayTimestamp = dayStart.getTime()
+      
+      if (!grouped.has(dayTimestamp)) {
+        grouped.set(dayTimestamp, new Map())
       }
-      const dateGroup = grouped.get(c.ts)!
+      const dateGroup = grouped.get(dayTimestamp)!
 
       const existing = dateGroup.get(c.author) || {
         commits: 0,
@@ -99,9 +100,13 @@ export function AuthorStatisticsVisualisation({
     const cumulativeLOC = new Map<string, number>()
     authors.forEach((author) => cumulativeLOC.set(author, 0))
 
-    const allTimestamps = new Set<number>()
-    processedCommits.forEach((c) => allTimestamps.add(c.ts))
-    const sortedTimestamps = Array.from(allTimestamps).sort((a, b) => a - b)
+    const allDays = new Set<number>()
+    processedCommits.forEach((c) => {
+      const dayStart = new Date(c.ts)
+      dayStart.setHours(0, 0, 0, 0)
+      allDays.add(dayStart.getTime())
+    })
+    const sortedTimestamps = Array.from(allDays).sort((a, b) => a - b)
 
     const lineChartData = sortedTimestamps.map((ts) => {
       const dataPoint: any = { date: ts }
@@ -150,7 +155,7 @@ export function AuthorStatisticsVisualisation({
       pieData: pieChartData,
       locPieData: locPieChartData,
     }
-  }, [analysis, metric])
+  }, [repository, metric])
 
   const MetricIcon = ({ type }: { type: MetricKey }) => {
     switch (type) {
@@ -185,7 +190,7 @@ export function AuthorStatisticsVisualisation({
       <Card className="shadow-lg">
         <CardContent className="p-3 space-y-2">
           <div className="font-semibold text-sm border-b pb-2">
-            {fmtDate(label)}
+            {fmtDateNoTime(label)}
           </div>
           <div className="space-y-1 text-xs">
             {payload
@@ -249,12 +254,8 @@ export function AuthorStatisticsVisualisation({
         <CardContent className="p-3 space-y-1 text-xs">
           <div className="font-semibold text-sm">{entry.name}</div>
           <div className="flex justify-between gap-4">
-            <span>Value:</span>
-            <span className="font-mono">{entry.value.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between gap-4">
-            <span>Share:</span>
-            <span className="font-mono">{percentage}%</span>
+            <span>{metric}</span>
+            <span className="font-mono">{entry.value} ({percentage}%)</span>
           </div>
         </CardContent>
       </Card>
@@ -262,6 +263,11 @@ export function AuthorStatisticsVisualisation({
   }
 
   const getPieTitle = () => {
+
+    if (!lineData || lineData.length === 0) {
+    return "No data available";
+  }
+  
     const firstPoint = lineData[0]
     const lastPoint = lineData[lineData.length - 1]
     if (metric === "locs") {
@@ -348,9 +354,13 @@ export function AuthorStatisticsVisualisation({
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis
                     dataKey="date"
+                    type="number"
+                    scale="time"
+                    domain={['dataMin', 'dataMax']}
                     tickFormatter={fmtDatePlot}
                     tick={{ fontSize: 10 }}
                     height={50}
+                    
                     label={{
                       value: "Date",
                       position: "insideBottom",
@@ -360,11 +370,14 @@ export function AuthorStatisticsVisualisation({
                   />
                   <YAxis
                     tick={{ fontSize: 10 }}
-                    width={80}
+                    width={60}
+                    domain = {[0, 'dataMax + 1']}  
                     label={{
                       value: yAxisLabel,
                       angle: -90,
-                      offset: 0,
+                      position: "insideLeft",
+                      dy: 30,   
+                      dx: 0,   
                       style: { fontSize: 14 },
                     }}
                     allowDecimals={false}
@@ -388,12 +401,17 @@ export function AuthorStatisticsVisualisation({
               ) : (
                 <BarChart
                   data={chartData}
+                  maxBarSize={20} 
                   margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis
                     dataKey="date"
+                    type="number"
+                    scale="time"
+                    domain={['dataMin', 'dataMax']}
                     tickFormatter={fmtDatePlot}
+                    padding={{ left: 10, right: 10 }}
                     tick={{ fontSize: 10 }}
                     height={50}
                     label={{
@@ -405,11 +423,14 @@ export function AuthorStatisticsVisualisation({
                   />
                   <YAxis
                     tick={{ fontSize: 10 }}
-                    width={80}
+                    width={60}
+                    domain = {[0, 'dataMax + 1']} 
                     label={{
                       value: yAxisLabel,
                       angle: -90,
-                      offset: 0,
+                      position: "insideLeft",
+                      dy: 30,   
+                      dx: 5,   
                       style: { fontSize: 14 },
                     }}
                     allowDecimals={false}
@@ -424,6 +445,7 @@ export function AuthorStatisticsVisualisation({
                         stackId="a"
                         fill={color}
                         fillOpacity={0.8}
+                        isAnimationActive={false}
                       />
                     )
                   })}

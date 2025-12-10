@@ -6,6 +6,6 @@ export const METRIC_DESCRIPTIONS = {
   loc:       { label: "LOC",       description: "Total lines including blanks and comments" },
   sloc:      { label: "SLOC",      description: "Source lines (excludes blanks/comments)" },
   stability: { label: "Stability", description: "Ratio of LOCs/insertions (%)" },
-  last_modified:       { label: "Last modified (Y:M:D)",description: "Time elapsed since the last commit, shown in years, months, and days" },
+  last_modified:       { label: "Last modified",description: "Date of last modification" },
 } as const
 

@@ -3,6 +3,11 @@ import type { Dispatch, SetStateAction } from "react";
 
 
 export type AnalysisProps = { 
+
+  buttonSidebar: boolean;
+
+  path: string;
+  setPath: Dispatch<SetStateAction<string>>;
   
   allAuthors: Set<string>;
   selectedAuthors: string[];
@@ -16,6 +21,8 @@ export type AnalysisProps = {
   setFilterData: Dispatch<SetStateAction<boolean>>;
 
   allRepos: Set<string>;
+  setAllRepos: Dispatch<SetStateAction<Set<string>>>;
+
   selectedRepo: string | null;
   setSelectedRepo: Dispatch<SetStateAction<string>>;
 
@@ -30,6 +37,9 @@ export type AnalysisProps = {
 
   selectedFile: string | undefined;
   setSelectedFile: Dispatch<SetStateAction<string | null>>;
+
+  setRepoAnalysis: React.Dispatch<React.SetStateAction<AnalysisResult>>
+  onSettingsSaved?: () => void
 };
 
 export type Repository = {
@@ -46,16 +56,11 @@ export type Author = {
   name: string;
   email: string;
   commit_hashes: string[];
-  files: AuthorFileMetrics[];
+  files: [number, Metrics][];
   last_modified_date: string;
   last_modified_time: string;
   last_modified_timezone: string;   
   metrics: Metrics; 
-};
-
-export type AuthorFileMetrics = {
-  id: number;
-  metrics: Metrics;
 };
 
 export type Commit = {
@@ -66,12 +71,7 @@ export type Commit = {
   time: string;
   timezone: string;   
   message: string;
-  files_changed: CommitFileMetrics[];
-  metrics: Metrics;
-};
-
-export type CommitFileMetrics = {
-  id: number;
+  files_changed: [number, Metrics][];
   metrics: Metrics;
 };
 
@@ -119,12 +119,12 @@ export type Settings = {
   repositories: string[];
   search_depth: number;
   max_compute_resources: number;
-  commit_hash_filter?: Filter[];
-  commit_message_filter?: Filter[];
-  file_types_filter?: Filter[];
-  path_filter?: Filter[];
-  author_names_filter?: Filter[];
-  author_emails_filter?: Filter[];
+  commit_hash_filter?: Filter;
+  commit_message_filter?: Filter;
+  file_types_filter?: Filter;
+  path_filter?: Filter;
+  author_names_filter?: Filter;
+  author_emails_filter?: Filter;
 }
 
 export type AnalysisParameters = {
@@ -143,6 +143,6 @@ export type AnalysisParameters = {
 
 export type AnalysisResult = {
   parameters: AnalysisParameters;
-  original_repository?: Repository;
+  original_repository: Repository;
   repository: Repository;
 };
