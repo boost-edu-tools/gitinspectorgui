@@ -146,8 +146,16 @@ mod tests {
     #[test]
     fn test_upward_git_repo_discovery() {
         let temp_dir = TempDir::new().unwrap();
-        // Should find the top-level .git file in the gitinspectorgui folder
-        assert!(is_git_repository(temp_dir.path()));
+        // Create a .git directory at the temp dir so discovery from a subdir succeeds
+        let git_dir = temp_dir.path().join(".git");
+        fs::create_dir(&git_dir).unwrap();
+
+        // Create a nested subdirectory (no .git here) and verify upward discovery
+        let nested = temp_dir.path().join("subdir");
+        fs::create_dir(&nested).unwrap();
+
+        // is_git_repository should return true for nested path via upward discovery
+        assert!(is_git_repository(&nested));
     }
 
     #[test]
