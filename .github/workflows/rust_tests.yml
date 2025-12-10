@@ -11,16 +11,23 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  run_rust_tests: 
-
+  test_cli:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Install dependencies
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-    - name: Run Rust tests
-      run: cargo test --verbose
+      - uses: actions/checkout@v4
+      - name: Run `cli` tests
+        run: cargo test -p cli --verbose
+
+  test_gi_core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run `gi_core` tests
+        run: cargo test -p gi_core --verbose
+
+  test_gui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run `gui` (Rust) tests
+        run: cargo test -p gui --verbose
