@@ -1,4 +1,4 @@
-use gi_core::Settings;
+use gi_core::{Settings, Filter};
 use clap::{Arg, Command};
 use std::{error::Error};
 
@@ -43,11 +43,29 @@ impl Config {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    // Validate mutual exclusivity of file extensions
+    if !config.allowed_file_extensions.is_empty() && !config.ignored_file_extensions.is_empty() {
+        return Err("Cannot specify both --allowed-file-extensions and --ignored-file-extensions".into());
+    }
+
+    let file_types_filter = if !config.allowed_file_extensions.is_empty() {
+        Some(Filter {
+            value: config.allowed_file_extensions.join(","),
+            include: true,
+        })
+    } else if !config.ignored_file_extensions.is_empty() {
+        Some(Filter {
+            value: config.ignored_file_extensions.join(","),
+            include: false,
+        })
+    } else {
+        None
+    };
+
     let settings = Settings {
         repositories: config.repositories.clone(),
         search_depth: config.search_depth,
-        ignored_file_extensions: config.ignored_file_extensions.clone(),
-        allowed_file_extensions: config.allowed_file_extensions.clone(),
+        ..Settings::default()
     };
 
     // RUN CORE
@@ -64,13 +82,16 @@ pub fn create_parser() -> Command {
         .arg(Arg::new("search-depth")
             .long("search-depth")
             .value_parser(clap::value_parser!(usize))
-            // Make sure default value matches Settings default
             .default_value("3"))
         .arg(Arg::new("ignored-file-extensions")
             .long("ignored-file-extensions")
+            .help("File extensions to ignore (e.g.: exe, py)")
+            .conflicts_with("allowed-file-extensions")
             .num_args(1..))
         .arg(Arg::new("allowed-file-extensions")
             .long("allowed-file-extensions")
+            .help("Only analyze these extensions (e.g.: rs, js)")
+            .conflicts_with("ignored-file-extensions")
             .num_args(1..))
 }
 
