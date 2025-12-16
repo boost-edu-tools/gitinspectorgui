@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::convert_to_csv;
 
 /// The File struct represents a file in the repository with its associated data.
 /// Metrics of a file:
@@ -90,6 +91,71 @@ pub struct Author {
     pub metrics: Metrics,
 }
 
+#[derive(Serialize)]
+struct AuthorCsv {
+    id: usize,
+    name: String,
+    email: String,
+    commit_hashes: String,
+    file_ids: String,
+    file_insertions: String,
+    file_deletions: String,
+    total_insertions: usize,
+    total_deletions: usize,
+    total_commits: usize,
+    last_modified_date: String,
+    last_modified_time: String,
+    last_modified_timezone: String,
+}
+
+impl Author {
+    // Convert a single author to CSV format
+    fn to_csv_row(&self) -> AuthorCsv {
+        // Join commit hashes with commas
+        let commit_hashes = self.commit_hashes.join(",");
+        
+        // Extract and join file IDs
+        let file_ids: Vec<String> = self.files.iter()
+            .map(|(id, _)| id.to_string())
+            .collect();
+        
+        // Extract and join file insertions
+        let file_insertions: Vec<String> = self.files.iter()
+            .map(|(_, metrics)| metrics.insertions.unwrap_or(0).to_string())
+            .collect();
+        
+        // Extract and join file deletions
+        let file_deletions: Vec<String> = self.files.iter()
+            .map(|(_, metrics)| metrics.deletions.unwrap_or(0).to_string())
+            .collect();
+        
+        AuthorCsv {
+            id: self.id,
+            name: self.name.clone(),
+            email: self.email.clone(),
+            commit_hashes,
+            file_ids: file_ids.join(","),
+            file_insertions: file_insertions.join(","),
+            file_deletions: file_deletions.join(","),
+            total_insertions: self.metrics.insertions.unwrap_or(0),
+            total_deletions: self.metrics.deletions.unwrap_or(0),
+            total_commits: self.metrics.total_commits.unwrap_or(0),
+            last_modified_date: self.last_modified_date.clone(),
+            last_modified_time: self.last_modified_time.clone(),
+            last_modified_timezone: self.last_modified_timezone.clone(),
+        }
+    }
+
+    // Convert multiple authors to CSV
+    pub fn to_csv(authors: &[Author]) -> Result<String, String> {
+        let csv_authors: Vec<AuthorCsv> = authors.iter()
+            .map(|author| author.to_csv_row())
+            .collect();
+
+        convert_to_csv(&csv_authors)
+    }
+}
+
 /// The Metrics struct stores metrics in the context of the struct it is used in.
 /// For example, in the context of a Repository, it stores overall repository metrics.
 /// All metrics are optional and can be None if not calculated or not applicable.
@@ -142,6 +208,8 @@ pub struct AnalysisParameters {
     pub commit_message_filter: Option<Filter>,
     pub file_types_filter: Option<Filter>,
     pub path_filter: Option<Filter>,
+    pub author_name_filter: Option<Filter>,
+    pub author_email_filter: Option<Filter>,
 }
 
 impl Default for AnalysisParameters {
@@ -156,6 +224,8 @@ impl Default for AnalysisParameters {
             commit_message_filter: None,
             file_types_filter: None,
             path_filter: None,
+            author_name_filter: None,
+            author_email_filter: None,
         }
     }
 }

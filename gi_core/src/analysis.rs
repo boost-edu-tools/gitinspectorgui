@@ -347,6 +347,22 @@ pub fn build_glob_matchers_from_params(
         out.push(None);
     }
 
+    // Author name filter (case-insensitive, literal_separator = false)
+    if let Some(filter) = &params.author_name_filter {
+        let m = glob_matcher_builder(&filter.value, false)?;
+        out.push(Some(m));
+    } else {
+        out.push(None);
+    }
+
+    // Author email filter (case-insensitive, literal_separator = false)
+    if let Some(filter) = &params.author_email_filter {
+        let m = glob_matcher_builder(&filter.value, false)?;
+        out.push(Some(m));
+    } else {
+        out.push(None);
+    }
+    
     // file_types_filter (case-insensitive, literal_separator = false)
     if let Some(filter) = &params.file_types_filter {
         let m = glob_matcher_builder(&filter.value, false)?;
@@ -482,6 +498,48 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
                     }
                 }
 
+                // Check author name filter (if present) and apply include/exclude semantics.
+                // matchers[2] corresponds to author_name_filter.
+                if let Some(matcher_opt) = matchers.get(2) {
+                    if let Some(matcher) = matcher_opt {
+                        if let Some(filter) = &params.author_name_filter {
+                            let is_match = matcher.is_match(&author_name);
+                            if filter.include {
+                                // include=true -> only keep commits whose author name matches
+                                if !is_match {
+                                    continue;
+                                }
+                            } else {
+                                // include=false -> exclude commits whose author name matches
+                                if is_match {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Check author email filter (if present) and apply include/exclude semantics.
+                // Matchers[3] corresponds to author_email_filter.
+                if let Some(matcher_opt) = matchers.get(3) {
+                    if let Some(matcher) = matcher_opt {
+                        if let Some(filter) = &params.author_email_filter {
+                            let is_match = matcher.is_match(&author_email);
+                            if filter.include {
+                                // include=true -> only keep commits whose author email matches
+                                if !is_match {
+                                    continue;
+                                }
+                            } else {
+                                // include=false -> exclude commits whose author email matches
+                                if is_match {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Keep track of commit level statistics when looping through files
                 // We collect (file_id, Metrics) tuples for the commit
                 let mut files_changed: Vec<(usize, Metrics)> = Vec::new();
@@ -500,8 +558,8 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
                     // "<insertions>\t<deletions>\t<path>". Insertions/deletions may be "-" for binaries.
                     match parse_file_line(line) {
                         Ok((ins, del, path)) => {
-                            // Apply file types filter (if present). matchers[2] corresponds to file_types_filter
-                            if let Some(matcher_opt) = matchers.get(2) {
+                            // Apply file types filter (if present). matchers[4] corresponds to file_types_filter
+                            if let Some(matcher_opt) = matchers.get(4) {
                                 if let Some(matcher) = matcher_opt {
                                     if let Some(filter) = &params.file_types_filter {
                                         // Extract extension from the filename and add a leading dot
@@ -531,9 +589,8 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
                                 }
                             }
 
-                            // Apply path filter (if present). matchers[3] corresponds to path_filter
-                            // TODO: This can result in empty commits, as files may be all filtered out. Is this acceptable?
-                            if let Some(matcher_opt) = matchers.get(3) {
+                            // Apply path filter (if present). matchers[5] corresponds to path_filter
+                            if let Some(matcher_opt) = matchers.get(5) {
                                 if let Some(matcher) = matcher_opt {
                                     if let Some(filter) = &params.path_filter {
                                         // Use the full file path for path matching
@@ -680,40 +737,283 @@ pub(crate) fn analyse_repository(params: &AnalysisParameters) -> Result<Reposito
     }
 }
 
-// fn filter_authors(result: AnalysisResult, authors_to_exclude: Vec<Author>) -> Result<AnalysisResult, String> {
-//     let mut result = result;
-//     let exclude_set: HashSet<Author> = authors_to_exclude.into_iter().collect();
+pub(crate) fn filter_authors(repository: &Repository, params: &AnalysisParameters) -> Result<Repository, String> {
+    // Clone the incoming repository so we can return a filtered copy
+    let mut repository = repository.clone();
 
-//     // Keep only the commits whose author is NOT in authors_to_exclude
-//     result.repository.commits.retain(|commit| !exclude_set.contains(&commit.author));
+    // If no author filters are present, return repository unchanged
+    if params.author_name_filter.is_none() && params.author_email_filter.is_none() {
+        return Ok(repository);
+    }
 
-//     // Rebuild authors list
-//     let unique_authors: HashSet<Author> = result.repository.commits
-//         .iter()
-//         .map(|commit| commit.author.clone())
-//         .collect();
-//     result.repository.authors = unique_authors.into_iter().collect();
+    // Build matchers where filters are present
+    let name_matcher = if let Some(f) = &params.author_name_filter {
+        Some((glob_matcher_builder(&f.value, false)?, f.include))
+    } else {
+        None
+    };
+    let email_matcher = if let Some(f) = &params.author_email_filter {
+        Some((glob_matcher_builder(&f.value, false)?, f.include))
+    } else {
+        None
+    };
 
-//     // Get files from commits
-//     let commit_files: HashSet<String> = result.repository.commits
-//         .iter()
-//         .flat_map(|commit| commit.files_changed.iter())
-//         .map(|file| file.path.clone())
-//         .collect();
+    // Determine which authors to exclude based on the provided filters.
+    // We treat multiple filters as cumulative constraints: an author is kept only
+    // if they satisfy all provided include/exclude rules.
+    let exclude_set: HashSet<usize> = repository
+        .authors
+        .iter()
+        .filter(|author| {
+            let mut keep = true;
 
-//     result.repository.files = commit_files.into_iter().collect();
+            if let Some((matcher, include)) = &name_matcher {
+                let is_match = matcher.is_match(&author.name);
+                if *include {
+                    if !is_match {
+                        keep = false;
+                    }
+                } else if is_match {
+                    keep = false;
+                }
+            }
 
-//     // TODO: Calculate repository-level metrics
-//     // result.repository.metrics = calculate_metrics();
-//     Ok(result)
-// }
+            if let Some((matcher, include)) = &email_matcher {
+                let is_match = matcher.is_match(&author.email);
+                if *include {
+                    if !is_match {
+                        keep = false;
+                    }
+                } else if is_match {
+                    keep = false;
+                }
+            }
 
-fn filter_files(result: AnalysisResult) {
-    // Placeholder for future implementation
+            // We want authors to be excluded when keep == false
+            !keep
+        })
+        .map(|author| author.id)
+        .collect();
+
+    // Initialize repo-level metrics
+    let mut repo_total_loc: usize = 0;
+    let mut repo_total_sloc: usize = 0;
+    let mut repo_total_cloc: usize = 0;
+    let mut repo_total_whitespace: usize = 0;
+    let mut repo_total_insertions: usize = 0;
+    let mut repo_total_deletions: usize = 0;
+
+    // Keep only the commits whose author id is NOT in authors_to_exclude
+    repository.commits.retain(|commit| {
+        if !exclude_set.contains(&commit.author_id) {
+            // Commit is kept, accumulate its metrics
+            repo_total_insertions = repo_total_insertions.saturating_add(commit.metrics.insertions.unwrap_or(0));
+            repo_total_deletions = repo_total_deletions.saturating_add(commit.metrics.deletions.unwrap_or(0));
+            true
+        } else {
+            false
+        }
+    });
+
+    // Rebuild list of author IDs
+    let active_author_ids: HashSet<usize> = repository.commits
+        .iter()
+        .map(|commit| commit.author_id)
+        .collect();
+
+    // Update authors list based on remaining IDs
+    repository.authors.retain(|author| active_author_ids.contains(&author.id));
+
+    // Get files from remaining commits
+    let commit_files: HashSet<usize> = repository.commits
+        .iter()
+        .flat_map(|commit| commit.files_changed.iter())
+        .map(|(file_id, _metrics)| *file_id)
+        .collect();
+
+    repository.files.retain(|file| {
+        if commit_files.contains(&file.id) {
+            // File is kept, accumulate its metrics
+            repo_total_loc = repo_total_loc.saturating_add(file.metrics.loc.unwrap_or(0));
+            repo_total_sloc = repo_total_sloc.saturating_add(file.metrics.sloc.unwrap_or(0));
+            repo_total_cloc = repo_total_cloc.saturating_add(file.metrics.cloc.unwrap_or(0));
+            repo_total_whitespace = repo_total_whitespace.saturating_add(file.metrics.whitespace.unwrap_or(0));
+            true
+        } else {
+            false
+        }
+    });
+
+    // Update the repository-level metrics
+    repository.metrics.loc = Some(repo_total_loc);
+    repository.metrics.sloc = Some(repo_total_sloc);
+    repository.metrics.cloc = Some(repo_total_cloc);
+    repository.metrics.whitespace = Some(repo_total_whitespace);
+    repository.metrics.total_files = Some(repository.files.len());
+    repository.metrics.total_authors = Some(repository.authors.len());
+    repository.metrics.total_commits = Some(repository.commits.len());
+    repository.metrics.insertions = Some(repo_total_insertions);
+    repository.metrics.deletions = Some(repo_total_deletions);
+
+    Ok(repository)
 }
 
-fn filter_metrics(result: AnalysisResult) {
-    // Placeholder for future implementation
+pub(crate) fn filter_files(repository: &Repository, params: &AnalysisParameters) -> Result<Repository, String> {
+    // Clone repository for mutation
+    let mut repository = repository.clone();
+
+    // If no file filters present, return unchanged
+    if params.file_types_filter.is_none() && params.path_filter.is_none() {
+        return Ok(repository);
+    }
+
+    // Build matchers for the filters present
+    let ft_matcher = if let Some(f) = &params.file_types_filter {
+        Some((glob_matcher_builder(&f.value, false)?, f.include))
+    } else {
+        None
+    };
+    let path_matcher = if let Some(f) = &params.path_filter {
+        Some((glob_matcher_builder(&f.value, true)?, f.include))
+    } else {
+        None
+    };
+
+    let exclude_set: HashSet<usize> = repository.files
+        .iter()
+        .filter(|file| {
+            let mut keep = true;
+
+            // Extract extension with leading dot
+            let ext = if file.name.contains('.') {
+                format!(".{}", file.name.rsplitn(2, '.').next().unwrap_or(""))
+            } else {
+                String::new()
+            };
+
+            if let Some((matcher, include)) = &ft_matcher {
+                let is_match = matcher.is_match(&ext);
+                if *include {
+                    if !is_match {
+                        keep = false;
+                    }
+                } else if is_match {
+                    keep = false;
+                }
+            }
+
+            if let Some((matcher, include)) = &path_matcher {
+                let is_match = matcher.is_match(&file.path);
+                if *include {
+                    if !is_match {
+                        keep = false;
+                    }
+                } else if is_match {
+                    keep = false;
+                }
+            }
+
+            !keep
+        })
+        .map(|file| file.id)
+        .collect();
+
+    // Repository-level metrics
+    let mut repo_total_loc: usize = 0;
+    let mut repo_total_sloc: usize = 0;
+    let mut repo_total_cloc: usize = 0;
+    let mut repo_total_whitespace: usize = 0;
+    let mut repo_total_insertions: usize = 0;
+    let mut repo_total_deletions: usize = 0;
+
+    // Keep only the files that are NOT in files_to_exclude
+    repository.files.retain(|file| {
+        if !exclude_set.contains(&file.id) {
+            // File is kept, accumulate its metrics
+            repo_total_loc = repo_total_loc.saturating_add(file.metrics.loc.unwrap_or(0));
+            repo_total_sloc = repo_total_sloc.saturating_add(file.metrics.sloc.unwrap_or(0));
+            repo_total_cloc = repo_total_cloc.saturating_add(file.metrics.cloc.unwrap_or(0));
+            repo_total_whitespace = repo_total_whitespace.saturating_add(file.metrics.whitespace.unwrap_or(0));
+            true
+        } else {
+            false
+        }
+    });
+
+    // Update commits - remove files and subtract their metrics from the commit metrics
+    for commit in &mut repository.commits {
+        let mut removed_ins: usize = 0;
+        let mut removed_del: usize = 0;
+
+        commit.files_changed.retain(|(file_id, file_metrics)| {
+            if exclude_set.contains(file_id) {
+                removed_ins = removed_ins.saturating_add(file_metrics.insertions.unwrap_or(0));
+                removed_del = removed_del.saturating_add(file_metrics.deletions.unwrap_or(0));
+                false
+            } else {
+                true
+            }
+        });
+
+        // Update the per-commit metrics
+        commit.metrics.insertions = Some(
+            commit.metrics.insertions.unwrap_or(0).saturating_sub(removed_ins)
+        );
+        commit.metrics.deletions = Some(
+            commit.metrics.deletions.unwrap_or(0).saturating_sub(removed_del)
+        );
+        commit.metrics.total_files = Some(commit.files_changed.len());
+    }
+
+    // Remove commits with no files
+    repository.commits.retain(|commit| {
+        if !commit.files_changed.is_empty() {
+            // Commit is kept, accumulate its metrics
+            repo_total_insertions = repo_total_insertions.saturating_add(commit.metrics.insertions.unwrap_or(0));
+            repo_total_deletions = repo_total_deletions.saturating_add(commit.metrics.deletions.unwrap_or(0));
+            true
+        } else {
+            false
+        }
+    });
+
+    // Update authors - remove files and subtract their metrics from author metrics
+    for author in &mut repository.authors {
+        let mut removed_ins: usize = 0;
+        let mut removed_del: usize = 0;
+
+        author.files.retain(|(file_id, file_metrics)| {
+            if exclude_set.contains(file_id) {
+                removed_ins = removed_ins.saturating_add(file_metrics.insertions.unwrap_or(0));
+                removed_del = removed_del.saturating_add(file_metrics.deletions.unwrap_or(0));
+                false
+            } else {
+                true
+            }
+        });
+
+        // Update the per-author metrics
+        author.metrics.insertions = Some(
+            author.metrics.insertions.unwrap_or(0).saturating_sub(removed_ins)
+        );
+        author.metrics.deletions = Some(
+            author.metrics.deletions.unwrap_or(0).saturating_sub(removed_del)
+        );
+        author.metrics.total_files = Some(author.files.len());
+    }
+
+    // Update the repository-level metrics
+    repository.metrics.loc = Some(repo_total_loc);
+    repository.metrics.sloc = Some(repo_total_sloc);
+    repository.metrics.cloc = Some(repo_total_cloc);
+    repository.metrics.whitespace = Some(repo_total_whitespace);
+    repository.metrics.total_files = Some(repository.files.len());
+    repository.metrics.total_authors = Some(repository.authors.len());
+    repository.metrics.total_commits = Some(repository.commits.len());
+    repository.metrics.insertions = Some(repo_total_insertions);
+    repository.metrics.deletions = Some(repo_total_deletions);
+
+    Ok(repository)
 }
 
 /// This function retrieves blame information up until the latest commit in the AnalysisResult.
@@ -1237,148 +1537,435 @@ mod tests {
         assert!(err.contains("Cannot mix commit-range"));
     }
 
-    // // Helper function to create a complete test AnalysisResult
-    // fn create_test_analysis_result() -> AnalysisResult {
-    //     let author1 = Author {
-    //         name: "Alice".to_string(),
-    //         email: "alice@example.com".to_string(),
-    //     };
-    //     let author2 = Author {
-    //         name: "Bert".to_string(),
-    //         email: "bert@example.com".to_string(),
-    //     };
+    // Helper function to create a complete test AnalysisResult
+    fn create_test_analysis_result() -> AnalysisResult {
+        let author1 = Author {
+            id: 1,
+            name: "Alice".to_string(),
+            email: "alice@example.com".to_string(),
+            commit_hashes: vec!["abc123".to_string()],
+            files: vec![
+                (1, Metrics {
+                    insertions: Some(100),
+                    deletions: Some(20),
+                    ..Default::default()
+                }),
+            ],
+            last_modified_date: "2025-08-02".to_string(),
+            last_modified_time: "10:30:00".to_string(),
+            last_modified_timezone: "+0000".to_string(),
+            metrics: Metrics {
+                insertions: Some(100),
+                deletions: Some(20),
+                total_commits: Some(1),
+                ..Default::default()
+            },
+        };
 
-    //     let commit1 = Commit {
-    //         hash: "abc123".to_string(),
-    //         author: author1.clone(),
-    //         date: "02-08-2025".to_string(),
-    //         message: "First commit".to_string(),
-    //         files_changed: vec![
-    //             File {
-    //                 name: "main.rs".to_string(),
-    //                 extension: "rs".to_string(),
-    //                 path: "src/main.rs".to_string(),
-    //                 file_size: 0,
-    //                 lines: vec![],
-    //                 metrics: Metrics::default(),
-    //             }
-    //         ],
-    //         metrics: Metrics::default(),
-    //     };
+        let author2 = Author {
+            id: 2,
+            name: "Bert".to_string(),
+            email: "bert@example.com".to_string(),
+            commit_hashes: vec!["def456".to_string()],
+            files: vec![
+                (2, Metrics {
+                    insertions: Some(50),
+                    deletions: Some(10),
+                    ..Default::default()
+                }),
+            ],
+            last_modified_date: "2025-01-01".to_string(),
+            last_modified_time: "14:20:00".to_string(),
+            last_modified_timezone: "+0000".to_string(),
+            metrics: Metrics {
+                insertions: Some(50),
+                deletions: Some(10),
+                total_commits: Some(1),
+                ..Default::default()
+            },
+        };
 
-    //     let commit2 = Commit {
-    //         hash: "def456".to_string(),
-    //         author: author2.clone(),
-    //         date: "2025-01-01".to_string(),
-    //         message: "Second commit".to_string(),
-    //         files_changed: vec![
-    //             File {
-    //                 name: "lib.rs".to_string(),
-    //                 extension: "rs".to_string(),
-    //                 path: "src/lib.rs".to_string(),
-    //                 file_size: 0,
-    //                 lines: vec![],
-    //                 metrics: Metrics::default(),
-    //             }
-    //         ],
-    //         metrics: Metrics::default(),
-    //     };
+        let file1 = File {
+            id: 1,
+            name: "main.rs".to_string(),
+            extension: "rs".to_string(),
+            path: "src/main.rs".to_string(),
+            file_size: Some(1024),
+            lines: vec![],
+            metrics: Metrics {
+                insertions: Some(100),
+                deletions: Some(20),
+                ..Default::default()
+            },
+            last_modified_date: "2025-08-02".to_string(),
+            last_modified_time: "10:30:00".to_string(),
+            last_modified_timezone: "+0000".to_string(),
+        };
 
-    //     let repository = Repository {
-    //         name: "test-repo".to_string(),
-    //         path: "/path/to/repo".to_string(),
-    //         authors: vec![author1, author2],
-    //         commits: vec![commit1, commit2],
-    //         files: vec!["src/main.rs".to_string(), "src/lib.rs".to_string()],
-    //         metrics: Metrics::default(),
-    //     };
+        let file2 = File {
+            id: 2,
+            name: "lib.rs".to_string(),
+            extension: "rs".to_string(),
+            path: "src/lib.rs".to_string(),
+            file_size: Some(512),
+            lines: vec![],
+            metrics: Metrics {
+                insertions: Some(50),
+                deletions: Some(10),
+                ..Default::default()
+            },
+            last_modified_date: "2025-01-01".to_string(),
+            last_modified_time: "14:20:00".to_string(),
+            last_modified_timezone: "+0000".to_string(),
+        };
 
-    //     AnalysisResult {
-    //         parameters: AnalysisParameters::default(),
-    //         repository,
-    //     }
-    // }
+        let commit1 = Commit {
+            id: 1,
+            hash: "abc123".to_string(),
+            author_id: 1,
+            date: "2025-08-02".to_string(),
+            time: "10:30:00".to_string(),
+            timezone: "+0000".to_string(),
+            message: "First commit".to_string(),
+            files_changed: vec![
+                (1, Metrics {
+                    insertions: Some(100),
+                    deletions: Some(20),
+                    ..Default::default()
+                }),
+            ],
+            metrics: Metrics {
+                insertions: Some(100),
+                deletions: Some(20),
+                ..Default::default()
+            },
+        };
 
-    // #[test]
-    // fn test_filter_authors_removes_commits_files_and_authors() {
-    //     let analysis_result = create_test_analysis_result();
-    //     let author_alice = analysis_result.repository.authors[0].clone();
-    //     let author_bert = analysis_result.repository.authors[1].clone();
+        let commit2 = Commit {
+            id: 2,
+            hash: "def456".to_string(),
+            author_id: 2,
+            date: "2025-01-01".to_string(),
+            time: "14:20:00".to_string(),
+            timezone: "+0000".to_string(),
+            message: "Second commit".to_string(),
+            files_changed: vec![
+                (2, Metrics {
+                    insertions: Some(50),
+                    deletions: Some(10),
+                    ..Default::default()
+                }),
+            ],
+            metrics: Metrics {
+                insertions: Some(50),
+                deletions: Some(10),
+                ..Default::default()
+            },
+        };
 
-    //     let filtered = filter_authors(analysis_result, vec![author_alice]).unwrap();
+        let repository = Repository {
+            name: "test-repo".to_string(),
+            path: "/path/to/repo".to_string(),
+            authors: vec![author1, author2],
+            commits: vec![commit1, commit2],
+            files: vec![file1, file2],
+            metrics: Metrics {
+                total_files: Some(2),
+                total_authors: Some(2),
+                total_commits: Some(2),
+                insertions: Some(150),
+                deletions: Some(30),
+                ..Default::default()
+            },
+        };
 
-    //     // Should have only 1 commit (from Bert)
-    //     assert_eq!(filtered.repository.commits.len(), 1);
-    //     assert_eq!(filtered.repository.commits[0].author, author_bert);
-
-    //     // Should have only 1 author (Bert)
-    //     assert_eq!(filtered.repository.authors.len(), 1);
-    //     assert_eq!(filtered.repository.authors[0], author_bert);
-
-    //     // Should only 1 file (lib.rs)
-    //     assert_eq!(filtered.repository.files.len(), 1);
-    //     assert!(filtered.repository.files.contains(&"src/lib.rs".to_string()));
-    // }
-
-    // #[test]
-    // fn test_filter_non_existing_author() {
-    //     let analysis_result = create_test_analysis_result();
-    //     let non_existing_author = Author {
-    //         name: "Fake".to_string(),
-    //         email: "fake@example.com".to_string(),
-    //     };
-
-    //     let filtered = filter_authors(analysis_result, vec![non_existing_author]).unwrap();
-    //     // Should have 2 commits
-    //     assert_eq!(filtered.repository.commits.len(), 2);
-    //     // Should have 2 authors
-    //     assert_eq!(filtered.repository.authors.len(), 2);
-    //     // Should have 2 files
-    //     assert_eq!(filtered.repository.files.len(), 2);
-    // }
-
-    // #[test]
-    // fn test_filter_empty_analysis_result() {
-    //     let repository = Repository {
-    //         name: "empty-repo".to_string(),
-    //         path: "/path/to/empty".to_string(),
-    //         authors: vec![],
-    //         commits: vec![],
-    //         files: vec![],
-    //         metrics: Metrics::default(),
-    //     };
-
-    //     let analysis_result = AnalysisResult {
-    //         parameters: AnalysisParameters::default(),
-    //         repository,
-    //     };
-
-    //     let author_to_exclude = Author {
-    //         name: "Fake".to_string(),
-    //         email: "fake@example.com".to_string(),
-    //     };
-
-    //     // Filter on empty result
-    //     let filtered = filter_authors(analysis_result, vec![author_to_exclude]).unwrap();
-
-    //     // Should remain empty
-    //     assert_eq!(filtered.repository.commits.len(), 0);
-    //     assert_eq!(filtered.repository.authors.len(), 0);
-    //     assert_eq!(filtered.repository.files.len(), 0);
-    // }
-
-    #[test]
-    fn test_filter_files() {
-        // Placeholder test
-        // let dummy = make_dummy_analysis_result();
-        // filter_files(dummy);
+        AnalysisResult {
+            original_repository: None,
+            parameters: AnalysisParameters::default(),
+            repository,
+        }
     }
 
     #[test]
-    fn test_filter_metrics() {
-        // Placeholder test
-        // let dummy = make_dummy_analysis_result();
-        // filter_metrics(dummy);
+    fn test_filter_authors_removes_commits_files_and_authors() {
+        let analysis_result = create_test_analysis_result();
+        let author_alice = analysis_result.repository.authors[0].clone();
+        let author_bert = analysis_result.repository.authors[1].clone();
+        
+        // Filter to exclude Alice by name
+        let filter = Filter {
+            value: "Alice".to_string(),
+            include: false,
+        };
+        let mut params = AnalysisParameters::default();
+        params.author_name_filter = Some(filter.clone());
+
+        let filtered = filter_authors(&analysis_result.repository, &params).unwrap();
+        
+        // Should have only 1 commit (from Bert)
+        assert_eq!(filtered.commits.len(), 1);
+        assert_eq!(filtered.commits[0].author_id, author_bert.id);
+        
+        // Should have only 1 author (Bert)
+        assert_eq!(filtered.authors.len(), 1);
+        assert_eq!(filtered.authors[0], author_bert);
+        
+        // Should have only 1 file (lib.rs)
+        assert_eq!(filtered.files.len(), 1);
+        assert_eq!(filtered.files[0].id, 2);
+        assert_eq!(filtered.files[0].path, "src/lib.rs");
+    }
+
+    #[test]
+    fn test_filter_non_existing_author() {
+        let analysis_result = create_test_analysis_result();
+        
+        // Filter to exclude a non-existing author name
+        let filter = Filter {
+            value: "Fake".to_string(),
+            include: false,
+        };
+        let mut params = AnalysisParameters::default();
+        params.author_name_filter = Some(filter.clone());
+
+        let filtered = filter_authors(&analysis_result.repository, &params).unwrap();
+        
+        // Should have 2 commits
+        assert_eq!(filtered.commits.len(), 2);
+        // Should have 2 authors
+        assert_eq!(filtered.authors.len(), 2);
+        // Should have 2 files
+        assert_eq!(filtered.files.len(), 2);
+    }
+
+    #[test]
+    fn test_filter_authors_updates_repository_metrics() {
+        let analysis_result = create_test_analysis_result();
+        
+        // Filter out Alice by email
+        let filter = Filter {
+            value: "alice@example.com".to_string(),
+            include: false,
+        };
+        let mut params = AnalysisParameters::default();
+        params.author_email_filter = Some(filter.clone());
+
+        let filtered = filter_authors(&analysis_result.repository, &params).unwrap();
+        
+        // Should have only 1 commit (from Bert)
+        assert_eq!(filtered.commits.len(), 1);
+        
+        // Should have only 1 author (Bert)
+        assert_eq!(filtered.authors.len(), 1);
+        assert_eq!(filtered.authors[0].name, "Bert");
+        
+        // Should have only 1 file (lib.rs)
+        assert_eq!(filtered.files.len(), 1);
+        assert_eq!(filtered.files[0].path, "src/lib.rs");
+        
+        // Verify repository-level metrics are recalculated
+        assert_eq!(filtered.metrics.total_files, Some(1));
+        assert_eq!(filtered.metrics.total_authors, Some(1));
+        assert_eq!(filtered.metrics.total_commits, Some(1));
+        assert_eq!(filtered.metrics.insertions, Some(50)); // only Bert's commit
+        assert_eq!(filtered.metrics.deletions, Some(10)); // only Bert's commit
+        assert_eq!(filtered.metrics.loc, Some(0));
+        assert_eq!(filtered.metrics.sloc, Some(0));
+        assert_eq!(filtered.metrics.cloc, Some(0));
+        assert_eq!(filtered.metrics.whitespace, Some(0));
+    }
+
+    #[test]
+    fn test_filter_empty_analysis_result() {
+        let repository = Repository {
+            name: "empty-repo".to_string(),
+            path: "/path/to/empty".to_string(),
+            authors: vec![],
+            commits: vec![],
+            files: vec![],
+            metrics: Metrics::default(),
+        };
+
+        // Filter to exclude a non-existing author
+        let filter = Filter {
+            value: "Fake".to_string(),
+            include: false,
+        };
+        let mut params = AnalysisParameters::default();
+        params.author_name_filter = Some(filter.clone());
+
+        // Filter on empty result
+        let filtered = filter_authors(&repository, &params).unwrap();
+        
+        // Should remain empty
+        assert_eq!(filtered.commits.len(), 0);
+        assert_eq!(filtered.authors.len(), 0);
+        assert_eq!(filtered.files.len(), 0);
+    }
+
+    #[test]
+    fn test_filter_authors_by_email_pattern() {
+        let analysis_result = create_test_analysis_result();
+        
+        // Filter to include only authors with @example.com email
+        let filter = Filter {
+            value: "*@example.com".to_string(),
+            include: true,
+        };
+        let mut params = AnalysisParameters::default();
+        params.author_email_filter = Some(filter.clone());
+
+        let filtered = filter_authors(&analysis_result.repository, &params).unwrap();
+        
+        // Both authors have @example.com emails, so both should remain
+        assert_eq!(filtered.authors.len(), 2);
+        assert_eq!(filtered.commits.len(), 2);
+        assert_eq!(filtered.files.len(), 2);
+    }
+
+    #[test]
+    fn test_filter_authors_by_name_wildcard() {
+        let analysis_result = create_test_analysis_result();
+        
+        // Filter to exclude authors whose name starts with 'A'
+        let filter = Filter {
+            value: "A*".to_string(),
+            include: false,
+        };
+        let mut params = AnalysisParameters::default();
+        params.author_name_filter = Some(filter.clone());
+
+        let filtered = filter_authors(&analysis_result.repository, &params).unwrap();
+        
+        // Alice should be excluded, only Bert remains
+        assert_eq!(filtered.authors.len(), 1);
+        assert_eq!(filtered.authors[0].name, "Bert");
+        assert_eq!(filtered.commits.len(), 1);
+        assert_eq!(filtered.files.len(), 1);
+    }
+
+    #[test]
+    fn test_filter_files_updates_files_and_commits() {
+        let mut analysis_result = create_test_analysis_result();
+
+        analysis_result.repository.files[0].extension = "txt".to_string();
+        analysis_result.repository.files[0].name = "main.txt".to_string();
+
+        // Change first file extension so it can be filtered
+        let filter = Filter {
+            value: ".txt".to_string(),
+            include: false, // Exclude .txt files
+        };
+        let mut params = AnalysisParameters::default();
+        params.file_types_filter = Some(filter.clone());
+
+        let filtered = filter_files(&analysis_result.repository, &params).unwrap();
+
+        // Verify files are filtered
+        assert_eq!(filtered.files.len(), 1);
+        assert_eq!(filtered.files[0].id, 2);
+        assert_eq!(filtered.files[0].path, "src/lib.rs");
+
+        // Verify commit 1 is deleted
+        assert_eq!(filtered.commits.len(), 1);
+
+        // Verify commit 2 metrics remain unchanged
+        let commit2 = &filtered.commits[0];
+        assert_eq!(commit2.id, 2);
+        assert_eq!(commit2.files_changed.len(), 1); // lib.rs still there
+        assert_eq!(commit2.files_changed[0].0, 2); // file id=2
+        assert_eq!(commit2.metrics.insertions, Some(50));
+        assert_eq!(commit2.metrics.deletions, Some(10));
+        assert_eq!(commit2.metrics.total_files, Some(1));
+
+        // Verify repository-level metrics
+        assert_eq!(filtered.metrics.total_files, Some(1)); // only lib.rs remains
+        assert_eq!(filtered.metrics.total_authors, Some(2)); // both authors still present
+        assert_eq!(filtered.metrics.total_commits, Some(1)); // only one commit present
+        assert_eq!(filtered.metrics.insertions, Some(50)); // only from commit2
+        assert_eq!(filtered.metrics.deletions, Some(10)); // only from commit2
+        assert_eq!(filtered.metrics.loc, Some(0));
+        assert_eq!(filtered.metrics.sloc, Some(0));
+        assert_eq!(filtered.metrics.cloc, Some(0));
+        assert_eq!(filtered.metrics.whitespace, Some(0));
+    }
+
+    #[test]
+    fn test_filter_non_existing_file() {
+        let analysis_result = create_test_analysis_result();
+
+        // Use a filter that matches a non-existent extension
+        let filter = Filter {
+            value: ".nonexistent".to_string(),
+            include: false, // Exclude .nonexistent files (none exist)
+        };
+        let mut params = AnalysisParameters::default();
+        params.file_types_filter = Some(filter.clone());
+
+        let filtered = filter_files(&analysis_result.repository, &params).unwrap();
+
+        // Verify files are unfiltered
+        assert_eq!(filtered.files.len(), 2);
+        assert_eq!(filtered.files[0].id, 1);
+        assert_eq!(filtered.files[0].path, "src/main.rs");
+        assert_eq!(filtered.files[1].id, 2);
+        assert_eq!(filtered.files[1].path, "src/lib.rs");
+    }
+
+    #[test]
+    fn test_filter_files_removes_empty_commits() {
+        let mut analysis_result = create_test_analysis_result();
+
+        // Change the first file to have a different extension
+        analysis_result.repository.files[0].extension = "txt".to_string();
+        analysis_result.repository.files[0].name = "main.txt".to_string();
+        
+        // Exclude .txt files (which is only main.rs renamed to main.txt)
+        let filter = Filter {
+            value: ".txt".to_string(),
+            include: false,
+        };
+        let mut params = AnalysisParameters::default();
+        params.file_types_filter = Some(filter.clone());
+
+        let filtered = filter_files(&analysis_result.repository, &params).unwrap();
+        // Should have only one commit left
+        assert_eq!(filtered.commits.len(), 1);
+        assert_eq!(filtered.commits[0].id, 2);
+        assert_eq!(filtered.commits[0].author_id, 2);
+
+        // Repository metrics should reflect only one commit
+        assert_eq!(filtered.metrics.total_commits, Some(1));
+        assert_eq!(filtered.metrics.insertions, Some(50)); // only from commit 2
+        assert_eq!(filtered.metrics.deletions, Some(10)); // only from commit 2
+    }
+
+    #[test]
+    fn test_filter_files_include_rs_files() {
+        let analysis_result = create_test_analysis_result();
+        
+        // Filter to only include .rs files
+        let filter = Filter {
+            value: ".rs".to_string(),
+            include: true,
+        };
+        let mut params = AnalysisParameters::default();
+        params.file_types_filter = Some(filter.clone());
+
+        let filtered = filter_files(&analysis_result.repository, &params).unwrap();
+        
+        // Both files are .rs, so both should remain
+        assert_eq!(filtered.files.len(), 2);
+        assert!(filtered.files.iter().all(|f| f.extension == "rs"));
+        
+        // Both commits should remain (they only have .rs files)
+        assert_eq!(filtered.commits.len(), 2);
+        
+        // Repository metrics should be unchanged
+        assert_eq!(filtered.metrics.total_files, Some(2));
+        assert_eq!(filtered.metrics.total_commits, Some(2));
+        assert_eq!(filtered.metrics.insertions, Some(150));
+        assert_eq!(filtered.metrics.deletions, Some(30));
     }
 
     #[test]
@@ -1413,8 +2000,8 @@ mod tests {
 
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
 
-        // Ensure we have 4 elements and the first (commit hash) matcher is present
-        assert_eq!(matchers.len(), 4);
+        // Ensure we have 6 elements (two new author filters added)
+        assert_eq!(matchers.len(), 6);
         let commit_matcher = matchers[0].as_ref().expect("commit matcher should be Some");
 
         // Should match hashes that start with a digit
@@ -1460,8 +2047,8 @@ mod tests {
 
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
 
-        // Ensure we have 4 elements and the second (commit message) matcher is present
-        assert_eq!(matchers.len(), 4);
+        // Ensure we have 6 elements (two new author filters added)
+        assert_eq!(matchers.len(), 6);
         let msg_matcher = matchers[1]
             .as_ref()
             .expect("commit message matcher should be Some");
@@ -1507,9 +2094,9 @@ mod tests {
         });
 
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
-        assert_eq!(matchers.len(), 4);
+        assert_eq!(matchers.len(), 6);
 
-        let ft_matcher = matchers[2]
+        let ft_matcher = matchers[4]
             .as_ref()
             .expect("file types matcher should be Some");
 
@@ -1553,9 +2140,9 @@ mod tests {
         });
 
         let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
-        assert_eq!(matchers.len(), 4);
+        assert_eq!(matchers.len(), 6);
 
-        let path_matcher = matchers[3].as_ref().expect("path matcher should be Some");
+        let path_matcher = matchers[5].as_ref().expect("path matcher should be Some");
 
         // Should match the exact path
         assert!(path_matcher.is_match("gi_core/src/shared_types.rs"));
@@ -1571,5 +2158,115 @@ mod tests {
                 println!("Error: {}", e);
             }
         }
+    }
+
+    #[test]
+    fn test_build_glob_matchers_author_name_max_include_true() {
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+
+        let start_commit = "02c101f";
+        let end_commit = "c1dd7cd";
+
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+
+        // Author name filter: include only names that end with 'Max'
+        params.author_name_filter = Some(Filter {
+            value: "*Max".to_string(),
+            include: true,
+        });
+
+        let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
+        assert_eq!(matchers.len(), 6);
+
+        let name_matcher = matchers[2].as_ref().expect("author name matcher should be Some");
+
+        // Should match names that end with 'Max'
+        assert!(name_matcher.is_match("Max"));
+        assert!(name_matcher.is_match("Big Max"));
+
+        // Should not match names that do not end with 'Max'
+        assert!(!name_matcher.is_match("Maximilian"));
+
+        let result = analyse_repository(&params);
+        match result {
+            Ok(repo) => {
+                print_repository_info(&repo);
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_build_glob_matchers_author_email_gmail_exclude() {
+        let repo_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .canonicalize()
+            .expect("Failed to canonicalize repo path");
+
+        let start_commit = "02c101f";
+        let end_commit = "c1dd7cd";
+
+        let mut params = AnalysisParameters::default();
+        params.repo_path = repo_path.to_string_lossy().to_string();
+        params.from_commit = Some(start_commit.to_string());
+        params.to_commit = Some(end_commit.to_string());
+
+        // Author email filter: exclude any author emails that match '*gmail.com'
+        params.author_email_filter = Some(Filter {
+            value: "*gmail.com".to_string(),
+            include: false,
+        });
+
+        let matchers = build_glob_matchers_from_params(&params).expect("Should build matchers");
+        assert_eq!(matchers.len(), 6);
+
+        let email_matcher = matchers[3].as_ref().expect("author email matcher should be Some");
+
+        // Should match gmail addresses
+        assert!(email_matcher.is_match("user@gmail.com"));
+        assert!(!email_matcher.is_match("user@company.com"));
+
+        let result = analyse_repository(&params);
+        match result {
+            Ok(repo) => {
+                print_repository_info(&repo);
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_glob_brace_matches_multiple_entries() {
+        // Brace-style glob should match either alternative
+        let res = glob_matcher_builder("{test,case}", false);
+        assert!(res.is_ok(), "Brace glob should compile");
+        let matcher = res.unwrap();
+        assert!(matcher.is_match("test"), "Brace glob should match 'test'");
+        assert!(matcher.is_match("case"), "Brace glob should match 'case'");
+        // It should not match the literal comma string
+        assert!(!matcher.is_match("test,case"), "Brace glob should not match the literal 'test,case'");
+    }
+
+    #[test]
+    fn test_glob_without_braces_treats_comma_as_literal() {
+        // Without braces the comma is a literal character in the pattern
+        let res = glob_matcher_builder("test,case", false);
+        assert!(res.is_ok(), "Literal-comma glob should compile");
+        let matcher = res.unwrap();
+        // Should match the full string containing the comma
+        assert!(matcher.is_match("test,case"), "Literal-comma glob should match 'test,case'");
+        // Should not match the individual alternatives
+        assert!(!matcher.is_match("test"), "Literal-comma glob should not match 'test'");
+        assert!(!matcher.is_match("case"), "Literal-comma glob should not match 'case'");
     }
 }

@@ -11,25 +11,26 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip"
+
 import { Users, User } from "lucide-react"
 
 import { getAuthorColor } from "@/components/helpers/author_colors"
-import { useAnalysis } from "@/hooks/useAnalysis"
-import type { AnalysisProps, AnalysisResult, Author} from "@/components/types"
 
-import { fmt_pct_abs, time_diff_YDH, MetricHeader} from "@/components/helpers/formatting_helpers"
+import type { AnalysisResult, Author} from "@/components/types"
 
-export function AuthorStatisticsOverview({
-  selectedRepo,
-}: 
-  Pick<
-    AnalysisProps,
-    "selectedRepo"
-  >) {
+import { fmt_pct_abs, time_diff_YMD, MetricHeader} from "@/components/helpers/formatting_helpers"
+
+export function AuthorStatisticsOverview(
+  {repository}: Pick<AnalysisResult, "repository">) {
+
   const [displayMode, setDisplayMode] = React.useState<"absolute" | "percentage">("absolute")
-  const { analysis } = useAnalysis(selectedRepo)
-  const repo = (analysis as AnalysisResult | undefined)?.repository
-  const authors: Author[] = repo?.authors ?? []
+  const authors: Author[] = repository?.authors ?? []
 
   const totals = React.useMemo(() => {
     return authors.reduce(
@@ -74,11 +75,11 @@ export function AuthorStatisticsOverview({
             </div>
           </div>
 
-          <div className="grid w-full [&>div]:border [&>div]:rounded overflow-x-auto py-4">
+          <div className="grid w-full [&>div]:border [&>div]:rounded overflow-auto py-4">
             <Table className="min-w-full">
               <TableHeader>
                 <TableRow className="hover:bg-background">
-                  <TableHead className="font-semibold sticky left-0 bg-background border-r w-[200px] z-10">
+                  <TableHead className="font-semibold sticky left-0 bg-muted border-r w-[200px] z-10">
                     Author
                   </TableHead>
                   <TableHead className="min-w-[170px] max-w-[170x] w-[170px]">Email</TableHead>
@@ -108,7 +109,7 @@ export function AuthorStatisticsOverview({
 
               <TableBody>
                 <TableRow className="bg-muted/30 border-b-2">
-                  <TableCell className="font-semibold sticky left-0 bg-muted/30 border-r z-10">
+                  <TableCell className="font-semibold sticky left-0 bg-muted border-r z-10">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
                     <span>All Authors ({sortedAuthors.length})</span>
@@ -135,13 +136,17 @@ export function AuthorStatisticsOverview({
                   const lastModified = new Date(`${a.last_modified_date}T${a.last_modified_time}${a.last_modified_timezone}`);  
                   const now = new Date();                  
                   const diffMs = Math.max(0, now.getTime() - lastModified.getTime());
-                  const { years, days, hours } = time_diff_YDH(diffMs);
-                  const ageYDH = `${years}:${days}:${hours}`;
+                  const { years, months, days } = time_diff_YMD(diffMs);
+                  const formattedDate = lastModified.toISOString().slice(0, 10); // YYYY-MM-DD
+                  const formattedRelative = `${years}y ${months}m ${days}d ago`;
+
+                  const lastModifiedDisplay =
+                    displayMode === "percentage" ? formattedRelative : formattedDate;
                                    
                   return (
-                    <TableRow key={a.id} className="hover:bg-muted/50 transition-colors">
-                      <TableCell className="font-mono text-xs sticky left-0 bg-background border-r z-10">
-                        <div className="flex items-center gap-2">
+                    <TableRow key={a.id} >
+                      <TableCell className="font-mono text-xs sticky left-0 bg-muted border-r z-10">
+                        <div className="flex items-center gap-2 ">
                           <User className="h-4 w-4 text-muted-foreground" />
                           <span
                             style={{ color: getAuthorColor(a.name ?? "").color }}
@@ -151,14 +156,27 @@ export function AuthorStatisticsOverview({
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-xs align-top min-w-[170px] max-w-[170px] w-[170px]"><span className="font-mono break-all">{a.email}</span></TableCell>
+                      <TableCell className="text-xs align-top min-w-[170px] max-w-[170px] w-[170px]">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="font-mono block truncate">
+                                    {a.email}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{a.email}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </TableCell>
                       <TableCell className="text-right">{fmt_pct_abs(m.total_commits ?? 0, totals.total_commits, displayMode)}</TableCell>
                       <TableCell className="text-right">{fmt_pct_abs(m.insertions ?? 0, totals.insertions, displayMode)}</TableCell>
                       <TableCell className="text-right">{fmt_pct_abs(m.deletions ?? 0, totals.deletions, displayMode)}</TableCell>
                       <TableCell className="text-right">{fmt_pct_abs(m.loc ?? 0, totals.loc, displayMode)}</TableCell>
                       <TableCell className="text-right">{fmt_pct_abs(m.sloc ?? 0, totals.sloc, displayMode)}</TableCell>
                       <TableCell className="text-right">{m.stability}</TableCell>
-                      <TableCell className="text-right">{ageYDH}</TableCell>
+                      <TableCell className="text-right">{lastModifiedDisplay}</TableCell>
                     </TableRow>
                   )
                 })}

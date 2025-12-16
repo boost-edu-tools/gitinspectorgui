@@ -4,7 +4,7 @@ use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::Settings;
+use crate::{Settings, Author};
 
 pub fn is_existing_path(path: &Path) -> bool {
     match path.try_exists() {
@@ -28,6 +28,17 @@ pub fn is_directory(path: &Path) -> bool {
 
 /// Returns true if the given directory (as Path) is a git repository, false otherwise.
 pub fn is_git_repository(path: &Path) -> bool {
+    // Check for the .git directory first as this is significantly faster
+    let git_dir = path.join(".git");
+    if git_dir.exists() && git_dir.is_dir() {
+        return true;
+    }
+    // Also check for the HEAD file in case of a bare repository
+    let head_file = git_dir.join("HEAD");
+    if head_file.exists() && head_file.is_file() {
+        return true;
+    }
+    // Only as a last resort, try to check using git_wrapper
     Repository::discover(path).is_ok()
 }
 
@@ -133,10 +144,18 @@ mod tests {
     }
 
     #[test]
-    fn test_non_git_repo_should_fail() {
+    fn test_upward_git_repo_discovery() {
         let temp_dir = TempDir::new().unwrap();
+        // Create a .git directory at the temp dir so discovery from a subdir succeeds
+        let git_dir = temp_dir.path().join(".git");
+        fs::create_dir(&git_dir).unwrap();
 
-        assert!(!is_git_repository(temp_dir.path()));
+        // Create a nested subdirectory (no .git here) and verify upward discovery
+        let nested = temp_dir.path().join("subdir");
+        fs::create_dir(&nested).unwrap();
+
+        // is_git_repository should return true for nested path via upward discovery
+        assert!(is_git_repository(&nested));
     }
 
     #[test]
@@ -268,7 +287,7 @@ mod tests {
             metrics: Metrics::default(),
         }];
 
-        let result = convert_to_csv(&authors);
+        let result = Author::to_csv(&authors);
         assert!(result.is_ok());
 
         let csv_string = result.unwrap();

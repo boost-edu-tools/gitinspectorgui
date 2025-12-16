@@ -6,37 +6,30 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { X, Plus, FolderOpen } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { BlameView } from "@/components/main_window/files/blame_tab"
-import { useAnalysis } from "@/hooks/useAnalysis"
 import type { AnalysisResult, AnalysisProps, File } from "@/components/types"
 
-
 export function BlameViewMultiTab({
-  selectedRepo,
+  repository,
   selectedFile,
   setSelectedFile,
   onExit,
-}: Pick<
-  AnalysisProps,
-  "selectedRepo"
-  | "setSelectedFile"
-  | "selectedFile"> &
-{ onExit: () => void;
-})  {
+}: Pick<AnalysisResult, "repository"> &
+  Pick<AnalysisProps, "selectedFile" | "setSelectedFile"> & {
+    onExit: () => void;
+  }) {
 
   const [openPaths, setOpenPaths] = React.useState<string[]>([String(selectedFile)])
   const [addOpen, setAddOpen] = React.useState(false)
   const prevRepoRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
-  if (prevRepoRef.current && prevRepoRef.current !== selectedRepo) {
+  if (prevRepoRef.current && prevRepoRef.current !== repository.name) {
     setSelectedFile(null);
   }
-  prevRepoRef.current = selectedRepo;
-}, [selectedRepo]);
+  prevRepoRef.current = repository.name;
+}, [repository]);
 
-  const { analysis } = useAnalysis(selectedRepo)
-  const repo = (analysis as AnalysisResult | undefined)?.repository
-  const files: File[] = repo?.files ?? []
+  const files: File[] = repository.files ?? []
 
   const allFiles = files.map(f => f.path)
 
@@ -100,7 +93,7 @@ export function BlameViewMultiTab({
             <TabsContent key={f.path} value={f.path} className="h-full mt-3">
               <div className="h-full">
                 <BlameView
-                  selectedRepo={selectedRepo}
+                  repository={repository}
                   selectedFile={selectedFile}
                 />
               </div>
@@ -138,11 +131,13 @@ export function BlameViewMultiTab({
               </div>
             </div>
 
-            <div className="border rounded overflow-x-auto ">
+            <div className="border rounded overflow-y-auto overflow-x-hidden">
 
               <ScrollArea className="max-h-[30vh]">
                 <div className="divide-y">
-                  {files.map((f) => {
+                  {files
+                  .sort((a, b) => a.path.localeCompare(b.path))
+                  .map((f) => {
                     const checked = openPaths.includes(f.path)
                     return (
                       <label
@@ -153,7 +148,7 @@ export function BlameViewMultiTab({
                           checked={checked}
                           onCheckedChange={() => togglePath(f.path)}
                         />
-                        <span className="font-mono text-xs truncate">{f.path}</span>
+                        <span className="font-mono text-xs break-all">{f.path}</span>
                       </label>
                     )
                   })}
