@@ -107,6 +107,22 @@ mod tests {
     }
 
     #[test]
+    fn test_ignored_file_extensions() {
+        let cmd = create_parser().try_get_matches_from(vec![
+            "gi-core",
+            "repo1",
+            "--ignored-file-extensions", "exe", "py", "rs",
+        ]);
+        assert!(cmd.is_ok());
+        
+        let m = cmd.unwrap();
+        let ignored: Vec<_> = m.get_many::<String>("ignored-file-extensions")
+            .unwrap()
+            .collect();
+        assert_eq!(ignored, vec!["exe", "py", "rs"]);
+    }
+
+    #[test]
     fn test_full_cli_command_parsing() {
         let cmd = create_parser().try_get_matches_from(vec![ // Simulate cmdline typing
             "gi-core",
@@ -114,7 +130,6 @@ mod tests {
             "repo2",
             "--search-depth", "5",
             "--ignored-file-extensions", "exe",
-            "--allowed-file-extensions", "rs", "js",
         ]);
         assert!(cmd.is_ok());
         let m = cmd.unwrap();
@@ -141,5 +156,16 @@ mod tests {
         let m = cmd.unwrap();
         let search_depth = m.get_one::<usize>("search-depth").unwrap();
         assert_eq!(*search_depth, Settings::default().search_depth);
+    }
+
+    #[test]
+    fn test_mutual_exclusivity_of_file_filters() {
+        let cmd = create_parser().try_get_matches_from(vec![
+            "gi-core",
+            "repo1",
+            "--allowed-file-extensions", "rs", "js",
+            "--ignored-file-extensions", "exe", "py",
+        ]);
+        assert!(cmd.is_err(), "Should not allow both allowed and ignored extensions");
     }
 }
