@@ -35,6 +35,8 @@ export default function App() {
   const [endDate, setEndDate] = React.useState<Date>(new Date());
   const [startCommitHash, setStartCommitHash] = React.useState<string>("");
   const [endCommitHash, setEndCommitHash] = React.useState<string>("");
+  const [commitsIncluded, setCommitsIncluded] = React.useState<string[]>([]);
+  const [commitsExcluded, setCommitsExcluded] = React.useState<string[]>([]);
 
   const [loading, setLoading] = React.useState(false);
 
@@ -75,6 +77,8 @@ export default function App() {
       setEndDate(new Date());
       setStartCommitHash("");
       setEndCommitHash("");
+      setCommitsIncluded([]);
+      setCommitsExcluded([]);
 
       return;
     }
@@ -123,6 +127,8 @@ export default function App() {
             const endCommit = commits[0];
             setStartCommitHash(startCommit.hash);
             setEndCommitHash(endCommit.hash);
+            setCommitsIncluded([]);
+            setCommitsExcluded([]);
           }
 
           setAllAuthors(new Set(authors));
@@ -276,6 +282,10 @@ export default function App() {
         endCommitHash={endCommitHash}
         onStartCommitChange={handleStartCommitChange} 
         onEndCommitChange={handleEndCommitChange} 
+        commitsIncluded={commitsIncluded}
+        setCommitsIncluded={setCommitsIncluded}
+        commitsExcluded={commitsExcluded}
+        setCommitsExcluded={setCommitsExcluded}
         
         onSettingsSaved={handleSettingsSaved}
       />

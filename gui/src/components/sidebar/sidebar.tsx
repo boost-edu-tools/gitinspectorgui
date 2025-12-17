@@ -43,7 +43,10 @@ export function AppSidebar({
   onEndDateChange,
   onStartCommitChange,
   onEndCommitChange,
-  onSettingsSaved
+  commitsIncluded,
+  setCommitsIncluded,
+  commitsExcluded,
+  setCommitsExcluded,
 
 }:
   {repo_analysis: AnalysisResult } &
@@ -77,6 +80,10 @@ export function AppSidebar({
       |"onEndDateChange"  
       |"onStartCommitChange"  
       |"onEndCommitChange" 
+      |"commitsIncluded"
+      |"setCommitsIncluded"
+      |"commitsExcluded"
+      |"setCommitsExcluded"
       |"onSettingsSaved"
 >) {
 
@@ -111,7 +118,12 @@ export function AppSidebar({
           onStartDateChange={onStartDateChange}
           onEndDateChange={onEndDateChange}
           onStartCommitChange={onStartCommitChange}
-          onEndCommitChange={onEndCommitChange}/> 
+          onEndCommitChange={onEndCommitChange}
+          commitsIncluded={commitsIncluded}
+          setCommitsIncluded={setCommitsIncluded}
+          commitsExcluded={commitsExcluded}
+          setCommitsExcluded={setCommitsExcluded}
+          /> 
         <Separator className="mt-0" />
         <DataExport/>
       </div>

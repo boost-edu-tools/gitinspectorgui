@@ -1,6 +1,5 @@
 import * as React from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 import {
@@ -27,6 +26,10 @@ export function FilterRange({
   onEndDateChange,
   onStartCommitChange,
   onEndCommitChange,
+  commitsIncluded,
+  setCommitsIncluded,
+  commitsExcluded,
+  setCommitsExcluded,
 }: 
   Pick<AnalysisResult, "repository"> &
   Pick<
@@ -39,6 +42,10 @@ export function FilterRange({
     | "onEndDateChange"
     | "onStartCommitChange"
     | "onEndCommitChange"
+    | "commitsIncluded"
+    | "setCommitsIncluded"
+    | "commitsExcluded"
+    | "setCommitsExcluded"
   >
 ) {
   const commits: Commit[] = React.useMemo(
@@ -139,6 +146,24 @@ export function FilterRange({
   const startCommit = commits[startIdx]
   const endCommit = commits[endIdx]
 
+  const normalizedStart = Math.max(0, startIdx)
+  const normalizedEnd = Math.max(normalizedStart, endIdx)
+  const inRangeHashes = new Set<string>(
+    startIdx !== -1 && endIdx !== -1
+      ? commits.slice(normalizedStart, normalizedEnd + 1).map((c) => c.hash)
+      : []
+  )
+  const includedSet = new Set<string>(commitsIncluded)
+  const excludedSet = new Set<string>(commitsExcluded)
+  const effectiveIncluded = new Set<string>()
+
+  for (const h of inRangeHashes) effectiveIncluded.add(h)
+
+  for (const h of includedSet) effectiveIncluded.add(h)
+
+  for (const h of excludedSet) effectiveIncluded.delete(h)
+  const effectiveIncludedCount = effectiveIncluded.size
+
   const applyStartSelection = (idx: number) => {
     if (idx < 0 || idx >= commits.length) return
     const selected = commits[idx]
@@ -171,6 +196,16 @@ export function FilterRange({
     onEndCommitChange(selected.hash)
     onStartDateChange(finalStartDate)
     onEndDateChange(selectedDate)
+  }
+
+  const includeCommit = (hash: string) => {
+    setCommitsExcluded((prev) => prev.filter((h) => h !== hash))
+    setCommitsIncluded((prev) => (prev.includes(hash) ? prev : [...prev, hash]))
+  }
+
+  const excludeCommit = (hash: string) => {
+    setCommitsIncluded((prev) => prev.filter((h) => h !== hash))
+    setCommitsExcluded((prev) => (prev.includes(hash) ? prev : [...prev, hash]))
   }
 
   const applyCalendarSelection = (selectedRange: { from?: Date; to?: Date } | undefined) => {
@@ -223,13 +258,12 @@ export function FilterRange({
     <Card className="bg-transparent border-none shadow-none p-0">
       <CardContent className="p-2 space-y-2">
         {commits.length === 0 && (
-          <ScrollArea className="h-30 w-full rounded border">
-            </ScrollArea>
+          <div className="h-35 w-full rounded border overflow-y-scroll [scrollbar-gutter:stable]">
+          </div>
         )}
         
         {commits.length > 0 && (
-          <div className="flex items-start gap-2">
-          
+          <div className="flex items-center justify-between gap-2">
             <Button
             variant="outline"
             className="h-7 px-2 text-[10px] inline-flex items-center gap-1"
@@ -238,13 +272,15 @@ export function FilterRange({
           >
             Change Date Range
           </Button>
+          <span className="text-[10px] text-muted-foreground flex-shrink-0">
+            {effectiveIncludedCount} / {commits.length}
+          </span>
         </div>)}
 
         
 
         {commits.length > 0 && (
-          <ScrollArea className="h-30 w-full rounded border">
-          
+          <div className="h-30 w-full rounded border overflow-y-scroll [scrollbar-gutter:stable]">
           <ul className="divide-y divide-border/40">
             {commits.map((c, i) => {
               const d = new Date(`${c.date}T${c.time}${c.timezone}`)
@@ -258,6 +294,9 @@ export function FilterRange({
               const isStart = i === normalizedStart
               const isEnd = i === normalizedEnd
               const isHovered = hoveredCommitIndex === i
+              const isExplicitIncluded = commitsIncluded.includes(c.hash)
+              const isExplicitExcluded = commitsExcluded.includes(c.hash)
+              const shaded = (inRange && !isExplicitExcluded) || (!inRange && isExplicitIncluded)
 
               const beforeStart = i < normalizedStart
               const afterEnd = i > normalizedEnd
@@ -289,11 +328,12 @@ export function FilterRange({
                 >
                   <div
                     className={`w-full text-left px-2 py-1 transition-colors ${
-                      inRange ? "bg-gray-200" : ""
+                      shaded ? "bg-gray-200" : ""
                     } ${isHovered ? "bg-gray-300" : ""}`}
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 min-w-0">
+                    <div className="flex items-center gap-2">
+                      {!isHovered && (
+                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
                         <span
                           className={`inline-block h-1.5 w-1.5 rounded-full flex-shrink-0 ${
                             isStart || isEnd ? "bg-primary" : ""
@@ -309,12 +349,13 @@ export function FilterRange({
                         >
                           {shortHash(c.hash)}
                         </code>
-                        <span className="text-[10px] text-muted-foreground truncate ml-1 max-w-[70px]">
+                        <span className="text-[10px] text-muted-foreground truncate ml-1 min-w-0">
                           {c.message}
                         </span>
                       </div>
+                      )}
 
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 ml-auto flex-shrink-0">
                         {isStart && (
                           <span className="text-[9px] rounded px-1 py-0.5 bg-white text-primary">
                             start
@@ -344,9 +385,43 @@ export function FilterRange({
                         )}
 
                         {!isStart && !isEnd && !isHovered && (
-                          <span className="text-[9px] text-muted-foreground flex-shrink-0">
+                          <span className="text-[9px] text-muted-foreground flex-shrink-0 truncate max-w-[100px]">
                             {fmtDate(d)}
                           </span>
+                        )}
+
+                        {isHovered && (
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            {isExplicitIncluded ? (
+                              <button
+                                onClick={() => excludeCommit(c.hash)}
+                                className="text-[9px] rounded px-1.5 py-0.5 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground"
+                              >
+                                exclude
+                              </button>
+                            ) : isExplicitExcluded ? (
+                              <button
+                                onClick={() => includeCommit(c.hash)}
+                                className="text-[9px] rounded px-1.5 py-0.5 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground"
+                              >
+                                include
+                              </button>
+                            ) : inRange ? (
+                              <button
+                                onClick={() => excludeCommit(c.hash)}
+                                className="text-[9px] rounded px-1.5 py-0.5 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground"
+                              >
+                                exclude
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => includeCommit(c.hash)}
+                                className="text-[9px] rounded px-1.5 py-0.5 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground"
+                              >
+                                include
+                              </button>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -355,7 +430,7 @@ export function FilterRange({
               )
             })}
           </ul>
-        </ScrollArea>)}
+        </div>)}
 
         {commits.length > 0 && (
           <div className="flex-1 min-w-0">

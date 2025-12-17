@@ -35,11 +35,18 @@ export type AnalysisProps = {
   onStartCommitChange: (hash: string) => void;
   onEndCommitChange: (hash: string) => void;
 
+  // Commit include/exclude filters
+  commitsIncluded: string[];
+  setCommitsIncluded: Dispatch<SetStateAction<string[]>>;
+  commitsExcluded: string[];
+  setCommitsExcluded: Dispatch<SetStateAction<string[]>>;
+
   selectedFile: string | undefined;
   setSelectedFile: Dispatch<SetStateAction<string | null>>;
 
   setRepoAnalysis: React.Dispatch<React.SetStateAction<AnalysisResult>>
   onSettingsSaved?: () => void
+
 };
 
 export type Repository = {

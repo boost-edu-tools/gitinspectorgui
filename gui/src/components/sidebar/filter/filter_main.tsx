@@ -29,6 +29,10 @@ export function FilterData({
   onEndDateChange,
   onStartCommitChange,
   onEndCommitChange,
+  commitsIncluded,
+  setCommitsIncluded,
+  commitsExcluded,
+  setCommitsExcluded,
 }: 
   Pick<AnalysisResult, "repository"> &
   Pick<
@@ -49,6 +53,10 @@ export function FilterData({
       |"onEndDateChange"  
       |"onStartCommitChange"  
       |"onEndCommitChange" 
+      |"commitsIncluded"
+      |"setCommitsIncluded"
+      |"commitsExcluded"
+      |"setCommitsExcluded"
 >)  {
   
   return (
@@ -85,7 +93,12 @@ export function FilterData({
                     onStartDateChange={onStartDateChange}
                     onEndDateChange={onEndDateChange}
                     onStartCommitChange={onStartCommitChange}
-                    onEndCommitChange={onEndCommitChange}/>
+                    onEndCommitChange={onEndCommitChange}
+                    commitsIncluded={commitsIncluded}
+                    setCommitsIncluded={setCommitsIncluded}
+                    commitsExcluded={commitsExcluded}
+                    setCommitsExcluded={setCommitsExcluded}
+                    />
 
     </SidebarMenu>
     </SidebarGroup>
