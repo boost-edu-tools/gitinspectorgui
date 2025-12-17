@@ -34,6 +34,9 @@ export function FilterAuthors({
             <span className="text-xs">Authors</span>
           </span>
           <span className="flex items-center gap-2">
+            <span className="text-[10px] text-muted-foreground flex-shrink-0">
+            {new Set(selectedAuthors).size} / {Array.from(allAuthors).length}
+          </span>
             <Button variant="secondary" onClick={selectAll} className="h-7 px-2 text-[8px] bg-gray-200 hover:bg-gray-300 text-gray-900">
               Select all
             </Button>

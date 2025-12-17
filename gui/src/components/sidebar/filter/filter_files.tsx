@@ -81,6 +81,9 @@ export function FilterFiles({ allFiles, selectedFiles, selectFiles }: FilterFile
             <span className="text-xs">Files</span>
           </span>
           <span className="flex items-center gap-2">
+            <span className="text-[10px] text-muted-foreground flex-shrink-0">
+            {selectedFiles.length} / {Array.from(allFiles).length}
+          </span>
             <Button
               variant="secondary"
               onClick={selectAll}
