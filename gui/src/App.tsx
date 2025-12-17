@@ -18,6 +18,7 @@ import "./App.css";
 export default function App() {
   const isInitialFilterSetup = React.useRef(true);
   const isUserChange = React.useRef(false); 
+  const analysisInProgress = React.useRef(false);
   const [settingsVersion, setSettingsVersion] = React.useState(0)
   const [isDataImportOpen, setIsDataImportOpen] = React.useState(false)
 
@@ -85,9 +86,15 @@ export default function App() {
       return;
     }
 
+    if (analysisInProgress.current) {
+      console.log("Analysis already in progress, skipping duplicate execution");
+      return;
+    }
+
     isInitialFilterSetup.current = true;
     
     (async () => {
+      analysisInProgress.current = true;
       setLoading(true);
       try {
 
@@ -149,7 +156,12 @@ export default function App() {
         console.error("createAnalysisParameters failed:", err);
       }
       finally {
-    setLoading(false);}
+    setLoading(false);
+
+    setTimeout(() => {
+      analysisInProgress.current = false;
+    }, 0);
+  }
   })();
   }, [selectedRepo, settingsVersion]);
 

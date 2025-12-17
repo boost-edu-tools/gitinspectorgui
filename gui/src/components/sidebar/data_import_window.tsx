@@ -131,7 +131,6 @@ export function DataImportWindow({
 
   const [internalIsOpen, setInternalIsOpen] = React.useState(false)
   
-  // Use external control if provided, otherwise use internal state
   const isDialogOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen
   const setIsDialogOpen = externalOnOpenChange ?? setInternalIsOpen
 
