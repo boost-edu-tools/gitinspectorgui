@@ -218,7 +218,6 @@ export function DataImportWindow({
   const [repoSearch, setRepoSearch] = React.useState("")
 
   const applyLoadedSettings = (loaded: any) => {
-    console.log("[DataImport] Applying loaded settings:", loaded)
 
     setSearchDepth(String(loaded.search_depth ?? defaultState.searchDepth))
     setMaxComputeResources(String(loaded.max_compute_resources ?? defaultState.maxComputeResources))
@@ -242,26 +241,6 @@ export function DataImportWindow({
     setCommitMessages(String(loaded.commit_message_filter?.value ?? defaultState.commitMessages))
   }
 
-  const handleDialogOpen = React.useCallback(async () => {
-    if (!path) {
-      console.timeLog("[DataImport] No path set yet, using defaults")
-      return
-    }
-
-    const settingsPath = `${path}/Settings.json`
-    console.log("[DataImport] Trying to load settings from:", settingsPath)
-
-    try {
-      const loadedSettings = await loadSettingsJson(settingsPath)
-      console.log("[DataImport] Loaded settings:", loadedSettings)
-      applyLoadedSettings(loadedSettings)
-    } catch (err) {
-      console.log(
-        "[DataImport] Could not load settings, keeping defaults. Error:",
-        err
-      )
-    }
-  }, [path, applyLoadedSettings])
 
   const handleToggleRepo = (repo: string) => {
     setSelectedRepos((prev) => {
@@ -296,6 +275,7 @@ export function DataImportWindow({
 
       if (!selected) return 
       if (typeof selected === "string") {
+        console.log("DataImport: selected folder:", selected)
         setPath(selected)
         await fetchReposForPath(selected)
       }
@@ -318,7 +298,7 @@ export function DataImportWindow({
   setPathError(null)
 
   try {
-    const depthNum = Number(searchDepth) || 1
+    const depthNum = Number(searchDepth) || 5
     console.log("DataImport: retrieving repositories for", rootPath, "depth", depthNum)
     const repos = await retrieveRepositories(rootPath, depthNum)
     console.log("retrieve_repositories result:", repos)
@@ -365,23 +345,25 @@ export function DataImportWindow({
     setRepoSearch("")
   }
 
+  const lastLoadedPathRef = React.useRef<string | null>(null)
+
   React.useEffect(() => {
   if (!path) return
 
-  const load = async () => {
+  if (lastLoadedPathRef.current === path) return
+  lastLoadedPathRef.current = path
+  
+
+   ;(async () => {
     try {
       const loadedSettings = await loadSettingsJson(`${path}/Settings.json`)
       applyLoadedSettings(loadedSettings)
       console.log("[DataImport] Loaded settings for path change:", loadedSettings)
     } catch (err) {
-      console.log(
-        "[DataImport] Could not load settings for path change, keeping defaults. Error:",
-        err
-      )
+      console.log("[DataImport] Could not load settings for path change:", err)
     }
-  }
+  })()
 
-  void load()
 }, [path])
 
   const onSave = async () => {
@@ -463,7 +445,6 @@ export function DataImportWindow({
                 setIsDialogOpen(open)
                 if (open) {
                   onReset()
-                  void handleDialogOpen()
                 }
               }}
             >
