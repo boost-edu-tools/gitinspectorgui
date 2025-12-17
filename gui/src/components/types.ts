@@ -5,6 +5,9 @@ import type { Dispatch, SetStateAction } from "react";
 export type AnalysisProps = { 
 
   buttonSidebar: boolean;
+  
+  isDataImportOpen: boolean;
+  onOpenDataImport: () => void;
 
   path: string;
   setPath: Dispatch<SetStateAction<string>>;

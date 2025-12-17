@@ -19,6 +19,7 @@ export default function App() {
   const isInitialFilterSetup = React.useRef(true);
   const isUserChange = React.useRef(false); 
   const [settingsVersion, setSettingsVersion] = React.useState(0)
+  const [isDataImportOpen, setIsDataImportOpen] = React.useState(false)
 
   const [path, setPath] = React.useState("")
 
@@ -64,9 +65,10 @@ export default function App() {
 
 
   React.useEffect(() => {
-    console.log("Selected repo changed:", selectedRepo);
-
+    
     if (!selectedRepo) {
+      console.log("No repo selected, resetting analysis and filters.");
+
       setRepoAnalysis(defaultRepoAnalysis);
       setAllAuthors(new Set());
       setAllFiles(new Set());
@@ -186,6 +188,14 @@ export default function App() {
     setSettingsVersion(v => v + 1); 
   }, []);
 
+  const handleOpenDataImport = React.useCallback(() => {
+    setIsDataImportOpen(true);
+  }, []);
+
+  const handleDataImportOpenChange = React.useCallback((open: boolean) => {
+    setIsDataImportOpen(open);
+  }, []);
+
 
   React.useEffect(() => {
     if (!selectedRepo) return;
@@ -288,18 +298,15 @@ export default function App() {
         setCommitsExcluded={setCommitsExcluded}
         
         onSettingsSaved={handleSettingsSaved}
+        isDataImportOpen={isDataImportOpen}
+        onDataImportOpenChange={handleDataImportOpenChange}
       />
       
 
       <AppMainWindow 
         repo_analysis={repoAnalysis}
         filterData = {filterData}
-        setAllRepos={setAllRepos}
-        setSelectedRepo={setSelectedRepo}
-        path = {path}
-        setPath={setPath}
-        onSettingsSaved={handleSettingsSaved}
-
+        onOpenDataImport={handleOpenDataImport}
        />
 
        {loading && (

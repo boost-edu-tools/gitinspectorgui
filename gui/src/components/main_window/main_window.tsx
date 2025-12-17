@@ -13,26 +13,19 @@ import { FileSatisticsVisualisation } from "./files/file_viz"
 import { FileStatisticsTable } from "./files/file_table"
 
 import type { AnalysisResult, AnalysisProps } from "@/components/types"
-import { DataImportWindow } from "../sidebar/data_import_window"
+import { Button } from "@/components/ui/button"
+import { FolderPlus } from "lucide-react"
 
 
 export function AppMainWindow({ 
   repo_analysis, 
   filterData,
-  setAllRepos,
-  setSelectedRepo,
-  path, 
-  setPath,
-  onSettingsSaved
+  onOpenDataImport
  }: 
   {repo_analysis: AnalysisResult } &
   Pick<AnalysisProps,
   "filterData"
-  | "setAllRepos"
-  | "setSelectedRepo"
-  | "path"
-  | "setPath"
-  | "onSettingsSaved"> ) {
+  | "onOpenDataImport"> ) {
 
   const [selectedFile, setSelectedFile] = React.useState<string | null>(null)
   
@@ -43,14 +36,15 @@ export function AppMainWindow({
   return (
     (repository.path === "") ? (
       <div className="flex flex-1 items-center justify-center">
-        <DataImportWindow
-          buttonSidebar={false}
-          setAllRepos={setAllRepos}
-          setSelectedRepo={setSelectedRepo}
-          path = {path}
-          setPath={setPath}
-          onSettingsSaved={onSettingsSaved}
-          />
+        <Button
+          variant="secondary"
+          className="px-8 py-7 text-base font-semibold bg-gray-200 hover:bg-gray-300 text-gray-900
+             rounded-xl shadow-md hover:shadow-lg transition gap-3"
+          onClick={onOpenDataImport}
+        >
+          <FolderPlus className="h-5 w-5" />
+          Start Analysis
+        </Button>
       </div>
     ) : (
     <SidebarInset>

@@ -5,8 +5,6 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import { Trash2, GitGraph  } from "lucide-react"
 import type { AnalysisProps } from "@/components/types"
@@ -21,11 +19,16 @@ export function AnalysedRepos({
   setSelectedRepo,
   path,
   setPath,
-  onSettingsSaved
+  onSettingsSaved,
+  isDataImportOpen,
+  onDataImportOpenChange
 
-}: Pick<AnalysisProps, "allRepos" | "setAllRepos" | "selectedRepo" | "setSelectedRepo"| "path" | "setPath" | "onSettingsSaved" >) {
+}: Pick<AnalysisProps, "allRepos" | "setAllRepos" | "selectedRepo" | "setSelectedRepo"| "path" | "setPath" | "onSettingsSaved"> & {
+  isDataImportOpen: boolean;
+  onDataImportOpenChange: (open: boolean) => void;
+}) {
 
-    const handleClearAll = () => {
+  const handleClearAll = () => {
     setAllRepos(new Set())
     setSelectedRepo("")
   }
@@ -48,6 +51,8 @@ export function AnalysedRepos({
             path = {path}
             setPath={setPath}
             onSettingsSaved={onSettingsSaved}
+            isDialogOpen={isDataImportOpen}
+            onOpenChange={onDataImportOpenChange}
           />
 
           <Button

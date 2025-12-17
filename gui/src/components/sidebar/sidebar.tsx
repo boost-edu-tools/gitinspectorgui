@@ -47,6 +47,9 @@ export function AppSidebar({
   setCommitsIncluded,
   commitsExcluded,
   setCommitsExcluded,
+  onSettingsSaved,
+  isDataImportOpen,
+  onDataImportOpenChange
 
 }:
   {repo_analysis: AnalysisResult } &
@@ -85,7 +88,10 @@ export function AppSidebar({
       |"commitsExcluded"
       |"setCommitsExcluded"
       |"onSettingsSaved"
->) {
+> & {
+  isDataImportOpen: boolean;
+  onDataImportOpenChange: (open: boolean) => void;
+}) {
 
   return (
     <Sidebar >
@@ -99,6 +105,8 @@ export function AppSidebar({
           path = {path}
           setPath={setPath}
           onSettingsSaved={onSettingsSaved}
+          isDataImportOpen={isDataImportOpen}
+          onDataImportOpenChange={onDataImportOpenChange}
           />
         <Separator className="mt-3" />
         <FilterData

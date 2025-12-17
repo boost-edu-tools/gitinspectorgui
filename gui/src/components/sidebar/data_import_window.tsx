@@ -116,16 +116,30 @@ export function DataImportWindow({
   path,
   setPath,
   onSettingsSaved,
-  buttonSidebar
-}: Pick<AnalysisProps, "setAllRepos" | "setSelectedRepo" | "path" | "setPath" | "onSettingsSaved" | "buttonSidebar">) {
+  buttonSidebar,
+  isDialogOpen: externalIsOpen,
+  onOpenChange: externalOnOpenChange
+}: Pick<AnalysisProps, "setAllRepos" | "setSelectedRepo" | "path" | "setPath" | "onSettingsSaved" | "buttonSidebar"> & {
+  isDialogOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
 
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+  React.useEffect(() => {
+  console.count("[DataImportWindow] mounted")
+  return () => console.count("[DataImportWindow] unmounted")
+}, [])
+
+  const [internalIsOpen, setInternalIsOpen] = React.useState(false)
+  
+  // Use external control if provided, otherwise use internal state
+  const isDialogOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen
+  const setIsDialogOpen = externalOnOpenChange ?? setInternalIsOpen
 
   const defaultState = React.useMemo(
     () => ({
       path: "",
-      searchDepth: String(5),
-      maxComputeResources: String( 90),
+      searchDepth: "",
+      maxComputeResources: "",
       max_blame_files: 1000,
 
       fileTypesMode: false,
