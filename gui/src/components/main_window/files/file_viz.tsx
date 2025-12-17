@@ -248,7 +248,7 @@ export function FileSatisticsVisualisation(
 
         <div className="h-[250px] w-full">
           
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer initialDimension={{ width: 10, height: 10 }}>
             <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }} maxBarSize={80}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis
