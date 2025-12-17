@@ -345,7 +345,7 @@ export function AuthorStatisticsVisualisation(
 
         <div className="h-[250px] w-full flex gap-6">
           <div className="flex-1">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer initialDimension={{ width: 320, height: 200 }}>
               {isLineChart ? (
                 <LineChart
                   data={chartData}
@@ -487,7 +487,7 @@ export function AuthorStatisticsVisualisation(
             </div>
 
             <div className="flex-1">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer initialDimension={{ width: 10, height: 10 }}>
                 <PieChart>
                   <Tooltip content={<CustomTooltipPie />} />
                   <Pie
