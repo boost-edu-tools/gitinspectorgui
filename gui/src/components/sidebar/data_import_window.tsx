@@ -486,15 +486,10 @@ export function DataImportWindow({
                       <div className="flex gap-2">
                         <Input
                           id="path"
-                          value={path}
-                          onChange={(e) => setPath(e.target.value)}
-                          onBlur={(e) => {
-                            const newPath = e.target.value.trim()
-                            if (newPath) {
-                              void fetchReposForPath(newPath)
-                            }
-                          }}
-                          className="cursor-text"
+                          defaultValue={path}
+                          autoComplete="off"
+                          disabled
+                          readOnly
                         />
 
                         <Button
@@ -502,7 +497,7 @@ export function DataImportWindow({
                           variant="secondary"
                           onClick={handleBrowseFolder}
                           disabled={isCheckingPath}
-                          className="shrink-0"
+                          className="shrink-0 hover:bg-gray-300"
                         >
                           {isCheckingPath ? "Checking..." : "Browse"}
                         </Button>
@@ -538,7 +533,7 @@ export function DataImportWindow({
                               variant="secondary"
                               type="button"
                               onClick={handleToggleAllRepos}
-                              className="text-xs h-7 px-2"
+                              className="text-xs h-7 px-2 hover:bg-gray-300"
                             >
                               {allSelected ? "Deselect all" : "Select all"}
                             </Button>
@@ -680,7 +675,7 @@ export function DataImportWindow({
                                 inputMode="numeric"
                                 value={searchDepth}
                                 onChange={(e) => setSearchDepth(e.target.value)}
-                                placeholder="2"
+                                placeholder="e.g. 5"
                               />
                             </div>
 
@@ -693,7 +688,7 @@ export function DataImportWindow({
                                 inputMode="numeric"
                                 value={maxComputeResources}
                                 onChange={(e) => setMaxComputeResources(e.target.value)}
-                                placeholder="500"
+                                placeholder="e.g. 90"
                               />
                             </div>
                           </div>
@@ -705,7 +700,8 @@ export function DataImportWindow({
 
                 <div className="px-6 py-4 border-t bg-background flex items-center justify-end gap-2">
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <Button variant="secondary" onClick={onReset}>
+                  <Button variant="secondary" onClick={onReset}
+                  className="hover:bg-gray-300">
                     Reset
                   </Button>
                   <AlertDialogAction onClick={onSave}
