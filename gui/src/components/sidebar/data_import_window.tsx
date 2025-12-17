@@ -186,6 +186,30 @@ export function DataImportWindow({
   const [commitMessageMode, setCommitMessageMode] = React.useState<Boolean>(defaultState.commitMessageMode)
   const [commitMessages, setCommitMessages] = React.useState(defaultState.commitMessages)
 
+  React.useEffect(() => {
+    if (!fileTypes.trim()) setFileTypesMode(false)
+  }, [fileTypes])
+
+  React.useEffect(() => {
+    if (!paths.trim()) setPathsMode(false)
+  }, [paths])
+
+  React.useEffect(() => {
+    if (!authorNames.trim()) setAuthorNameMode(false)
+  }, [authorNames])
+
+  React.useEffect(() => {
+    if (!authorEmails.trim()) setAuthorEmailMode(false)
+  }, [authorEmails])
+
+  React.useEffect(() => {
+    if (!commitHashes.trim()) setCommitHashMode(false)
+  }, [commitHashes])
+
+  React.useEffect(() => {
+    if (!commitMessages.trim()) setCommitMessageMode(false)
+  }, [commitMessages])
+
   const [foundRepos, setFoundRepos] = React.useState<string[]>([])
   const [selectedRepos, setSelectedRepos] = React.useState<Set<string>>(new Set())
   const [isCheckingPath, setIsCheckingPath] = React.useState(false)
