@@ -11,7 +11,6 @@ import {
   AlertDialogCancel,
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog"
-
 import { getAuthorColor } from "@/components/helpers/author_colors"
 import { Commit, AnalysisProps, AnalysisResult, Author } from "@/components/types"
 import { shortHash, fmtDate } from "@/components/helpers/formatting_helpers"
@@ -252,8 +251,6 @@ export function FilterRange({
     onEndCommitChange(range.endHash)
   }
 
-  
-
   return (
     <Card className="bg-transparent border-none shadow-none p-0">
       <CardContent className="p-2 space-y-2">
@@ -276,9 +273,7 @@ export function FilterRange({
             {effectiveIncludedCount} / {commits.length}
           </span>
         </div>)}
-
         
-
         {commits.length > 0 && (
           <div className="h-30 w-full rounded border overflow-y-scroll [scrollbar-gutter:stable]">
           <ul className="divide-y divide-border/40">
@@ -286,10 +281,8 @@ export function FilterRange({
               const d = new Date(`${c.date}T${c.time}${c.timezone}`)
               const name = authorById.get(c.author_id)?.name ?? "Unknown"
               const colors = getAuthorColor(name)
-
               const normalizedStart = Math.max(0, startIdx)
               const normalizedEnd = Math.max(normalizedStart, endIdx)
-
               const inRange = i >= normalizedStart && i <= normalizedEnd
               const isStart = i === normalizedStart
               const isEnd = i === normalizedEnd
@@ -297,13 +290,10 @@ export function FilterRange({
               const isExplicitIncluded = commitsIncluded.includes(c.hash)
               const isExplicitExcluded = commitsExcluded.includes(c.hash)
               const shaded = (inRange && !isExplicitExcluded) || (!inRange && isExplicitIncluded)
-
               const beforeStart = i < normalizedStart
               const afterEnd = i > normalizedEnd
-
               const showStartClickable = isHovered && !isStart
               const showEndClickable = isHovered && !isEnd
-
               const handleStartClick = () => {
                 if (afterEnd) {
                   applyStartSelection(i)
@@ -311,7 +301,6 @@ export function FilterRange({
                   applyStartSelection(i)
                 }
               }
-
               const handleEndClick = () => {
                 if (beforeStart) {
                   applyEndSelection(i)

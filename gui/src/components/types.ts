@@ -1,34 +1,24 @@
 
 import type { Dispatch, SetStateAction } from "react";
 
-
 export type AnalysisProps = { 
-
   buttonSidebar: boolean;
-  
   isDataImportOpen: boolean;
   onOpenDataImport: () => void;
-
   path: string;
   setPath: Dispatch<SetStateAction<string>>;
-  
   allAuthors: Set<string>;
   selectedAuthors: string[];
   selectAuthors: (authors: string[]) => void;
-
   allFiles: Set<string>;
   selectedFiles: string[];
   selectFiles: (files: string[]) => void;
-
   filterData: boolean;
   setFilterData: Dispatch<SetStateAction<boolean>>;
-
   allRepos: Set<string>;
   setAllRepos: Dispatch<SetStateAction<Set<string>>>;
-
   selectedRepo: string | null;
   setSelectedRepo: Dispatch<SetStateAction<string>>;
-
   startDate: Date;
   endDate: Date;
   startCommitHash: string;
@@ -37,19 +27,14 @@ export type AnalysisProps = {
   onEndDateChange: (date: Date) => void;
   onStartCommitChange: (hash: string) => void;
   onEndCommitChange: (hash: string) => void;
-
-  // Commit include/exclude filters
   commitsIncluded: string[];
   setCommitsIncluded: Dispatch<SetStateAction<string[]>>;
   commitsExcluded: string[];
   setCommitsExcluded: Dispatch<SetStateAction<string[]>>;
-
   selectedFile: string | undefined;
   setSelectedFile: Dispatch<SetStateAction<string | null>>;
-
   setRepoAnalysis: React.Dispatch<React.SetStateAction<AnalysisResult>>
   onSettingsSaved?: () => void
-
 };
 
 export type Repository = {

@@ -41,8 +41,8 @@ export const fmt_pct_abs = (v: number, total: number, displayMode: string) => {
 
 export const time_diff_YMD = (ms: number) => {
   const MS_PER_DAY  = 24 * 60 * 60 * 1000;
-  const MS_PER_MONTH = 30 * MS_PER_DAY;    // approx.
-  const MS_PER_YEAR  = 365 * MS_PER_DAY;   // approx.
+  const MS_PER_MONTH = 30 * MS_PER_DAY;   
+  const MS_PER_YEAR  = 365 * MS_PER_DAY;   
 
   const years = Math.floor(ms / MS_PER_YEAR);
   ms %= MS_PER_YEAR;

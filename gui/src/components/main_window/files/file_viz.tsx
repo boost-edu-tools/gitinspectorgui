@@ -9,7 +9,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts"
-
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -17,13 +16,10 @@ import { Switch } from "@/components/ui/switch"
 import { getAuthorColor } from "@/components/helpers/author_colors"
 import type { AnalysisResult, Metrics } from "@/components/types"
 
-
 type MetricKey = "total_commits" | "insertions" | "deletions"
 type DisplayMode = "absolute" | "percentage"
-
 const formatNumber = (n: number) => Math.round(n).toLocaleString()
 const formatPercent = (p: number) => `${p.toFixed(0)}%`
-
 type Breakdown = Record<string, { total_commits: number; insertions: number; deletions: number }>
 
 export function FileSatisticsVisualisation(
@@ -31,10 +27,8 @@ export function FileSatisticsVisualisation(
 
   const [metric, setMetric] = useState<MetricKey>("total_commits")
   const [displayMode, setDisplayMode] = useState<DisplayMode>("absolute")
-
   const allAuthors = Array.from(new Set(repository.authors.map((a: any) => (a?.name ?? ""))))
   const allFiles = Array.from(new Set(repository.files.map((a: any) => (a?.id ?? ""))))
-
   const authorFileIndex = useMemo(() => {
     const idx: Record<string, Record<string, Metrics>> = {}
     if (!repository.authors) return idx

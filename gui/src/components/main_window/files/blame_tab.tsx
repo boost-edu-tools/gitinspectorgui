@@ -38,20 +38,16 @@ export function BlameView({
   const [hideEmpty, setHideEmpty] = React.useState(false)
   const [hideComments, setHideComments] = React.useState(false)
   const [colorize, setColorize] = React.useState(true)
- 
   const commits: Commit[] = repository.commits ?? []
   const authors: Author[] = repository.authors ?? []
   const files: File[] = repository.files ?? []
   const fileIdx = files.findIndex((f) => f.path === selectedFile)
   const file = files[fileIdx]
-
   const authorById = React.useMemo(
       () => new Map<number, Author>(authors.map((a) => [a.id, a])),
       [authors]
     )
-
   const authorName = (id: number) => authorById.get(id)?.name ?? "Unknown"
-
   const filteredLines = React.useMemo(() => {
     const lines = file.lines ?? []
     return lines.filter((ln) => {
@@ -60,9 +56,7 @@ export function BlameView({
       return true
     })
   }, [file.lines, hideEmpty, hideComments])
-
   const groups = React.useMemo(() => groupByCommit(filteredLines), [filteredLines])
-
   const authorStats = React.useMemo(() => {
     const counts: Record<string, number> = {}
     for (const ln of filteredLines) {

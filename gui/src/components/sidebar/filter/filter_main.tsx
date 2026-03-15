@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/sidebar"
 import { AnalysisProps, AnalysisResult } from '@/components/types'
 
-
 export function FilterData({
   repository,
   allAuthors, 
@@ -60,7 +59,6 @@ export function FilterData({
 >)  {
   
   return (
-
      <SidebarGroup>
       <div className="flex items-center justify-between w-full px-2">
       <SidebarGroupLabel>Filter data</SidebarGroupLabel>
@@ -99,7 +97,6 @@ export function FilterData({
                     commitsExcluded={commitsExcluded}
                     setCommitsExcluded={setCommitsExcluded}
                     />
-
     </SidebarMenu>
     </SidebarGroup>
   )

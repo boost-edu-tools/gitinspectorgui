@@ -30,18 +30,12 @@ export function BlameViewMultiTab({
 }, [repository]);
 
   const files: File[] = repository.files ?? []
-
   const allFiles = files.map(f => f.path)
-
   const pathToFile = (p: string) => files.find(f => f.path === p)
-
   const openFileEntries = openPaths.map(pathToFile).filter(Boolean) as File[]
-
   const togglePath = (p: string) =>
     setOpenPaths(prev => (prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]))
-
   const closeTab = (p: string) => setOpenPaths(prev => prev.filter(x => x !== p))
-
   const closeAll = () => setOpenPaths([])
 
   return (

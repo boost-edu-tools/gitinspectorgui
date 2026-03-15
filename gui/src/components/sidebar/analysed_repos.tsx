@@ -10,8 +10,6 @@ import { Trash2, GitGraph  } from "lucide-react"
 import type { AnalysisProps } from "@/components/types"
 import { Button } from "@/components/ui/button"
 
-
-
 export function AnalysedRepos({
   allRepos,
   setAllRepos,

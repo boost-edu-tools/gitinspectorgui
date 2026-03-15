@@ -10,31 +10,22 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-
 export function AppSidebar({
-
   path,
-  setPath,
-  
+  setPath,  
   repo_analysis,
-
   allAuthors, 
   selectedAuthors, 
   selectAuthors, 
-
   allFiles, 
   selectedFiles, 
   selectFiles, 
-
   filterData, 
   setFilterData, 
-
   allRepos, 
   setAllRepos,
-
   selectedRepo, 
   setSelectedRepo,
-
   startDate,
   endDate,
   startCommitHash,
@@ -50,31 +41,24 @@ export function AppSidebar({
   onSettingsSaved,
   isDataImportOpen,
   onDataImportOpenChange
-
 }:
   {repo_analysis: AnalysisResult } &
   Pick<
     AnalysisProps,
-
       "path"
       | "setPath"
-
       |"allAuthors"  
       |"selectedAuthors"  
       |"selectAuthors" 
-
       |"allFiles" 
       |"selectedFiles" 
       |"selectFiles"  
-
       |"filterData"  
       |"setFilterData"  
-
       |"allRepos"
       |"setAllRepos"
       |"selectedRepo"
       |"setSelectedRepo"
-
       |"startDate" 
       |"endDate"  
       |"startCommitHash"  

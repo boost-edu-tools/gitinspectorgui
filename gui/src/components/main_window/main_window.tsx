@@ -5,17 +5,14 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-
 import { AuthorStatisticsOverview} from "@/components/main_window/authors/author_table"
 import { AuthorStatisticsVisualisation } from "@/components/main_window/authors/author_viz"
 import { BlameViewMultiTab } from "./files/blame_tabs"
 import { FileSatisticsVisualisation } from "./files/file_viz"
 import { FileStatisticsTable } from "./files/file_table"
-
 import type { AnalysisResult, AnalysisProps } from "@/components/types"
 import { Button } from "@/components/ui/button"
 import { FolderPlus } from "lucide-react"
-
 
 export function AppMainWindow({ 
   repo_analysis, 
@@ -27,8 +24,7 @@ export function AppMainWindow({
   "filterData"
   | "onOpenDataImport"> ) {
 
-  const [selectedFile, setSelectedFile] = React.useState<string | null>(null)
-  
+  const [selectedFile, setSelectedFile] = React.useState<string | null>(null)  
   const repository = filterData
       ? repo_analysis.repository
       : repo_analysis.original_repository

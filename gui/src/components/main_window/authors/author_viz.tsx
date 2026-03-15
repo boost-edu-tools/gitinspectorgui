@@ -14,7 +14,6 @@ import {
   Pie,
   Cell,
 } from "recharts"
-
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getAuthorColor } from "@/components/helpers/author_colors"
@@ -27,7 +26,6 @@ export function AuthorStatisticsVisualisation(
   {repository}: Pick<AnalysisResult, "repository">) {
 
   const [metric, setMetric] = useState<MetricKey>("commits")
-
   const {
     barData,
     lineData,
@@ -38,9 +36,7 @@ export function AuthorStatisticsVisualisation(
     const commits = repository?.commits ?? []
     const authorsArr: Author[] = repository?.authors ?? []
     const authorById = new Map(authorsArr.map((a) => [a.id, a]))
-
     const authorsSet = new Set<string>()
-
     const processedCommits = commits
       .map((c) => {
         const ts = +new Date(`${c.date}T${c.time}${c.timezone}`)
@@ -59,7 +55,6 @@ export function AuthorStatisticsVisualisation(
       .sort((a, b) => a.ts - b.ts)
 
     const authors = Array.from(authorsSet).sort()
-
     const grouped = new Map<number, Map<string, any>>()
 
     processedCommits.forEach((c) => {
@@ -71,7 +66,6 @@ export function AuthorStatisticsVisualisation(
         grouped.set(dayTimestamp, new Map())
       }
       const dateGroup = grouped.get(dayTimestamp)!
-
       const existing = dateGroup.get(c.author) || {
         commits: 0,
         insertions: 0,
@@ -107,7 +101,6 @@ export function AuthorStatisticsVisualisation(
       allDays.add(dayStart.getTime())
     })
     const sortedTimestamps = Array.from(allDays).sort((a, b) => a - b)
-
     const lineChartData = sortedTimestamps.map((ts) => {
       const dataPoint: any = { date: ts }
 
@@ -238,11 +231,8 @@ export function AuthorStatisticsVisualisation(
   const yAxisLabel = getMetricLabel(metric)
   const isLineChart = metric === "locs"
   const chartData = isLineChart ? lineData : barData
-
   const pieChartData = metric === "locs" ? locPieData : pieData
-
   const totalPieValue = pieChartData.reduce((sum, d) => sum + d.value, 0)
-
   const CustomTooltipPie = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null
     const entry = payload[0]

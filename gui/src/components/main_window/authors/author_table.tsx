@@ -10,20 +10,15 @@ import {
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip"
-
 import { Users, User } from "lucide-react"
-
 import { getAuthorColor } from "@/components/helpers/author_colors"
-
 import type { AnalysisResult, Author} from "@/components/types"
-
 import { fmt_pct_abs, time_diff_YMD, MetricHeader} from "@/components/helpers/formatting_helpers"
 
 export function AuthorStatisticsOverview(
@@ -31,7 +26,6 @@ export function AuthorStatisticsOverview(
 
   const [displayMode, setDisplayMode] = React.useState<"absolute" | "percentage">("absolute")
   const authors: Author[] = repository?.authors ?? []
-
   const totals = React.useMemo(() => {
     return authors.reduce(
       (acc, a) => {
@@ -47,7 +41,6 @@ export function AuthorStatisticsOverview(
       { total_commits: 0, insertions: 0, deletions: 0, loc: 0, sloc: 0 }
     )
   }, [authors])
-
   const sortedAuthors = React.useMemo(() => {
     return authors.sort((a, b) => {
       return (b.metrics?.total_commits ?? 0) - (a.metrics?.total_commits ?? 0)

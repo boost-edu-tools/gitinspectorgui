@@ -3,7 +3,6 @@ import { Plus, Minus, Circle, FolderPlus} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,13 +19,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-
 import { Checkbox } from "@/components/ui/checkbox"
-
 import { retrieveRepositories, loadSettingsJson, saveSettingsJson } from "@/lib/api"
-
 import type { AnalysisProps, Filter } from "@/components/types"
-
 import { open } from "@tauri-apps/plugin-dialog"
 
 function ModeButton({
@@ -162,26 +157,18 @@ export function DataImportWindow({
     []
   )
 
-
-  
   const [searchDepth, setSearchDepth] = React.useState(defaultState.searchDepth)
   const [maxComputeResources, setMaxComputeResources] = React.useState(defaultState.maxComputeResources)
-
   const [fileTypesMode, setFileTypesMode] = React.useState<Boolean>(defaultState.fileTypesMode)
   const [fileTypes, setFileTypes] = React.useState(defaultState.fileTypes)
-
   const [pathsMode, setPathsMode] = React.useState<Boolean>(defaultState.pathsMode)
   const [paths, setPaths] = React.useState(defaultState.paths)
-
   const [authorNameMode, setAuthorNameMode] = React.useState<Boolean>(defaultState.authorNameMode)
   const [authorNames, setAuthorNames] = React.useState(defaultState.authorNames)
-
   const [authorEmailMode, setAuthorEmailMode] = React.useState<Boolean>(defaultState.authorEmailMode)
   const [authorEmails, setAuthorEmails] = React.useState(defaultState.authorEmails)
-
   const [commitHashMode, setCommitHashMode] = React.useState<Boolean>(defaultState.commitHashMode)
   const [commitHashes, setCommitHashes] = React.useState(defaultState.commitHashes)
-
   const [commitMessageMode, setCommitMessageMode] = React.useState<Boolean>(defaultState.commitMessageMode)
   const [commitMessages, setCommitMessages] = React.useState(defaultState.commitMessages)
 
@@ -220,22 +207,16 @@ export function DataImportWindow({
 
     setSearchDepth(String(loaded.search_depth ?? defaultState.searchDepth))
     setMaxComputeResources(String(loaded.max_compute_resources ?? defaultState.maxComputeResources))
-
     setFileTypesMode(loaded.file_types_filter?.include ?? defaultState.fileTypesMode)
     setFileTypes(String(loaded.file_types_filter?.value ?? defaultState.fileTypes))
-
     setPathsMode(loaded.path_filter?.include ?? defaultState.pathsMode)
     setPaths(String(loaded.path_filter?.value ?? defaultState.paths))
-
     setAuthorNameMode(loaded.author_names_filter?.include ?? defaultState.authorNameMode)
     setAuthorNames(String(loaded.author_names_filter?.value ?? defaultState.authorNames))
-
     setAuthorEmailMode(loaded.author_emails_filter?.include ?? defaultState.authorEmailMode)
     setAuthorEmails(String(loaded.author_emails_filter?.value ?? defaultState.authorEmails))
-
     setCommitHashMode(loaded.commit_hash_filter?.include ?? defaultState.commitHashMode)
     setCommitHashes(String(loaded.commit_hash_filter?.value ?? defaultState.commitHashes))
-
     setCommitMessageMode(loaded.commit_message_filter?.include ?? defaultState.commitMessageMode)
     setCommitMessages(String(loaded.commit_message_filter?.value ?? defaultState.commitMessages))
   }
@@ -284,7 +265,6 @@ export function DataImportWindow({
     }
   }
 
-
   const fetchReposForPath = async (rootPath: string) => {
   if (!rootPath || rootPath.trim() === "") {
     setPathError("Please provide a root path to search for repositories.")
@@ -320,7 +300,6 @@ export function DataImportWindow({
   }
 }
 
-
   const onReset = () => {
     setPath(defaultState.path)
     setSearchDepth(defaultState.searchDepth)
@@ -337,7 +316,6 @@ export function DataImportWindow({
     setCommitHashes(defaultState.commitHashes)
     setCommitMessageMode(defaultState.commitMessageMode)
     setCommitMessages(defaultState.commitMessages)
-
     setFoundRepos([])
     setSelectedRepos(new Set())
     setPathError(null)

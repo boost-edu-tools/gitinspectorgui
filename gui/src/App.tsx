@@ -2,17 +2,14 @@ import * as React from "react";
 import { AppSidebar } from "@/components/sidebar/sidebar";
 import { AppMainWindow } from "@/components/main_window/main_window";
 import { SidebarProvider } from "@/components/ui/sidebar";
-
 import { initializeAuthorColors } from "@/components/helpers/author_colors";
 import { AnalysisResult, Settings } from "@/components/types";
-
 import {
   createAnalysisParameters,
   runInitialAnalysis,
   rerunAnalysis,
   loadSettingsJson
 } from "@/lib/api"
-
 import "./App.css";
 
 export default function App() {
@@ -21,17 +18,13 @@ export default function App() {
   const analysisInProgress = React.useRef(false);
   const [settingsVersion, setSettingsVersion] = React.useState(0)
   const [isDataImportOpen, setIsDataImportOpen] = React.useState(false)
-
   const [path, setPath] = React.useState("")
-
   const [allAuthors, setAllAuthors] = React.useState<Set<string>>(new Set());
   const [allRepos, setAllRepos]     = React.useState<Set<string>>(new Set());
   const [allFiles, setAllFiles]     = React.useState<Set<string>>(new Set());
-
   const [selectedAuthors, selectAuthors] = React.useState<string[]>([]);
   const [selectedFiles, selectFiles]     = React.useState<string[]>([]);
   const [selectedRepo, setSelectedRepo] = React.useState<string>("");
-
   const [filterData, setFilterData] = React.useState(true);
   const [startDate, setStartDate] = React.useState<Date>(new Date());
   const [endDate, setEndDate] = React.useState<Date>(new Date());
@@ -39,9 +32,7 @@ export default function App() {
   const [endCommitHash, setEndCommitHash] = React.useState<string>("");
   const [commitsIncluded, setCommitsIncluded] = React.useState<string[]>([]);
   const [commitsExcluded, setCommitsExcluded] = React.useState<string[]>([]);
-
   const [loading, setLoading] = React.useState(false);
-
   const defaultRepoAnalysis: AnalysisResult = {
   parameters: { repo_path: "" },
   original_repository: {
@@ -61,28 +52,23 @@ export default function App() {
     metrics: {},
     },
   };
-
   const [repoAnalysis, setRepoAnalysis] = React.useState<AnalysisResult>(defaultRepoAnalysis);
-
 
   React.useEffect(() => {
     
     if (!selectedRepo) {
       console.log("No repo selected, resetting analysis and filters.");
-
       setRepoAnalysis(defaultRepoAnalysis);
       setAllAuthors(new Set());
       setAllFiles(new Set());
       selectAuthors([]);
       selectFiles([]);
-
       setStartDate(new Date());
       setEndDate(new Date());
       setStartCommitHash("");
       setEndCommitHash("");
       setCommitsIncluded([]);
       setCommitsExcluded([]);
-
       return;
     }
 
@@ -277,29 +263,22 @@ export default function App() {
         path = {path}
         setPath={setPath}
         repo_analysis={repoAnalysis}
-
         allAuthors={allAuthors}
         selectedAuthors={selectedAuthors}
         selectAuthors={handleSelectAuthors}  
-
         allFiles={allFiles}
         selectedFiles={selectedFiles}
         selectFiles={handleSelectFiles}    
-
         filterData={filterData}
         setFilterData={setFilterData}
-
         allRepos={allRepos}
         setAllRepos={setAllRepos}
-
         selectedRepo={selectedRepo}
         setSelectedRepo={setSelectedRepo}
-
         startDate={startDate}
         endDate={endDate}
         onStartDateChange={handleStartDateChange} 
         onEndDateChange={handleEndDateChange}  
-
         startCommitHash={startCommitHash}
         endCommitHash={endCommitHash}
         onStartCommitChange={handleStartCommitChange} 
@@ -307,8 +286,7 @@ export default function App() {
         commitsIncluded={commitsIncluded}
         setCommitsIncluded={setCommitsIncluded}
         commitsExcluded={commitsExcluded}
-        setCommitsExcluded={setCommitsExcluded}
-        
+        setCommitsExcluded={setCommitsExcluded}      
         onSettingsSaved={handleSettingsSaved}
         isDataImportOpen={isDataImportOpen}
         onDataImportOpenChange={handleDataImportOpenChange}
